@@ -12,6 +12,19 @@
     <title>案件管理</title>
 </head>
 <body>
+
+    <!-- テストデータ取り込み
+    <div style="width: 500px;">
+        <form action="{% url 'sfa:csv_imp' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+            <label for="csv1">在庫リスト：</label>
+            <input class="form-control" type="file" name="csv1" id="csv1">
+            <br>
+            <input type="submit" name="btn_upload" value="取込">
+        </form>
+    </div> -->
+
+
     <div class="container mt-3 mb-5">
         <div style="margin: 0 auto; width: 1300px;">
             案件管理
