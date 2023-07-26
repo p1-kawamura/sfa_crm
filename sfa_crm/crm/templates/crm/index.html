@@ -1,0 +1,369 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>顧客管理</title>
+</head>
+<body>
+    <div class="container mt-3 mb-5">
+        <div style="margin: 0 auto; width: 1300px;">
+        
+            <div class="flex2" style="margin-top: 30px;">
+                <div>
+                    顧客ID：{{res.id}}<br>
+                    姓名：
+                    {% if res.nameLast %}{{res.nameLast}}{% endif %}
+                    {% if res.nameFirst %}{{res.nameFirst}}{% endif %}
+                    <br>
+                    会社名：{% if res.corporateName %}{{res.corporateName}}{% endif %}<br>
+                    部課名：{% if res.departmentName %}{{res.departmentName}}{% endif %}<br>
+                    職業：
+                    {% if res.occupation %}
+                        {% if res.occupation == 1 %}会社員
+                        {% elif res.occupation == 2 %}会社役員
+                        {% elif res.occupation == 3 %}自営
+                        {% elif res.occupation == 4 %}公務員・団体職員
+                        {% elif res.occupation == 5 %}教職員
+                        {% elif res.occupation == 6 %}学生
+                        {% elif res.occupation == 7 %}パート・アルバイト
+                        {% elif res.occupation == 8 %}主婦
+                        {% elif res.occupation == 9 %}その他
+                        {% endif %}
+                    {% endif %}<br>
+                    郵便番号：{% if res.zipCode %}{{res.zipCode}}{% endif %}<br>
+                    住所：
+                    {% if res.prefecture %}{{res.prefecture}}{% endif %}
+                    {% if res.city %}{{res.city}}{% endif %}
+                    {% if res.address1 %}{{res.address1}}{% endif %}
+                    {% if res.address2 %}{{res.address2}}{% endif %}
+                    <br>
+                    電話番号：{% if res.tel %}{{res.tel}}{% endif %}<br>
+                    携帯番号：{% if res.mobilePhone %}{{res.mobilePhone}}{% endif %}<br>
+                    メールアドレス：{% if res.contactEmail %}{{res.contactEmail}}{% endif %}<br>
+                    性別：
+                    {% if res.sexId %}
+                        {% if rex.sexId == 1 %}男性
+                        {% elif rex.sexId == 2 %}女性
+                        {% elif rex.sexId == 3 %}その他
+                        {% endif %}
+                    {% endif %}<br>
+                    生年月日：{% if res.birthDay %}{{res.birthDay}}{% endif %}<br>
+                    メルマガ送付：{% if res.isNotSentMailMagazine %}{{res.isNotSentMailMagazine}}{% endif %}<br>
+                </div>
+                <div style="margin-left: 50px;">
+                    合計受注金額：{{res3.price | intcomma}}円<br>
+                    受注総件数：{{res3.kensu}}件<br>
+                    注文総件数：{{res3.order}}件<br>
+
+                </div>
+            </div>
+            <hr>
+            <div class="flex2" style="width: 1300;">
+
+                <div class="inlineframe" style="height: 1500px; width: 600px; border: 1px solid #ced4da;">
+                    {% for i in res_det %} <!-- 逆順は reversedをつける -->
+                        {% if i.kubun == "est" %}
+                            <div class="main0 main1">
+                        {% else %}
+                            {% if i.type == 1 %}
+                            <div class="main0 main2">
+                            {% elif i.type == 2 %}
+                            <div class="main0 main3">
+                            {% elif i.type == 3 %}
+                            <div class="main0 main4">
+                            {% elif i.type == 4 %}
+                            <div class="main0 main5">
+                            {% elif i.type == 5 %}
+                            <div class="main0 main6">
+                            {% endif %}
+                        {% endif %}
+
+                        {% if i.kubun == "est" %}
+                        <div class="flex" name="est_list" id="{{i.cus_id}}-{{i.est_num}}">
+                            <div>{{i.day}}</div>
+                            <div style="margin-left: 10px;">
+                                <span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span>
+                            </div>
+                            <div style="margin-left: 10px;">{{i.est_num}}</div>
+                            <div style="margin-left: 10px;">{{i.status}}</div>
+                            <div style="margin-left: 10px;">{{i.money | intcomma}}円</div>
+                        </div>
+                        {% else %}
+                        <div class="flex" name="act_list" id="{{i.act_id}}">
+                            <div>{{i.day}}</div>
+                            <div style="margin-left: 10px;">
+                                {% if i.type == 1 %} <!-- メモ -->
+                                    <span style="color: #646565; font-weight: bold;"><i class="bi bi-clipboard-fill"></i></span>
+                                {% elif i.type == 2 %} <!-- メール -->
+                                    <span style="color: #ff9900; font-weight: bold;"><i class="bi bi-envelope-fill"></i></span>
+                                {% elif i.type == 3 %} <!-- メルマガ -->
+                                    <span style="color: #ff02f2; font-weight: bold;"><i class="bi bi-envelope-heart-fill"></i></span>
+                                {% elif i.type == 4 %} <!-- TEL -->
+                                    <span style="color: #53b800; font-weight: bold;"><i class="bi bi-telephone-forward-fill"></i></span>
+                                {% elif i.type == 5 %} <!-- 外商 -->
+                                    <span style="color: #b200e9; font-weight: bold;"><i class="bi bi-people-fill"></i></span>
+                                {% endif %}
+                            </div>
+                            <div style="margin-left: 10px;">{{i.text}}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div style="width: 700px; padding-left: 30px;">
+                    <div>
+                        <div class="title">コメント挿入</div>
+                        <form action="{% url 'crm:list_add' %}" method="post" id="form1">{% csrf_token %}
+                            <div style="margin-top: 20px;">
+                                <div class="flex">
+                                    <div>種類：</div>
+                                    <div>
+                                        <select class="form-select" id="act_type" name="act_type" required>
+                                            <option></option>
+                                            <option value="1">メモ</option>
+                                            <option value="2">メール</option>
+                                            <option value="3">メルマガ</option>
+                                            <option value="4">TEL</option>
+                                            <option value="5">外商</option>
+                                        </select>
+                                    </div>
+                                    <div style="margin-left: 20px;">日付：</div>
+                                    <div>
+                                        <input class="form-control" type="date" id="act_day" name="act_day" required>
+                                    </div>
+                                    <div style="margin-left: 30px;">
+                                        <button class="btn btn-outline-dark btn-sm" id="act_reset">リセット</button>
+                                    </div>
+                                    <div style="margin-left: 30px;">
+                                        <button class="btn btn-outline-danger btn-sm" id="act_del" onclick="return confirm('本当に削除してよろしいですか？')">削除</button>
+                                    </div>
+                                </div>
+                                <div class="flex" style="margin-top: 20px;">
+                                   
+                                        <div style="width: 500px;">
+                                            <textarea class="form-control" id="act_text" name="act_text" rows="3"></textarea>
+                                        </div>
+                                        <div style="margin-left: 20px;">
+                                            <button class="btn btn-primary" type="submit" id="act_add">決定</button>
+                                        </div>
+                                </div>
+                                <div class="flex" style="margin-top: 20px; display: none;">
+                                    <div>
+                                        <input class="form-control" type="text" id="act_id" name="act_id" style="width: 100px;">
+                                    </div>
+                                    <div>
+                                        <input class="form-control" type="text" id="act_cus_id" name="act_cus_id" style="width: 100px;" value="{{res.id}}">
+                                    </div>  
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="mt-5">
+                        <div class="title">見積詳細</div>
+                        <table class="table table-bordered" style="margin-top: 20px;">
+                            <tr>
+                                <td>
+                                    <div class="flex">
+                                        <div>見積番号：</div><div id="estlist_number"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <div>ステータス：</div><div id="estlist_status"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex">
+                                        <div>合計金額：</div><div id="estlist_totalprice"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <div>支払方法：</div><div id="estlist_payment"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="flex">
+                                        <div>初回見積日：</div><div id="estlist_estday"></div>
+                                        <div style="margin-left: 50px;">受注日：</div><div id="estlist_recday"></div>
+                                        <div style="margin-left: 50px;">発送完了日：</div><div id="estlist_sendday"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■見積商品：</div><div id="estlist_shouhin"></div></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■加工名称：</div><div id="estlist_kakou"></div></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■イメージ図：</div><div id="estlist_image"></div></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            <div>
+        
+ 
+        
+        </div>
+    </div>
+    
+
+
+    <!-- 各種Ajax -->
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i <cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+  
+        var csrftoken = getCookie('csrftoken');
+  
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+  
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+  
+
+        // リストクリック（見積）
+        var item=document.getElementsByName("est_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                $.ajax({
+                    'url': '{% url "crm:list_click_est" %}',
+                    'type': 'POST',
+                    'data': {"est_num":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){                
+                    res=response.res.receivedOrder;
+                    console.log(res);
+                    document.getElementById("estlist_number").innerText=res.estimationNumber + "-" + res.estimationVersion;
+                    document.getElementById("estlist_status").innerText=res.estimationStatus;
+                    document.getElementById("estlist_totalprice").innerText=res.totalPrice.toLocaleString() + "円";
+                    document.getElementById("estlist_payment").innerText=res.paymentMethod;
+                    document.getElementById("estlist_estday").innerText=res.firstEstimationDate;
+                    document.getElementById("estlist_recday").innerText=res.orderReceivedDate;
+                    document.getElementById("estlist_sendday").innerText=res.shippedDate;
+
+                    // 商品
+                    var str ="";
+                    for (var item of res.itemEstimations){
+                        str=str + "<tr><td>" + item.name + "　" + item.options + "</td></td><td>" + item.quantity + "</td></tr>";
+                    };
+                    document.getElementById("estlist_shouhin").innerHTML="<table class='table table-bordered'>" + str + "</table>";
+                    
+                    // 加工
+                    str="";
+                    var i = 1;
+                    for (var kakou of res.workEstimations){
+                        str= str + i + ". " + kakou.name + "<br>";
+                        i=i+1;
+                    };
+                    document.getElementById("estlist_kakou").innerHTML=str;
+
+                    // イメージ図
+                    str="";
+                    i = 1;
+                    for (var image of res.designPatterns){
+                        str= str + i + ". " + image.name + "<br><img src='" + image.url + "' width='650px'><br><br>";
+                        i=i+1;
+                    };
+                    document.getElementById("estlist_image").innerHTML=str;
+
+                    // 行動クリア
+                    document.getElementById("act_type").value="";
+                    document.getElementById("act_day").value="";
+                    document.getElementById("act_text").value="";
+                    document.getElementById("act_id").value="";
+                })
+            },false)
+        };
+
+
+        // リストクリック（行動）
+        var item=document.getElementsByName("act_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                document.getElementById("act_id").value=this.id;
+                $.ajax({
+                    'url': '{% url "crm:list_click_act" %}',
+                    'type': 'POST',
+                    'data': {"act_id":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    res=response.res;           
+                    document.getElementById("act_type").value=res.type;
+                    document.getElementById("act_day").value=res.day;
+                    document.getElementById("act_text").value=res.text;  
+                })
+            },false)
+        };
+
+
+        // リセット
+        document.getElementById("act_reset").addEventListener("click",function(e){
+            e.preventDefault();
+            document.getElementById("act_type").value="";
+            document.getElementById("act_day").value="";
+            document.getElementById("act_text").value="";
+            document.getElementById("act_id").value="";
+        });
+
+
+        // リスト削除
+        document.getElementById("act_del").addEventListener("click",function(e){
+            e.preventDefault();
+            $.ajax({
+                'url': '{% url "crm:list_del" %}',
+                'type': 'POST',
+                'data': {
+                    "act_id":document.getElementById("act_id").value,
+                    "cus_id":document.getElementById("act_cus_id").value
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        },false);
+
+    </script>
+    
+</body>
+</html>

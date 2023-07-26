@@ -1,0 +1,99 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>案件管理</title>
+</head>
+<body>
+    <div class="container mt-3 mb-5">
+        <div style="margin: 0 auto; width: 1300px;">
+            案件管理
+            <div>
+                <div class="flex2 title2" id="184960" name="est_list">
+                    <div style="width: 200px;">0165449-1</div>
+                    <div style="width: 200px;">今津</div>
+                    <div style="width: 200px;">1,000円</div>
+                    <div><button>顧客詳細</button></div>
+                </div>
+                <div class="flex2 title2" id="810077" name="est_list">
+                    <div style="width: 200px;">0173018-2</div>
+                    <div style="width: 200px;">池田慎</div>
+                    <div style="width: 200px;">500円</div>
+                    <div><button>顧客詳細</button></div>
+                </div>
+                <div class="flex2 title2" id="157017" name="est_list">
+                    <div style="width: 200px;">0176296-1</div>
+                    <div style="width: 200px;">秋山</div>
+                    <div style="width: 200px;">3,000円</div>
+                    <div><button>顧客詳細</button></div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- 各種Ajax -->
+    <script>
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i <cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+  
+        var csrftoken = getCookie('csrftoken');
+  
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+  
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+  
+
+        // 顧客詳細ボタン
+        var item=document.getElementsByName("est_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                $.ajax({
+                    'url': '{% url "sfa:kokyaku_detail_api" %}',
+                    'type': 'POST',
+                    'data': {"cus_id":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    // window.open("{% url 'crm:kokyaku_api' %}", '_blank');
+                    window.location.href = "{% url 'crm:kokyaku_api' %}"
+                })
+            },false)
+        };
+
+
+
+    </script>
+</body>
+</html>
