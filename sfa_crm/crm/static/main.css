@@ -60,10 +60,32 @@
     border-radius: 0.5em;
     text-align: center;
 }
-.title2 {
-    background-color: #dee2e6;
-    width: 900px;
-    padding: 1em;
-    border-radius: 0.5em;
-    margin-top: 20px;
+
+/* SFA */
+.order {
+    color:white;
+    width: 40px;
+    padding: 0.2em;
+    border-radius: 0.2em;
+    text-align: center;
+}
+.order_1 {
+    background-color: red;
+    border: 1px solid #686868;
+}
+.order_2 {
+    background-color: blue;
+    border: 1px solid #686868;
+}
+.order_3 {
+    background-color: green;
+    border: 1px solid #686868;
+}
+.order_use {
+    background-color: white;
+    border: 1px solid #686868;
+    width: 20px;
+    padding: 0.2em;
+    border-radius: 0.2em;
+    text-align: center;
 }
