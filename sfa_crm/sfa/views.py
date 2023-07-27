@@ -6,7 +6,8 @@ import io
 
 
 def index(request):
-    return render(request,"sfa/index.html")
+    ins=Testdata.objects.all()
+    return render(request,"sfa/index.html",{"list":ins})
 
 
 def kokyaku_detail_api(request):

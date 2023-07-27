@@ -28,6 +28,65 @@
     <div class="container mt-3 mb-5">
         <div style="margin: 0 auto; width: 1300px;">
             案件管理
+            {% for i in list %}
+            <div class="flex" id="{{i.cus_id}}">
+                <div>{{i.mitsu_id}}-{{i.mitsu_ver}}</div>
+                <div>
+                    {% if i.order_kubun == "追加新柄" %}
+                        新追
+                    {% else %}
+                        {{i.order_kubun}}
+                    {% endif %}
+                </div>
+                <div>
+                    {% if i.keiro == "法人問合せ" %}
+                        法人
+                    {% else %}
+                        {{i.keiro}}
+                    {% endif %}
+                </div>
+                <div>
+                    {% if i.use_kubun == "企業" %}企                        
+                    {% elif i.use_kubun == "団体" %}団                        
+                    {% elif i.use_kubun == "学生" %}学
+                    {% elif i.use_kubun == "個人" %}個
+                    {% endif %}                       
+                </div>
+                <div>
+                    {% if i.use_youto == "チームウェア・アイテム" %}チ                  
+                    {% elif i.use_youto == "制服・スタッフウェア" %}制                  
+                    {% elif i.use_youto == "販促・ノベルティ" %}ノ
+                    {% elif i.use_youto == "記念品・贈答品" %}記
+                    {% elif i.use_youto == "販売" %}販               
+                    {% elif i.use_youto == "自分用" %}自
+                    {% elif i.use_youto == "その他" %}他
+                    {% endif %}                       
+                </div>
+                <div>{{i.com | truncatechars:20}}</div>
+                <div>{{i.sei}}{{i.mei}}</div>
+                <div>{{i.status}}</div>
+                <div>
+                    {% if i.nouhin_shitei %}指定：{{i.nouhin_shitei}}
+                    {% elif i.nouhin_kigen %}期限：{{i.nouhin_kigen}}
+                    {% endif %}
+                </div>
+                <div><i class="bi bi-bell-fill"></i></div>
+                <div>
+                    <i class="bi bi-telephone-forward-fill"></i>
+                    11/1（1/3）
+                </div>
+                <div>
+                    <i class="bi bi-envelope-fill"></i>
+                    10/15（2）
+                </div>
+                <div>A</div>
+                <div>{{i.juchu_day}}</div>
+                <div>{{i.hassou_day}}</div>
+                <div><button>編集</button></div>
+                <div><button>顧客</button></div>
+            </div>
+            {% endfor %}
+
             <div>
                 <div class="flex2 title2" id="184960" name="est_list">
                     <div style="width: 200px;">0165449-1</div>
