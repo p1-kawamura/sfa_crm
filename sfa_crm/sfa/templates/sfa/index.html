@@ -13,7 +13,7 @@
 </head>
 <body>
 
-    <!-- テストデータ取り込み -->
+    <!-- テストデータ取り込み
     <div style="width: 500px;">
         <form action="{% url 'sfa:csv_imp' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -22,17 +22,17 @@
             <br>
             <input type="submit" name="btn_upload" value="取込">
         </form>
-    </div>
+    </div> -->
 
 
     <div class="container mt-3 mb-5">
-        <div style="margin: 0 auto; width: 1300px;">
+        <div style="margin: 0 auto; width: 1400px;">
             案件管理
             {% for i in list %}
-            <div class="flex mt-2" style="font-size: 0.9em;" id="{{i.cus_id}}" name="est_list">
+            <div class="flex mt-2" style="font-size: 0.9em;" id="{{i.cus_id}}" name="est_list2">
                 <div style="width: 20px;"><i class="bi bi-bell-fill"></i></div>
-                <div style="width: 90px;">{{i.mitsu_day}}</div>
-                <div style="width: 90px;"><i class="bi bi-box-arrow-up-right"></i> {{i.mitsu_id}}-{{i.mitsu_ver}}</div>
+                <div style="width: 50px;">{{i.mitsu_day}}</div>
+                <div style="width: 90px;"><i class="bi bi-box-arrow-up-right"></i> {{i.mitsu_num}}</div>
                 <div style="width: 45px;">
                     {% if i.order_kubun == "新規" %}
                         <div class="order order_1">新規</div>
@@ -43,48 +43,38 @@
                     {% endif %}
                 </div>
                 <div style="width: 25px;">
-                    {% if i.keiro == "Web" %}
-                        <div class="order_use">W</div>
-                    {% elif i.keiro == "Tel" %}
-                        <div class="order_use">T</div>
-                    {% endif %}
+                    {% if i.keiro %}<div class="order_use">{{i.keiro}}</div>{% endif %}                    
                 </div>
                 <div style="width: 25px;">
-                    {% if i.use_kubun == "企業" %}<div class="order_use">企</div>                       
-                    {% elif i.use_kubun == "団体" %}<div class="order_use">団</div>                       
-                    {% elif i.use_kubun == "学生" %}<div class="order_use">学</div>
-                    {% elif i.use_kubun == "個人" %}<div class="order_use">個</div>
-                    {% endif %}                       
+                    {% if i.use_kubun %}<div class="order_use">{{i.use_kubun}}</div>{% endif %}                                            
                 </div>
                 <div style="width: 30px;">
-                    {% if i.use_youto == "チームウェア・アイテム" %}<div class="order_use">チ</div>               
-                    {% elif i.use_youto == "制服・スタッフウェア" %}<div class="order_use">制</div>               
-                    {% elif i.use_youto == "販促・ノベルティ" %}<div class="order_use">ノ</div>
-                    {% elif i.use_youto == "記念品・贈答品" %}<div class="order_use">記</div>
-                    {% elif i.use_youto == "販売" %}<div class="order_use">販</div>             
-                    {% elif i.use_youto == "自分用" %}<div class="order_use">自</div>
-                    {% elif i.use_youto == "その他" %}<div class="order_use">他</div>
-                    {% endif %}                       
+                    {% if i.use_youto %}<div class="order_use">{{i.use_youto}}</div>{% endif %}            
                 </div>
                 <div style="width: 200px;">{{i.com | truncatechars:15}}</div>
-                <div style="width: 80px;">{{i.sei}}{{i.mei}}</div>
-                <div style="width: 80px;">{{i.status}}</div>
-                <div style="width: 130px;">
-                    {% if i.nouhin_shitei %}指定：{{i.nouhin_shitei}}
-                    {% elif i.nouhin_kigen %}期限：{{i.nouhin_kigen}}
-                    {% endif %}
+                <div style="width: 80px;">{{i.cus}}</div>
+                <div style="width: 100px;">
+                    <div class="status">{{i.status}}</div>
                 </div>
-                <div>
+                <div style="width: 100px;">{{i.nouki}}</div>
+                <div style="width: 100px;">
                     <i class="bi bi-telephone-forward-fill"></i>
                     11/1（1/3）
                 </div>
-                <div>
+                <div style="width: 100px;">
                     <i class="bi bi-envelope-fill"></i>
                     10/15（2）
                 </div>
-                <div>A</div>
-                <div>受注：{{i.juchu_day}}</div>
-                <div>発送：{{i.hassou_day}}</div>
+                <div style="width: 40px;">
+                    {% if i.kakudo == "A" %}
+                        <div class="kakudo kakudo_A">A</div>
+                    {% elif i.kakudo == "B" %}
+                        <div class="kakudo kakudo_B">B</div>
+                    {% elif i.kakudo == "C" %}
+                        <div class="kakudo kakudo_C">C</div>
+                    {% endif %}</div>
+                <div style="width: 100px;">受注：{{i.juchu}}</div>
+                <div style="width: 100px;">発送：{{i.hassou}}</div>
                 <div><button><i class="bi bi-pencil-square"></i></button></div>
                 <div><button><i class="bi bi-person-fill"></i></button></div>
             </div>

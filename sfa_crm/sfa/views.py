@@ -7,7 +7,32 @@ import io
 
 def index(request):
     ins=Testdata.objects.all()
-    return render(request,"sfa/index.html",{"list":ins})
+    list=[]
+    for i in ins:
+        dic={}
+        dic["mitsu_day"]=i.mitsu_day[5:].replace("-","/")
+        dic["mitsu_num"]=i.mitsu_num + "-" + i.mitsu_ver
+        dic["order_kubun"]=i.order_kubun
+        dic["keiro"]=i.keiro[:1]
+        dic["use_kubun"]=i.use_kubun[:1]
+        d={"チームウェア・アイテム":"チ","制服・スタッフウェア":"制","販促・ノベルティ":"ノ",
+          "記念品・贈答品":"記","販売":"販","自分用":"自","その他":"他","":""}
+        dic["use_youto"]=d[i.use_youto]
+        dic["com"]=i.com
+        dic["cus"]=i.sei + i.mei
+        dic["status"]=i.status
+        if i.nouhin_kigen != "":
+            dic["nouki"]="期限：" + i.nouhin_kigen[5:].replace("-","/")
+        elif i.nouhin_shitei != "":
+            dic["nouki"]="指定：" +i.nouhin_shitei[5:].replace("-","/")
+        else:
+            dic["nouki"]=""
+        dic["kakudo"]=i.kakudo
+        dic["juchu"]=i.juchu_day[5:].replace("-","/")
+        dic["hassou"]=i.hassou_day[5:].replace("-","/")
+
+        list.append(dic)
+    return render(request,"sfa/index.html",{"list":list})
 
 
 def kokyaku_detail_api(request):
