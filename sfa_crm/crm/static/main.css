@@ -64,6 +64,22 @@
 }
 
 /* SFA */
+.sfa_main{
+    padding: 0.5em 1em;
+    background: #FFF;
+    margin-top: 0.7em;
+    border: solid 0.5px lightslategray;
+    border-bottom: solid 2px lightslategray;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.25);
+    border-radius: 9px;
+}
+.bell {
+    border-radius: 50%;
+    background: red;
+    color: yellow;
+    padding: 0 0.2em;
+    text-align: center;
+}
 .order {
     color:white;
     width: 40px;
@@ -73,20 +89,20 @@
 }
 .order_1 {
     background-color: red;
-    border: 1px solid #686868;
+    border: 1px solid red;
 }
 .order_2 {
     background-color: blue;
-    border: 1px solid #686868;
+    border: 1px solid blue;
 }
 .order_3 {
     background-color: green;
-    border: 1px solid #686868;
+    border: 1px solid green;
 }
 .order_use {
     background-color: white;
     border: 1px solid #686868;
-    width: 20px;
+    width: 25px;
     padding: 0 0.2em;
     border-radius: 0.2em;
     text-align: center;
@@ -95,10 +111,11 @@
     background-color: white;
     color:#686868;
     border: 1px solid #686868;
-    width: 80px;
+    width: 70px;
     padding: 0 0.2em;
     border-radius: 1em;
     text-align: center;
+    font-size: 0.9em;
 }
 .kakudo {
     background-color: white;
@@ -118,4 +135,12 @@
 .kakudo_C {
     color:green;
     border: 1px solid green;
+}
+.btn_sfa {
+    background-color: black;
+    border: 1px solid black;
+    color:white;
+    width: 25px;
+    border-radius: 0.2em;
+    text-align: center;   
 }
