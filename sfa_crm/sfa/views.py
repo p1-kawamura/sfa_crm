@@ -32,12 +32,12 @@ def csv_imp(request):
                 mitsu_id=i[0],
                 defaults={
                     "mitsu_id":i[0],
-                    "mitsu_ver":i[1],
-                    "status":i[2],
-                    "order_kubun":i[3],
-                    "use_kubun":i[4],
-                    "use_youto":i[5],
-                    "shukka_annai":i[6],
+                    "mitsu_num":i[1],
+                    "mitsu_ver":i[2],
+                    "status":i[3],
+                    "order_kubun":i[4],
+                    "use_kubun":i[5],
+                    "use_youto":i[6],
                     "nouhin_kigen":i[7],
                     "nouhin_shitei":i[8],
                     "mitsu_day":i[9],
@@ -51,6 +51,7 @@ def csv_imp(request):
                     "com":i[17],
                     "keiro":i[18],
                     "money":i[19],
+                    "kakudo":i[20]
                 }            
             )
         h+=1
