@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
-from .models import Testdata
+from .models import Testdata,Sfa_action
 import csv
 import io
 
@@ -10,6 +10,8 @@ def index(request):
     list=[]
     for i in ins:
         dic={}
+        dic["mitsu_id"]=i.mitsu_id
+        dic["cus_id"]=i.cus_id
         dic["mitsu_day"]=i.mitsu_day[5:].replace("-","/")
         dic["mitsu_num"]=i.mitsu_num + "-" + i.mitsu_ver
         dic["order_kubun"]=i.order_kubun
@@ -20,7 +22,9 @@ def index(request):
         dic["use_youto"]=d[i.use_youto]
         dic["com"]=i.com
         dic["cus"]=i.sei + i.mei
-        dic["status"]=i.status
+        d={"見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","終了":"終","失注":"失","連絡待ち":"待"}
+        dic["status"]=d[i.status]
+        dic["money"]=i.money
         if i.nouhin_kigen != "":
             dic["nouki"]="期限：" + i.nouhin_kigen[5:].replace("-","/")
         elif i.nouhin_shitei != "":
@@ -30,6 +34,21 @@ def index(request):
         dic["kakudo"]=i.kakudo
         dic["juchu"]=i.juchu_day[5:].replace("-","/")
         dic["hassou"]=i.hassou_day[5:].replace("-","/")
+
+        if Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() > 0:
+            act_tel=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).latest("day")
+            dic["tel"]="(" + act_tel.tel_result[:1] + ") " + act_tel.day[5:].replace("-","/")
+        else:
+            dic["tel"]=""
+
+        mail_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).count()
+        if mail_count > 0:
+            act_mail=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).latest("day")
+            dic["mail"]="(" + str(mail_count) + ") " + act_mail.day[5:].replace("-","/")
+        else:
+            dic["mail"]=""
+
+        dic["alert"]=i.alert
 
         list.append(dic)
     return render(request,"sfa/index.html",{"list":list})

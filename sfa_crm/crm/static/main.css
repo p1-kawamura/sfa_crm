@@ -65,7 +65,7 @@
 
 /* SFA */
 .sfa_main{
-    padding: 0.5em 1em;
+    padding: 0.5em 0.5em;
     background: #FFF;
     margin-top: 0.7em;
     border: solid 0.5px lightslategray;
@@ -106,16 +106,6 @@
     padding: 0 0.2em;
     border-radius: 0.2em;
     text-align: center;
-}
-.status {
-    background-color: white;
-    color:#686868;
-    border: 1px solid #686868;
-    width: 70px;
-    padding: 0 0.2em;
-    border-radius: 1em;
-    text-align: center;
-    font-size: 0.9em;
 }
 .kakudo {
     background-color: white;

@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Action
+from .models import Crm_action
 import requests
 from django.http import JsonResponse
 
@@ -46,7 +46,7 @@ def kokyaku_api(request):
         "kensu":kensu,
     }
 
-    ins=Action.objects.filter(cus_id=cus_id)
+    ins=Crm_action.objects.filter(cus_id=cus_id)
     if ins.count()==0:
         last_list=sorted(est_list)
     else:
@@ -102,7 +102,7 @@ def list_click_est(request):
 
 def list_click_act(request):
     act_id=request.POST.get("act_id")
-    ins=Action.objects.get(action_id=act_id)
+    ins=Crm_action.objects.get(action_id=act_id)
     res={"type":ins.type,"day":ins.day,"text":ins.text}
     d={"res":res}
     return JsonResponse(d)
@@ -117,9 +117,9 @@ def list_add(request):
     request.session["cus_id"]=cus_id
 
     if act_id=="":
-        Action.objects.create(cus_id=cus_id,day=day,type=type,text=text)
+        Crm_action.objects.create(cus_id=cus_id,day=day,type=type,text=text)
     else:
-        ins=Action.objects.get(action_id=act_id)
+        ins=Crm_action.objects.get(action_id=act_id)
         ins.day=day
         ins.type=type
         ins.text=text
@@ -131,7 +131,7 @@ def list_del(request):
     act_id=request.POST.get("act_id")
     cus_id=request.POST.get("cus_id")
     request.session["cus_id"]=cus_id
-    Action.objects.get(action_id=int(act_id)).delete()
+    Crm_action.objects.get(action_id=int(act_id)).delete()
     d={}
     return JsonResponse(d)
     

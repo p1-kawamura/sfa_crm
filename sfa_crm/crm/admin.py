@@ -1,10 +1,10 @@
 from django.contrib import admin
-from .models import Action
+from .models import Crm_action
 from django.contrib.admin import ModelAdmin
 
 
-class A_Action(ModelAdmin):
-    model=Action
+class A_Crm_action(ModelAdmin):
+    model=Crm_action
     list_display=["action_id","cus_id","day","type","text"]
 
-admin.site.register(Action,A_Action)
+admin.site.register(Crm_action,A_Crm_action)

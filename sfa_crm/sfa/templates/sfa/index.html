@@ -26,12 +26,11 @@
 
 
     <div class="container mt-3 mb-5">
-        <div style="margin: 0 auto; width: 1320px;">
+        <div style="margin: 0 auto; width: 1300px;">
             案件管理
             {% for i in list %}
-            <div class="flex sfa_main" style="font-size: 0.9em;" id="{{i.cus_id}}" name="est_list2">
+            <div class="flex sfa_main" style="font-size: 0.9em;">
 
-                <div style="width: 30px;"><span class="bell"><i class="bi bi-bell-fill"></i></div></span>
                 <div style="width: 50px;">{{i.mitsu_day}}</div>
                 <div style="width: 90px;">
                     <span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span> {{i.mitsu_num}}
@@ -55,18 +54,22 @@
                     {% if i.use_youto %}<div class="order_use">{{i.use_youto}}</div>{% endif %}            
                 </div>
                 <div style="width: 200px;">{{i.com | truncatechars:15}}</div>
-                <div style="width: 80px;">{{i.cus}}</div>
-                <div style="width: 90px;">
-                    <div class="status">{{i.status}}</div>
-                </div>
+                <div style="width: 80px;">{{i.cus | truncatechars:6}}</div>
+                <div style="width: 40px;"><div class="order_use">{{i.status}}</div></div>
+                <div style="width: 80px;">{{i.money | intcomma}}円</div>
                 <div style="width: 100px;">{{i.nouki}}</div>
+                <div style="width: 40px;">
+                    {% if i.alert == 1 %}
+                    <span class="bell"><i class="bi bi-bell-fill"></i></span>
+                    {% endif %}
+                </div>
                 <div style="width: 100px;">
                     <span style="color: green;"><i class="bi bi-telephone-forward-fill"></i></span>
-                    (応) 11/01 
+                    {{i.tel}}
                 </div>
                 <div style="width: 90px;">
                     <span style="color: #ff9900;"><i class="bi bi-envelope-fill"></i></span>
-                    (2) 10/15
+                    {{i.mail}}
                 </div>
                 <div style="width: 40px;">
                     {% if i.kakudo == "A" %}
@@ -76,14 +79,14 @@
                     {% elif i.kakudo == "C" %}
                         <div class="kakudo kakudo_C">C</div>
                     {% endif %}</div>
-                <div style="width: 100px;">受注：{{i.juchu}}</div>
-                <div style="width: 100px;">発送：{{i.hassou}}</div>
-                <div style="width: 40px;">
+                <div style="width: 80px;">受：{{i.juchu}}</div>
+                <div style="width: 80px;">発：{{i.hassou}}</div>
+                <div style="width: 40px;" id="{{i.mitsu_id}}" name="sfa_list">
                     <button type="button" class="btn btn-secondary btn-sm">
                         <i class="bi bi-pencil-square"></i>
                     </button>
                 </div>
-                <div style="width: 30px;">
+                <div style="width: 30px;" id="{{i.cus_id}}" name="crm_list">
                     <button type="button" class="btn btn-success btn-sm">
                         <i class="bi bi-person-square"></i>
                     </button>

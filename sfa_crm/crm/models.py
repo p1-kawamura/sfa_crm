@@ -1,6 +1,6 @@
 from django.db import models
 
-class Action(models.Model):
+class Crm_action(models.Model):
     action_id=models.AutoField("行動ID",primary_key=True)
     cus_id=models.CharField("顧客ID",max_length=10)
     day=models.CharField("日付",max_length=10)
