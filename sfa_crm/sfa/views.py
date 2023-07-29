@@ -35,18 +35,24 @@ def index(request):
         dic["juchu"]=i.juchu_day[5:].replace("-","/")
         dic["hassou"]=i.hassou_day[5:].replace("-","/")
 
-        if Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() > 0:
+        tel_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() 
+        if tel_count > 0:
             act_tel=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).latest("day")
-            dic["tel"]="(" + act_tel.tel_result[:1] + ") " + act_tel.day[5:].replace("-","/")
+            dic["tel"]=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
+            if act_tel.tel_result=="対応":
+                dic["tel_result"]=1
+            else:
+                dic["tel_result"]=2
         else:
-            dic["tel"]=""
+            dic["tel_result"]=0
 
         mail_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).count()
         if mail_count > 0:
             act_mail=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).latest("day")
-            dic["mail"]="(" + str(mail_count) + ") " + act_mail.day[5:].replace("-","/")
+            dic["mail"]=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ") "
+            dic["mail_result"]=1
         else:
-            dic["mail"]=""
+            dic["mail_result"]=0
 
         dic["alert"]=i.alert
 
