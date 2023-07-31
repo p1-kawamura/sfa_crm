@@ -76,7 +76,7 @@
                     {% if i.mail_result == 0 %}
                         <span><i class="bi bi-envelope"></i></span>
                     {% else %}
-                        <span style="color: #ff9900;"><i class="bi bi-envelope-fill"></i> {{i.mail}}</span>
+                        <span style="color: #df8600;"><i class="bi bi-envelope-fill"></i> {{i.mail}}</span>
                     {% endif %}
                 </div>
                 <div style="width: 40px;">
@@ -90,7 +90,7 @@
                 <div style="width: 80px;">受：{{i.juchu}}</div>
                 <div style="width: 90px;">発：{{i.hassou}}</div>
                 <div style="width: 40px;" id="{{i.mitsu_id}}" name="sfa_list">
-                    <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 50%;">
+                    <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 50%;" data-bs-toggle="modal" data-bs-target="#modal_est">
                         <i class="bi bi-pencil-square"></i>
                     </button>
                 </div>
@@ -102,6 +102,35 @@
 
             </div>
             {% endfor %}
+
+
+            <!-- モーダル -->
+            <div class="modal fade" id="modal_est" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel" style="color: #008b8b;"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="flex2">
+                                <div id="modal_left"></div>
+                                <div>
+                                    <div id="modal_right_top" style="margin-left: 50px;">
+                                        ■確度
+                                    </div>
+                                    <div id="modal_right_mid"></div>
+                                    <div id="modal_right_bot"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">閉じる</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <div>
                 <div class="flex2 title2" id="184960" name="est_list">
@@ -127,6 +156,9 @@
 
         </div>
     </div>
+
+
+      
 
     <!-- 各種Ajax -->
     <script>
@@ -163,6 +195,47 @@
         });
   
 
+
+        // 詳細モーダル
+        $("#modal_est").on("show.bs.modal", function (event) {
+            var item=document.getElementsByName("sfa_list");
+            for (var i=0; i<item.length; i++){
+                item[i].addEventListener("click",function(){
+                    $.ajax({
+                        'url': '{% url "sfa:mitsu_detail_api" %}',
+                        'type': 'POST',
+                        'data': {"mitsu_id":this.id},
+                        'dataType': 'json'
+                    })
+                    .done(function(response){
+                        res=response.res;
+                        console.log(res);
+                        document.getElementById("exampleModalLabel").innerHTML="<i class='bi bi-box-arrow-up-right'></i> " + res.mitsu_num + "-" + res.mitsu_ver;
+                        
+                        document.getElementById("modal_left").innerHTML = 
+                            "<table class='table table-bordered' style='width:500px;'><tr><th>会社名</th><td>" + res.com  + "</td></tr>" + 
+                            "<tr><th>氏名</th><td>" + res.sei + res.mei  + "</td></tr>" + 
+                            "<tr><th>注文区分</th><td>" + res.order_kubun  + "</td></tr>" + 
+                            "<tr><th>合計金額</th><td>" + res.money.toLocaleString()  + "円</td></tr>" + 
+                            "<tr><th>流入経路</th><td>" + res.keiro  + "</td></tr>" + 
+                            "<tr><th>利用区分</th><td>" + res.use_kubun  + "</td></tr>" + 
+                            "<tr><th>使用用途</th><td>" + res.use_youto  + "</td></tr>" + 
+                            "<tr><th>初回見積日</th><td>" + res.mitsu_day  + "</td></tr>" + 
+                            "<tr><th>納品指定日</th><td>" + res.nouhin_shitei  + "</td></tr>" + 
+                            "<tr><th>納品期限日</th><td>" + res.nouhin_kigen  + "</td></tr>" + 
+                            "<tr><th>受注日</th><td>" + res.juchu_day  + "</td></tr>" + 
+                            "<tr><th>発送完了日</th><td>" + res.hassou_day  + "</td></tr>" + 
+                            "<tr><th>都道府県</th><td>" + res.pref  + "</td></tr>" + 
+                            "<tr><th>メール</th><td>" + res.mail  + "</td></tr></table>";
+
+                    })
+                },false)
+            };
+            
+        });
+        
+        
+
         // 顧客詳細ボタン
         var item=document.getElementsByName("est_list");
         for (var i=0; i<item.length; i++){
@@ -183,5 +256,10 @@
 
 
     </script>
+
+
+    <!-- モーダル用 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
 </body>
 </html>

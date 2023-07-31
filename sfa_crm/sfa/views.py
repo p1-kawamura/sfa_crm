@@ -60,6 +60,18 @@ def index(request):
     return render(request,"sfa/index.html",{"list":list})
 
 
+def mitsu_detail_api(request):
+    mitsu_id=request.POST.get("mitsu_id")
+
+    res=list(Testdata.objects.filter(mitsu_id=mitsu_id).values())[0]
+
+    ins2=Sfa_action.objects.filter(mitsu_id=mitsu_id)
+
+    
+    d={"res":res}
+    return JsonResponse(d)
+
+
 def kokyaku_detail_api(request):
     cus_id=request.POST.get("cus_id")
     request.session["cus_id"]=cus_id
