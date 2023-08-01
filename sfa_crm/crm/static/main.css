@@ -126,3 +126,7 @@
     background-color:green;
     border: 1px solid green;
 }
+.modal_action {
+    border-bottom: dotted 1px #646565;
+    margin: 1em 0.5em;
+}

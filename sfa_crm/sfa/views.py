@@ -60,18 +60,45 @@ def index(request):
     return render(request,"sfa/index.html",{"list":list})
 
 
+# モーダルで詳細表示
 def mitsu_detail_api(request):
     mitsu_id=request.POST.get("mitsu_id")
-
     res=list(Testdata.objects.filter(mitsu_id=mitsu_id).values())[0]
+    res2=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())  
+    d={"res":res,"res2":res2}
+    return JsonResponse(d)
 
-    ins2=Sfa_action.objects.filter(mitsu_id=mitsu_id)
 
-    
+# モーダル上部
+def modal_top(request):
+    mitsu_id=request.POST.get("mitsu_id")
+    kakudo=request.POST.get("kakudo")
+    status=request.POST.get("status")
+    ins=Testdata.objects.get(mitsu_id=mitsu_id)
+    ins.kakudo=kakudo
+    ins.status=status
+    ins.save()
+    d={}
+    return JsonResponse(d)
+
+
+# モーダル下部
+def modal_bot(request):
+    mitsu_id=request.POST.get("mitsu_id")
+    day=request.POST.get("day")
+    type=request.POST.get("type")
+    tel_result=request.POST.get("tel_result")
+    text=request.POST.get("text")
+    if type=="1":
+        Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,tel_result=tel_result,text=text)
+    else:
+        Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,text=text)
+    res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     d={"res":res}
     return JsonResponse(d)
 
 
+# CRMボタン
 def kokyaku_detail_api(request):
     cus_id=request.POST.get("cus_id")
     request.session["cus_id"]=cus_id

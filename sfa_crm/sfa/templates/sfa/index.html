@@ -110,49 +110,89 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="exampleModalLabel" style="color: #008b8b;"></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <div id="modal_mitsu_id" style="margin-left: 50px; display: none;"></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="flex2">
                                 <div id="modal_left"></div>
-                                <div>
-                                    <div id="modal_right_top" style="margin-left: 50px;">
-                                        ■確度
+                                <div style="margin-left: 50px;">
+                                    <!-- TOP -->
+                                    <div>
+                                        <div class="flex">
+                                            <div>■確度</div>
+                                            <div style="margin-left: 10px;">
+                                                <select class="form-select form-select-sm" id="modal_kakudo">
+                                                    <option></option>
+                                                    <option value="A">A</option>
+                                                    <option value="B">B</option>
+                                                    <option value="C">C</option>
+                                                </select>
+                                            </div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
+                                        </div>
+                                        <div class="flex" style="margin-top: 20px;">
+                                            <div>■ステータス</div>
+                                            <div style="margin-left: 10px;">
+                                                <select class="form-select form-select-sm" id="modal_status">
+                                                    <option value="見積送信">見積送信</option>
+                                                    <option value="イメージ">イメージ</option>
+                                                    <option value="受注">受注</option>
+                                                    <option value="発送完了">発送完了</option>
+                                                    <option value="終了">終了</option>
+                                                    <option value="失注">失注</option>
+                                                    <option value="連絡待ち">連絡待ち</option>
+                                                </select>
+                                            </div>
+                                            <div style="margin-left: 20px;">（新基幹システム：イメージ）</div>
+                                        </div>
                                     </div>
-                                    <div id="modal_right_mid"></div>
-                                    <div id="modal_right_bot"></div>
+                                    <hr>
+                                    <!-- MID -->
+                                    <div>
+                                        <div class="flex">
+                                            <div><i class="bi bi-bell-fill"></i>アラート設定</div>
+                                            <div style="margin-left: 20px;"><input class="form-control form-control-sm" type="date"></div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm">設定</button></div>
+                                        </div>
+                                        <div style="margin-top: 10px;"><textarea class="form-control" rows="2"></textarea></div>
+                                    </div>
+                                    <hr>
+                                    <!-- BOT -->
+                                    <div>
+                                        <div>■電話入れ / フォローメール / 備考</div>
+                                        <div class="flex mt-2">
+                                            <div>日付：</div>
+                                            <div><input class="form-control form-control-sm" type="date" id="modal_bot_day"></div>
+                                            <div style="margin-left: 20px;">内容:</div>
+                                            <div style="margin-left: 10px;">
+                                                <select class="form-select form-select-sm" id="modal_bot_type">
+                                                    <option value="0"></option>
+                                                    <option value="1">TEL</option>
+                                                    <option value="2">フォローメール</option>
+                                                    <option value="3">メモ</option>
+                                                </select>
+                                            </div>
+                                            <div id="modal_tel_hyouji" style="display: none;">
+                                                <select class="form-select form-select-sm" id="modal_bot_tel">
+                                                    <option value="対応">対応</option>
+                                                    <option value="不在">不在</option>
+                                                </select>
+                                            </div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" id="modal_btn_bot">設定</button></div>
+                                        </div>
+                                        <div style="margin-top: 10px;"><textarea class="form-control" rows="2" id="modal_bot_text"></textarea></div>
+                                        <div class="inlineframe" id="modal_sfa_action" style="height: 200px; width: 530px;"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">閉じる</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
                         </div>
                     </div>
                 </div>
             </div>
-
-
-            <div>
-                <div class="flex2 title2" id="184960" name="est_list">
-                    <div style="width: 200px;">0165449-1</div>
-                    <div style="width: 200px;">今津</div>
-                    <div style="width: 200px;">1,000円</div>
-                    <div><button>顧客詳細</button></div>
-                </div>
-                <div class="flex2 title2" id="810077" name="est_list">
-                    <div style="width: 200px;">0173018-2</div>
-                    <div style="width: 200px;">池田慎</div>
-                    <div style="width: 200px;">500円</div>
-                    <div><button>顧客詳細</button></div>
-                </div>
-                <div class="flex2 title2" id="157017" name="est_list">
-                    <div style="width: 200px;">0176296-1</div>
-                    <div style="width: 200px;">秋山</div>
-                    <div style="width: 200px;">3,000円</div>
-                    <div><button>顧客詳細</button></div>
-                </div>
-            </div>
-
 
         </div>
     </div>
@@ -209,9 +249,9 @@
                     })
                     .done(function(response){
                         res=response.res;
-                        console.log(res);
+                        res2=response.res2;
+                        document.getElementById("modal_mitsu_id").innerText=res.mitsu_id;
                         document.getElementById("exampleModalLabel").innerHTML="<i class='bi bi-box-arrow-up-right'></i> " + res.mitsu_num + "-" + res.mitsu_ver;
-                        
                         document.getElementById("modal_left").innerHTML = 
                             "<table class='table table-bordered' style='width:500px;'><tr><th>会社名</th><td>" + res.com  + "</td></tr>" + 
                             "<tr><th>氏名</th><td>" + res.sei + res.mei  + "</td></tr>" + 
@@ -227,7 +267,25 @@
                             "<tr><th>発送完了日</th><td>" + res.hassou_day  + "</td></tr>" + 
                             "<tr><th>都道府県</th><td>" + res.pref  + "</td></tr>" + 
                             "<tr><th>メール</th><td>" + res.mail  + "</td></tr></table>";
-
+                        document.getElementById("modal_kakudo").value=res.kakudo;
+                        document.getElementById("modal_status").value=res.status;
+                        var str = "";
+                        var icon = "";
+                        for (var i of res2){
+                            if (i.type == 1) {
+                                icon="<span style='color: green; font-weight: bold;''><i class='bi bi-telephone-forward-fill'></i></span>";
+                            } else if (i.type == 2) {
+                                icon="<span style='color: #ff9900; font-weight: bold;''><i class='bi bi-envelope-fill'></i></span>"
+                            } else if (i.type == 3) {
+                                icon="<span style='color: #646565; font-weight: bold;''><i class='bi bi-clipboard-fill'></i></span>"
+                            };
+                            str=str + "<div class='flex modal_action' style='font-size:0.9em'>" +
+                                "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
+                                "<div style='width: 60px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
+                                "</div>";
+                        };
+                        document.getElementById("modal_sfa_action").innerHTML=str;
+                        
                     })
                 },false)
             };
@@ -235,9 +293,89 @@
         });
         
         
+        // モーダル_TOP
+        document.getElementById("modal_btn_top").addEventListener("click",function(){
+            $.ajax({
+                    'url': '{% url "sfa:modal_top" %}',
+                    'type': 'POST',
+                    'data': {
+                        "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
+                        "kakudo":document.getElementById("modal_kakudo").value,
+                        "status":document.getElementById("modal_status").value
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.alert("確度とステータスを変更しました！");
+                })
+        })
+
+
+        // モーダル_TEL
+        var tel = document.getElementById("modal_bot_type");
+        tel.addEventListener("change",function(){
+            console.log("action");
+            if (tel.value == 1){
+                document.getElementById("modal_tel_hyouji").style.display="block"
+            } else {
+                document.getElementById("modal_tel_hyouji").style.display="none";
+            };
+        });
+
+
+        // モーダル_BOT
+        document.getElementById("modal_btn_bot").addEventListener("click",function(e){
+            $.ajax({
+                    'url': '{% url "sfa:modal_bot" %}',
+                    'type': 'POST',
+                    'data': {
+                        "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
+                        "day":document.getElementById("modal_bot_day").value,
+                        "type":document.getElementById("modal_bot_type").value,
+                        "tel_result":document.getElementById("modal_bot_tel").value,
+                        "text":document.getElementById("modal_bot_text").value
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    res=response.res;
+                    var str = "";
+                    var icon = "";
+                    for (var i of res){
+                        if (i.type == 1) {
+                            icon="<span style='color: green; font-weight: bold;''><i class='bi bi-telephone-forward-fill'></i></span>";
+                        } else if (i.type == 2) {
+                            icon="<span style='color: #ff9900; font-weight: bold;''><i class='bi bi-envelope-fill'></i></span>"
+                        } else if (i.type == 3) {
+                            icon="<span style='color: #646565; font-weight: bold;''><i class='bi bi-clipboard-fill'></i></span>"
+                        };
+                        str=str + "<div class='flex modal_action' style='font-size:0.9em'>" +
+                            "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
+                            "<div style='width: 60px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
+                            "</div>";
+                    };
+                    document.getElementById("modal_sfa_action").innerHTML=str;
+                    document.getElementById("modal_bot_day").value="";
+                    document.getElementById("modal_bot_type").value="";
+                    document.getElementById("modal_tel_hyouji").style.display="none";
+                    document.getElementById("modal_bot_text").value="";
+                })
+        })
+
+
+        // モーダル終了
+        btns=document.getElementsByName("modal_btn_close");
+        for (var i=0;i<btns.length;i++){
+            btns[i].addEventListener("click",function(){
+                window.location.reload();
+            })
+        }
+        
+        
+
 
         // 顧客詳細ボタン
-        var item=document.getElementsByName("est_list");
+        var item=document.getElementsByName("crm_list");
         for (var i=0; i<item.length; i++){
             item[i].addEventListener("click",function(){
                 $.ajax({
