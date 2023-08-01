@@ -312,10 +312,10 @@
 
 
         // モーダル_TEL
-        var tel = document.getElementById("modal_bot_type");
-        tel.addEventListener("change",function(){
+        var type = document.getElementById("modal_bot_type");
+        type.addEventListener("change",function(){
             console.log("action");
-            if (tel.value == 1){
+            if (type.value == 1){
                 document.getElementById("modal_tel_hyouji").style.display="block"
             } else {
                 document.getElementById("modal_tel_hyouji").style.display="none";
