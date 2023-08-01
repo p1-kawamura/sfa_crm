@@ -79,6 +79,7 @@
     color: yellow;
     padding: 0 0.2em;
     text-align: center;
+    vertical-align: middle;
 }
 .order {
     background-color:white;
@@ -128,5 +129,5 @@
 }
 .modal_action {
     border-bottom: dotted 1px #646565;
-    margin: 1em 0.5em;
+    margin: 0.7em 0.2em;
 }

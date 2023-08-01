@@ -28,6 +28,7 @@
     <div class="container mt-3 mb-5">
         <div style="margin: 0 auto; width: 1310px;">
             案件管理
+    
             {% for i in list %}
             <div class="flex sfa_main" style="font-size: 0.9em;">
 
@@ -90,12 +91,12 @@
                 <div style="width: 80px;">受：{{i.juchu}}</div>
                 <div style="width: 90px;">発：{{i.hassou}}</div>
                 <div style="width: 40px;" id="{{i.mitsu_id}}" name="sfa_list">
-                    <button type="button" class="btn btn-secondary btn-sm" style="border-radius: 50%;" data-bs-toggle="modal" data-bs-target="#modal_est">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" style="border-radius: 50%;" data-bs-toggle="modal" data-bs-target="#modal_est">
                         <i class="bi bi-pencil-square"></i>
                     </button>
                 </div>
                 <div style="width: 30px;" id="{{i.cus_id}}" name="crm_list">
-                    <button type="button" class="btn btn-success btn-sm" style="border-radius: 50%;">
+                    <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;">
                         <i class="bi bi-person-square"></i>
                     </button>
                 </div>
@@ -108,11 +109,20 @@
             <div class="modal fade" id="modal_est" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
+                        <!-- HEADER -->
                         <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel" style="color: #008b8b;"></h5>
                             <div id="modal_mitsu_id" style="margin-left: 50px; display: none;"></div>
+                            <div><span id="exampleModalLabel" style="color: #008b8b; font-size: 1.3em; font-weight: bold;"></span></div>
+                            <div class="flex" id="modal_alert_show" style="margin-left: 70px;">
+                                <div style="font-size: 1.2em;">
+                                    <span class="bell"><i class="bi bi-bell-fill"></i></span>
+                                    <span style="color: red;">フォローメールを送信</span>
+                                </h4></div>
+                                <div style="margin-left: 20px;"><button class="btn btn-outline-danger btn-sm" id="modal_alert_clear">アラート解除</button></div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close"></button>
                         </div>
+                        <!-- BODY -->
                         <div class="modal-body">
                             <div class="flex2">
                                 <div id="modal_left"></div>
@@ -129,7 +139,9 @@
                                                     <option value="C">C</option>
                                                 </select>
                                             </div>
-                                            <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
+                                            <div style="margin-left: 30px;">■メールワイズ作成</div>
+                                            <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" value="" id="modal_ms"></div>
+                                            <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
                                         </div>
                                         <div class="flex" style="margin-top: 20px;">
                                             <div>■ステータス</div>
@@ -149,18 +161,18 @@
                                     </div>
                                     <hr>
                                     <!-- MID -->
-                                    <div>
+                                    <div style="margin-top: 30px;">
                                         <div class="flex">
                                             <div><i class="bi bi-bell-fill"></i>アラート設定</div>
                                             <div style="margin-left: 20px;"><input class="form-control form-control-sm" type="date"></div>
-                                            <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm">設定</button></div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" id="modal_btn_mid">設定</button></div>
                                         </div>
-                                        <div style="margin-top: 10px;"><textarea class="form-control" rows="2"></textarea></div>
+                                        <div style="margin-top: 10px;"><input class="form-control form-control-sm" type="text" id="modal_mid_text"></div>
                                     </div>
                                     <hr>
                                     <!-- BOT -->
-                                    <div>
-                                        <div>■電話入れ / フォローメール / 備考</div>
+                                    <div style="margin-top: 30px;">
+                                        <div>■電話入れ / メール / 備考</div>
                                         <div class="flex mt-2">
                                             <div>日付：</div>
                                             <div><input class="form-control form-control-sm" type="date" id="modal_bot_day"></div>
@@ -169,8 +181,8 @@
                                                 <select class="form-select form-select-sm" id="modal_bot_type">
                                                     <option value="0"></option>
                                                     <option value="1">TEL</option>
-                                                    <option value="2">フォローメール</option>
-                                                    <option value="3">メモ</option>
+                                                    <option value="2">メール</option>
+                                                    <option value="3">備考</option>
                                                 </select>
                                             </div>
                                             <div id="modal_tel_hyouji" style="display: none;">
@@ -188,7 +200,7 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
+                            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
                         </div>
                     </div>
                 </div>
