@@ -1,12 +1,13 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
-from .models import Testdata,Sfa_action
+from .models import Sfa_data,Sfa_action
 import csv
 import io
+from datetime import date
 
 
 def index(request):
-    ins=Testdata.objects.all()
+    ins=Sfa_data.objects.all()
     list=[]
     for i in ins:
         dic={}
@@ -54,7 +55,9 @@ def index(request):
         else:
             dic["mail_result"]=0
 
-        dic["alert"]=i.alert
+        today=str(date.today())
+        alert_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
+        dic["alert"]=alert_count
 
         list.append(dic)
     return render(request,"sfa/index.html",{"list":list})
@@ -63,18 +66,29 @@ def index(request):
 # モーダルで詳細表示
 def mitsu_detail_api(request):
     mitsu_id=request.POST.get("mitsu_id")
-    res=list(Testdata.objects.filter(mitsu_id=mitsu_id).values())[0]
-    res2=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())  
-    d={"res":res,"res2":res2}
+    res=list(Sfa_data.objects.filter(mitsu_id=mitsu_id).values())[0]
+    res2=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
+    today=str(date.today())
+    alert=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=4,alert_check=0,day__lte=today)
+    if alert.count()==0:
+        res3=0
+        text=""
+        alert_num=0
+    else:
+        res3=1
+        for i in alert:
+            text=i.text
+            alert_num=i.act_id
+    d={"res":res,"res2":res2,"res3":res3,"text":text,"alert_num":alert_num}
     return JsonResponse(d)
 
 
-# モーダル上部
+# モーダル上部（確度、ステータス、メールワイズ）
 def modal_top(request):
     mitsu_id=request.POST.get("mitsu_id")
     kakudo=request.POST.get("kakudo")
     status=request.POST.get("status")
-    ins=Testdata.objects.get(mitsu_id=mitsu_id)
+    ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
     ins.kakudo=kakudo
     ins.status=status
     ins.save()
@@ -82,7 +96,7 @@ def modal_top(request):
     return JsonResponse(d)
 
 
-# モーダル下部
+# モーダル下部（電話、メール、備考、アラート）
 def modal_bot(request):
     mitsu_id=request.POST.get("mitsu_id")
     day=request.POST.get("day")
@@ -95,6 +109,16 @@ def modal_bot(request):
         Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,text=text)
     res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     d={"res":res}
+    return JsonResponse(d)
+
+
+# モーダル_アラート解除
+def modal_alert_check(request):
+    alert_num=request.POST.get("alert_num")
+    ins=Sfa_action.objects.get(act_id=alert_num)
+    ins.alert_check=1
+    ins.save()
+    d={}
     return JsonResponse(d)
 
 
@@ -117,7 +141,7 @@ def csv_imp(request):
     h=0
     for i in csv_list:
         if h!=0:
-            Testdata.objects.update_or_create(
+            Sfa_data.objects.update_or_create(
                 mitsu_id=i[0],
                 defaults={
                     "mitsu_id":i[0],

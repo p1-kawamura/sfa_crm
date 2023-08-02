@@ -1,6 +1,6 @@
 from django.db import models
 
-class Testdata(models.Model):
+class Sfa_data(models.Model):
     mitsu_id=models.CharField("見積ID",max_length=10)
     mitsu_num=models.CharField("見積番号",max_length=10)
     mitsu_ver=models.CharField("見積バージョン",max_length=10)
@@ -29,13 +29,15 @@ class Testdata(models.Model):
 
 
 class Sfa_action(models.Model):
+    act_id=models.AutoField("行動ID",primary_key=True)
     mitsu_id=models.CharField("見積ID",max_length=10)
     day=models.CharField("日付",max_length=10)
     type=models.IntegerField("種類",null=False)
-    tel_result=models.CharField("TEL結果",max_length=5,blank=True)
     text=models.TextField("内容",blank=True)
+    tel_result=models.CharField("TEL結果",max_length=5,blank=True)
+    alert_check=models.IntegerField("アラート",default=0)
 
     def __str__(self):
         return self.mitsu_id
     
-    # type（種類） 1:TEL　2：メール　3：メモ
+    # type（種類） 1:TEL　2：メール　3：メモ　4：アラート
