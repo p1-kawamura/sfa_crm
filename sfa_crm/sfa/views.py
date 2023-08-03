@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
-from .models import Sfa_data,Sfa_action
+from .models import Sfa_data,Sfa_action,Member
 import csv
 import io
 from datetime import date
@@ -61,6 +61,14 @@ def index(request):
 
         list.append(dic)
     return render(request,"sfa/index.html",{"list":list})
+
+
+# 部署選択
+def busho_tantou(request):
+    busho=request.POST.get("busho")
+    tantou=list(Member.objects.filter(busho=busho).values())
+    d={"tantou":tantou}
+    return JsonResponse(d)
 
 
 # モーダルで詳細表示
@@ -131,41 +139,64 @@ def kokyaku_detail_api(request):
 
 
 # 元DB取込
+def csv_imp_page(request):
+    return render(request,"sfa/csv_imp.html")
+
+
 def csv_imp(request):
 
-    #見積リスト
-    data = io.TextIOWrapper(request.FILES['csv1'].file, encoding="cp932")
+    # #見積リスト
+    # data = io.TextIOWrapper(request.FILES['csv1'].file, encoding="cp932")
+    # csv_content = csv.reader(data)
+    # csv_list=list(csv_content)
+        
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:
+    #         Sfa_data.objects.update_or_create(
+    #             mitsu_id=i[0],
+    #             defaults={
+    #                 "mitsu_id":i[0],
+    #                 "mitsu_num":i[1],
+    #                 "mitsu_ver":i[2],
+    #                 "status":i[3],
+    #                 "order_kubun":i[4],
+    #                 "use_kubun":i[5],
+    #                 "use_youto":i[6],
+    #                 "nouhin_kigen":i[7],
+    #                 "nouhin_shitei":i[8],
+    #                 "mitsu_day":i[9],
+    #                 "juchu_day":i[10],
+    #                 "hassou_day":i[11],
+    #                 "cus_id":i[12],
+    #                 "sei":i[13],
+    #                 "mei":i[14],
+    #                 "mail":i[15],
+    #                 "pref":i[16],
+    #                 "com":i[17],
+    #                 "keiro":i[18],
+    #                 "money":i[19],
+    #                 "kakudo":i[20]
+    #             }            
+    #         )
+    #     h+=1
+
+    #担当リスト
+    data = io.TextIOWrapper(request.FILES['csv2'].file, encoding="cp932")
     csv_content = csv.reader(data)
     csv_list=list(csv_content)
         
     h=0
     for i in csv_list:
         if h!=0:
-            Sfa_data.objects.update_or_create(
-                mitsu_id=i[0],
+            Member.objects.update_or_create(
+                tantou_id=i[2],
                 defaults={
-                    "mitsu_id":i[0],
-                    "mitsu_num":i[1],
-                    "mitsu_ver":i[2],
-                    "status":i[3],
-                    "order_kubun":i[4],
-                    "use_kubun":i[5],
-                    "use_youto":i[6],
-                    "nouhin_kigen":i[7],
-                    "nouhin_shitei":i[8],
-                    "mitsu_day":i[9],
-                    "juchu_day":i[10],
-                    "hassou_day":i[11],
-                    "cus_id":i[12],
-                    "sei":i[13],
-                    "mei":i[14],
-                    "mail":i[15],
-                    "pref":i[16],
-                    "com":i[17],
-                    "keiro":i[18],
-                    "money":i[19],
-                    "kakudo":i[20]
+                    "busho":i[0],
+                    "tantou":i[1],
+                    "tantou_id":i[2],
                 }            
             )
         h+=1
-    return render(request,"sfa/index.html")
+
+    return render(request,"sfa/csv_imp.html",{"message":"取込が完了しました！"})

@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from .models import Crm_action
 import requests
 from django.http import JsonResponse
+from datetime import date
 
 
 
@@ -55,7 +56,7 @@ def kokyaku_api(request):
             li=[]
             li.append(ac.day)
             li.append("act")
-            li.append(ac.action_id)
+            li.append(ac.act_id)
             act_list.append(li)
 
         list_all=[]
@@ -78,15 +79,34 @@ def kokyaku_api(request):
             dic["cus_id"]=cus_id
         else:
             for ac in ins:
-                if ac.action_id==li[2]:
+                if ac.act_id==li[2]:
                     dic["kubun"]="act"
                     dic["day"]=ac.day
                     dic["type"]=ac.type
                     dic["text"]=ac.text
-                    dic["act_id"]=ac.action_id
+                    dic["act_id"]=ac.act_id
         res_det.append(dic)
 
-    return render(request,"crm/index.html",{"res":res,"res_det":res_det,"res3":res3})
+    # アラート
+    today=str(date.today())
+    alert=Crm_action.objects.filter(cus_id=cus_id,type=6,alert_check=0,day__lte=today)
+    dic={}
+    if alert.count()!=0:
+        dic["show"]=1
+        for i in alert:
+            dic["text"]=i.text
+            dic["alert_num"]=i.act_id
+
+    return render(request,"crm/index.html",{"res":res,"res_det":res_det,"res3":res3,"alert":dic})
+
+
+def alert_check(request):
+    alert_num=request.POST.get("alert_num")
+    ins=Crm_action.objects.get(act_id=alert_num)
+    ins.alert_check=1
+    ins.save()
+    d={}
+    return JsonResponse(d)
 
 
 def list_click_est(request):
@@ -102,7 +122,7 @@ def list_click_est(request):
 
 def list_click_act(request):
     act_id=request.POST.get("act_id")
-    ins=Crm_action.objects.get(action_id=act_id)
+    ins=Crm_action.objects.get(act_id=act_id)
     res={"type":ins.type,"day":ins.day,"text":ins.text}
     d={"res":res}
     return JsonResponse(d)
@@ -119,7 +139,7 @@ def list_add(request):
     if act_id=="":
         Crm_action.objects.create(cus_id=cus_id,day=day,type=type,text=text)
     else:
-        ins=Crm_action.objects.get(action_id=act_id)
+        ins=Crm_action.objects.get(act_id=act_id)
         ins.day=day
         ins.type=type
         ins.text=text
@@ -131,7 +151,7 @@ def list_del(request):
     act_id=request.POST.get("act_id")
     cus_id=request.POST.get("cus_id")
     request.session["cus_id"]=cus_id
-    Crm_action.objects.get(action_id=int(act_id)).delete()
+    Crm_action.objects.get(act_id=int(act_id)).delete()
     d={}
     return JsonResponse(d)
     

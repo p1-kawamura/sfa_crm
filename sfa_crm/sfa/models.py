@@ -41,3 +41,12 @@ class Sfa_action(models.Model):
         return self.mitsu_id
     
     # type（種類） 1:TEL　2：メール　3：メモ　4：アラート
+
+
+class Member(models.Model):
+    busho=models.CharField("部署",max_length=15)
+    tantou=models.CharField("担当",max_length=10)
+    tantou_id=models.CharField("担当ID",max_length=5)
+
+    def __str__(self):
+        return self.tantou_id
