@@ -72,9 +72,9 @@
                     メルマガ送付：{% if res.isNotSentMailMagazine %}{{res.isNotSentMailMagazine}}{% endif %}<br>
                 </div>
                 <div style="margin-left: 50px;">
-                    合計受注金額：{{res3.price | intcomma}}円<br>
-                    受注総件数：{{res3.kensu}}件<br>
-                    注文総件数：{{res3.order}}件<br>
+                    <span style="color: red;">合計受注金額：{{res3.price | intcomma}}円（API無し）</span><br>
+                    <span style="color: red;">受注総件数：{{res3.kensu}}件（API無し）</span><br>
+                    見積総件数：{{res3.order}}件<br>
 
                 </div>
             </div>
