@@ -15,7 +15,14 @@
 
     <div class="container mt-3 mb-5">
         <div style="margin: 0 auto; width: 1310px;">
-            
+
+            <!-- メニュー -->
+            <div >
+                <span><a href="{% url 'sfa:index' %}">案件管理</a></span>
+                <span style="margin-left: 50px;"><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></span>
+            </div>
+            <hr>
+
             <div class="flex">
                 <div>部署：</div>
                 <div>
@@ -36,6 +43,7 @@
                 </div>
             </div>
             <hr>
+            
             <div>
                 {% for i in list %}
 

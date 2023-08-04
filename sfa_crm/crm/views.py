@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action
+from .models import Crm_action,Grip
+from sfa.models import Member
 import requests
 from django.http import JsonResponse
 from datetime import date
@@ -97,7 +98,23 @@ def kokyaku_api(request):
             dic["text"]=i.text
             dic["alert_num"]=i.act_id
 
-    return render(request,"crm/index.html",{"res":res,"res_det":res_det,"res3":res3,"alert":dic})
+    # グリップ顧客
+    grip=Grip.objects.filter(cus_id=cus_id).count()
+    if grip>0:
+        tantou=Grip.objects.get(cus_id=cus_id).tantou_id
+        tantou_name=Member.objects.get(tantou_id=tantou).tantou
+    else:
+        tantou_name=""
+
+    params={
+        "res":res,
+        "res_det":res_det,
+        "res3":res3,
+        "alert":dic,
+        "grip":grip,
+        "tantou":tantou_name
+    }
+    return render(request,"crm/index.html",params)
 
 
 def alert_check(request):
@@ -152,6 +169,43 @@ def list_del(request):
     cus_id=request.POST.get("cus_id")
     request.session["cus_id"]=cus_id
     Crm_action.objects.get(act_id=int(act_id)).delete()
+    d={}
+    return JsonResponse(d)
+
+
+def grip_index(request):
+    ins=Grip.objects.all()
+    list=[]
+    for i in ins:
+        dic={}
+        dic["cus_id"]=i.cus_id
+        dic["com"]=i.com
+        dic["cus_name"]=i.cus_name
+        dic["pref"]=i.pref
+        dic["mitsu_count"]=i.mitsu_count
+        # アラート
+        today=str(date.today())
+        alert=Crm_action.objects.filter(cus_id=i.cus_id,type=6,alert_check=0,day__lte=today).count()
+        dic["alert"]=alert
+        list.append(dic)
+    return render(request,"crm/grip.html",{"list":list})
+
+
+def grip_add(request):
+    cus_id=request.POST.get("cus_id")
+    cus_name=request.POST.get("cus_name")
+    com=request.POST.get("com")
+    pref=request.POST.get("pref")
+    mitsu=request.POST.get("mitsu")
+
+    Grip.objects.create(
+        cus_id=cus_id,
+        com=com,
+        cus_name=cus_name,
+        pref=pref,
+        mitsu_count=mitsu,
+        tantou_id=8
+        )
     d={}
     return JsonResponse(d)
     
