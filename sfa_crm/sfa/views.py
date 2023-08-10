@@ -97,9 +97,11 @@ def modal_top(request):
     mitsu_id=request.POST.get("mitsu_id")
     kakudo=request.POST.get("kakudo")
     status=request.POST.get("status")
+    bikou=request.POST.get("bikou")
     ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
     ins.kakudo=kakudo
     ins.status=status
+    ins.bikou=bikou
     ins.save()
     d={}
     return JsonResponse(d)

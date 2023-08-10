@@ -23,6 +23,7 @@ class Sfa_data(models.Model):
     money=models.IntegerField("金額",default=0)
     kakudo=models.CharField("確度",max_length=5,blank=True)
     alert=models.IntegerField("アラート",default=0)
+    bikou=models.TextField("備考",blank=True)
 
     def __str__(self):
         return self.mitsu_id

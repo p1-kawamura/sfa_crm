@@ -197,12 +197,15 @@
                                             </div>
                                             <div style="margin-left: 20px;">（新基幹システム：イメージ）</div>
                                         </div>
+                                        <div style="margin-top: 20px;">
+                                            <div>■備考</div>
+                                            <div style="margin-top: 5px;"><textarea class="form-control" rows="3" id="modal_bikou"></textarea></div>
+                                        </div>
                                     </div>
                                     <hr>
-
                                     <!-- BOT -->
-                                    <div style="margin-top: 30px;">
-                                        <div>■電話入れ / メール / 備考 / アラート</div>
+                                    <div style="margin-top: 20px;">
+                                        <div>■電話入れ / メール / メモ / アラート</div>
                                         <div class="flex mt-3">
                                             <div>日付：</div>
                                             <div><input class="form-control form-control-sm" type="date" id="modal_bot_day"></div>
@@ -212,7 +215,7 @@
                                                     <option value="0"></option>
                                                     <option value="1">TEL</option>
                                                     <option value="2">メール</option>
-                                                    <option value="3">備考</option>
+                                                    <option value="3">メモ</option>
                                                     <option value="4">アラート</option>
                                                 </select>
                                             </div>
@@ -224,8 +227,8 @@
                                             </div>
                                             <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" id="modal_btn_bot">設定</button></div>
                                         </div>
-                                        <div style="margin-top: 10px;"><textarea class="form-control" rows="3" id="modal_bot_text"></textarea></div>
-                                        <div class="inlineframe" id="modal_sfa_action" style="height: 250px; width: 530px;"></div>
+                                        <div style="margin-top: 10px;"><textarea class="form-control" rows="2" id="modal_bot_text"></textarea></div>
+                                        <div class="inlineframe" id="modal_sfa_action" style="height: 180px; width: 530px;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -341,6 +344,7 @@
                             "<tr><th>メール</th><td>" + res.mail  + "</td></tr></table>";
                         document.getElementById("modal_kakudo").value=res.kakudo;
                         document.getElementById("modal_status").value=res.status;
+                        document.getElementById("modal_bikou").value=res.bikou;
                         var str = "";
                         var icon = "";
                         for (var i of res2){
@@ -373,7 +377,8 @@
                     'data': {
                         "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
                         "kakudo":document.getElementById("modal_kakudo").value,
-                        "status":document.getElementById("modal_status").value
+                        "status":document.getElementById("modal_status").value,
+                        "bikou":document.getElementById("modal_bikou").value
                     },
                     'dataType': 'json'
                 })
