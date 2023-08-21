@@ -12,6 +12,9 @@
     <div style="width: 500px;">
         <form action="{% url 'sfa:csv_imp' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+            <label for="csv1">見積案件：</label>
+            <input class="form-control" type="file" name="csv1" id="csv1">
+            <br>
             <label for="csv2">担当者：</label>
             <input class="form-control" type="file" name="csv2" id="csv2">
             <br>

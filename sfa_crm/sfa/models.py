@@ -16,17 +16,24 @@ class Sfa_data(models.Model):
     cus_id=models.CharField("顧客ID",max_length=10)
     sei=models.CharField("姓",max_length=10)
     mei=models.CharField("名",max_length=10)
+    tel=models.CharField("電話番号",max_length=15,blank=True,default="")
+    tel_mob=models.CharField("携帯番号",max_length=15,blank=True,default="")
     mail=models.CharField("メール",max_length=50,blank=True)
     pref=models.CharField("都道府県",max_length=10)
     com=models.CharField("会社名",max_length=50,blank=True)
     keiro=models.CharField("流入経路",max_length=10)
     money=models.IntegerField("金額",default=0)
+    pay=models.CharField("支払方法",max_length=30,default="")
     kakudo=models.CharField("確度",max_length=5,blank=True)
-    alert=models.IntegerField("アラート",default=0)
     bikou=models.TextField("備考",blank=True)
+    busho_id=models.CharField("部署ID",max_length=5,default="")
+    tantou_id=models.CharField("担当ID",max_length=5,default="")
+    show=models.IntegerField("表示",default=0)
 
     def __str__(self):
         return self.mitsu_id
+    
+    # show（表示） 0:表示　1：非表示
 
 
 class Sfa_action(models.Model):
