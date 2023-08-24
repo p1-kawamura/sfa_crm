@@ -20,30 +20,69 @@
             <div >
                 <span><a href="{% url 'sfa:index' %}">案件管理</a></span>
                 <span style="margin-left: 50px;"><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></span>
+                <span style="margin-left: 50px;"><a href="{% url 'sfa:show_index' %}">案件表示設定</a></span>
             </div>
             <hr>
-
-            <div class="flex">
-                <div>部署：</div>
-                <div>
-                    <select class="form-select" name="busho" id="busho" style="width: 150px;">
-                        <option></option>
-                        <option>東京チーム</option>
-                        <option>大阪チーム</option>
-                        <option>高松チーム</option>
-                        <option>福岡チーム</option>
-                    </select>
-                </div>
-                <div style="margin-left: 20px;">担当：</div>
-                <div>
-                    <select class="form-select" name="tantou" id="tantou" style="width: 150px;"></select>   
-                </div>
-                <div style="margin-left: 20px;">
-                    <button type="button" class="btn btn-secondary">表示</button>
-                </div>
+            <!-- フィルター -->
+            <div>
+                <form action="{% url 'sfa:search' %}" method="post">{% csrf_token %}
+                    <div class="flex">
+                        <div>部署：</div>
+                        <div>
+                            <select class="form-select" name="busho" id="busho" style="width: 150px;">
+                                {% for i in busho_list %}
+                                <option value="{{i}}">{{i}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 20px;">担当：</div>
+                        <div>
+                            <select class="form-select" name="tantou" id="tantou" style="width: 150px;" required></select>   
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <button type="submit" class="btn btn-primary">表示</button>
+                        </div>
+                    </div>
+                    <div class="flex mt-3">
+                        <div>注文区分：</div>
+                        <div>
+                            <select class="form-select form-select-sm" name="chumon_kubun" style="width: 100px;">
+                                {% for i in chumon_kubun %}
+                                <option value="{{i}}">{{i}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 30px;">都道府県：</div>
+                        <div>
+                            <select class="form-select form-select-sm" name="pref" style="width: 100px;">
+                                {% for i in pref_list %}
+                                <option value="{{i}}">{{i}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 30px;">確度：</div>
+                        <div>
+                            <select class="form-select form-select-sm" name="kakudo" style="width: 70px;">
+                                {% for i in kakudo_list %}
+                                <option value="{{i}}">{{i}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex mt-3">
+                        <div>ステータス：</div>
+                        {% for i in status_list %}
+                            {% if i == "見積中" %}
+                            <div><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
+                            {% else %}
+                            <div style="margin-left: 20px;"><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </form>
             </div>
             <hr>
-            
+            <!-- 案件一覧 -->
             <div>
                 {% for i in list %}
 
@@ -89,8 +128,8 @@
                     <div style="width: 210px;">{{i.com | truncatechars:15}}</div>
                     <div style="width: 90px;">{{i.cus | truncatechars:6}}</div>
                     <div style="width: 40px;"><div class="order_use">{{i.status}}</div></div>
-                    <div style="width: 80px;">{{i.money | intcomma}}円</div>
-                    <div style="width: 100px;">{{i.nouki}}</div>
+                    <div style="width: 90px;">{{i.money | intcomma}}円</div>
+                    <div style="width: 90px;">{{i.nouki}}</div>
                     <div style="width: 40px;">
                         {% if i.alert != 0 %}
                             <span class="bell"><i class="bi bi-bell-fill"></i></span>
@@ -168,19 +207,24 @@
                                 <div style="margin-left: 50px;">
                                     <!-- TOP -->
                                     <div>
-                                        <div class="flex">
-                                            <div>■確度</div>
-                                            <div style="margin-left: 10px;">
-                                                <select class="form-select form-select-sm" id="modal_kakudo">
-                                                    <option></option>
-                                                    <option value="A">A</option>
-                                                    <option value="B">B</option>
-                                                    <option value="C">C</option>
-                                                </select>
+                                        <div class="flex3">
+                                            <div class="flex">
+                                                <div>■確度</div>
+                                                <div style="margin-left: 10px;">
+                                                    <select class="form-select form-select-sm" id="modal_kakudo">
+                                                        <option></option>
+                                                        <option value="A">A</option>
+                                                        <option value="B">B</option>
+                                                        <option value="C">C</option>
+                                                    </select>
+                                                </div>
+                                                <div style="margin-left: 30px;">■メールワイズ作成</div>
+                                                <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" value="" id="modal_ms"></div>
+                                                <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
                                             </div>
-                                            <div style="margin-left: 30px;">■メールワイズ作成</div>
-                                            <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" value="" id="modal_ms"></div>
-                                            <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
+                                            <div style="margin-left: 50px;">
+                                                <button class="btn btn-outline-success" id="modal_btn_show">表示設定</button>
+                                            </div>
                                         </div>
                                         <div class="flex" style="margin-top: 20px;">
                                             <div>■ステータス</div>
@@ -294,11 +338,25 @@
                 })
                 .done(function(response){
                     tantou=response.tantou;
-                    var str="<option></option>";
+                    var str="";
                     for (var i of tantou){
                         str=str+"<option value='" + i.tantou_id + "'>" + i.tantou + "</option>"
                     };
                     document.getElementById("tantou").innerHTML=str;
+                })
+        });
+
+
+        // モーダル_表示設定
+        document.getElementById("modal_btn_show").addEventListener("click",function(){
+            $.ajax({
+                    'url': '{% url "sfa:show_direct" %}',
+                    'type': 'POST',
+                    'data': {"mitsu_id":document.getElementById("modal_mitsu_id").innerText},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.location.href="{% url 'sfa:show' %}";
                 })
         });
 

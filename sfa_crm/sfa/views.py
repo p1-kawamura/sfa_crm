@@ -3,11 +3,37 @@ from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member
 import csv
 import io
+import json
 from datetime import date
 
 
 def index(request):
-    ins=Sfa_data.objects.all()
+    if "mitsu_num" not in request.session:
+        request.session["mitsu_num"]=[]
+    if "search" not in request.session:
+        request.session["search"]={}
+    if "busho" not in request.session["search"]:
+        request.session["search"]["busho"]=""
+    if "tantou" not in request.session["search"]:
+        request.session["search"]["tantou"]=""
+    if "chumon_kubun" not in request.session["search"]:
+        request.session["search"]["chumon_kubun"]=""
+    if "pref" not in request.session["search"]:
+        request.session["search"]["pref"]=""
+    if "kakudo" not in request.session["search"]:
+        request.session["search"]["kakudo"]=""
+    if "st" not in request.session["search"]:
+        request.session["search"]["st"]=[]
+
+    ses=request.session["search"]
+ 
+
+    fil={}
+    # if irai_num != "":
+    #     str["show"]=0
+
+    fil["show"]=0
+    ins=Sfa_data.objects.filter(**fil)
     list=[]
     for i in ins:
         dic={}
@@ -61,7 +87,39 @@ def index(request):
         dic["alert"]=alert_count
 
         list.append(dic)
-    return render(request,"sfa/index.html",{"list":list})
+
+    params={
+        "list":list,
+        "busho_list":["","東京チーム","大阪チーム","高松チーム","福岡チーム"],
+        "chumon_kubun":["","新規","追加","追加新柄"],
+        "kakudo_list":["","A","B","C"],
+        "pref_list":[
+            '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
+            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'奈良県', '和歌山県', 
+            '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', 
+            '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち"],
+        "ses":ses,
+    }
+    return render(request,"sfa/index.html",params)
+
+
+# 案件検索
+def search(request):
+    busho=request.POST["busho"]
+    tantou=request.POST["tantou"]
+    chumon_kubun=request.POST["chumon_kubun"]
+    pref=request.POST["pref"]
+    kakudo=request.POST["kakudo"]
+    st=request.POST.getlist("st")
+
+    request.session["search"]["busho"]=busho
+    request.session["search"]["tantou"]=tantou
+    request.session["search"]["chumon_kubun"]=chumon_kubun
+    request.session["search"]["pref"]=pref
+    request.session["search"]["kakudo"]=kakudo
+    request.session["search"]["st"]=st
+    return redirect("sfa:index")
 
 
 # 部署選択（対象担当者表示）
@@ -139,6 +197,53 @@ def kokyaku_detail_api(request):
     request.session["cus_id"]=cus_id
     d={}
     return JsonResponse(d)
+
+
+# 案件表示_検索から
+def show_search(request):
+    request.session["mitsu_num"]=request.POST["mitsu_num"]
+    return redirect("sfa:show")
+
+
+# 案件表示_モーダルから
+def show_direct(request):
+    mitsu_id=request.POST["mitsu_id"]
+    mitsu_num=Sfa_data.objects.get(mitsu_id=mitsu_id).mitsu_num
+    request.session["mitsu_num"]=mitsu_num
+    d={}
+    return JsonResponse(d)
+
+
+# 案件表示_設定
+def show_settei(request):
+    dic=request.POST.get("dic")
+    dic=json.loads(dic)
+    for key,value in dic.items():
+        ins=Sfa_data.objects.get(mitsu_id=key)
+        if value:
+            ins.show=0
+        else:
+            ins.show=1
+        ins.save()
+    d={}
+    return JsonResponse(d)
+
+
+# 案件表示_初期ページ
+def show_index(request):
+    return render(request,"sfa/show.html")
+
+
+# 案件表示_結果ページ
+def show(request):
+    mitsu_num=request.session["mitsu_num"]
+    ins=Sfa_data.objects.filter(mitsu_num=mitsu_num)
+    for i in ins:
+        com=i.com
+        name=i.sei +" " + i.mei
+        break
+    return render(request,"sfa/show.html",{"list":ins,"mitsu_num":mitsu_num,"com":com,"name":name})
+
 
 
 # 元DB取込
