@@ -26,13 +26,18 @@ def index(request):
         request.session["search"]["st"]=[]
 
     ses=request.session["search"]
- 
-
     fil={}
-    # if irai_num != "":
-    #     str["show"]=0
-
+    fil["tantou_id"]=ses["tantou"]
     fil["show"]=0
+    if ses["chumon_kubun"] != "":
+        fil["order_kubun"]=ses["chumon_kubun"]
+    if ses["pref"] != "":
+        fil["pref"]=ses["pref"]
+    if ses["kakudo"] != "":
+        fil["kakudo"]=ses["kakudo"]
+    if len(ses["st"])!=0:
+        fil["status__in"]=ses["st"]
+    
     ins=Sfa_data.objects.filter(**fil)
     list=[]
     for i in ins:
@@ -88,16 +93,18 @@ def index(request):
 
         list.append(dic)
 
+    tantou_list=Member.objects.filter(busho=ses["busho"])
     params={
         "list":list,
         "busho_list":["","東京チーム","大阪チーム","高松チーム","福岡チーム"],
+        "tantou_list":tantou_list,
         "chumon_kubun":["","新規","追加","追加新柄"],
         "kakudo_list":["","A","B","C"],
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
-            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'奈良県', '和歌山県', 
-            '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', 
-            '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
+            '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
+            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち"],
         "ses":ses,
     }

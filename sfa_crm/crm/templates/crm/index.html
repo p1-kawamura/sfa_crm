@@ -17,11 +17,7 @@
         <div style="margin: 0 auto; width: 1300px;">
             
             <!-- メニュー -->
-            <div >
-                <span><a href="{% url 'sfa:index' %}">案件管理</a></span>
-                <span style="margin-left: 50px;"><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></span>
-            </div>
-            <hr>
+            {% include "sfa/menu.html" %}
 
             {% if alert.show == 1 %}
             <div class="flex">

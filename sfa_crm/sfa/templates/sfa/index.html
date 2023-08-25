@@ -17,12 +17,8 @@
         <div style="margin: 0 auto; width: 1410px;">
 
             <!-- メニュー -->
-            <div >
-                <span><a href="{% url 'sfa:index' %}">案件管理</a></span>
-                <span style="margin-left: 50px;"><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></span>
-                <span style="margin-left: 50px;"><a href="{% url 'sfa:show_index' %}">案件表示設定</a></span>
-            </div>
-            <hr>
+            {% include "sfa/menu.html" %}
+
             <!-- フィルター -->
             <div>
                 <form action="{% url 'sfa:search' %}" method="post">{% csrf_token %}
@@ -31,51 +27,86 @@
                         <div>
                             <select class="form-select" name="busho" id="busho" style="width: 150px;">
                                 {% for i in busho_list %}
-                                <option value="{{i}}">{{i}}</option>
+                                    {% if i == ses.busho %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="margin-left: 20px;">担当：</div>
                         <div>
-                            <select class="form-select" name="tantou" id="tantou" style="width: 150px;" required></select>   
+                            <select class="form-select" name="tantou" id="tantou" style="width: 150px;" required>
+                                {% for i in tantou_list %}
+                                    {% if i.tantou_id == ses.tantou %}
+                                    <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
+                                    {% else %}
+                                    <option value="{{i.tantou_id}}">{{i.tantou}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>   
                         </div>
-                        <div style="margin-left: 20px;">
-                            <button type="submit" class="btn btn-primary">表示</button>
+                        <div style="margin-left: 30px;">
+                            <button type="submit" class="btn btn-primary"><i class="bi bi-eye"></i> 表示</button>
+                        </div>
+                        <div style="margin-left: 30px;">
+                            <button class="btn btn-outline-dark btn-sm" id="form_clear"><i class="bi bi-eraser"></i> 詳細クリア</button>
                         </div>
                     </div>
-                    <div class="flex mt-3">
+                    <div class="flex mt-4">
                         <div>注文区分：</div>
                         <div>
-                            <select class="form-select form-select-sm" name="chumon_kubun" style="width: 100px;">
+                            <select class="form-select form-select-sm" id="chumon_kubun" name="chumon_kubun" style="width: 100px;">
                                 {% for i in chumon_kubun %}
-                                <option value="{{i}}">{{i}}</option>
+                                    {% if i == ses.chumon_kubun %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="margin-left: 30px;">都道府県：</div>
                         <div>
-                            <select class="form-select form-select-sm" name="pref" style="width: 100px;">
+                            <select class="form-select form-select-sm" id="pref" name="pref" style="width: 100px;">
                                 {% for i in pref_list %}
-                                <option value="{{i}}">{{i}}</option>
+                                    {% if i == ses.pref %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="margin-left: 30px;">確度：</div>
                         <div>
-                            <select class="form-select form-select-sm" name="kakudo" style="width: 70px;">
+                            <select class="form-select form-select-sm" id="kakudo" name="kakudo" style="width: 70px;">
                                 {% for i in kakudo_list %}
-                                <option value="{{i}}">{{i}}</option>
+                                    {% if i == ses.kakudo %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
-                    <div class="flex mt-3">
+                    <div class="flex mt-4">
                         <div>ステータス：</div>
                         {% for i in status_list %}
                             {% if i == "見積中" %}
-                            <div><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
+                                {% if i in ses.st %}
+                                <div><input class="form-check-input" type="checkbox" name="st" value="{{i}}" checked>{{i}}</div>
+                                {% else %}
+                                <div><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
+                                {% endif %}
                             {% else %}
-                            <div style="margin-left: 20px;"><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
+                                {% if i in ses.st %}
+                                <div style="margin-left: 20px;"><input class="form-check-input" type="checkbox" name="st" value="{{i}}" checked>{{i}}</div>
+                                {% else %}
+                                <div style="margin-left: 20px;"><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
+                                {% endif %}
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -326,6 +357,7 @@
   
 
 
+        
         // 部署選択
         document.getElementById("busho").addEventListener("change",function(){
             $.ajax({
@@ -345,6 +377,19 @@
                     document.getElementById("tantou").innerHTML=str;
                 })
         });
+
+
+        // フォームクリア
+        document.getElementById("form_clear").addEventListener("click",function(e){
+            e.preventDefault();
+            document.getElementById("chumon_kubun").value="";
+            document.getElementById("pref").value="";
+            document.getElementById("kakudo").value="";
+            var st=document.getElementsByName("st");
+            for (var i=0; i<st.length; i++){
+                st[i].checked=false;
+            };
+        })
 
 
         // モーダル_表示設定
