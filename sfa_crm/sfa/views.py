@@ -5,9 +5,11 @@ import csv
 import io
 import json
 from datetime import date
+import datetime
 
 
 def index(request):
+    print(datetime.datetime.now().strftime("%Y%m%d%H%M%S%f"))
     if "mitsu_num" not in request.session:
         request.session["mitsu_num"]=[]
     if "search" not in request.session:
