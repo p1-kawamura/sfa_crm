@@ -161,12 +161,18 @@ def mitsu_detail_api(request):
 def modal_top(request):
     mitsu_id=request.POST.get("mitsu_id")
     kakudo=request.POST.get("kakudo")
+    mw=request.POST.get("mw")
     status=request.POST.get("status")
     bikou=request.POST.get("bikou")
     ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
     ins.kakudo=kakudo
     ins.status=status
     ins.bikou=bikou
+    print(mw)
+    if mw=="true":
+        ins.mw=1
+    else:
+        ins.mw=0
     ins.save()
     d={}
     return JsonResponse(d)

@@ -29,11 +29,14 @@ class Sfa_data(models.Model):
     busho_id=models.CharField("部署ID",max_length=5,default="")
     tantou_id=models.CharField("担当ID",max_length=5,default="")
     show=models.IntegerField("表示",default=0)
+    mw=models.IntegerField("メールワイズ",default=0)
+
 
     def __str__(self):
         return self.mitsu_id
     
     # show（表示） 0:表示　1：非表示
+    # mw（メールワイズ） 0:無し　1：作成
 
 
 class Sfa_action(models.Model):

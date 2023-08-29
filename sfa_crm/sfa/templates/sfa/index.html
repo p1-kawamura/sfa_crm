@@ -250,7 +250,7 @@
                                                     </select>
                                                 </div>
                                                 <div style="margin-left: 30px;">■メールワイズ作成</div>
-                                                <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" value="" id="modal_ms"></div>
+                                                <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" value="" id="modal_mw"></div>
                                                 <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
                                             </div>
                                             <div style="margin-left: 50px;">
@@ -449,6 +449,9 @@
                         document.getElementById("modal_kakudo").value=res.kakudo;
                         document.getElementById("modal_status").value=res.status;
                         document.getElementById("modal_bikou").value=res.bikou;
+                        if (res.mw==1){
+                            document.getElementById("modal_mw").checked=true;
+                        };
                         var str = "";
                         var icon = "";
                         for (var i of res2){
@@ -481,13 +484,14 @@
                     'data': {
                         "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
                         "kakudo":document.getElementById("modal_kakudo").value,
+                        "mw":document.getElementById("modal_mw").checked,
                         "status":document.getElementById("modal_status").value,
                         "bikou":document.getElementById("modal_bikou").value
                     },
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    window.alert("確度とステータスを変更しました！");
+                    window.alert("変更しました！");
                 })
         });
 
