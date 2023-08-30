@@ -168,7 +168,6 @@ def modal_top(request):
     ins.kakudo=kakudo
     ins.status=status
     ins.bikou=bikou
-    print(mw)
     if mw=="true":
         ins.mw=1
     else:
