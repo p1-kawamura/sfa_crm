@@ -26,11 +26,11 @@
                         <div>部署：</div>
                         <div>
                             <select class="form-select" name="busho" id="busho" style="width: 150px;">
-                                {% for i in busho_list %}
-                                    {% if i == ses.busho %}
-                                    <option value="{{i}}" selected>{{i}}</option>
+                                {% for key,value in busho_list.items %}
+                                    {% if key == ses.busho %}
+                                    <option value="{{key}}" selected>{{value}}</option>
                                     {% else %}
-                                    <option value="{{i}}">{{i}}</option>
+                                    <option value="{{key}}">{{value}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -125,8 +125,12 @@
                 <div class="flex sfa_main" style="background-color: #fff9a7;">
                 {% elif i.status == "発" %}
                 <div class="flex sfa_main" style="background-color: #dbbbff;">
+                {% elif i.status == "キ" %}
+                <div class="flex sfa_main" style="background-color: #c5c5c5;">
                 {% elif i.status == "終" %}
                 <div class="flex sfa_main" style="background-color: #ffbcbc;">
+                {% elif i.status == "保" %}
+                <div class="flex sfa_main" style="background-color: #FFF;">
                 {% elif i.status == "失" %}
                 <div class="flex sfa_main" style="background-color: #c5c5c5;">
                 {% elif i.status == "待" %}
@@ -144,6 +148,10 @@
                             <div class="order order_2">追加</div>
                         {% elif i.order_kubun == "追加新柄" %}
                             <div class="order order_3">新追</div>
+                        {% elif i.order_kubun == "刷り直し" %}
+                            <div class="order_4">刷直</div>
+                        {% elif i.order_kubun == "返金" %}
+                        <div class="order_4">返金</div>
                         {% endif %}
                     </div>
                     <div style="width: 30px;">

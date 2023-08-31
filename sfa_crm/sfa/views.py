@@ -38,7 +38,7 @@ def index(request):
     if len(ses["st"])!=0:
         fil["status__in"]=ses["st"]
     
-    ins=Sfa_data.objects.filter(**fil)
+    ins=Sfa_data.objects.filter(**fil).order_by("mitsu_day")
     list=[]
     for i in ins:
         dic={}
@@ -55,7 +55,7 @@ def index(request):
         dic["pref"]=i.pref
         dic["com"]=i.com
         dic["cus"]=i.sei + i.mei
-        d={"見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","終了":"終","失注":"失","連絡待ち":"待"}
+        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待"}
         dic["status"]=d[i.status]
         dic["money"]=i.money
         if i.nouhin_kigen != "":
@@ -93,12 +93,12 @@ def index(request):
 
         list.append(dic)
 
-    tantou_list=Member.objects.filter(busho=ses["busho"])
+    tantou_list=Member.objects.filter(busho_id=ses["busho"])
     params={
         "list":list,
-        "busho_list":["","東京チーム","大阪チーム","高松チーム","福岡チーム"],
+        "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
-        "chumon_kubun":["","新規","追加","追加新柄"],
+        "chumon_kubun":["","新規","追加","追加新柄","刷り直し","返金"],
         "kakudo_list":["","A","B","C"],
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
@@ -131,8 +131,8 @@ def search(request):
 
 # 部署選択（対象担当者表示）
 def busho_tantou(request):
-    busho=request.POST.get("busho")
-    tantou=list(Member.objects.filter(busho=busho).values())
+    busho_id=request.POST.get("busho")
+    tantou=list(Member.objects.filter(busho_id=busho_id).values())
     d={"tantou":tantou}
     return JsonResponse(d)
 
@@ -286,21 +286,23 @@ def csv_imp(request):
                     "nouhin_kigen":i[7],
                     "nouhin_shitei":i[8],
                     "mitsu_day":i[9],
-                    "juchu_day":i[10],
-                    "hassou_day":i[11],
-                    "tantou_id":i[12],
-                    "busho_id":i[13],
-                    "cus_id":i[14],
-                    "sei":i[15],
-                    "mei":i[16],
-                    "mail":i[17],
-                    "pref":i[18],
-                    "com":i[19],
-                    "tel":i[20],
-                    "tel_mob":i[21],
-                    "pay":i[22],
-                    "keiro":i[23],
-                    "money":i[24],
+                    "update_day":i[10],
+                    "juchu_day":i[11],
+                    "hassou_day":i[12],
+                    "tantou_id":i[13],
+                    "busho_id":i[14],
+                    "cus_id":i[15],
+                    "sei":i[16],
+                    "mei":i[17],
+                    "mail":i[18],
+                    "pref":i[19],
+                    "com":i[20],
+                    "com_busho":i[21],
+                    "tel":i[22],
+                    "tel_mob":i[23],
+                    "pay":i[24],
+                    "keiro":i[25],
+                    "money":i[26],
                 }            
             )
         h+=1
@@ -317,10 +319,21 @@ def csv_imp(request):
     #             tantou_id=i[2],
     #             defaults={
     #                 "busho":i[0],
-    #                 "tantou":i[1],
-    #                 "tantou_id":i[2],
+    #                 "busho_id":i[1],
+    #                 "tantou":i[2],
+    #                 "tantou_id":i[3],
     #             }            
     #         )
     #     h+=1
 
     return render(request,"sfa/csv_imp.html",{"message":"取込が完了しました！"})
+
+
+#　DBクリア
+def clear_sfa_data(request):
+    Sfa_data.objects.all().delete()
+    return redirect("sfa:index")
+
+def clear_member(request):
+    Member.objects.all().delete()
+    return redirect("sfa:index")

@@ -110,6 +110,15 @@
     color: green;
     border: 1px solid green;
 }
+.order_4 {
+    background-color:#686868;
+    width: 40px;
+    padding: 0 0.2em;
+    border-radius: 0.2em;
+    text-align: center;
+    color: white;
+    border: 1px solid #686868;
+}
 .order_use {
     background-color: white;
     border: 1px solid #686868;

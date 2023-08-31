@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_alert_check,kokyaku_detail_api,csv_imp,csv_imp_page, \
-                    show_index,show,show_search,show_direct,show_settei
+                    show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member
 
 
 
@@ -21,4 +21,6 @@ urlpatterns = [
     path('show/', show, name="show"),
     path('csv_imp/', csv_imp, name="csv_imp"),
     path('csv_imp_page/', csv_imp_page, name="csv_imp_page"),
+    path('clear_sfa_data/', clear_sfa_data, name="clear_sfa_data"),
+    path('clear_member/', clear_member, name="clear_member"),
 ]
