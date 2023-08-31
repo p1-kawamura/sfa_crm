@@ -164,7 +164,7 @@
                         {% if i.use_youto %}<div class="order_use">{{i.use_youto}}</div>{% endif %}            
                     </div>
                     <div style="width: 70px;">{{i.pref}}</div>
-                    <div style="width: 210px;">{{i.com | truncatechars:15}}</div>
+                    <div style="width: 210px;">{{i.com | truncatechars:14}}</div>
                     <div style="width: 90px;">{{i.cus | truncatechars:6}}</div>
                     <div style="width: 40px;"><div class="order_use">{{i.status}}</div></div>
                     <div style="width: 90px;">{{i.money | intcomma}}円</div>
@@ -269,11 +269,14 @@
                                             <div>■ステータス</div>
                                             <div style="margin-left: 10px;">
                                                 <select class="form-select form-select-sm" id="modal_status">
+                                                    <option value="見積中">見積中</option>
                                                     <option value="見積送信">見積送信</option>
                                                     <option value="イメージ">イメージ</option>
                                                     <option value="受注">受注</option>
                                                     <option value="発送完了">発送完了</option>
+                                                    <option value="キャンセル">キャンセル</option>
                                                     <option value="終了">終了</option>
+                                                    <option value="保留">保留</option>
                                                     <option value="失注">失注</option>
                                                     <option value="連絡待ち">連絡待ち</option>
                                                 </select>
@@ -439,7 +442,8 @@
                             document.getElementById("modal_alert_num").innerText=alert_num;
                         };
                         document.getElementById("modal_left").innerHTML = 
-                            "<table class='table table-bordered' style='width:500px;'><tr><th>会社名</th><td>" + res.com  + "</td></tr>" + 
+                            "<table class='table table-bordered' style='width:500px;'>" + 
+                            "<tr><th>会社・部課</th><td>" + res.com  + "　" + res.com_busho + "</td></tr>" + 
                             "<tr><th>氏名</th><td>" + res.sei + res.mei  + "</td></tr>" + 
                             "<tr><th>注文区分</th><td>" + res.order_kubun  + "</td></tr>" + 
                             "<tr><th>合計金額</th><td>" + res.money.toLocaleString()  + "円　（" + res.pay +"）</td></tr>" + 
