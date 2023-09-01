@@ -5,6 +5,8 @@ import csv
 import io
 import json
 from datetime import date
+from django.http import HttpResponse
+import urllib.parse
 
 
 def index(request):
@@ -24,6 +26,8 @@ def index(request):
         request.session["search"]["kakudo"]=""
     if "st" not in request.session["search"]:
         request.session["search"]["st"]=[]
+    if "mw_list" not in request.session:
+        request.session["mw_list"]=[]
 
     ses=request.session["search"]
     fil={}
@@ -255,6 +259,57 @@ def show(request):
         name=i.sei +" " + i.mei
         break
     return render(request,"sfa/show.html",{"list":ins,"mitsu_num":mitsu_num,"com":com,"name":name})
+
+
+# メールワイズ_表示ページ
+def mw_page(request):
+    busho_id=request.session["search"]["busho"]
+    arr={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    busho=arr[busho_id]
+    ins=Sfa_data.objects.filter(busho_id=busho_id,show=0,mw=1).order_by("tantou_id")
+    member=Member.objects.all()
+    return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member})
+
+
+# メールワイズ_削除ボタン
+def mw_delete(request,pk):
+    ins=Sfa_data.objects.get(pk=pk)
+    ins.mw=0
+    ins.save()
+    return redirect("sfa:mw_page")
+
+
+#メールワイズ_CSV準備
+def mw_make(request):
+    mw_list=request.POST.get("list")
+    mw_list=json.loads(mw_list)
+    request.session["mw_list"]=mw_list
+    d={}
+    return JsonResponse(d)
+
+
+# メールワイズ_DL
+def mw_download(request):
+    mw_list=request.session["mw_list"]
+    mw_csv=[]
+    for i in mw_list:
+        ins=Sfa_data.objects.get(mitsu_id=i)
+        a=[
+            ins.com, #会社
+            ins.sei + ins.mei, #氏名
+            ins.mail , #メールアドレス
+            Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
+        ]
+        mw_csv.append(a)
+        ins.mw=0
+        ins.save()
+    filename=urllib.parse.quote("メールワイズ用リスト.csv")
+    response = HttpResponse(content_type='text/csv; charset=CP932')
+    response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
+    writer = csv.writer(response)
+    for line in mw_csv:
+        writer.writerow(line)
+    return response
 
 
 
