@@ -19,6 +19,7 @@ def kokyaku_api(request):
     url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
     res=requests.get(url)
     res=res.json()
+    print(res)
 
     url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
     res2=requests.get(url2)
