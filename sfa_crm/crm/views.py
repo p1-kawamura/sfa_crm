@@ -19,18 +19,14 @@ def kokyaku_api(request):
     url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
     res=requests.get(url)
     res=res.json()
-    print(res)
 
     url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
     res2=requests.get(url2)
     res2=res2.json()
-    order=res2["totalOrders"]
     res2=res2["receivedOrders"]
 
     est_list=[]
     i=0
-    kensu=0
-    price=0
     for est in res2:
         li=[]
         li.append(est["firstEstimationDate"])
@@ -38,16 +34,6 @@ def kokyaku_api(request):
         li.append(i)
         est_list.append(li)
         i+=1
-        #res3の計算
-        if est["estimationStatus"] in ["受注","発送完了","終了"]:
-            kensu+=1
-            price+=est["totalPrice"]
-
-    res3={
-        "order":order,
-        "price":price,
-        "kensu":kensu,
-    }
 
     ins=Crm_action.objects.filter(cus_id=cus_id)
     if ins.count()==0:
@@ -110,7 +96,6 @@ def kokyaku_api(request):
     params={
         "res":res,
         "res_det":res_det,
-        "res3":res3,
         "alert":dic,
         "grip":grip,
         "tantou":tantou_name
@@ -175,15 +160,23 @@ def list_del(request):
 
 
 def grip_index(request):
-    ins=Grip.objects.all()
+    tantou_id=request.session["search"]["tantou"]
+    ins=Grip.objects.filter(tantou_id=tantou_id)
     list=[]
     for i in ins:
+        url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
+        res=requests.get(url)
+        res=res.json()
         dic={}
-        dic["cus_id"]=i.cus_id
-        dic["com"]=i.com
-        dic["cus_name"]=i.cus_name
-        dic["pref"]=i.pref
-        dic["mitsu_count"]=i.mitsu_count
+        dic["cus_id"]=res["id"]
+        dic["url"]=res["customerMstPageUrl"]
+        dic["com"]=res["corporateName"]
+        dic["cus_name"]=res["nameLast"] + res["nameFirst"]
+        dic["pref"]=res["prefecture"]
+        dic["mitsu_count"]=res["totalEstimations"]
+        dic["juchu_count"]=res["totalReceivedOrders"]
+        dic["juchu_money"]=res["totalReceivedOrdersPrice"]
+        dic["juchu_last"]=res["lastOrderReceivedDate"]
         # アラート
         today=str(date.today())
         alert=Crm_action.objects.filter(cus_id=i.cus_id,type=6,alert_check=0,day__lte=today).count()
@@ -194,18 +187,15 @@ def grip_index(request):
 
 def grip_add(request):
     cus_id=request.POST.get("cus_id")
-    cus_name=request.POST.get("cus_name")
-    com=request.POST.get("com")
-    pref=request.POST.get("pref")
-    mitsu=request.POST.get("mitsu")
-
-    Grip.objects.create(
+    busho_id=request.session["search"]["busho"]
+    tantou_id=request.session["search"]["tantou"]
+    Grip.objects.update_or_create(
         cus_id=cus_id,
-        com=com,
-        cus_name=cus_name,
-        pref=pref,
-        mitsu_count=mitsu,
-        tantou_id=8
+        defaults={
+            "cus_id":cus_id,
+            "busho_id":busho_id,
+            "tantou_id":tantou_id,
+            }
         )
     d={}
     return JsonResponse(d)

@@ -16,10 +16,6 @@ class Crm_action(models.Model):
 
 class Grip(models.Model):
     cus_id=models.CharField("顧客ID",max_length=10)
-    com=models.CharField("会社名",max_length=30,blank=True)
-    cus_name=models.CharField("氏名",max_length=20,blank=True)
-    pref=models.CharField("都道府県",max_length=50,blank=True)
-    mitsu_count=models.IntegerField("見積総数",default=0)
     busho_id=models.CharField("部署ID",max_length=10,blank=True)
     tantou_id=models.CharField("担当者ID",max_length=10,blank=True)
 

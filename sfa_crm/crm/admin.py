@@ -9,7 +9,7 @@ class A_Crm_action(ModelAdmin):
 
 class A_Grip(ModelAdmin):
     model=Grip
-    list_display=["cus_id","com","cus_name","tantou_id"]
+    list_display=["cus_id","busho_id","tantou_id"]
 
 admin.site.register(Crm_action,A_Crm_action)
 admin.site.register(Grip,A_Grip)
