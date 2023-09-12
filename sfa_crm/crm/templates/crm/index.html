@@ -69,9 +69,9 @@
                     メールアドレス：{% if res.contactEmail %}{{res.contactEmail}}{% endif %}<br>
                     性別：
                     {% if res.sexId %}
-                        {% if rex.sexId == 1 %}男性
-                        {% elif rex.sexId == 2 %}女性
-                        {% elif rex.sexId == 3 %}その他
+                        {% if res.sexId == 1 %}男性
+                        {% elif res.sexId == 2 %}女性
+                        {% elif res.sexId == 3 %}その他
                         {% endif %}
                     {% endif %}<br>
                     生年月日：{% if res.birthDay %}{{res.birthDay}}{% endif %}<br>
@@ -83,17 +83,40 @@
                     受注総件数：{{res.totalReceivedOrders}}件<br>
                     見積総件数：{{res.totalEstimations}}件<br>
                     最終受注日：{{res.lastOrderReceivedDate}}<br><br>
-                    グリップ担当者：{{tantou}}
+                    <div>
+                        グリップ担当者：
+                        <div>
+                            <select class="form-select" id="busho" style="width: 150px;">
+                                {% for key,value in busho_list.items %}
+                                    {% if key == busho_id %}
+                                    <option value="{{key}}" selected>{{value}}</option>
+                                    {% else %}
+                                    <option value="{{key}}">{{value}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="flex" style="margin-top: 5px;">
+                            <div>
+                                <select class="form-select" id="tantou" style="width: 150px;">
+                                    {% for i in tantou_list %}
+                                        {% if i.tantou_id == tantou_id %}
+                                        <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
+                                        {% else %}
+                                        <option value="{{i.tantou_id}}">{{i.tantou}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div style="margin-left: 10px;">
+                                <button class="btn btn-outline-success" type="button" id="btn_grip">登録</button>
+                            </div>
+                        </div>
+                        
+                    </div>
                 </div>
 
-                <div style="margin-left: 50px;">
-                    {% if grip == 0 %}
-                    <button class="btn btn-outline-success" type="button" id="btn_grip">グリップ顧客に登録</button>
-                    {% else %}
-                    <div id="btn_grip" style="display: none;">※Javascriptのエラー回避のため</div>
-                    {% endif %}
-
-                </div>
+                
                 
             </div>
             <hr>
@@ -309,17 +332,45 @@
         });
 
 
+        // 部署選択
+        document.getElementById("busho").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "sfa:busho_tantou" %}',
+                    'type': 'POST',
+                    'data': {"busho":document.getElementById("busho").value},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    tantou=response.tantou;
+                    var str="";
+                    for (var i of tantou){
+                        str=str+"<option value='" + i.tantou_id + "'>" + i.tantou + "</option>"
+                    };
+                    document.getElementById("tantou").innerHTML=str;
+                })
+        });
+
+
         // グリップ顧客
         document.getElementById("btn_grip").addEventListener("click",function(){
-            console.log("aaa");
             $.ajax({
                     'url': '{% url "crm:grip_add" %}',
                     'type': 'POST',
-                    'data': {"cus_id":document.getElementById("grip_cus_id").innerText},
+                    'data': {
+                        "cus_id":document.getElementById("grip_cus_id").innerText,
+                        "busho_id":document.getElementById("busho").value,
+                        "tantou_id":document.getElementById("tantou").value,
+                    },
                     'dataType': 'json'
                 })
                 .done(function(response){
                     window.location.reload();
+                    var i = document.getElementById("busho").value;
+                    if (i != ""){
+                        window.alert("グリップ顧客として登録/変更しました！");
+                    } else {
+                        window.alert("グリップ顧客を解除しました！");
+                    };
                 })
         });
 

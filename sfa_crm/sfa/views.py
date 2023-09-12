@@ -7,6 +7,7 @@ import json
 from datetime import date
 from django.http import HttpResponse
 import urllib.parse
+from django.db.models import Sum
 
 
 def index(request):
@@ -310,6 +311,66 @@ def mw_download(request):
     for line in mw_csv:
         writer.writerow(line)
     return response
+
+
+# 確度集計
+def kakudo_index(request):
+    #全体
+    all=[]
+    for i in ["A","B","C",""]:
+        li=[]
+        all_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i).count()
+        li.append(all_count)
+        all_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i).aggregate(Sum("money"))
+        if all_money["money__sum"] != None:
+            li.append(all_money["money__sum"])
+        else:
+            li.append(0)
+        all.append(li)
+
+    #チーム
+    busho_arr={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    team={}
+    for key,value in busho_arr.items():
+        team_li=[]
+        for i in ["A","B","C",""]:
+            li=[]
+            team_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key).count()
+            li.append(team_count)
+            team_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key).aggregate(Sum("money"))
+            if team_money["money__sum"] != None:
+                li.append(team_money["money__sum"])
+            else:
+                li.append(0)
+            team_li.append(li)
+        team[value]=team_li
+
+    # 個人
+    person={}
+    for key,value in busho_arr.items():
+        
+        ins=Member.objects.filter(busho_id=key).values_list("tantou_id",flat=True)
+        person_li=[]
+        for i in ins:
+            person_li.append(Member.objects.get(tantou_id=i).tantou)
+            kaku_li=[]
+            for h in ["A","B","C",""]:
+                li=[]
+                person_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i).count()
+                li.append(person_count)
+                person_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i).aggregate(Sum("money"))
+                if person_money["money__sum"] != None:
+                    li.append(person_money["money__sum"])
+                else:
+                    li.append(0)
+                kaku_li.append(li)
+            person_li.append(kaku_li)
+        person[value]=person_li
+
+    print(person)
+
+    params={"all":all,"team":team}
+    return render(request,"sfa/kakudo.html",params)
 
 
 

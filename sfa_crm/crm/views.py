@@ -87,18 +87,23 @@ def kokyaku_api(request):
 
     # グリップ顧客
     grip=Grip.objects.filter(cus_id=cus_id).count()
-    if grip>0:
-        tantou=Grip.objects.get(cus_id=cus_id).tantou_id
-        tantou_name=Member.objects.get(tantou_id=tantou).tantou
+    if grip > 0:
+        busho_id=Grip.objects.get(cus_id=cus_id).busho_id
+        tantou_id=Grip.objects.get(cus_id=cus_id).tantou_id
     else:
-        tantou_name=""
+        busho_id=""
+        tantou_id=""
 
+    tantou_list=Member.objects.filter(busho_id=busho_id)       
     params={
         "res":res,
         "res_det":res_det,
         "alert":dic,
         "grip":grip,
-        "tantou":tantou_name
+        "busho_id":busho_id,
+        "tantou_id":tantou_id,
+        "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
+        "tantou_list":tantou_list,
     }
     return render(request,"crm/index.html",params)
 
@@ -187,8 +192,8 @@ def grip_index(request):
 
 def grip_add(request):
     cus_id=request.POST.get("cus_id")
-    busho_id=request.session["search"]["busho"]
-    tantou_id=request.session["search"]["tantou"]
+    busho_id=request.POST.get("busho_id")
+    tantou_id=request.POST.get("tantou_id")
     Grip.objects.update_or_create(
         cus_id=cus_id,
         defaults={
