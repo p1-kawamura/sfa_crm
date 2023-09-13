@@ -18,50 +18,142 @@
             <!-- メニュー -->
             {% include "sfa/menu.html" %}
 
-            <!-- 全体 -->
-            <div>
-                <table class="table table-bordered">
-                    <tr>
-                        <th></th>
-                        <th colspan="2" style="text-align: center;">A</th>
-                        <th colspan="2" style="text-align: center;">B</th>
-                        <th colspan="2" style="text-align: center;">C</th>
-                        <th colspan="2" style="text-align: center;">なし</th>
-                    </tr>
-                    <tr>
-                        <td style="width: 20%;">全体</td>
-                        {% for i in all %}
-                        <td style="width: 7%; text-align: right;">{{i.0}}</td>
-                        <td style="width: 13%; text-align: right;">{{i.1 | intcomma}}</td>
-                        {% endfor %}
-                    </tr>
-                </table>
-            </div>
-
-            <!-- 担当 -->
+            
             <div class="mt-5">
                 <table class="table table-bordered">
                     <tr>
                         <th></th>
-                        <th colspan="2" style="text-align: center;">A</th>
-                        <th colspan="2" style="text-align: center;">B</th>
-                        <th colspan="2" style="text-align: center;">C</th>
-                        <th colspan="2" style="text-align: center;">なし</th>
+                        <th colspan="2" style="text-align: center; background-color: red; color: white;">A</th>
+                        <th colspan="2" style="text-align: center; background-color: blue; color: white;">B</th>
+                        <th colspan="2" style="text-align: center; background-color: green; color: white;">C</th>
+                        <th colspan="2" style="text-align: center; background-color: gray; color: white;">なし</th>
                     </tr>
-                    {% for key,value in team.items %}
-                    <tr>
-                        <td style="width: 20%;">{{key}}</td>
-                        {% for h in value %}
-                        <td style="width: 7%; text-align: right;">{{h.0}}</td>
-                        <td style="width: 13%; text-align: right;">{{h.1 | intcomma}}</td>
+                    <!-- 全体 -->
+                    <tr style="background-color: rgb(255, 209, 3); font-size: 1.2em;">
+                        <td style="width: 15%; text-align: center;"><i class="bi bi-currency-exchange"></i><b> 総計</b></td>
+                        {% for i in all %}
+                        <td style="width: 7%; text-align: right;"><b>{{i.0}}</b></td>
+                        <td style="width: 13%; text-align: right;"><b>{{i.1 | intcomma}}</b></td>
                         {% endfor %}
-                        
                     </tr>
+                    <tr><td style="height: 10px;"></td></tr>
+                    {% for key,value in team.items %}
+                        {% if key == "東京チーム" %}
+                        <tr style="background-color: #d6f5ff;">
+                        {% elif key == "大阪チーム" %}
+                        <tr style="background-color: #ffcedd;">
+                        {% elif key == "高松チーム" %}
+                        <tr style="background-color: #d7ffc9;">
+                        {% elif key == "福岡チーム" %}
+                        <tr style="background-color: #ffe4c0;">
+                        {% endif %}
+                            <!-- チーム -->
+                            <td>
+                                <div class="flex">
+                                    {% if key == "東京チーム" %}
+                                    <div id="btn_tokyo" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></i></div>
+                                    {% elif key == "大阪チーム" %}
+                                    <div id="btn_osaka" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></div>
+                                    {% elif key == "高松チーム" %}
+                                    <div id="btn_takamatsu" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></div>
+                                    {% elif key == "福岡チーム" %}
+                                    <div id="btn_fukuoka" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></div>
+                                    {% endif %}
+                                    <div style="margin-left: 10px;"><b>{{key}}</b></div>
+                                </div>
+                            </td>
+                            {% for i in value %}
+                            <td style="text-align: right;"><b>{{i.0}}</b></td>
+                            <td style="text-align: right;"><b>{{i.1 | intcomma}}</b></td>
+                            {% endfor %}
+                        </tr>
+                        
+
+                        <!-- 個人 -->
+                        {% for key2,value2 in person.items %}
+                            {% if key2 == key %}
+                                {% for i in value2 %}
+                                    {% if key2 == "東京チーム" %}
+                                    <tr name="tokyo" style="display: none;">
+                                    {% elif key2 == "大阪チーム" %}
+                                    <tr name="osaka" style="display: none;">
+                                    {% elif key2 == "高松チーム" %}
+                                    <tr name="takamatsu" style="display: none;">
+                                    {% elif key2 == "福岡チーム" %}
+                                    <tr name="fukuoka" style="display: none;">
+                                    {% endif %}
+                                        <td>{{i.0}}</td>
+                                        <td style="text-align: right;">{{i.1.0}}</td>
+                                        <td style="text-align: right;">{{i.1.1 | intcomma}}</td>
+                                        <td style="text-align: right;">{{i.2.0}}</td>
+                                        <td style="text-align: right;">{{i.2.1 | intcomma}}</td>
+                                        <td style="text-align: right;">{{i.3.0}}</td>
+                                        <td style="text-align: right;">{{i.3.1 | intcomma}}</td>
+                                        <td style="text-align: right;">{{i.4.0}}</td>
+                                        <td style="text-align: right;">{{i.4.1 | intcomma}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
                     {% endfor %}
                 </table>
             </div>
 
         </div>
     </div>
+
+
+    <script>
+
+        // 東京チーム
+        document.getElementById("btn_tokyo").addEventListener("click",function(){
+            var team=document.getElementsByName("tokyo");
+            for (var i=0; i<team.length; i++){
+                if (team[i].style.display == "none"){
+                    team[i].style.display="";
+                } else {
+                    team[i].style.display="none";
+                };
+            };
+        });
+
+        // 大阪チーム
+        document.getElementById("btn_osaka").addEventListener("click",function(){
+            var team=document.getElementsByName("osaka");
+            for (var i=0; i<team.length; i++){
+                if (team[i].style.display == "none"){
+                    team[i].style.display="";
+                } else {
+                    team[i].style.display="none";
+                };
+            };
+        });
+
+        // 高松チーム
+        document.getElementById("btn_takamatsu").addEventListener("click",function(){
+            var team=document.getElementsByName("takamatsu");
+            for (var i=0; i<team.length; i++){
+                if (team[i].style.display == "none"){
+                    team[i].style.display="";
+                } else {
+                    team[i].style.display="none";
+                };
+            };
+        });
+
+        // 福岡チーム
+        document.getElementById("btn_fukuoka").addEventListener("click",function(){
+            var team=document.getElementsByName("fukuoka");
+            for (var i=0; i<team.length; i++){
+                if (team[i].style.display == "none"){
+                    team[i].style.display="";
+                } else {
+                    team[i].style.display="none";
+                };
+            };
+        });
+
+
+    </script>
 </body>
 </html>

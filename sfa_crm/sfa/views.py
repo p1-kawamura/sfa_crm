@@ -348,12 +348,11 @@ def kakudo_index(request):
     # 個人
     person={}
     for key,value in busho_arr.items():
-        
         ins=Member.objects.filter(busho_id=key).values_list("tantou_id",flat=True)
         person_li=[]
         for i in ins:
-            person_li.append(Member.objects.get(tantou_id=i).tantou)
             kaku_li=[]
+            kaku_li.append(Member.objects.get(tantou_id=i).tantou)
             for h in ["A","B","C",""]:
                 li=[]
                 person_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i).count()
@@ -367,9 +366,7 @@ def kakudo_index(request):
             person_li.append(kaku_li)
         person[value]=person_li
 
-    print(person)
-
-    params={"all":all,"team":team}
+    params={"all":all,"team":team,"person":person}
     return render(request,"sfa/kakudo.html",params)
 
 
