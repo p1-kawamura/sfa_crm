@@ -4,6 +4,7 @@ from sfa.models import Member
 import requests
 from django.http import JsonResponse
 from datetime import date
+import json
 
 
 
@@ -94,7 +95,11 @@ def kokyaku_api(request):
         busho_id=""
         tantou_id=""
 
-    tantou_list=Member.objects.filter(busho_id=busho_id)       
+    tantou_list=Member.objects.filter(busho_id=busho_id)
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
     params={
         "res":res,
         "res_det":res_det,
@@ -104,6 +109,7 @@ def kokyaku_api(request):
         "tantou_id":tantou_id,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
+        "act_user":act_user,
     }
     return render(request,"crm/index.html",params)
 
@@ -187,7 +193,12 @@ def grip_index(request):
         alert=Crm_action.objects.filter(cus_id=i.cus_id,type=6,alert_check=0,day__lte=today).count()
         dic["alert"]=alert
         list.append(dic)
-    return render(request,"crm/grip.html",{"list":list})
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    return render(request,"crm/grip.html",{"list":list,"act_user":act_user})
 
 
 def grip_add(request):

@@ -99,6 +99,10 @@ def index(request):
         list.append(dic)
 
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    
     params={
         "list":list,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
@@ -112,6 +116,7 @@ def index(request):
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち"],
         "ses":ses,
+        "act_user":act_user,
     }
     return render(request,"sfa/index.html",params)
 
@@ -248,7 +253,10 @@ def show_settei(request):
 
 # 案件表示_初期ページ
 def show_index(request):
-    return render(request,"sfa/show.html")
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"sfa/show.html",{"act_user":act_user})
 
 
 # 案件表示_結果ページ
@@ -259,7 +267,10 @@ def show(request):
         com=i.com
         name=i.sei +" " + i.mei
         break
-    return render(request,"sfa/show.html",{"list":ins,"mitsu_num":mitsu_num,"com":com,"name":name})
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"sfa/show.html",{"list":ins,"mitsu_num":mitsu_num,"com":com,"name":name,"act_user":act_user})
 
 
 # メールワイズ_表示ページ
@@ -269,7 +280,10 @@ def mw_page(request):
     busho=arr[busho_id]
     ins=Sfa_data.objects.filter(busho_id=busho_id,show=0,mw=1).order_by("tantou_id")
     member=Member.objects.all()
-    return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member})
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"act_user":act_user})
 
 
 # メールワイズ_削除ボタン
@@ -366,7 +380,11 @@ def kakudo_index(request):
             person_li.append(kaku_li)
         person[value]=person_li
 
-    params={"all":all,"team":team,"person":person}
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    params={"all":all,"team":team,"person":person,"act_user":act_user}
     return render(request,"sfa/kakudo.html",params)
 
 

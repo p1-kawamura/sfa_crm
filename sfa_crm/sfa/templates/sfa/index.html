@@ -14,11 +14,14 @@
 <body>
 
     <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1000px;">
+            {% include "sfa/menu.html" with act_user=act_user %}
+        </div>
+
         <div style="margin: 0 auto; width: 1410px;">
-
-            <!-- メニュー -->
-            {% include "sfa/menu.html" %}
-
+            <hr>
             <!-- フィルター -->
             <div>
                 <form action="{% url 'sfa:search' %}" method="post">{% csrf_token %}
@@ -258,7 +261,7 @@
                                                     </select>
                                                 </div>
                                                 <div style="margin-left: 30px;">■メールワイズ作成</div>
-                                                <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" value="" id="modal_mw"></div>
+                                                <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" id="modal_mw"></div>
                                                 <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
                                             </div>
                                             <div style="margin-left: 50px;">

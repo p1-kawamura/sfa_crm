@@ -14,11 +14,14 @@
 </head>
 <body>
     <div class="mt-3 mb-5">
-        <div style="margin: 0 auto; width: 1300px;">
-            
-            <!-- メニュー -->
-            {% include "sfa/menu.html" %}
 
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1000px;">
+            {% include "sfa/menu.html" %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1300px;">
+            <hr>
             {% if alert.show == 1 %}
             <div class="flex">
                 <div style="font-size: 1.2em;">
@@ -35,56 +38,119 @@
             {% endif %}
 
             <div class="flex2" style="margin-top: 30px;">
-                <div>
-                    顧客ID：<a href="{{res.customerMstPageUrl}}" target="_blank"><span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a>
-                    <span id="grip_cus_id"> {{res.id}}</span><br>
-                    姓名：<span id="grip_cus_name">
-                    {% if res.nameLast %}{{res.nameLast}}{% endif %}
-                    {% if res.nameFirst %}{{res.nameFirst}}{% endif %}</span>
-                    <br>
-                    会社名：<span id="grip_com">{% if res.corporateName %}{{res.corporateName}}{% endif %}</span><br>
-                    部課名：{% if res.departmentName %}{{res.departmentName}}{% endif %}<br>
-                    職業：
-                    {% if res.occupation %}
-                        {% if res.occupation == 1 %}会社員
-                        {% elif res.occupation == 2 %}会社役員
-                        {% elif res.occupation == 3 %}自営
-                        {% elif res.occupation == 4 %}公務員・団体職員
-                        {% elif res.occupation == 5 %}教職員
-                        {% elif res.occupation == 6 %}学生
-                        {% elif res.occupation == 7 %}パート・アルバイト
-                        {% elif res.occupation == 8 %}主婦
-                        {% elif res.occupation == 9 %}その他
-                        {% endif %}
-                    {% endif %}<br>
-                    郵便番号：{% if res.zipCode %}{{res.zipCode}}{% endif %}<br>
-                    住所：
-                    <span id="grip_pref">{% if res.prefecture %}{{res.prefecture}}{% endif %}</span>
-                    {% if res.city %}{{res.city}}{% endif %}
-                    {% if res.address1 %}{{res.address1}}{% endif %}
-                    {% if res.address2 %}{{res.address2}}{% endif %}
-                    <br>
-                    電話番号：{% if res.tel %}{{res.tel}}{% endif %}<br>
-                    携帯番号：{% if res.mobilePhone %}{{res.mobilePhone}}{% endif %}<br>
-                    メールアドレス：{% if res.contactEmail %}{{res.contactEmail}}{% endif %}<br>
-                    性別：
-                    {% if res.sexId %}
-                        {% if res.sexId == 1 %}男性
-                        {% elif res.sexId == 2 %}女性
-                        {% elif res.sexId == 3 %}その他
-                        {% endif %}
-                    {% endif %}<br>
-                    生年月日：{% if res.birthDay %}{{res.birthDay}}{% endif %}<br>
-                    メルマガ送付：{% if res.isNotSentMailMagazine %}{{res.isNotSentMailMagazine}}{% endif %}<br>
+                <!-- リスト -->
+                <div style="width: 700px;">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>顧客ID</th>
+                            <td>
+                                <a href="{{res.customerMstPageUrl}}" target="_blank"><span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a>
+                                <span id="grip_cus_id"> {{res.id}}</span>
+                            </td>
+                            <th>受注総金額</th>
+                            <td>{{res.totalReceivedOrdersPrice | intcomma}}円</td>
+                        </tr>
+                        <tr>
+                            <th>姓名</th>
+                            <td>
+                                {% if res.nameLast %}{{res.nameLast}}{% endif %}
+                                {% if res.nameFirst %}{{res.nameFirst}}{% endif %}
+                            </td>
+                            <th>受注総件数</th>
+                            <td>{{res.totalReceivedOrders}}件</td>
+                        </tr>
+                        <tr>
+                            <th>会社名</th>
+                            <td>{% if res.corporateName %}{{res.corporateName}}{% endif %}</td>
+                            <th>見積総件数</th>
+                            <td>{{res.totalEstimations}}件</td>
+                        </tr>
+                        <tr>
+                            <th>部課名</th>
+                            <td>{% if res.departmentName %}{{res.departmentName}}{% endif %}</td>
+                            <th>最終受注日</th>
+                            <td>{{res.lastOrderReceivedDate}}</td>
+                        </tr>
+                        <tr>
+                            <th>郵便番号</th>
+                            <td>{% if res.zipCode %}{{res.zipCode}}{% endif %}</td>
+                            <th>最終連絡日</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>住所</th>
+                            <td colspan="3">
+                                {% if res.prefecture %}{{res.prefecture}}{% endif %}
+                                {% if res.city %}{{res.city}}{% endif %}
+                                {% if res.address1 %}{{res.address1}}{% endif %}
+                                {% if res.address2 %}{{res.address2}}{% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>電話番号</th>
+                            <td>{% if res.tel %}{{res.tel}}{% endif %}</td>
+                            <th>職業</th>
+                            <td>
+                                {% if res.occupation %}
+                                    {% if res.occupation == 1 %}会社員
+                                    {% elif res.occupation == 2 %}会社役員
+                                    {% elif res.occupation == 3 %}自営
+                                    {% elif res.occupation == 4 %}公務員・団体職員
+                                    {% elif res.occupation == 5 %}教職員
+                                    {% elif res.occupation == 6 %}学生
+                                    {% elif res.occupation == 7 %}パート・アルバイト
+                                    {% elif res.occupation == 8 %}主婦
+                                    {% elif res.occupation == 9 %}その他
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>携帯番号</th>
+                            <td>{% if res.mobilePhone %}{{res.mobilePhone}}{% endif %}</td>
+                            <th>性別</th>
+                            <td>
+                                {% if res.sexId %}
+                                    {% if res.sexId == 1 %}男性
+                                    {% elif res.sexId == 2 %}女性
+                                    {% elif res.sexId == 3 %}その他
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>FAX番号</th>
+                            <td>{% if res.fax %}{{res.fax}}{% endif %}</td>
+                            <th>生年月日</th>
+                            <td>{% if res.birthDay %}{{res.birthDay}}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>メールアドレス</th>
+                            <td>{% if res.contactEmail %}{{res.contactEmail}}{% endif %}</td>
+                            <th>通常ポイント</th>
+                            <td>{% if res.point %}{{res.point}}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>メルマガ送付</th>
+                            <td>
+                                {% if res.isNotSentMailMagazine %}
+                                    {% if res.isNotSentMailMagazine %}
+                                    しない
+                                    {% else %}
+                                    する
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <th>プレミアムポイント</th>
+                            <td>{% if res.premiumPoint %}{{res.premiumPoint}}{% endif %}</td>
+                        </tr>
+                    </table>
                 </div>
                 
-                <div style="margin-left: 50px;">
-                    受注総金額：{{res.totalReceivedOrdersPrice | intcomma}}円<br>
-                    受注総件数：{{res.totalReceivedOrders}}件<br>
-                    見積総件数：{{res.totalEstimations}}件<br>
-                    最終受注日：{{res.lastOrderReceivedDate}}<br><br>
-                    <div>
-                        グリップ担当者：
+                <!-- 備考 -->
+                <div style="margin-left: 100px;">
+                    <b>■グリップ担当者：</b>
+                    <div class="flex" style="margin-top: 10px;">
                         <div>
                             <select class="form-select" id="busho" style="width: 150px;">
                                 {% for key,value in busho_list.items %}
@@ -96,27 +162,36 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="flex" style="margin-top: 5px;">
-                            <div>
-                                <select class="form-select" id="tantou" style="width: 150px;">
-                                    {% for i in tantou_list %}
-                                        {% if i.tantou_id == tantou_id %}
-                                        <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
-                                        {% else %}
-                                        <option value="{{i.tantou_id}}">{{i.tantou}}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div style="margin-left: 10px;">
-                                <button class="btn btn-outline-success" type="button" id="btn_grip">登録</button>
-                            </div>
+                        <div style="margin-left: 20px;">
+                            <select class="form-select" id="tantou" style="width: 150px;">
+                                {% for i in tantou_list %}
+                                    {% if i.tantou_id == tantou_id %}
+                                    <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
+                                    {% else %}
+                                    <option value="{{i.tantou_id}}">{{i.tantou}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
                         </div>
-                        
+                        <div style="margin-left: 20px;">
+                            <button class="btn btn-outline-success" type="button" id="btn_grip">登録</button>
+                        </div>
                     </div>
-                </div>
-
-                
+                    <hr>
+                    <div class="flex">
+                        <div>■メールワイズ作成</div>
+                        <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" id="crm_mw"></div>
+                        <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="btn_crm">設定</button></div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <div>■企業情報</div>
+                        <div style="margin-top: 5px;"><textarea class="form-control" rows="3" id="crm_bikou_1"></textarea></div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <div>■備考</div>
+                        <div style="margin-top: 5px;"><textarea class="form-control" rows="5" id="crm_bikou_2"></textarea></div>
+                    </div>
+                </div>  
                 
             </div>
             <hr>
