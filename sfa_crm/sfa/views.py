@@ -29,6 +29,8 @@ def index(request):
         request.session["search"]["st"]=[]
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
+    if "crm_mw_list" not in request.session:
+        request.session["crm_mw_list"]=[]
 
     ses=request.session["search"]
     fil={}
@@ -318,7 +320,7 @@ def mw_download(request):
         mw_csv.append(a)
         ins.mw=0
         ins.save()
-    filename=urllib.parse.quote("メールワイズ用リスト.csv")
+    filename=urllib.parse.quote("【案件管理】メールワイズ用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
     response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
     writer = csv.writer(response)

@@ -52,16 +52,15 @@
                         </tr>
                         <tr>
                             <th>姓名</th>
-                            <td>
-                                {% if res.nameLast %}{{res.nameLast}}{% endif %}
-                                {% if res.nameFirst %}{{res.nameFirst}}{% endif %}
+                            <td id="cus_name">
+                                {% if res.nameLast %}{{res.nameLast}}{% endif %}{% if res.nameFirst %}{{res.nameFirst}}{% endif %}
                             </td>
                             <th>受注総件数</th>
                             <td>{{res.totalReceivedOrders}}件</td>
                         </tr>
                         <tr>
                             <th>会社名</th>
-                            <td>{% if res.corporateName %}{{res.corporateName}}{% endif %}</td>
+                            <td id="com">{% if res.corporateName %}{{res.corporateName}}{% endif %}</td>
                             <th>見積総件数</th>
                             <td>{{res.totalEstimations}}件</td>
                         </tr>
@@ -126,7 +125,7 @@
                         </tr>
                         <tr>
                             <th>メールアドレス</th>
-                            <td>{% if res.contactEmail %}{{res.contactEmail}}{% endif %}</td>
+                            <td id="mail">{% if res.contactEmail %}{{res.contactEmail}}{% endif %}</td>
                             <th>通常ポイント</th>
                             <td>{% if res.point %}{{res.point}}{% endif %}</td>
                         </tr>
@@ -180,16 +179,20 @@
                     <hr>
                     <div class="flex">
                         <div>■メールワイズ作成</div>
+                        {% if dic_bikou.mw == 0 %}
                         <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" id="crm_mw"></div>
+                        {% else %}
+                        <div style="margin-left: 10px;"><input class="form-check-input" type="checkbox" id="crm_mw" checked></div>
+                        {% endif %}
                         <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="btn_crm">設定</button></div>
                     </div>
                     <div style="margin-top: 20px;">
                         <div>■企業情報</div>
-                        <div style="margin-top: 5px;"><textarea class="form-control" rows="3" id="crm_bikou_1"></textarea></div>
+                        <div style="margin-top: 5px;"><textarea class="form-control" rows="3" id="crm_bikou_1">{{dic_bikou.bikou1}}</textarea></div>
                     </div>
                     <div style="margin-top: 20px;">
                         <div>■備考</div>
-                        <div style="margin-top: 5px;"><textarea class="form-control" rows="5" id="crm_bikou_2"></textarea></div>
+                        <div style="margin-top: 5px;"><textarea class="form-control" rows="5" id="crm_bikou_2">{{dic_bikou.bikou2}}</textarea></div>
                     </div>
                 </div>  
                 
@@ -446,6 +449,28 @@
                     } else {
                         window.alert("グリップ顧客を解除しました！");
                     };
+                })
+        });
+
+
+        // メールワイズ、備考
+        document.getElementById("btn_crm").addEventListener("click",function(){
+            $.ajax({
+                    'url': '{% url "crm:mw_bikou" %}',
+                    'type': 'POST',
+                    'data': {
+                        "cus_id":document.getElementById("grip_cus_id").innerText,
+                        "mw":document.getElementById("crm_mw").checked,
+                        "bikou1":document.getElementById("crm_bikou_1").value,
+                        "bikou2":document.getElementById("crm_bikou_2").value,
+                        "com":document.getElementById("com").innerText,
+                        "cus_name":document.getElementById("cus_name").innerText,
+                        "mail":document.getElementById("mail").innerText,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.alert("設定しました！");
                 })
         });
 

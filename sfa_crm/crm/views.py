@@ -1,10 +1,13 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action,Grip
+from .models import Crm_action,Grip,Customer
 from sfa.models import Member
 import requests
 from django.http import JsonResponse
 from datetime import date
 import json
+import csv
+from django.http import HttpResponse
+import urllib.parse
 
 
 
@@ -95,7 +98,14 @@ def kokyaku_api(request):
         busho_id=""
         tantou_id=""
 
-    tantou_list=Member.objects.filter(busho_id=busho_id)
+    # メールワイズ、備考
+    dic_bikou={"bikou1":"","bikou2":"","mw":0}
+    if Customer.objects.filter(cus_id=cus_id).count() > 0:
+        ins=Customer.objects.get(cus_id=cus_id)
+        dic_bikou["bikou1"]=ins.bikou1
+        dic_bikou["bikou2"]=ins.bikou2
+        dic_bikou["mw"]=ins.mw
+        
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
@@ -108,7 +118,8 @@ def kokyaku_api(request):
         "busho_id":busho_id,
         "tantou_id":tantou_id,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
-        "tantou_list":tantou_list,
+        "tantou_list":Member.objects.filter(busho_id=busho_id),
+        "dic_bikou":dic_bikou,
         "act_user":act_user,
     }
     return render(request,"crm/index.html",params)
@@ -170,6 +181,7 @@ def list_del(request):
     return JsonResponse(d)
 
 
+# グリップ一覧表示
 def grip_index(request):
     tantou_id=request.session["search"]["tantou"]
     ins=Grip.objects.filter(tantou_id=tantou_id)
@@ -201,6 +213,7 @@ def grip_index(request):
     return render(request,"crm/grip.html",{"list":list,"act_user":act_user})
 
 
+# グリップ追加
 def grip_add(request):
     cus_id=request.POST.get("cus_id")
     busho_id=request.POST.get("busho_id")
@@ -215,4 +228,95 @@ def grip_add(request):
         )
     d={}
     return JsonResponse(d)
-    
+
+
+# メールワイズ作成チェックと備考
+def mw_bikou(request):
+    cus_id=request.POST.get("cus_id")
+    bikou1=request.POST.get("bikou1")
+    bikou2=request.POST.get("bikou2")
+    mw=request.POST.get("mw")
+    com=request.POST.get("com")
+    cus_name=request.POST.get("cus_name")
+    mail=request.POST.get("mail")
+    busho_id=request.session["search"]["busho"]
+    tantou_id=request.session["search"]["tantou"]
+    tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    if mw=="true":
+        mw=1
+    else:
+        mw=0
+        busho_id=""
+        tantou_id=""
+        tantou=""
+    Customer.objects.update_or_create(
+        cus_id=cus_id,
+        defaults={
+            "cus_id":cus_id,
+            "bikou1":bikou1,
+            "bikou2":bikou2,
+            "mw":mw,
+            "busho_id":busho_id,
+            "tantou_id":tantou_id,
+            "tantou":tantou,
+            "com":com,
+            "name":cus_name,
+            "mail":mail,
+            }
+        )
+    d={}
+    return JsonResponse(d)
+
+
+# メールワイズ_表示ページ
+def mw_page(request):
+    busho_id=request.session["search"]["busho"]
+    arr={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    busho=arr[busho_id]
+    ins=Customer.objects.filter(busho_id=busho_id,mw=1).order_by("tantou_id")
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"crm/mw_csv.html",{"busho":busho,"list":ins,"act_user":act_user})
+
+
+# メールワイズ_削除ボタン
+def mw_delete(request,pk):
+    ins=Customer.objects.get(pk=pk)
+    ins.mw=0
+    ins.save()
+    return redirect("crm:mw_page")
+
+
+#メールワイズ_CSV準備
+def mw_make(request):
+    mw_list=request.POST.get("list")
+    mw_list=json.loads(mw_list)
+    request.session["crm_mw_list"]=mw_list
+    d={}
+    return JsonResponse(d)
+
+
+# メールワイズ_DL
+def mw_download(request):
+    mw_list=request.session["crm_mw_list"]
+    mw_csv=[]
+    for i in mw_list:
+        ins=Customer.objects.get(cus_id=i)
+        a=[
+            ins.com, #会社
+            ins.name, #氏名
+            ins.mail , #メールアドレス
+            ins.tantou  #担当
+        ]
+        mw_csv.append(a)
+        ins.mw=0
+        ins.save()
+    filename=urllib.parse.quote("【顧客管理】メールワイズ用リスト.csv")
+    response = HttpResponse(content_type='text/csv; charset=CP932')
+    response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
+    writer = csv.writer(response)
+    for line in mw_csv:
+        writer.writerow(line)
+    return response

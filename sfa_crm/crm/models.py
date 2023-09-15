@@ -21,3 +21,21 @@ class Grip(models.Model):
 
     def __str__(self):
         return self.cus_id
+    
+
+class Customer(models.Model):
+    cus_id=models.CharField("顧客ID",max_length=10)
+    bikou1=models.TextField("企業情報",default="")
+    bikou2=models.TextField("備考",default="")
+    mw=models.IntegerField("メールワイズ",default=0)
+    busho_id=models.CharField("部署ID",max_length=10,blank=True)
+    tantou_id=models.CharField("担当ID",max_length=10,blank=True)
+    tantou=models.CharField("担当",max_length=10,blank=True)
+    com=models.CharField("会社名",max_length=255,blank=True)
+    name=models.CharField("氏名",max_length=255,blank=True)
+    mail=models.CharField("メール",max_length=255,blank=True)
+
+    def __str__(self):
+        return self.cus_id
+    
+    # mw（メールワイズ） 0:無し　1：作成
