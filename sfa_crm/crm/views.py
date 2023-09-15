@@ -313,7 +313,7 @@ def mw_download(request):
         mw_csv.append(a)
         ins.mw=0
         ins.save()
-    filename=urllib.parse.quote("【顧客管理】メールワイズ用リスト.csv")
+    filename=urllib.parse.quote("【顧客】メールワイズ用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
     response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
     writer = csv.writer(response)
