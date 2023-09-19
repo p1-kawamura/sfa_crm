@@ -8,6 +8,7 @@ import json
 import csv
 from django.http import HttpResponse
 import urllib.parse
+from django.db.models import Q
 
 
 
@@ -108,7 +109,10 @@ def kokyaku_api(request):
         
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
     params={
         "res":res,
@@ -184,7 +188,7 @@ def list_del(request):
 # グリップ一覧表示
 def grip_index(request):
     tantou_id=request.session["search"]["tantou"]
-    ins=Grip.objects.filter(tantou_id=tantou_id)
+    ins=Grip.objects.filter(~Q(busho_id=""),tantou_id=tantou_id)
     list=[]
     for i in ins:
         url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
@@ -208,7 +212,10 @@ def grip_index(request):
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
     return render(request,"crm/grip.html",{"list":list,"act_user":act_user})
 
@@ -271,13 +278,16 @@ def mw_bikou(request):
 # メールワイズ_表示ページ
 def mw_page(request):
     busho_id=request.session["search"]["busho"]
-    arr={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    arr={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
     busho=arr[busho_id]
     ins=Customer.objects.filter(busho_id=busho_id,mw=1).order_by("tantou_id")
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     return render(request,"crm/mw_csv.html",{"busho":busho,"list":ins,"act_user":act_user})
 
 

@@ -103,7 +103,10 @@ def index(request):
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     
     params={
         "list":list,
@@ -257,7 +260,10 @@ def show_settei(request):
 def show_index(request):
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     return render(request,"sfa/show.html",{"act_user":act_user})
 
 
@@ -271,20 +277,26 @@ def show(request):
         break
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     return render(request,"sfa/show.html",{"list":ins,"mitsu_num":mitsu_num,"com":com,"name":name,"act_user":act_user})
 
 
 # メールワイズ_表示ページ
 def mw_page(request):
     busho_id=request.session["search"]["busho"]
-    arr={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    arr={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
     busho=arr[busho_id]
     ins=Sfa_data.objects.filter(busho_id=busho_id,show=0,mw=1).order_by("tantou_id")
     member=Member.objects.all()
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"act_user":act_user})
 
 
@@ -384,7 +396,10 @@ def kakudo_index(request):
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
-    act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
     params={"all":all,"team":team,"person":person,"act_user":act_user}
     return render(request,"sfa/kakudo.html",params)
