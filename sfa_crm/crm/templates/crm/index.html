@@ -68,7 +68,7 @@
                             <th>部課名</th>
                             <td>{% if res.departmentName %}{{res.departmentName}}{% endif %}</td>
                             <th>最終受注日</th>
-                            <td>{{res.lastOrderReceivedDate}}</td>
+                            <td>{% if res.lastOrderReceivedDate %}{{res.lastOrderReceivedDate}}{% endif %}</td>
                         </tr>
                         <tr>
                             <th>郵便番号</th>
