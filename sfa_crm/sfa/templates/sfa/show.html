@@ -27,7 +27,7 @@
                 <form action="{% url 'sfa:show_search' %}" method="post">{% csrf_token %}
                     <div class="flex">
                         <div>見積番号：</div>
-                        <div><input class="form-control form-control-sm" type="text" name="mitsu_num" style="width: 100px;"></div>
+                        <div><input class="form-control form-control-sm" type="text" name="mitsu_num" style="width: 100px;" required></div>
                         <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" type="submit"><i class="bi bi-search"></i> 検索</button></div>
                     </div>
                 </form>
