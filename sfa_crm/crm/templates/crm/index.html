@@ -281,7 +281,7 @@
                                         <button class="btn btn-outline-dark btn-sm" id="act_reset">リセット</button>
                                     </div>
                                     <div style="margin-left: 30px;">
-                                        <button class="btn btn-outline-danger btn-sm" id="act_del" onclick="return confirm('本当に削除してよろしいですか？')">削除</button>
+                                        <button class="btn btn-outline-danger btn-sm" id="act_del">削除</button>
                                     </div>
                                 </div>
                                 <div class="flex" style="margin-top: 20px;">
@@ -494,7 +494,6 @@
                     document.getElementById("estlist_payment").innerText=res.paymentMethod;
                     document.getElementById("estlist_estday").innerText=res.firstEstimationDate;
                     document.getElementById("estlist_recday").innerText=res.orderReceivedDate;
-                    document.getElementById("estlist_sendday").innerText=res.shippedDate;
 
                     // 商品
                     var str ="";
@@ -546,7 +545,7 @@
                     res=response.res;           
                     document.getElementById("act_type").value=res.type;
                     document.getElementById("act_day").value=res.day;
-                    document.getElementById("act_text").value=res.text;  
+                    document.getElementById("act_text").value=res.text;
                 })
             },false)
         };
@@ -565,6 +564,15 @@
         // リスト削除
         document.getElementById("act_del").addEventListener("click",function(e){
             e.preventDefault();
+            var act_id=document.getElementById("act_id").value;
+            if (act_id == ""){
+                window.alert("対象のコメントがありません！");
+                return
+            };
+            var ans =confirm("本当に削除しますか？");
+            if (ans == false){
+                return
+            };
             $.ajax({
                 'url': '{% url "crm:list_del" %}',
                 'type': 'POST',
@@ -577,6 +585,7 @@
             .done(function(response){
                 window.location.reload();
             })
+
         },false);
 
     </script>
