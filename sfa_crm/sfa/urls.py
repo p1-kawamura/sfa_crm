@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_alert_check,kokyaku_detail_api,csv_imp,csv_imp_page, \
+from .views import index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_alert_check,kokyaku_detail_api,csv_imp,csv_imp_page, \
                     show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member,mw_page,mw_delete,mw_make,mw_download, \
                     kakudo_index
 
@@ -13,6 +13,7 @@ urlpatterns = [
     path('mitsu_detail_api/', mitsu_detail_api, name="mitsu_detail_api"),
     path('modal_top/', modal_top, name="modal_top"),
     path('modal_bot/', modal_bot, name="modal_bot"),
+    path('modal_bot_click/', modal_bot_click, name="modal_bot_click"),
     path('modal_alert_check/', modal_alert_check, name="modal_alert_check"),
     path('kokyaku_detail_api/', kokyaku_detail_api, name="kokyaku_detail_api"),
     path('show_index/', show_index, name="show_index"),

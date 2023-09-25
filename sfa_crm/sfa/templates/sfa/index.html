@@ -70,6 +70,18 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div style="margin-left: 30px;">流入経路：</div>
+                        <div>
+                            <select class="form-select form-select-sm" id="keiro" name="keiro" style="width: 100px;">
+                                {% for i in keiro_list %}
+                                    {% if i == ses.keiro %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
                         <div style="margin-left: 30px;">都道府県：</div>
                         <div>
                             <select class="form-select form-select-sm" id="pref" name="pref" style="width: 100px;">
@@ -94,6 +106,10 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div style="margin-left: 30px;">見積日：</div>
+                        <div><input  class="form-control form-control-sm" type="date" id="mitsu_day_st" name="mitsu_day_st" style="width: 120px;" value="{{ses.mitsu_day_st}}"></div>
+                        <div>　～　</div>
+                        <div><input  class="form-control form-control-sm" type="date" id="mitsu_day_ed" name="mitsu_day_ed" style="width: 120px;" value="{{ses.mitsu_day_ed}}"></div>
                     </div>
                     <div class="flex mt-4">
                         <div>ステータス：</div>
@@ -112,6 +128,31 @@
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
+                    </div>
+                    <div class="flex mt-4">
+                        <div><i class="bi bi-arrow-down-up"></i> <b>並び替え：</b></div>
+                        <div>
+                            <select class="form-select form-select-sm" id="sort_name" name="sort_name" style="width: 110px;">
+                                {% for key,value in sort_list.items %}
+                                    {% if key == ses.sort_name %}
+                                    <option value="{{key}}" selected>{{value}}</option>
+                                    {% else %}
+                                    <option value="{{key}}">{{value}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 10px;">
+                            <select class="form-select form-select-sm" id="sort_jun" name="sort_jun" style="width: 80px;">
+                                {% if ses.sort_jun == "0" %}
+                                <option value="0" selected>昇順</option>
+                                <option value="l">降順</option>
+                                {% else %}
+                                <option value="0">昇順</option>
+                                <option value="l" selected>降順</option>
+                                {% endif %}
+                            </select>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -296,7 +337,7 @@
                                     <div style="margin-top: 20px;">
                                         <div>■電話入れ / メール / メモ / アラート</div>
                                         <div class="flex mt-3">
-                                            <div>内容:</div>
+                                            <div>種類:</div>
                                             <div style="margin-left: 10px;">
                                                 <select class="form-select form-select-sm" id="modal_bot_type">
                                                     <option value="0"></option>
@@ -313,10 +354,16 @@
                                                 </select>
                                             </div>
                                             <div style="margin-left: 20px;">日付：</div>
-                                            <div><input class="form-control form-control-sm" type="date" id="modal_bot_day"></div>
-                                            <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" id="modal_btn_bot">設定</button></div>
+                                            <div><input class="form-control form-control-sm" type="date" id="modal_bot_day" style="width: 120px;"></div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-outline-dark btn-sm" id="modal_btn_bot_new">新規</button></div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-outline-danger btn-sm" id="modal_btn_bot_del">削除</button></div>
+                                            <div id="act_id" style="display: none;"></div>
                                         </div>
-                                        <div style="margin-top: 10px;"><textarea class="form-control" rows="2" id="modal_bot_text"></textarea></div>
+                                        <div class="flex">
+                                            <div style="margin-top: 10px; width: 450px;"><textarea class="form-control" rows="2" id="modal_bot_text"></textarea></div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-primary btn-sm" id="modal_btn_bot">決定</button></div>
+                                        </div>
+                                        
                                         <div class="inlineframe" id="modal_sfa_action" style="height: 180px; width: 530px;"></div>
                                     </div>
                                 </div>
@@ -397,8 +444,11 @@
         document.getElementById("form_clear").addEventListener("click",function(e){
             e.preventDefault();
             document.getElementById("chumon_kubun").value="";
+            document.getElementById("keiro").value="";
             document.getElementById("pref").value="";
             document.getElementById("kakudo").value="";
+            document.getElementById("mitsu_day_st").value="";
+            document.getElementById("mitsu_day_ed").value="";
             var st=document.getElementsByName("st");
             for (var i=0; i<st.length; i++){
                 st[i].checked=false;
@@ -479,12 +529,13 @@
                             } else if (i.type == 4) {
                                 icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
                             };
-                            str=str + "<div class='flex modal_action' style='font-size:0.9em'>" +
+                            str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
                                 "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
                                 "<div style='width: 50px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
                                 "</div>";
                         };
                         document.getElementById("modal_sfa_action").innerHTML=str;
+                        modal_bot_click();
                     })
                 },false)
             };
@@ -527,6 +578,7 @@
         document.getElementById("modal_btn_bot").addEventListener("click",function(e){
             var type = document.getElementById("modal_bot_type").value;
             var day = document.getElementById("modal_bot_day").value;
+            var act_id = document.getElementById("act_id").value;
             if (type==0){
                 window.alert("内容を選択してください！");
                 return;
@@ -538,6 +590,7 @@
                     'url': '{% url "sfa:modal_bot" %}',
                     'type': 'POST',
                     'data': {
+                        "act_id":act_id,
                         "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
                         "day":document.getElementById("modal_bot_day").value,
                         "type":document.getElementById("modal_bot_type").value,
@@ -560,7 +613,7 @@
                         } else if (i.type == 4) {
                             icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
                         };
-                        str=str + "<div class='flex modal_action' style='font-size:0.9em'>" +
+                        str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
                             "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
                             "<div style='width: 50px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
                             "</div>";
@@ -570,9 +623,49 @@
                     document.getElementById("modal_bot_type").value="";
                     document.getElementById("modal_tel_hyouji").style.display="none";
                     document.getElementById("modal_bot_text").value="";
+                    modal_bot_click();
                 })
         });
 
+
+        // モーダル_BOT_リストクリック
+        function modal_bot_click(){
+            var item=document.getElementsByName("act_list");
+            for (var i=0; i<item.length; i++){
+                item[i].addEventListener("click",function(){
+                    document.getElementById("act_id").value=this.id;
+                    $.ajax({
+                        'url': '{% url "sfa:modal_bot_click" %}',
+                        'type': 'POST',
+                        'data': {"act_id":this.id},
+                        'dataType': 'json'
+                    })
+                    .done(function(response){
+                        res=response.res;
+                        if (res.type == 1){
+                            document.getElementById("modal_tel_hyouji").style.display="block";
+                        } else {
+                            document.getElementById("modal_tel_hyouji").style.display="none";
+                        };
+                        document.getElementById("modal_bot_type").value=res.type;
+                        document.getElementById("modal_bot_tel").value=res.tel;
+                        document.getElementById("modal_bot_day").value=res.day;
+                        document.getElementById("modal_bot_text").value=res.text;
+                    })
+                },false)
+            };
+        }
+
+        // モーダル_BOT_リセット
+        document.getElementById("modal_btn_bot_new").addEventListener("click",function(e){
+            document.getElementById("modal_bot_type").value="";
+            document.getElementById("modal_bot_tel").value="";
+            document.getElementById("modal_bot_day").value="";
+            document.getElementById("modal_bot_text").value="";
+            document.getElementById("act_id").value="";
+            document.getElementById("modal_tel_hyouji").style.display="none";
+        });
+        
 
         // モーダル_アラート解除
         document.getElementById("modal_alert_check").addEventListener("click",function(){

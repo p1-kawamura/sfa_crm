@@ -21,12 +21,22 @@ def index(request):
         request.session["search"]["tantou"]=""
     if "chumon_kubun" not in request.session["search"]:
         request.session["search"]["chumon_kubun"]=""
+    if "keiro" not in request.session["search"]:
+        request.session["search"]["keiro"]=""
     if "pref" not in request.session["search"]:
         request.session["search"]["pref"]=""
     if "kakudo" not in request.session["search"]:
         request.session["search"]["kakudo"]=""
+    if "mitsu_day_st" not in request.session["search"]:
+        request.session["search"]["mitsu_day_st"]=""
+    if "mitsu_day_ed" not in request.session["search"]:
+        request.session["search"]["mitsu_day_ed"]=""
     if "st" not in request.session["search"]:
         request.session["search"]["st"]=[]
+    if "sort_name" not in request.session["search"]:
+        request.session["search"]["sort_name"]="mitsu_day"
+    if "sort_jun" not in request.session["search"]:
+        request.session["search"]["sort_jun"]="0"
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
@@ -38,14 +48,20 @@ def index(request):
     fil["show"]=0
     if ses["chumon_kubun"] != "":
         fil["order_kubun"]=ses["chumon_kubun"]
+    if ses["keiro"] != "":
+        fil["keiro"]=ses["keiro"]
     if ses["pref"] != "":
         fil["pref"]=ses["pref"]
     if ses["kakudo"] != "":
         fil["kakudo"]=ses["kakudo"]
+    if ses["mitsu_day_st"] != "":
+        fil["mitsu_day__gte"]=ses["mitsu_day_st"]
+    if ses["mitsu_day_ed"] != "":
+        fil["mitsu_day__lte"]=ses["mitsu_day_ed"]
     if len(ses["st"])!=0:
         fil["status__in"]=ses["st"]
     
-    ins=Sfa_data.objects.filter(**fil).order_by("mitsu_day")
+    ins=Sfa_data.objects.filter(**fil)
     list=[]
     for i in ins:
         dic={}
@@ -67,10 +83,13 @@ def index(request):
         dic["money"]=i.money
         if i.nouhin_kigen != "":
             dic["nouki"]="期限：" + i.nouhin_kigen[5:].replace("-","/")
+            dic["nouki_real"]=i.nouhin_kigen
         elif i.nouhin_shitei != "":
             dic["nouki"]="指定：" +i.nouhin_shitei[5:].replace("-","/")
+            dic["nouki_real"]=i.nouhin_shitei
         else:
             dic["nouki"]=""
+            dic["nouki_real"]=""
         dic["kakudo"]=i.kakudo
         dic["juchu"]=i.juchu_day[5:].replace("-","/")
         dic["hassou"]=i.hassou_day[5:].replace("-","/")
@@ -79,19 +98,23 @@ def index(request):
         if tel_count > 0:
             act_tel=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).latest("day")
             dic["tel"]=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
+            dic["tel_real"]=act_tel.day
             if act_tel.tel_result=="対応":
                 dic["tel_result"]=1
             else:
                 dic["tel_result"]=2
         else:
-            dic["tel_result"]=0
+            dic["tel_real"]=""
+            dic["tel_result"]=0      
 
         mail_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).count()
         if mail_count > 0:
             act_mail=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).latest("day")
             dic["mail"]=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ") "
+            dic["mail_real"]=act_mail.day
             dic["mail_result"]=1
         else:
+            dic["mail_real"]=""
             dic["mail_result"]=0
 
         today=str(date.today())
@@ -100,7 +123,14 @@ def index(request):
 
         list.append(dic)
 
+    # 並び替え
+    if ses["sort_jun"]=="0":
+        list=sorted(list,key=lambda x: x[ses["sort_name"]])
+    else:
+        list=sorted(list,key=lambda x: x[ses["sort_name"]], reverse=True)
+
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
+
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
@@ -113,6 +143,7 @@ def index(request):
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
         "chumon_kubun":["","新規","追加","追加新柄","刷り直し","返金"],
+        "keiro_list":["","Web","Fax","Tel","来店","外商","法人問合せ"],
         "kakudo_list":["","A","B","C"],
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
@@ -120,6 +151,7 @@ def index(request):
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち"],
+        "sort_list":{"mitsu_day":"見積日","money":"金額","nouki_real":"納期","tel_real":"最終TEL","mail_real":"最終メール"},
         "ses":ses,
         "act_user":act_user,
     }
@@ -131,16 +163,26 @@ def search(request):
     busho=request.POST["busho"]
     tantou=request.POST["tantou"]
     chumon_kubun=request.POST["chumon_kubun"]
+    keiro=request.POST["keiro"]
     pref=request.POST["pref"]
     kakudo=request.POST["kakudo"]
+    mitsu_day_st=request.POST["mitsu_day_st"]
+    mitsu_day_ed=request.POST["mitsu_day_ed"]
     st=request.POST.getlist("st")
+    sort_name=request.POST["sort_name"]
+    sort_jun=request.POST["sort_jun"]
 
     request.session["search"]["busho"]=busho
     request.session["search"]["tantou"]=tantou
     request.session["search"]["chumon_kubun"]=chumon_kubun
+    request.session["search"]["keiro"]=keiro
     request.session["search"]["pref"]=pref
     request.session["search"]["kakudo"]=kakudo
+    request.session["search"]["mitsu_day_st"]=mitsu_day_st
+    request.session["search"]["mitsu_day_ed"]=mitsu_day_ed
     request.session["search"]["st"]=st
+    request.session["search"]["sort_name"]=sort_name
+    request.session["search"]["sort_jun"]=sort_jun
     return redirect("sfa:index")
 
 
@@ -194,16 +236,31 @@ def modal_top(request):
 
 # モーダル下部（電話、メール、備考、アラート）
 def modal_bot(request):
+    act_id=request.POST.get("act_id")
     mitsu_id=request.POST.get("mitsu_id")
     day=request.POST.get("day")
     type=request.POST.get("type")
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
-    if type=="1":
+    if act_id =="":
         Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,tel_result=tel_result,text=text)
     else:
-        Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,text=text)
+        ins=Sfa_action.objects.get(act_id=act_id)
+        ins.type=type
+        ins.day=day
+        ins.tel_result=tel_result
+        ins.text=text
+        ins.save()
     res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
+    d={"res":res}
+    return JsonResponse(d)
+
+
+# モーダル下部_クリック
+def modal_bot_click(request):
+    act_id=request.POST.get("act_id")
+    ins=Sfa_action.objects.get(act_id=act_id)
+    res={"type":ins.type,"tel":ins.tel_result,"day":ins.day,"text":ins.text}
     d={"res":res}
     return JsonResponse(d)
 
