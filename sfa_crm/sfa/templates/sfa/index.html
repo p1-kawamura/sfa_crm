@@ -535,6 +535,7 @@
                                 "</div>";
                         };
                         document.getElementById("modal_sfa_action").innerHTML=str;
+                        document.getElementById("act_id").value="";
                         modal_bot_click();
                     })
                 },false)
@@ -565,9 +566,9 @@
         // モーダル_TEL
         var type = document.getElementById("modal_bot_type");
         type.addEventListener("change",function(){
-            console.log("action");
             if (type.value == 1){
                 document.getElementById("modal_tel_hyouji").style.display="block"
+                document.getElementById("modal_bot_tel").value="対応";
             } else {
                 document.getElementById("modal_tel_hyouji").style.display="none";
             };
@@ -580,11 +581,11 @@
             var day = document.getElementById("modal_bot_day").value;
             var act_id = document.getElementById("act_id").value;
             if (type==0){
-                window.alert("内容を選択してください！");
-                return;
+                window.alert("種類を選択してください！");
+                return
             } else if (day==""){
                 window.alert("日付を入力してください！");
-                return;
+                return
             };
             $.ajax({
                     'url': '{% url "sfa:modal_bot" %}',
@@ -623,6 +624,7 @@
                     document.getElementById("modal_bot_type").value="";
                     document.getElementById("modal_tel_hyouji").style.display="none";
                     document.getElementById("modal_bot_text").value="";
+                    document.getElementById("act_id").value="";
                     modal_bot_click();
                 })
         });
@@ -666,6 +668,56 @@
             document.getElementById("modal_tel_hyouji").style.display="none";
         });
         
+
+        // モーダル_BOT_削除
+        document.getElementById("modal_btn_bot_del").addEventListener("click",function(e){
+            var act_id = document.getElementById("act_id").value;
+            if (act_id==""){
+                window.alert("削除対象を選択してください！");
+                return
+            };
+            var ans =confirm("本当に削除しますか？");
+            if (ans == false){
+                return
+            };
+            $.ajax({
+                    'url': '{% url "sfa:modal_bot_delete" %}',
+                    'type': 'POST',
+                    'data': {
+                        "act_id":act_id,
+                        "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    res=response.res;
+                    var str = "";
+                    var icon = "";
+                    for (var i of res){
+                        if (i.type == 1) {
+                            icon="<span style='color: green; font-weight: bold;'><i class='bi bi-telephone-forward-fill'></i></span>";
+                        } else if (i.type == 2) {
+                            icon="<span style='color: #ff9900; font-weight: bold;'><i class='bi bi-envelope-fill'></i></span>"
+                        } else if (i.type == 3) {
+                            icon="<span style='color: #646565; font-weight: bold;'><i class='bi bi-clipboard-fill'></i></span>"
+                        } else if (i.type == 4) {
+                            icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
+                        };
+                        str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
+                            "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
+                            "<div style='width: 50px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
+                            "</div>";
+                    };
+                    document.getElementById("modal_sfa_action").innerHTML=str;
+                    document.getElementById("modal_bot_day").value="";
+                    document.getElementById("modal_bot_type").value="";
+                    document.getElementById("modal_tel_hyouji").style.display="none";
+                    document.getElementById("modal_bot_text").value="";
+                    document.getElementById("act_id").value="";
+                    modal_bot_click();
+                })
+        });
+
 
         // モーダル_アラート解除
         document.getElementById("modal_alert_check").addEventListener("click",function(){

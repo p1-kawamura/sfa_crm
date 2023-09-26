@@ -243,12 +243,16 @@ def modal_bot(request):
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
     if act_id =="":
-        Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,tel_result=tel_result,text=text)
+        if type==1:
+            Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,tel_result=tel_result,text=text)
+        else:
+            Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,text=text)
     else:
         ins=Sfa_action.objects.get(act_id=act_id)
         ins.type=type
         ins.day=day
-        ins.tel_result=tel_result
+        if type==1:
+            ins.tel_result=tel_result
         ins.text=text
         ins.save()
     res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
@@ -261,6 +265,16 @@ def modal_bot_click(request):
     act_id=request.POST.get("act_id")
     ins=Sfa_action.objects.get(act_id=act_id)
     res={"type":ins.type,"tel":ins.tel_result,"day":ins.day,"text":ins.text}
+    d={"res":res}
+    return JsonResponse(d)
+
+
+# モーダル下部_削除
+def modal_bot_delete(request):
+    act_id=request.POST.get("act_id")
+    mitsu_id=request.POST.get("mitsu_id")
+    Sfa_action.objects.get(act_id=act_id).delete()
+    res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     d={"res":res}
     return JsonResponse(d)
 
