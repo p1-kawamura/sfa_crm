@@ -568,7 +568,7 @@
         type.addEventListener("change",function(){
             if (type.value == 1){
                 document.getElementById("modal_tel_hyouji").style.display="block"
-                document.getElementById("modal_bot_tel").value="対応";
+                document.getElementById("modal_bot_tel").options[0].selected=true;
             } else {
                 document.getElementById("modal_tel_hyouji").style.display="none";
             };
@@ -580,6 +580,7 @@
             var type = document.getElementById("modal_bot_type").value;
             var day = document.getElementById("modal_bot_day").value;
             var act_id = document.getElementById("act_id").value;
+            console.log(document.getElementById("modal_bot_tel").value);
             if (type==0){
                 window.alert("種類を選択してください！");
                 return

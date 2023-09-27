@@ -243,7 +243,7 @@ def modal_bot(request):
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
     if act_id =="":
-        if type==1:
+        if type=="1":
             Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,tel_result=tel_result,text=text)
         else:
             Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,text=text)
@@ -251,7 +251,7 @@ def modal_bot(request):
         ins=Sfa_action.objects.get(act_id=act_id)
         ins.type=type
         ins.day=day
-        if type==1:
+        if type=="1":
             ins.tel_result=tel_result
         ins.text=text
         ins.save()
