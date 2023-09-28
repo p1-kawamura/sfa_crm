@@ -248,7 +248,13 @@
                                     <span style="color: red; font-weight: bold;"><i class="bi bi-bell-fill"></i></span>
                                 {% endif %}
                             </div>
-                            <div style="margin-left: 10px;">{{i.text}}</div>
+                            <div style="margin-left: 10px;">
+                                {% if i.type == 4 %}
+                                    【{{i.tel_result}}】 {{i.text}}
+                                {% else %}
+                                    {{i.text}}
+                                {% endif %}
+                            </div>
                         </div>
                         {% endif %}
                     </div>
@@ -273,7 +279,7 @@
                                             <option value="6">アラート</option>
                                         </select>
                                     </div>
-                                    <div>
+                                    <div id="act_tel_show" style="display: none;">
                                         <select class="form-select" id="act_tel" name="act_tel">
                                             <option value="対応">対応</option>
                                             <option value="不在">不在</option>
@@ -346,6 +352,12 @@
                                         <div style="margin-left: 50px;">発送完了日：</div><div id="estlist_sendday"></div>
                                     </div>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■備考</div><div><textarea class="form-control" id="estlist_bikou" rows="5"></textarea></div></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■やり取り</div><div class="inlineframe" id="estlist_detail" style="height: 180px; margin-top: 0px;"></div></td>
                             </tr>
                             <tr>
                                 <td colspan="2"><div>■見積商品：</div><div id="estlist_shouhin"></div></td>
@@ -493,13 +505,38 @@
                 })
                 .done(function(response){                
                     res=response.res.receivedOrder;
-                    console.log(res);
+                    bikou=response.bikou;
+                    detail=response.detail;
                     document.getElementById("estlist_number").innerText=res.estimationNumber + "-" + res.estimationVersion;
                     document.getElementById("estlist_status").innerText=res.estimationStatus;
                     document.getElementById("estlist_totalprice").innerText=res.totalPrice.toLocaleString() + "円";
                     document.getElementById("estlist_payment").innerText=res.paymentMethod;
                     document.getElementById("estlist_estday").innerText=res.firstEstimationDate;
                     document.getElementById("estlist_recday").innerText=res.orderReceivedDate;
+                    document.getElementById("estlist_sendday").innerText=res.shippedDate;
+
+                    // 備考
+                    document.getElementById("estlist_bikou").value=bikou;
+
+                    // やり取り
+                    var str = "";
+                    var icon = "";
+                    for (var i of detail){
+                        if (i.type == 1) {
+                            icon="<span style='color: green; font-weight: bold;'><i class='bi bi-telephone-forward-fill'></i></span>";
+                        } else if (i.type == 2) {
+                            icon="<span style='color: #ff9900; font-weight: bold;'><i class='bi bi-envelope-fill'></i></span>"
+                        } else if (i.type == 3) {
+                            icon="<span style='color: #646565; font-weight: bold;'><i class='bi bi-clipboard-fill'></i></span>"
+                        } else if (i.type == 4) {
+                            icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
+                        };
+                        str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
+                            "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
+                            "<div style='width: 50px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
+                            "</div>";
+                    };
+                    document.getElementById("estlist_detail").innerHTML=str;
 
                     // 商品
                     var str ="";
@@ -550,11 +587,29 @@
                 .done(function(response){
                     res=response.res;           
                     document.getElementById("act_type").value=res.type;
+                    document.getElementById("act_tel").value=res.tel_result;
                     document.getElementById("act_day").value=res.day;
                     document.getElementById("act_text").value=res.text;
+                    if (res.type == 4){
+                        document.getElementById("act_tel_show").style.display="block";
+                    } else {
+                        document.getElementById("act_tel_show").style.display="none";
+                    };
                 })
             },false)
         };
+
+
+        // コメント種類_TEL
+        var type = document.getElementById("act_type");
+        type.addEventListener("change",function(){
+            if (type.value == 4){
+                document.getElementById("act_tel_show").style.display="block"
+                document.getElementById("tel_act").options[0].selected=true;
+            } else {
+                document.getElementById("act_tel_show").style.display="none";
+            };
+        });
 
 
         // リセット
@@ -564,6 +619,7 @@
             document.getElementById("act_day").value="";
             document.getElementById("act_text").value="";
             document.getElementById("act_id").value="";
+            document.getElementById("act_tel_show").style.display="none";
         });
 
 

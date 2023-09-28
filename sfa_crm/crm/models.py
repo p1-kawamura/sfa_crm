@@ -6,6 +6,7 @@ class Crm_action(models.Model):
     day=models.CharField("日付",max_length=10)
     type=models.IntegerField("種類",null=False)
     text=models.TextField("内容",blank=True)
+    tel_result=models.CharField("TEL結果",max_length=5,blank=True)
     alert_check=models.IntegerField("アラート",default=0)
 
     def __str__(self):

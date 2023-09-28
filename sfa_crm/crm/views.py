@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from .models import Crm_action,Grip,Customer
-from sfa.models import Member
+from sfa.models import Member,Sfa_data,Sfa_action
 import requests
 from django.http import JsonResponse
 from datetime import date
@@ -76,6 +76,7 @@ def kokyaku_api(request):
                     dic["kubun"]="act"
                     dic["day"]=ac.day
                     dic["type"]=ac.type
+                    dic["tel_result"]=ac.tel_result
                     dic["text"]=ac.text
                     dic["act_id"]=ac.act_id
         res_det.append(dic)
@@ -145,14 +146,21 @@ def list_click_est(request):
     url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + sp[0]+ "/receivedOrders/" + sp[1] + "/" + sp[2]
     res=requests.get(url)
     res=res.json()
-    d={"res":res}
+    if Sfa_data.objects.filter(mitsu_num=sp[1],mitsu_ver=sp[2]).count()>0:
+        mitsu_id=Sfa_data.objects.get(mitsu_num=sp[1],mitsu_ver=sp[2]).mitsu_id
+        bikou=Sfa_data.objects.get(mitsu_id=mitsu_id).bikou
+        detail=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
+    else:
+        bikou=""
+        detail=""
+    d={"res":res,"bikou":bikou,"detail":detail}
     return JsonResponse(d)
 
 
 def list_click_act(request):
     act_id=request.POST.get("act_id")
     ins=Crm_action.objects.get(act_id=act_id)
-    res={"type":ins.type,"day":ins.day,"text":ins.text}
+    res={"type":ins.type,"day":ins.day,"text":ins.text,"tel_result":ins.tel_result}
     d={"res":res}
     return JsonResponse(d)
 
@@ -161,17 +169,23 @@ def list_add(request):
     act_id=request.POST["act_id"]
     cus_id=request.POST["act_cus_id"]
     type=request.POST["act_type"]
+    tel_result=request.POST["act_tel"]
     day=request.POST["act_day"]
     text=request.POST["act_text"]
     request.session["cus_id"]=cus_id
 
     if act_id=="":
-        Crm_action.objects.create(cus_id=cus_id,day=day,type=type,text=text)
+        if type=="4":
+            Crm_action.objects.create(cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text)
+        else:
+            Crm_action.objects.create(cus_id=cus_id,day=day,type=type,text=text)
     else:
         ins=Crm_action.objects.get(act_id=act_id)
         ins.day=day
         ins.type=type
         ins.text=text
+        if type=="4":
+            ins.tel_result=tel_result
         ins.save()
     return redirect("crm:kokyaku_api")
 
