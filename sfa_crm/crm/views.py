@@ -146,7 +146,7 @@ def list_click_est(request):
     url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + sp[0]+ "/receivedOrders/" + sp[1] + "/" + sp[2]
     res=requests.get(url)
     res=res.json()
-    if Sfa_data.objects.filter(mitsu_num=sp[1],mitsu_ver=sp[2]).count()>0:
+    if Sfa_data.objects.filter(mitsu_num=sp[1],mitsu_ver=sp[2]).count() > 0:
         mitsu_id=Sfa_data.objects.get(mitsu_num=sp[1],mitsu_ver=sp[2]).mitsu_id
         bikou=Sfa_data.objects.get(mitsu_id=mitsu_id).bikou
         detail=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
