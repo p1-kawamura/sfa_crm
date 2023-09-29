@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action,Grip,Customer
+from .models import Crm_action,Customer
 from sfa.models import Member,Sfa_data,Sfa_action
 import requests
 from django.http import JsonResponse
@@ -92,10 +92,10 @@ def kokyaku_api(request):
             dic["alert_num"]=i.act_id
 
     # グリップ顧客
-    grip=Grip.objects.filter(cus_id=cus_id).count()
+    grip=Customer.objects.filter(cus_id=cus_id).count()
     if grip > 0:
-        busho_id=Grip.objects.get(cus_id=cus_id).busho_id
-        tantou_id=Grip.objects.get(cus_id=cus_id).tantou_id
+        busho_id=Customer.objects.get(cus_id=cus_id).grip_busho_id
+        tantou_id=Customer.objects.get(cus_id=cus_id).grip_tantou_id
     else:
         busho_id=""
         tantou_id=""
@@ -202,7 +202,7 @@ def list_del(request):
 # グリップ一覧表示
 def grip_index(request):
     tantou_id=request.session["search"]["tantou"]
-    ins=Grip.objects.filter(~Q(busho_id=""),tantou_id=tantou_id)
+    ins=Customer.objects.filter(~Q(grip_busho_id=""),grip_tantou_id=tantou_id)
     list=[]
     for i in ins:
         url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
@@ -239,12 +239,12 @@ def grip_add(request):
     cus_id=request.POST.get("cus_id")
     busho_id=request.POST.get("busho_id")
     tantou_id=request.POST.get("tantou_id")
-    Grip.objects.update_or_create(
+    Customer.objects.update_or_create(
         cus_id=cus_id,
         defaults={
             "cus_id":cus_id,
-            "busho_id":busho_id,
-            "tantou_id":tantou_id,
+            "grip_busho_id":busho_id,
+            "grip_tantou_id":tantou_id,
             }
         )
     d={}
@@ -277,12 +277,12 @@ def mw_bikou(request):
             "bikou1":bikou1,
             "bikou2":bikou2,
             "mw":mw,
-            "busho_id":busho_id,
-            "tantou_id":tantou_id,
-            "tantou":tantou,
-            "com":com,
-            "name":cus_name,
-            "mail":mail,
+            "mw_busho_id":busho_id,
+            "mw_tantou_id":tantou_id,
+            "mw_tantou":tantou,
+            "mw_com":com,
+            "mw_name":cus_name,
+            "mw_mail":mail,
             }
         )
     d={}
@@ -294,7 +294,8 @@ def mw_page(request):
     busho_id=request.session["search"]["busho"]
     arr={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
     busho=arr[busho_id]
-    ins=Customer.objects.filter(busho_id=busho_id,mw=1).order_by("tantou_id")
+    ins=Customer.objects.filter(mw_busho_id=busho_id,mw=1).order_by("mw_tantou_id")
+    print(ins)
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -329,10 +330,10 @@ def mw_download(request):
     for i in mw_list:
         ins=Customer.objects.get(cus_id=i)
         a=[
-            ins.com, #会社
-            ins.name, #氏名
-            ins.mail , #メールアドレス
-            ins.tantou  #担当
+            ins.mw_com, #会社
+            ins.mw_name, #氏名
+            ins.mw_mail , #メールアドレス
+            ins.mw_tantou  #担当
         ]
         mw_csv.append(a)
         ins.mw=0

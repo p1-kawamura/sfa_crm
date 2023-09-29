@@ -45,10 +45,10 @@
                     <tbody>
                         {% for i in list %}
                         <tr>
-                            <td>{{i.com}}</td>
-                            <td>{{i.name}}</td>
-                            <td>{{i.mail}}</td>
-                            <td>{{i.tantou}}</td>
+                            <td>{{i.mw_com}}</td>
+                            <td>{{i.mw_name}}</td>
+                            <td>{{i.mw_mail}}</td>
+                            <td>{{i.mw_tantou}}</td>
                             <td style="text-align: center;">
                                 <form action="{% url 'crm:mw_delete' i.pk %}" method="post">{% csrf_token %}
                                     <button class="btn btn-outline-secondary btn-sm" type="submit" id="{{i.cus_id}}" name="mw_list">削除</button>

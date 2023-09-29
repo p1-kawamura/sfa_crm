@@ -14,27 +14,21 @@ class Crm_action(models.Model):
     
     # type（種類） 1:メモ　2：メール　3：メルマガ　4：TEL　5：外商　6：アラート
 
-
-class Grip(models.Model):
-    cus_id=models.CharField("顧客ID",max_length=10)
-    busho_id=models.CharField("部署ID",max_length=10,blank=True)
-    tantou_id=models.CharField("担当者ID",max_length=10,blank=True)
-
-    def __str__(self):
-        return self.cus_id
     
 
 class Customer(models.Model):
     cus_id=models.CharField("顧客ID",max_length=10)
     bikou1=models.TextField("企業情報",default="")
     bikou2=models.TextField("備考",default="")
+    grip_busho_id=models.CharField("グリップ部署ID",max_length=10,blank=True)
+    grip_tantou_id=models.CharField("グリップ担当者ID",max_length=10,blank=True)
     mw=models.IntegerField("メールワイズ",default=0)
-    busho_id=models.CharField("部署ID",max_length=10,blank=True)
-    tantou_id=models.CharField("担当ID",max_length=10,blank=True)
-    tantou=models.CharField("担当",max_length=10,blank=True)
-    com=models.CharField("会社名",max_length=255,blank=True)
-    name=models.CharField("氏名",max_length=255,blank=True)
-    mail=models.CharField("メール",max_length=255,blank=True)
+    mw_busho_id=models.CharField("部署ID",max_length=10,blank=True)
+    mw_tantou_id=models.CharField("担当ID",max_length=10,blank=True)
+    mw_tantou=models.CharField("担当",max_length=10,blank=True)
+    mw_com=models.CharField("会社名",max_length=255,blank=True)
+    mw_name=models.CharField("氏名",max_length=255,blank=True)
+    mw_mail=models.CharField("メール",max_length=255,blank=True)
 
     def __str__(self):
         return self.cus_id
