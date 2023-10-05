@@ -20,7 +20,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1410px;">
+        <div style="margin: 0 auto; width: 1465px;">
             <hr>
             <!-- フィルター -->
             <div>
@@ -106,10 +106,21 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div style="margin-left: 30px;">見積日：</div>
-                        <div><input  class="form-control form-control-sm" type="date" id="mitsu_day_st" name="mitsu_day_st" style="width: 120px;" value="{{ses.mitsu_day_st}}"></div>
-                        <div>　～　</div>
-                        <div><input  class="form-control form-control-sm" type="date" id="mitsu_day_ed" name="mitsu_day_ed" style="width: 120px;" value="{{ses.mitsu_day_ed}}"></div>
+                        <div style="margin-left: 40px;">
+                            <select class="form-select form-select-sm" name="day_type" id="day_type">
+                                {% if ses.day_type == "est" %}
+                                <option value="est" selected>見積日</option>
+                                <option value="hassou">発送完了日</option>
+                                {% else %}
+                                <option value="est">見積日</option>
+                                <option value="hassou" selected>発送完了日</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div>：</div>
+                        <div><input  class="form-control form-control-sm" type="date" id="day_st" name="day_st" style="width: 120px;" value="{{ses.day_st}}"></div>
+                        <div style="margin: 0px 10px;">～</div>
+                        <div><input  class="form-control form-control-sm" type="date" id="day_ed" name="day_ed" style="width: 120px;" value="{{ses.day_ed}}"></div>
                     </div>
                     <div class="flex mt-4">
                         <div>ステータス：</div>
@@ -132,7 +143,7 @@
                     <div class="flex mt-4">
                         <div><i class="bi bi-arrow-down-up"></i> <b>並び替え：</b></div>
                         <div>
-                            <select class="form-select form-select-sm" id="sort_name" name="sort_name" style="width: 110px;">
+                            <select class="form-select form-select-sm" id="sort_name" name="sort_name" style="width: 120px;">
                                 {% for key,value in sort_list.items %}
                                     {% if key == ses.sort_name %}
                                     <option value="{{key}}" selected>{{value}}</option>
@@ -158,7 +169,18 @@
             </div>
             <hr>
             <!-- 案件一覧 -->
-            <div>
+            <div class="flex3">
+                <div class="flex">
+                    <div style="width: 28px;text-align: center;" class="gray-check"><input class="form-check-input" type="checkbox" id="show_check_all"></div>
+                    <div style="margin-left: 10px;"><button class="btn btn-outline-danger btn-sm" type="button"><i class="bi bi-eye-slash"></i> 非表示</button></div> 
+                </div>
+                <div class="flex">
+                    <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> サンクスメール作成</button></div>
+                    <div style="width: 28px; margin-left: 10px;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px;">
                 {% for i in list %}
 
                 {% if i.status == "見" %}
@@ -179,8 +201,11 @@
                 <div class="flex sfa_main" style="background-color: #c5c5c5;">
                 {% elif i.status == "待" %}
                 <div class="flex sfa_main" style="background-color: #FFF;">
+                {% elif i.status == "サ" %}
+                <div class="flex sfa_main" style="background-color: #ceffb7;">
                 {% endif %}
 
+                    <div class="red-check" style="width: 25px;"><input class="form-check-input" type="checkbox" id="{{i.mitsu_id}}" name="show_list"></div>
                     <div style="width: 50px;">{{i.mitsu_day}}</div>
                     <div style="width: 100px;">
                         <span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span> {{i.mitsu_num}}
@@ -249,10 +274,17 @@
                             <i class="bi bi-pencil-square"></i>
                         </button>
                     </div>
-                    <div style="width: 30px;" id="{{i.cus_id}}" name="crm_list">
+                    <div style="width: 40px;" id="{{i.cus_id}}" name="crm_list">
                         <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;">
                             <i class="bi bi-person-square"></i>
                         </button>
+                    </div>
+                    <div style="width: 20px; text-align: right;">
+                        {% if i.mw == 0 %}
+                        <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
+                        {% else %}
+                        <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list" checked disabled>
+                        {% endif %}
                     </div>
 
                 </div>
@@ -447,8 +479,9 @@
             document.getElementById("keiro").value="";
             document.getElementById("pref").value="";
             document.getElementById("kakudo").value="";
-            document.getElementById("mitsu_day_st").value="";
-            document.getElementById("mitsu_day_ed").value="";
+            document.getElementById("day_type").value="est";
+            document.getElementById("day_st").value="";
+            document.getElementById("day_ed").value="";
             var st=document.getElementsByName("st");
             for (var i=0; i<st.length; i++){
                 st[i].checked=false;
@@ -756,13 +789,67 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    // window.open("{% url 'crm:kokyaku_api' %}", '_blank');
-                    window.location.href = "{% url 'crm:kokyaku_api' %}"
+                    window.location.href = "{% url 'crm:kokyaku_api' %}";
                 })
             },false)
         };
 
 
+        // サンクスメール
+        document.getElementById("btn_mw").addEventListener("click",function(){
+            var item=document.getElementsByName("mw_list");
+            var mw_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked && item[i].disabled==false){
+                    mw_list.push(item[i].id);
+                };
+            };
+            if (mw_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            }
+            mw_list=JSON.stringify(mw_list);
+            $.ajax({
+                    'url': '{% url "sfa:mw_add" %}',
+                    'type': 'POST',
+                    'data': {"mw_list":mw_list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.alert("リストに追加しました！");
+                window.location.reload();
+            })
+        });
+
+
+        // サンクス_全チェック
+        var mw_check_all = document.getElementById("mw_check_all");
+        mw_check_all.addEventListener("click",function(){
+            var che=document.getElementsByName("mw_list");
+            for (var i=0; i<che.length; i++){
+                if (mw_check_all.checked){
+                    che[i].checked=true;
+                } else {
+                    if (che[i].disabled == false){
+                        che[i].checked=false;
+                    };
+                };
+            };
+        });
+
+
+        // 非表示_全チェック
+        var show_check_all = document.getElementById("show_check_all");
+        show_check_all.addEventListener("click",function(){
+            var che=document.getElementsByName("show_list");
+            for (var i=0; i<che.length; i++){
+                if (show_check_all.checked){
+                    che[i].checked=true;
+                } else {
+                    che[i].checked=false;
+                };
+            };
+        });
 
     </script>
 

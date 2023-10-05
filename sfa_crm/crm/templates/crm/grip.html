@@ -26,13 +26,13 @@
             {% for i in list %}
             <div class="flex sfa_main" style="width: 1250px;">
                 <div style="width: 100px;"><a href="{{i.url}}" target="_blank"><span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}</div>
-                <div style="width: 80px;">{{i.pref}}</div>
-                <div style="width: 200px;">{{i.com}}</div>
-                <div style="width: 100px;">{{i.cus_name}}</div>
+                <div style="width: 80px;">{% if i.pref %}{{i.pref}}{% endif %}</div>
+                <div style="width: 200px;">{% if i.com %}{{i.com}}{% endif %}</div>
+                <div style="width: 100px;">{% if i.cus_name_sei %}{{i.cus_name_sei}}{% endif %}{% if i.cus_name_mei %}{{i.cus_name_mei}}{% endif %}</div>
                 <div style="width: 150px;">見積総数：{{i.mitsu_count}}件</div>
                 <div style="width: 150px;">受注総数：{{i.juchu_count}}件</div>
                 <div style="width: 200px;">受注金額：{{i.juchu_money | intcomma}}円</div>
-                <div style="width: 170px;">最終受注日：{{i.juchu_last}}</div>
+                <div style="width: 170px;">最終受注日：{% if i.juchu_last %}{{i.juchu_last}}{% endif %}</div>
                 <div style="width: 40px;">
                     {% if i.alert != 0 %}
                     <span class="bell"><i class="bi bi-bell-fill"></i></span>

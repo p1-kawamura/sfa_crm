@@ -150,3 +150,7 @@
     border-bottom: dotted 1px #646565;
     margin: 0.7em 0.2em;
 }
+.red-check .form-check-input:checked {
+    background-color: #f00; 
+    border-color: #f00;
+}

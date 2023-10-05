@@ -212,7 +212,8 @@ def grip_index(request):
         dic["cus_id"]=res["id"]
         dic["url"]=res["customerMstPageUrl"]
         dic["com"]=res["corporateName"]
-        dic["cus_name"]=res["nameLast"] + res["nameFirst"]
+        dic["cus_name_sei"]=res["nameFirst"]
+        dic["cus_name_mei"]=res["nameLast"]
         dic["pref"]=res["prefecture"]
         dic["mitsu_count"]=res["totalEstimations"]
         dic["juchu_count"]=res["totalReceivedOrders"]
@@ -295,7 +296,6 @@ def mw_page(request):
     arr={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
     busho=arr[busho_id]
     ins=Customer.objects.filter(mw_busho_id=busho_id,mw=1).order_by("mw_tantou_id")
-    print(ins)
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]

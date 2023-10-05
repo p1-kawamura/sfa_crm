@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_bot_delete,modal_alert_check,kokyaku_detail_api, \
-                    show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member,mw_page,mw_delete,mw_make,mw_download, \
+                    show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member,mw_page,mw_add,mw_delete,mw_make,mw_download, \
                     kakudo_index,csv_imp,csv_imp_page
 
 
@@ -23,6 +23,7 @@ urlpatterns = [
     path('show_settei/', show_settei, name="show_settei"),
     path('show/', show, name="show"),
     path('mw_page/', mw_page, name="mw_page"),
+    path('mw_add/', mw_add, name="mw_add"),
     path('mw_delete/<int:pk>/', mw_delete, name="mw_delete"),
     path('mw_make/', mw_make, name="mw_make"),
     path('mw_download/', mw_download, name="mw_download"),

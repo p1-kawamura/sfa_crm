@@ -27,10 +27,12 @@ def index(request):
         request.session["search"]["pref"]=""
     if "kakudo" not in request.session["search"]:
         request.session["search"]["kakudo"]=""
-    if "mitsu_day_st" not in request.session["search"]:
-        request.session["search"]["mitsu_day_st"]=""
-    if "mitsu_day_ed" not in request.session["search"]:
-        request.session["search"]["mitsu_day_ed"]=""
+    if "day_type" not in request.session["search"]:
+        request.session["search"]["day_type"]="est" 
+    if "day_st" not in request.session["search"]:
+        request.session["search"]["day_st"]=""
+    if "day_ed" not in request.session["search"]:
+        request.session["search"]["day_ed"]=""
     if "st" not in request.session["search"]:
         request.session["search"]["st"]=[]
     if "sort_name" not in request.session["search"]:
@@ -54,10 +56,16 @@ def index(request):
         fil["pref"]=ses["pref"]
     if ses["kakudo"] != "":
         fil["kakudo"]=ses["kakudo"]
-    if ses["mitsu_day_st"] != "":
-        fil["mitsu_day__gte"]=ses["mitsu_day_st"]
-    if ses["mitsu_day_ed"] != "":
-        fil["mitsu_day__lte"]=ses["mitsu_day_ed"]
+    if ses["day_type"]=="est":
+        if ses["day_st"] != "":
+            fil["mitsu_day__gte"]=ses["day_st"]
+        if ses["day_ed"] != "":
+            fil["mitsu_day__lte"]=ses["day_ed"]
+    else:
+        if ses["day_st"] != "":
+            fil["hassou_day__gte"]=ses["day_st"]
+        if ses["day_ed"] != "":
+            fil["hassou_day__lte"]=ses["day_ed"]
     if len(ses["st"])!=0:
         fil["status__in"]=ses["st"]
     
@@ -78,7 +86,7 @@ def index(request):
         dic["pref"]=i.pref
         dic["com"]=i.com
         dic["cus"]=i.sei + i.mei
-        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待"}
+        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サ":"サンクス"}
         dic["status"]=d[i.status]
         dic["money"]=i.money
         if i.nouhin_kigen != "":
@@ -93,6 +101,7 @@ def index(request):
         dic["kakudo"]=i.kakudo
         dic["juchu"]=i.juchu_day[5:].replace("-","/")
         dic["hassou"]=i.hassou_day[5:].replace("-","/")
+        dic["mw"]=i.mw
 
         tel_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() 
         if tel_count > 0:
@@ -150,8 +159,8 @@ def index(request):
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
-        "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち"],
-        "sort_list":{"mitsu_day":"見積日","money":"金額","nouki_real":"納期","tel_real":"最終TEL","mail_real":"最終メール"},
+        "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち","サンクス"],
+        "sort_list":{"mitsu_day":"見積日","hassou":"発送完了日","money":"金額","nouki_real":"納期","tel_real":"最終TEL","mail_real":"最終メール"},
         "ses":ses,
         "act_user":act_user,
     }
@@ -166,8 +175,9 @@ def search(request):
     keiro=request.POST["keiro"]
     pref=request.POST["pref"]
     kakudo=request.POST["kakudo"]
-    mitsu_day_st=request.POST["mitsu_day_st"]
-    mitsu_day_ed=request.POST["mitsu_day_ed"]
+    day_type=request.POST["day_type"]
+    day_st=request.POST["day_st"]
+    day_ed=request.POST["day_ed"]
     st=request.POST.getlist("st")
     sort_name=request.POST["sort_name"]
     sort_jun=request.POST["sort_jun"]
@@ -178,8 +188,9 @@ def search(request):
     request.session["search"]["keiro"]=keiro
     request.session["search"]["pref"]=pref
     request.session["search"]["kakudo"]=kakudo
-    request.session["search"]["mitsu_day_st"]=mitsu_day_st
-    request.session["search"]["mitsu_day_ed"]=mitsu_day_ed
+    request.session["search"]["day_type"]=day_type
+    request.session["search"]["day_st"]=day_st
+    request.session["search"]["day_ed"]=day_ed
     request.session["search"]["st"]=st
     request.session["search"]["sort_name"]=sort_name
     request.session["search"]["sort_jun"]=sort_jun
@@ -225,10 +236,6 @@ def modal_top(request):
     ins.kakudo=kakudo
     ins.status=status
     ins.bikou=bikou
-    if mw=="true":
-        ins.mw=1
-    else:
-        ins.mw=0
     ins.save()
     d={}
     return JsonResponse(d)
@@ -369,6 +376,18 @@ def mw_page(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"act_user":act_user})
+
+
+# メールワイズ_追加
+def mw_add(request):
+    mw_add_list=request.POST.get("mw_list")
+    mw_add_list=json.loads(mw_add_list)
+    for i in mw_add_list:
+        ins=Sfa_data.objects.get(mitsu_id=i)
+        ins.mw=1
+        ins.save()
+    d={}
+    return JsonResponse(d)
 
 
 # メールワイズ_削除ボタン
