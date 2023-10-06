@@ -172,7 +172,7 @@
             <div class="flex3">
                 <div class="flex">
                     <div style="width: 28px;text-align: center;" class="gray-check"><input class="form-check-input" type="checkbox" id="show_check_all"></div>
-                    <div style="margin-left: 10px;"><button class="btn btn-outline-danger btn-sm" type="button"><i class="bi bi-eye-slash"></i> 非表示</button></div> 
+                    <div style="margin-left: 10px;"><button class="btn btn-outline-danger btn-sm" type="button" id="btn_show"><i class="bi bi-eye-slash"></i> 非表示</button></div> 
                 </div>
                 <div class="flex">
                     <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> サンクスメール作成</button></div>
@@ -613,7 +613,6 @@
             var type = document.getElementById("modal_bot_type").value;
             var day = document.getElementById("modal_bot_day").value;
             var act_id = document.getElementById("act_id").value;
-            console.log(document.getElementById("modal_bot_tel").value);
             if (type==0){
                 window.alert("種類を選択してください！");
                 return
@@ -835,6 +834,36 @@
                     };
                 };
             };
+        });
+
+
+        // 非表示設定
+        document.getElementById("btn_show").addEventListener("click",function(){
+            var item=document.getElementsByName("show_list");
+            var show_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked){
+                    show_list.push(item[i].id);
+                };
+            };
+            if (show_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            }
+            var ans =confirm("本当に「非表示」にしますか？");
+            if (ans == false){
+                return
+            };
+            show_list=JSON.stringify(show_list);
+            $.ajax({
+                    'url': '{% url "sfa:show_list_direct" %}',
+                    'type': 'POST',
+                    'data': {"show_list":show_list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
         });
 
 

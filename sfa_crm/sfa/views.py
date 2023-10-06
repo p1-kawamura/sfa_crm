@@ -86,7 +86,7 @@ def index(request):
         dic["pref"]=i.pref
         dic["com"]=i.com
         dic["cus"]=i.sei + i.mei
-        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サ":"サンクス"}
+        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ"}
         dic["status"]=d[i.status]
         dic["money"]=i.money
         if i.nouhin_kigen != "":
@@ -421,6 +421,7 @@ def mw_download(request):
         ]
         mw_csv.append(a)
         ins.mw=0
+        ins.status="サンクス"
         ins.save()
     filename=urllib.parse.quote("【案件】メールワイズ用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
@@ -429,6 +430,18 @@ def mw_download(request):
     for line in mw_csv:
         writer.writerow(line)
     return response
+
+
+# 一覧から非表示
+def show_list_direct(request):
+    show_list=request.POST.get("show_list")
+    show_list=json.loads(show_list)
+    for i in show_list:
+        ins=Sfa_data.objects.get(mitsu_id=i)
+        ins.show=1
+        ins.save()
+    d={}
+    return JsonResponse(d)
 
 
 # 確度集計
