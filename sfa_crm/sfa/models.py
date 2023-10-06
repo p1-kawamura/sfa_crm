@@ -29,6 +29,7 @@ class Sfa_data(models.Model):
     money=models.IntegerField("金額",default=0)
     pay=models.CharField("支払方法",max_length=255,default="")
     kakudo=models.CharField("確度",max_length=255,blank=True)
+    kakudo_day=models.CharField("予想年月",max_length=255,blank=True,default="")
     bikou=models.TextField("備考",blank=True)
     busho_id=models.CharField("部署ID",max_length=255)
     tantou_id=models.CharField("担当ID",max_length=255)
