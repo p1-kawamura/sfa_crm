@@ -225,11 +225,10 @@ def mitsu_detail_api(request):
     return JsonResponse(d)
 
 
-# モーダル上部（確度、ステータス、メールワイズ）
+# モーダル上部（確度、ステータス）
 def modal_top(request):
     mitsu_id=request.POST.get("mitsu_id")
     kakudo=request.POST.get("kakudo")
-    mw=request.POST.get("mw")
     status=request.POST.get("status")
     bikou=request.POST.get("bikou")
     ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
