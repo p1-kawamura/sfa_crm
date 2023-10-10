@@ -335,7 +335,7 @@
                                                     </select>
                                                 </div>
                                                 <div style="margin-left: 10px;">
-                                                    <input class="form-control form-control-sm" type="month" id="modal_kakudo_month">
+                                                    <input class="form-control form-control-sm" type="month" id="modal_kakudo_day">
                                                 </div>
                                                 <div style="margin-left: 30px;"><button class="btn btn-secondary btn-sm" id="modal_btn_top">設定</button></div>
                                             </div>
@@ -547,6 +547,7 @@
                             "<tr><th>電話番号</th><td>（固定）"+ res.tel +"　（携帯）" + res.tel_mob  + "</td></tr>" + 
                             "<tr><th>メール</th><td>" + res.mail  + "</td></tr></table>";
                         document.getElementById("modal_kakudo").value=res.kakudo;
+                        document.getElementById("modal_kakudo_day").value=res.kakudo_day;
                         document.getElementById("modal_status").value=res.status;
                         document.getElementById("modal_bikou").value=res.bikou;
 
@@ -578,12 +579,19 @@
         
         // モーダル_TOP
         document.getElementById("modal_btn_top").addEventListener("click",function(){
+            var kakudo=document.getElementById("modal_kakudo").value;
+            var kakudo_day=document.getElementById("modal_kakudo_day").value;
+            if (kakudo != "" && kakudo_day==""){
+                window.alert("確度の予定日を設定してください！");
+                return
+            };
             $.ajax({
                     'url': '{% url "sfa:modal_top" %}',
                     'type': 'POST',
                     'data': {
                         "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
-                        "kakudo":document.getElementById("modal_kakudo").value,
+                        "kakudo":kakudo,
+                        "kakudo_day":kakudo_day,
                         "status":document.getElementById("modal_status").value,
                         "bikou":document.getElementById("modal_bikou").value
                     },

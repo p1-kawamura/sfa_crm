@@ -323,7 +323,7 @@
                             <tr>
                                 <td>
                                     <div class="flex">
-                                        <div>見積番号：</div><div id="estlist_number"></div>
+                                        <div>見積番号：</div><div id="estimationPageUrl"></div><div id="estlist_number" style="margin-left: 5px;"></div>   
                                     </div>
                                 </td>
                                 <td>
@@ -350,6 +350,18 @@
                                         <div>初回見積日：</div><div id="estlist_estday"></div>
                                         <div style="margin-left: 50px;">受注日：</div><div id="estlist_recday"></div>
                                         <div style="margin-left: 50px;">発送完了日：</div><div id="estlist_sendday"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex">
+                                        <div>担当部署：</div><div id="handledDepartmentName"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <div>担当者：</div><div id="handledByName"></div>
                                     </div>
                                 </td>
                             </tr>
@@ -514,6 +526,11 @@
                     document.getElementById("estlist_estday").innerText=res.firstEstimationDate;
                     document.getElementById("estlist_recday").innerText=res.orderReceivedDate;
                     document.getElementById("estlist_sendday").innerText=res.shippedDate;
+                    document.getElementById("handledDepartmentName").innerText=res.handledDepartmentName;
+                    document.getElementById("handledByName").innerText=res.handledByName;
+                    document.getElementById("estimationPageUrl").innerHTML="<a href='" + res.estimationPageUrl + 
+                        "' target='_blank'><span style='color: #008bc2; font-weight: bold;''><i class='bi bi-box-arrow-up-right'></i></span></a>";
+                    
 
                     // 備考
                     document.getElementById("estlist_bikou").value=bikou;

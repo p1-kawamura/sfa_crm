@@ -17,10 +17,19 @@
         <!-- メニュー -->
         <div style="margin: 0 auto; width: 1000px;">
             {% include "sfa/menu.html" %}
+            <hr>
         </div>
 
-        <div style="margin: 0 auto; width: 1000px;">
-            <hr>
+        <div style="margin: 0 auto; width: 800px;">
+            <div style="margin-top: 50px;">
+                <form action="" method="post">{% csrf_token %}
+                    <div class="flex" style="font-size: 1.2em;">
+                        <div>集計対象：</div>
+                        <div><input class="form-control" type="month" name="kakudo_day" value="{{kakudo_day}}"></div>
+                        <div style="margin-left: 20px;"><button class="btn btn-secondary" name="">集計</button></div>
+                    </div>
+                </form>
+            </div>
             <div class="mt-5">
                 <table class="table table-bordered">
                     <tr>
@@ -28,7 +37,6 @@
                         <th colspan="2" style="text-align: center; background-color: red; color: white;">A</th>
                         <th colspan="2" style="text-align: center; background-color: blue; color: white;">B</th>
                         <th colspan="2" style="text-align: center; background-color: green; color: white;">C</th>
-                        <th colspan="2" style="text-align: center; background-color: gray; color: white;">なし</th>
                     </tr>
                     <!-- 全体 -->
                     <tr style="background-color: rgb(255, 209, 3); font-size: 1.2em;">
@@ -91,8 +99,6 @@
                                         <td style="text-align: right;">{{i.2.1 | intcomma}}</td>
                                         <td style="text-align: right;">{{i.3.0}}</td>
                                         <td style="text-align: right;">{{i.3.1 | intcomma}}</td>
-                                        <td style="text-align: right;">{{i.4.0}}</td>
-                                        <td style="text-align: right;">{{i.4.1 | intcomma}}</td>
                                     </tr>
                                 {% endfor %}
                             {% endif %}

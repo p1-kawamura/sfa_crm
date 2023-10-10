@@ -8,9 +8,11 @@ from datetime import date
 from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum
+from datetime import datetime
 
 
 def index(request):
+    # request.session.clear()
     if "mitsu_num" not in request.session:
         request.session["mitsu_num"]=[]
     if "search" not in request.session:
@@ -43,6 +45,8 @@ def index(request):
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
         request.session["crm_mw_list"]=[]
+    if "kakudo_day" not in request.session:
+        request.session["kakudo_day"]=datetime.now().strftime("%Y-%m")
 
     ses=request.session["search"]
     fil={}
@@ -86,44 +90,60 @@ def index(request):
         dic["pref"]=i.pref
         dic["com"]=i.com
         dic["cus"]=i.sei + i.mei
-        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ"}
+        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
         dic["status"]=d[i.status]
         dic["money"]=i.money
         if i.nouhin_kigen != "":
             dic["nouki"]="期限：" + i.nouhin_kigen[5:].replace("-","/")
-            dic["nouki_real"]=i.nouhin_kigen
+            dic["nouki_sort"]=i.nouhin_kigen
         elif i.nouhin_shitei != "":
             dic["nouki"]="指定：" +i.nouhin_shitei[5:].replace("-","/")
-            dic["nouki_real"]=i.nouhin_shitei
+            dic["nouki_sort"]=i.nouhin_shitei
         else:
             dic["nouki"]=""
-            dic["nouki_real"]=""
+            if ses["sort_jun"]=="0":
+                dic["nouki_sort"]="2100-01-01"
+            else:
+                dic["nouki_sort"]="1900-01-01"
         dic["kakudo"]=i.kakudo
         dic["juchu"]=i.juchu_day[5:].replace("-","/")
         dic["hassou"]=i.hassou_day[5:].replace("-","/")
+        if i.hassou_day !="":
+            dic["hassou_sort"]=i.hassou_day
+        else:
+            if ses["sort_jun"]=="0":
+                dic["hassou_sort"]="2100-01-01"
+            else:
+                dic["hassou_sort"]="1900-01-01"
         dic["mw"]=i.mw
 
         tel_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() 
         if tel_count > 0:
             act_tel=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).latest("day")
             dic["tel"]=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
-            dic["tel_real"]=act_tel.day
+            dic["tel_sort"]=act_tel.day
             if act_tel.tel_result=="対応":
                 dic["tel_result"]=1
             else:
                 dic["tel_result"]=2
         else:
-            dic["tel_real"]=""
+            if ses["sort_jun"]=="0":
+                dic["tel_sort"]="2100-01-01"
+            else:
+                dic["tel_sort"]="1900-01-01"
             dic["tel_result"]=0      
 
         mail_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).count()
         if mail_count > 0:
             act_mail=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).latest("day")
             dic["mail"]=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ") "
-            dic["mail_real"]=act_mail.day
+            dic["mail_sort"]=act_mail.day
             dic["mail_result"]=1
         else:
-            dic["mail_real"]=""
+            if ses["sort_jun"]=="0":
+                dic["mail_sort"]="2100-01-01"
+            else:
+                dic["mail_sort"]="1900-01-01"
             dic["mail_result"]=0
 
         today=str(date.today())
@@ -160,7 +180,7 @@ def index(request):
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち","サンクス"],
-        "sort_list":{"mitsu_day":"見積日","hassou":"発送完了日","money":"金額","nouki_real":"納期","tel_real":"最終TEL","mail_real":"最終メール"},
+        "sort_list":{"mitsu_day":"見積日","hassou_sort":"発送完了日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
         "ses":ses,
         "act_user":act_user,
     }
@@ -229,10 +249,12 @@ def mitsu_detail_api(request):
 def modal_top(request):
     mitsu_id=request.POST.get("mitsu_id")
     kakudo=request.POST.get("kakudo")
+    kakudo_day=request.POST.get("kakudo_day")
     status=request.POST.get("status")
     bikou=request.POST.get("bikou")
     ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
     ins.kakudo=kakudo
+    ins.kakudo_day=kakudo_day
     ins.status=status
     ins.bikou=bikou
     ins.save()
@@ -445,13 +467,19 @@ def show_list_direct(request):
 
 # 確度集計
 def kakudo_index(request):
+    if request.method=="GET":
+        kakudo_day=request.session["kakudo_day"]
+    else:
+        kakudo_day=request.POST["kakudo_day"]
+        request.session["kakudo_day"]=kakudo_day
+
     #全体
     all=[]
-    for i in ["A","B","C",""]:
+    for i in ["A","B","C"]:
         li=[]
-        all_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i).count()
+        all_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,kakudo_day=kakudo_day).count()
         li.append(all_count)
-        all_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i).aggregate(Sum("money"))
+        all_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
         if all_money["money__sum"] != None:
             li.append(all_money["money__sum"])
         else:
@@ -463,11 +491,11 @@ def kakudo_index(request):
     team={}
     for key,value in busho_arr.items():
         team_li=[]
-        for i in ["A","B","C",""]:
+        for i in ["A","B","C"]:
             li=[]
-            team_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key).count()
+            team_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).count()
             li.append(team_count)
-            team_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key).aggregate(Sum("money"))
+            team_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).aggregate(Sum("money"))
             if team_money["money__sum"] != None:
                 li.append(team_money["money__sum"])
             else:
@@ -483,11 +511,11 @@ def kakudo_index(request):
         for i in ins:
             kaku_li=[]
             kaku_li.append(Member.objects.get(tantou_id=i).tantou)
-            for h in ["A","B","C",""]:
+            for h in ["A","B","C"]:
                 li=[]
-                person_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i).count()
+                person_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).count()
                 li.append(person_count)
-                person_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i).aggregate(Sum("money"))
+                person_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
                 if person_money["money__sum"] != None:
                     li.append(person_money["money__sum"])
                 else:
@@ -503,7 +531,7 @@ def kakudo_index(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
-    params={"all":all,"team":team,"person":person,"act_user":act_user}
+    params={"all":all,"team":team,"person":person,"act_user":act_user,"kakudo_day":kakudo_day}
     return render(request,"sfa/kakudo.html",params)
 
 
