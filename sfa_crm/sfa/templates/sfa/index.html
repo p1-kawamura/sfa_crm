@@ -110,10 +110,10 @@
                         <div style="margin-left: 40px;">
                             <select class="form-select form-select-sm" name="day_type" id="day_type">
                                 {% if ses.day_type == "est" %}
-                                <option value="est" selected>見積日</option>
+                                <option value="est" selected>見積作成日</option>
                                 <option value="hassou">発送完了日</option>
                                 {% else %}
-                                <option value="est">見積日</option>
+                                <option value="est">見積作成日</option>
                                 <option value="hassou" selected>発送完了日</option>
                                 {% endif %}
                             </select>
@@ -207,9 +207,9 @@
                 {% endif %}
 
                     <div class="red-check" style="width: 25px;"><input class="form-check-input" type="checkbox" id="{{i.mitsu_id}}" name="show_list"></div>
-                    <div style="width: 50px;">{{i.mitsu_day}}</div>
+                    <div style="width: 50px;">{{i.make_day}}</div>
                     <div style="width: 100px;">
-                        <span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span> {{i.mitsu_num}}
+                        <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}
                     </div>
                     <div style="width: 45px;">
                         {% if i.order_kubun == "新規" %}

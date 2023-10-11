@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_bot_delete,modal_alert_check,kokyaku_detail_api, \
+from .views import index_api,index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_bot_delete,modal_alert_check,kokyaku_detail_api, \
                     show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member,mw_page,mw_add,mw_delete,mw_make,mw_download, \
                     show_list_direct,kakudo_index,csv_imp,csv_imp_page
 
@@ -7,7 +7,8 @@ from .views import index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bo
 
 app_name="sfa"
 urlpatterns = [
-    path('', index, name="index"),
+    path('', index_api, name="index_api"),
+    path('index/', index, name="index"),
     path('search/', search, name="search"),
     path('busho_tantou/', busho_tantou, name="busho_tantou"),
     path('mitsu_detail_api/', mitsu_detail_api, name="mitsu_detail_api"),

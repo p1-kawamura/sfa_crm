@@ -4,11 +4,63 @@ from .models import Sfa_data,Sfa_action,Member
 import csv
 import io
 import json
+import requests
 from datetime import date
 from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum
 from datetime import datetime
+
+
+def index_api(request):
+    if "tantou" in request.session["search"]:
+        tantou_id=request.session["search"]["tantou"]
+        last_api=Member.objects.get(tantou_id=tantou_id).last_api
+        url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + tantou_id + "&updatedAtFrom=" + last_api
+        res=requests.get(url)
+        res=res.json()
+        res=res["estimations"]
+        for i in res:
+            Sfa_data.objects.update_or_create(
+            mitsu_id=i["id"],
+            defaults={
+                "mitsu_id":i["id"],
+                "mitsu_num":i["number"],
+                "mitsu_ver":i["version"],
+                "mitsu_url":i["estimationPageUrl"],
+                "order_kubun":i["orderType"],
+                "use_kubun":i["persona"],
+                "use_youto":i["purpose"],
+                "nouhin_kigen":i["deliveryLimitDate"],
+                "nouhin_shitei":i["deliveryAppointedDate"],
+                "make_day":i["createdAt"],
+                "mitsu_day":i["firstEstimationDate"],
+                "update_day":i["updatedAt"],
+                "juchu_day":i["orderReceivedDate"],
+                "hassou_day":i["shippedDate"],
+                "cus_id":i["customerId"],
+                "sei":i["ordererNameLast"],
+                "mei":i["ordererNameFirst"],
+                "tel":i["ordererTel"],
+                "tel_mob":i["ordererMobilePhone"],
+                "mail":i["ordererEmailMain"],
+                "pref":i["ordererPrefecture"],
+                "com":i["ordererCorporateName"],
+                "com_busho":i["ordererDepartmentName"],
+                "keiro":i["comingRoute"],
+                "money":i["totalPrice"],
+                "pay":i["paymentMethod"],
+                "busho_id":i["handledDepartmentId"],
+                "tantou_id":i["handledById"],
+                }
+            )
+            # ステータス
+            ins=Sfa_data.objects.get(mitsu_id=i["id"])
+            if ins.status not in ["失注","連絡待ち","サンクス"]:
+                ins.status=i["status"]
+                ins.save()
+
+    return redirect("sfa:index")
 
 
 def index(request):
@@ -62,9 +114,9 @@ def index(request):
         fil["kakudo"]=ses["kakudo"]
     if ses["day_type"]=="est":
         if ses["day_st"] != "":
-            fil["mitsu_day__gte"]=ses["day_st"]
+            fil["make_day__gte"]=ses["day_st"]
         if ses["day_ed"] != "":
-            fil["mitsu_day__lte"]=ses["day_ed"]
+            fil["make_day__lte"]=ses["day_ed"]
     else:
         if ses["day_st"] != "":
             fil["hassou_day__gte"]=ses["day_st"]
@@ -78,25 +130,29 @@ def index(request):
     for i in ins:
         dic={}
         dic["mitsu_id"]=i.mitsu_id
+        dic["mitsu_url"]=i.mitsu_url
         dic["cus_id"]=i.cus_id
-        dic["mitsu_day"]=i.mitsu_day[5:].replace("-","/")
+        dic["make_day"]=i.make_day[5:].replace("-","/")
         dic["mitsu_num"]=i.mitsu_num + "-" + i.mitsu_ver
-        dic["order_kubun"]=i.order_kubun
-        dic["keiro"]=i.keiro[:1]
-        dic["use_kubun"]=i.use_kubun[:1]
-        d={"チームウェア・アイテム":"チ","制服・スタッフウェア":"制","販促・ノベルティ":"ノ",
-          "記念品・贈答品":"記","販売":"販","自分用":"自","その他":"他","":""}
-        dic["use_youto"]=d[i.use_youto]
-        dic["pref"]=i.pref
-        dic["com"]=i.com
-        dic["cus"]=i.sei + i.mei
+        dic["order_kubun"]=i.order_kubun or ""
+        if i.keiro != None:
+            dic["keiro"]=i.keiro[:1]
+        if i.use_kubun != None:
+            dic["use_kubun"]=i.use_kubun[:1]
+        if i.use_youto != None:
+            d={"チームウェア・アイテム":"チ","制服・スタッフウェア":"制","販促・ノベルティ":"ノ",
+            "記念品・贈答品":"記","販売":"販","自分用":"自","その他":"他","":""}
+            dic["use_youto"]=d[i.use_youto]
+        dic["pref"]=i.pref or ""
+        dic["com"]=i.com or ""
+        dic["cus"]=(i.sei or "") + (i.mei or "")
         d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
         dic["status"]=d[i.status]
         dic["money"]=i.money
-        if i.nouhin_kigen != "":
+        if i.nouhin_kigen != None:
             dic["nouki"]="期限：" + i.nouhin_kigen[5:].replace("-","/")
             dic["nouki_sort"]=i.nouhin_kigen
-        elif i.nouhin_shitei != "":
+        elif i.nouhin_shitei != None:
             dic["nouki"]="指定：" +i.nouhin_shitei[5:].replace("-","/")
             dic["nouki_sort"]=i.nouhin_shitei
         else:
@@ -105,16 +161,18 @@ def index(request):
                 dic["nouki_sort"]="2100-01-01"
             else:
                 dic["nouki_sort"]="1900-01-01"
-        dic["kakudo"]=i.kakudo
-        dic["juchu"]=i.juchu_day[5:].replace("-","/")
-        dic["hassou"]=i.hassou_day[5:].replace("-","/")
-        if i.hassou_day !="":
+        if i.juchu_day != None:
+            dic["juchu"]=i.juchu_day[5:].replace("-","/")
+        if i.hassou_day != None:
+            dic["hassou"]=i.hassou_day[5:].replace("-","/")
+        if i.hassou_day != None:
             dic["hassou_sort"]=i.hassou_day
         else:
             if ses["sort_jun"]=="0":
                 dic["hassou_sort"]="2100-01-01"
             else:
                 dic["hassou_sort"]="1900-01-01"
+        dic["kakudo"]=i.kakudo
         dic["mw"]=i.mw
 
         tel_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() 
@@ -180,7 +238,7 @@ def index(request):
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち","サンクス"],
-        "sort_list":{"mitsu_day":"見積日","hassou_sort":"発送完了日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
+        "sort_list":{"make_day":"見積作成日","hassou_sort":"発送完了日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
         "ses":ses,
         "act_user":act_user,
     }
@@ -613,5 +671,9 @@ def clear_sfa_data(request):
     return redirect("sfa:index")
 
 def clear_member(request):
-    Member.objects.all().delete()
+    # Member.objects.all().delete()
+    ins=Member.objects.all()
+    for i in ins:
+        i.last_api="2023-10-01 00:00:00"
+        i.save()
     return redirect("sfa:index")
