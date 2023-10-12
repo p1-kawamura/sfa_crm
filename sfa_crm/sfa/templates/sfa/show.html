@@ -57,13 +57,13 @@
                         {% for i in list %}
                         <tr>
                             <td>{{i.mitsu_ver}}</td>
-                            <td>{{i.order_kubun}}</td>
+                            <td>{% if i.order_kubun %}{{i.order_kubun}}{% endif %}</td>
                             <td>{{i.status}}</td>
-                            <td>{{i.mitsu_day}}</td>
-                            <td>{{i.juchu_day}}</td>
-                            <td>{{i.hassou_day}}</td>
-                            <td>{{i.pay}}</td>
-                            <td>{{i.money | intcomma}}</td>
+                            <td>{% if i.mitsu_day %}{{i.mitsu_day}}{% endif %}</td>
+                            <td>{% if i.juchu_day %}{{i.juchu_day}}{% endif %}</td>
+                            <td>{% if i.hassou_day %}{{i.hassou_day}}{% endif %}</td>
+                            <td>{% if i.pay %}{{i.pay}}{% endif %}</td>
+                            <td>{% if i.money %}{{i.money | intcomma}}{% endif %}</td>
                             <td style="text-align: center;">
                                 {% if i.show == 0 %}
                                 <input class="form-check-input" type="checkbox" id="{{i.mitsu_id}}" name="check_list" checked>

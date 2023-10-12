@@ -45,9 +45,9 @@
                     <tbody>
                         {% for i in list %}
                         <tr>
-                            <td>{{i.com}}</td>
-                            <td>{{i.sei}}{{i.mei}}</td>
-                            <td>{{i.mail}}</td>
+                            <td>{% if i.com %}{{i.com}}{% endif %}</td>
+                            <td>{% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}</td>
+                            <td>{% if i.mail %}{{i.mail}}{% endif %}</td>
                             <td>
                                 {% for h in member %}
                                     {% if h.tantou_id == i.tantou_id %}

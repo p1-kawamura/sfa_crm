@@ -184,7 +184,9 @@
             <div style="margin-top: 15px;">
                 {% for i in list %}
 
-                {% if i.status == "見" %}
+                {% if i.status == "未" %}
+                <div class="flex sfa_main" style="background-color: #FFF;">
+                {% elif i.status == "見" %}
                 <div class="flex sfa_main" style="background-color: #FFF;">
                 {% elif i.status == "イ" %}
                 <div class="flex sfa_main" style="background-color: #c8f7fd;">
@@ -283,10 +285,12 @@
                         {% endif %}
                     </div>
                     <div style="width: 20px; text-align: right;">
-                        {% if i.mw == 0 %}
-                        <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
-                        {% else %}
-                        <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list" checked disabled>
+                        {% if i.status == "発" or i.status == "終" %}
+                            {% if i.mw == 0 %}
+                            <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
+                            {% else %}
+                            <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list" checked disabled>
+                            {% endif %}
                         {% endif %}
                     </div>
 
@@ -327,8 +331,8 @@
                                     <div>
                                         <div class="flex3">
                                             <div class="flex">
-                                                <div>■確度</div>
-                                                <div style="margin-left: 10px;">
+                                                <div>■確度：</div>
+                                                <div>
                                                     <select class="form-select form-select-sm" id="modal_kakudo">
                                                         <option></option>
                                                         <option value="A">A</option>
@@ -346,8 +350,9 @@
                                             </div>
                                         </div>
                                         <div class="flex" style="margin-top: 20px;">
-                                            <div>■ステータス</div>
-                                            <div style="margin-left: 10px;">
+                                            <div>■ステータス：</div>
+                                            <div id="modal_status_show"></div>
+                                            <div>
                                                 <select class="form-select form-select-sm" id="modal_status">
                                                     <option value="見積中">見積中</option>
                                                     <option value="見積送信">見積送信</option>
@@ -359,9 +364,9 @@
                                                     <option value="保留">保留</option>
                                                     <option value="失注">失注</option>
                                                     <option value="連絡待ち">連絡待ち</option>
+                                                    <option value="サンクス">サンクス</option>
                                                 </select>
                                             </div>
-                                            <div style="margin-left: 20px;">（新基幹システム：イメージ）</div>
                                         </div>
                                         <div style="margin-top: 20px;">
                                             <div>■備考</div>
@@ -373,8 +378,8 @@
                                     <div style="margin-top: 20px;">
                                         <div>■電話入れ / メール / メモ / アラート</div>
                                         <div class="flex mt-3">
-                                            <div>種類:</div>
-                                            <div style="margin-left: 10px;">
+                                            <div>種類：</div>
+                                            <div>
                                                 <select class="form-select form-select-sm" id="modal_bot_type">
                                                     <option value="0"></option>
                                                     <option value="1">TEL</option>
@@ -533,21 +538,21 @@
                         };
                         document.getElementById("modal_left").innerHTML = 
                             "<table class='table table-bordered' style='width:500px;'>" + 
-                            "<tr><th>会社・部課</th><td>" + res.com  + "　" + res.com_busho + "</td></tr>" + 
-                            "<tr><th>氏名</th><td>" + res.sei + res.mei  + "</td></tr>" + 
-                            "<tr><th>注文区分</th><td>" + res.order_kubun  + "</td></tr>" + 
-                            "<tr><th>合計金額</th><td>" + res.money.toLocaleString()  + "円　（" + res.pay +"）</td></tr>" + 
-                            "<tr><th>流入経路</th><td>" + res.keiro  + "</td></tr>" + 
-                            "<tr><th>利用区分</th><td>" + res.use_kubun  + "</td></tr>" + 
-                            "<tr><th>使用用途</th><td>" + res.use_youto  + "</td></tr>" + 
-                            "<tr><th>初回見積日</th><td>" + res.mitsu_day  + "</td></tr>" + 
-                            "<tr><th>納品指定日</th><td>" + res.nouhin_shitei  + "</td></tr>" + 
-                            "<tr><th>納品期限日</th><td>" + res.nouhin_kigen  + "</td></tr>" + 
-                            "<tr><th>受注日</th><td>" + res.juchu_day  + "</td></tr>" + 
-                            "<tr><th>発送完了日</th><td>" + res.hassou_day  + "</td></tr>" + 
-                            "<tr><th>都道府県</th><td>" + res.pref  + "</td></tr>" + 
-                            "<tr><th>電話番号</th><td>（固定）"+ res.tel +"　（携帯）" + res.tel_mob  + "</td></tr>" + 
-                            "<tr><th>メール</th><td>" + res.mail  + "</td></tr></table>";
+                            "<tr><th>会社・部課</th><td colspan='3'>" + res.com  + "　" + res.com_busho + "</td></tr>" + 
+                            "<tr><th>氏名</th><td colspan='3'>" + res.sei + res.mei  + "</td></tr>" + 
+                            "<tr><th>注文区分</th><td>" + res.order_kubun  + "</td><th>流入経路</th><td>" + res.keiro  + "</td></tr>" +
+                            "<tr><th>合計金額</th><td colspan='3'>" + res.money.toLocaleString()  + "円</td></tr>" + 
+                            "<tr><th>支払方法</th><td colspan='3'>" + res.pay + "</td></tr>" +
+                            "<tr><th>利用区分</th><td colspan='3'>" + res.use_kubun  + "</td></tr>" + 
+                            "<tr><th>使用用途</th><td colspan='3'>" + res.use_youto  + "</td></tr>" + 
+                            "<tr><th>見積作成日</th><td>" + res.make_day  + "</td><th>初回見積日</th><td>" + res.mitsu_day  + "</td></tr>" + 
+                            "<tr><th>納品指定日</th><td>" + res.nouhin_shitei  + "</td><th>納品期限日</th><td>" + res.nouhin_kigen  + "</td></tr>" + 
+                            "<tr><th>受注日</th><td>" + res.juchu_day  + "</td><th>発送完了日</th><td>" + res.hassou_day  + "</td></tr>" + 
+                            "<tr><th>最終更新日</th><td colspan='3'>" + res.update_day + "</td></tr>" +
+                            "<tr><th>都道府県</th><td colspan='3'>" + res.pref  + "</td></tr>" + 
+                            "<tr><th>電話番号</th><td colspan='3'>"+ res.tel + "</td></tr>" +
+                            "<tr><th>携帯番号</th><td colspan='3'>" + res.tel_mob  + "</td></tr>" + 
+                            "<tr><th>メール</th><td colspan='3'>" + res.mail  + "</td></tr></table>";
                         document.getElementById("modal_kakudo").value=res.kakudo;
                         document.getElementById("modal_kakudo_day").value=res.kakudo_day;
                         document.getElementById("modal_status").value=res.status;

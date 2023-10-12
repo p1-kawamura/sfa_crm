@@ -147,7 +147,7 @@ def index(request):
         dic["pref"]=i.pref or ""
         dic["com"]=i.com or ""
         dic["cus"]=(i.sei or "") + (i.mei or "")
-        d={"見積中":"見","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
+        d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
         dic["status"]=d[i.status]
         dic["money"]=i.money
         if i.nouhin_kigen != None:
@@ -432,10 +432,14 @@ def show_index(request):
 def show(request):
     mitsu_num=request.session["mitsu_num"]
     ins=Sfa_data.objects.filter(mitsu_num=mitsu_num)
-    for i in ins:
-        com=i.com
-        name=i.sei +" " + i.mei
-        break
+    if ins.count()>0:
+        for i in ins:
+            com=i.com or ""
+            name=(i.sei or "") +" " + (i.mei or "")
+            break
+    else:
+        com=""
+        name=""
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
