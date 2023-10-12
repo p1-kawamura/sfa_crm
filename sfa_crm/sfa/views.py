@@ -133,6 +133,7 @@ def index(request):
         dic["mitsu_url"]=i.mitsu_url
         dic["cus_id"]=i.cus_id
         dic["make_day"]=i.make_day[5:].replace("-","/")
+        dic["make_sort"]=i.make_day
         dic["mitsu_num"]=i.mitsu_num + "-" + i.mitsu_ver
         dic["order_kubun"]=i.order_kubun or ""
         if i.keiro != None:
@@ -238,7 +239,7 @@ def index(request):
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち","サンクス"],
-        "sort_list":{"make_day":"見積作成日","hassou_sort":"発送完了日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
+        "sort_list":{"make_sort":"見積作成日","hassou_sort":"発送完了日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
         "ses":ses,
         "act_user":act_user,
     }
@@ -287,6 +288,9 @@ def busho_tantou(request):
 def mitsu_detail_api(request):
     mitsu_id=request.POST.get("mitsu_id")
     res=list(Sfa_data.objects.filter(mitsu_id=mitsu_id).values())[0]
+    for i in res:
+        if res[i]==None:
+            res[i]=""
     res2=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     today=str(date.today())
     alert=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=4,alert_check=0,day__lte=today)

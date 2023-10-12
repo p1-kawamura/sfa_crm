@@ -276,9 +276,11 @@
                         </button>
                     </div>
                     <div style="width: 40px;" id="{{i.cus_id}}" name="crm_list">
+                        {% if i.cus_id != None %}
                         <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;">
                             <i class="bi bi-person-square"></i>
                         </button>
+                        {% endif %}
                     </div>
                     <div style="width: 20px; text-align: right;">
                         {% if i.mw == 0 %}
