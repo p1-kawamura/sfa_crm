@@ -18,6 +18,14 @@ class Crm_action(models.Model):
 
 class Customer(models.Model):
     cus_id=models.CharField("顧客ID",max_length=10)
+    com=models.CharField("会社名",max_length=255,blank=True,null=True)
+    com_busho=models.CharField("部課名",max_length=255,blank=True,null=True)
+    sei=models.CharField("姓",max_length=255,blank=True,null=True)
+    mei=models.CharField("名",max_length=255,blank=True,null=True)
+    pref=models.CharField("都道府県",max_length=255,blank=True,null=True)
+    tel=models.CharField("電話番号",max_length=255,blank=True,null=True)
+    tel_mob=models.CharField("携帯番号",max_length=255,blank=True,null=True)
+    mail=models.CharField("メール",max_length=255,blank=True,null=True)
     bikou1=models.TextField("企業情報",default="")
     bikou2=models.TextField("備考",default="")
     grip_busho_id=models.CharField("グリップ部署ID",max_length=10,blank=True)
@@ -26,9 +34,6 @@ class Customer(models.Model):
     mw_busho_id=models.CharField("部署ID",max_length=10,blank=True)
     mw_tantou_id=models.CharField("担当ID",max_length=10,blank=True)
     mw_tantou=models.CharField("担当",max_length=10,blank=True)
-    mw_com=models.CharField("会社名",max_length=255,blank=True)
-    mw_name=models.CharField("氏名",max_length=255,blank=True)
-    mw_mail=models.CharField("メール",max_length=255,blank=True)
 
     def __str__(self):
         return self.cus_id

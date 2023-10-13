@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member
+from crm.models import Customer
 import csv
 import io
 import json
@@ -21,6 +22,7 @@ def index_api(request):
         res=res.json()
         res=res["estimations"]
         for i in res:
+            # 案件
             Sfa_data.objects.update_or_create(
             mitsu_id=i["id"],
             defaults={
@@ -59,6 +61,23 @@ def index_api(request):
             if ins.status not in ["失注","連絡待ち","サンクス"]:
                 ins.status=i["status"]
                 ins.save()
+
+            # 顧客
+            if i["customerId"] != None:
+                Customer.objects.update_or_create(
+                cus_id=i["customerId"],
+                defaults={
+                    "cus_id":i["customerId"],
+                    "com":i["ordererCorporateName"],
+                    "com_busho":i["ordererDepartmentName"],
+                    "sei":i["ordererNameLast"],
+                    "mei":i["ordererNameFirst"],
+                    "pref":i["ordererPrefecture"],
+                    "tel":i["ordererTel"],
+                    "tel_mob":i["ordererMobilePhone"],
+                    "mail":i["ordererEmailMain"],
+                    }
+                )
 
         # API取得日時
         ins=Member.objects.get(tantou_id=tantou_id)
@@ -680,7 +699,7 @@ def csv_imp(request):
 
 #　DBクリア
 def clear_sfa_data(request):
-    Sfa_data.objects.all().delete()
+    Customer.objects.all().delete()
     return redirect("sfa:index")
 
 def clear_member(request):
