@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index_api,index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_bot_delete,modal_alert_check,kokyaku_detail_api, \
-                    show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member,mw_page,mw_add,mw_delete,mw_make,mw_download, \
+                    show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member,clear_session,mw_page,mw_add,mw_delete,mw_make,mw_download, \
                     show_list_direct,kakudo_index,csv_imp,csv_imp_page
 
 
@@ -34,4 +34,5 @@ urlpatterns = [
     path('csv_imp_page/', csv_imp_page, name="csv_imp_page"),
     path('clear_sfa_data/', clear_sfa_data, name="clear_sfa_data"),
     path('clear_member/', clear_member, name="clear_member"),
+    path('clear_session/', clear_session, name="clear_session"),
 ]

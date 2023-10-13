@@ -14,8 +14,43 @@ from datetime import datetime
 
 
 def index_api(request):
-    if "tantou" in request.session["search"]:
-        tantou_id=request.session["search"]["tantou"]
+    if "mitsu_num" not in request.session:
+        request.session["mitsu_num"]=[]
+    if "search" not in request.session:
+        request.session["search"]={}
+    if "busho" not in request.session["search"]:
+        request.session["search"]["busho"]=""
+    if "tantou" not in request.session["search"]:
+        request.session["search"]["tantou"]=""
+    if "chumon_kubun" not in request.session["search"]:
+        request.session["search"]["chumon_kubun"]=""
+    if "keiro" not in request.session["search"]:
+        request.session["search"]["keiro"]=""
+    if "pref" not in request.session["search"]:
+        request.session["search"]["pref"]=""
+    if "kakudo" not in request.session["search"]:
+        request.session["search"]["kakudo"]=""
+    if "day_type" not in request.session["search"]:
+        request.session["search"]["day_type"]="est" 
+    if "day_st" not in request.session["search"]:
+        request.session["search"]["day_st"]=""
+    if "day_ed" not in request.session["search"]:
+        request.session["search"]["day_ed"]=""
+    if "st" not in request.session["search"]:
+        request.session["search"]["st"]=[]
+    if "sort_name" not in request.session["search"]:
+        request.session["search"]["sort_name"]="make_sort"
+    if "sort_jun" not in request.session["search"]:
+        request.session["search"]["sort_jun"]="0"
+    if "mw_list" not in request.session:
+        request.session["mw_list"]=[]
+    if "crm_mw_list" not in request.session:
+        request.session["crm_mw_list"]=[]
+    if "kakudo_day" not in request.session:
+        request.session["kakudo_day"]=datetime.now().strftime("%Y-%m")
+
+    tantou_id=request.session["search"]["tantou"]
+    if tantou_id != "":
         last_api=Member.objects.get(tantou_id=tantou_id).last_api
         url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + tantou_id + "&updatedAtFrom=" + last_api
         res=requests.get(url)
@@ -88,42 +123,6 @@ def index_api(request):
 
 
 def index(request):
-    # request.session.clear()
-    if "mitsu_num" not in request.session:
-        request.session["mitsu_num"]=[]
-    if "search" not in request.session:
-        request.session["search"]={}
-    if "busho" not in request.session["search"]:
-        request.session["search"]["busho"]=""
-    if "tantou" not in request.session["search"]:
-        request.session["search"]["tantou"]=""
-    if "chumon_kubun" not in request.session["search"]:
-        request.session["search"]["chumon_kubun"]=""
-    if "keiro" not in request.session["search"]:
-        request.session["search"]["keiro"]=""
-    if "pref" not in request.session["search"]:
-        request.session["search"]["pref"]=""
-    if "kakudo" not in request.session["search"]:
-        request.session["search"]["kakudo"]=""
-    if "day_type" not in request.session["search"]:
-        request.session["search"]["day_type"]="est" 
-    if "day_st" not in request.session["search"]:
-        request.session["search"]["day_st"]=""
-    if "day_ed" not in request.session["search"]:
-        request.session["search"]["day_ed"]=""
-    if "st" not in request.session["search"]:
-        request.session["search"]["st"]=[]
-    if "sort_name" not in request.session["search"]:
-        request.session["search"]["sort_name"]="mitsu_day"
-    if "sort_jun" not in request.session["search"]:
-        request.session["search"]["sort_jun"]="0"
-    if "mw_list" not in request.session:
-        request.session["mw_list"]=[]
-    if "crm_mw_list" not in request.session:
-        request.session["crm_mw_list"]=[]
-    if "kakudo_day" not in request.session:
-        request.session["kakudo_day"]=datetime.now().strftime("%Y-%m")
-
     ses=request.session["search"]
     fil={}
     fil["tantou_id"]=ses["tantou"]
@@ -709,3 +708,7 @@ def clear_member(request):
         i.last_api="2023-10-01 00:00:00"
         i.save()
     return redirect("sfa:index")
+
+def clear_session(request):
+    request.session.clear()
+    return redirect("sfa:index_api")
