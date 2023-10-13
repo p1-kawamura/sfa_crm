@@ -218,6 +218,8 @@
                             <div class="main0 main6">
                             {% elif i.type == 6 %}
                             <div class="main0 main7">
+                            {% elif i.type == 7 %}
+                            <div class="main0 main8">
                             {% endif %}
                         {% endif %}
 
@@ -247,6 +249,8 @@
                                     <span style="color: #b200e9; font-weight: bold;"><i class="bi bi-people-fill"></i></span>
                                 {% elif i.type == 6 %} <!-- アラート -->
                                     <span style="color: red; font-weight: bold;"><i class="bi bi-bell-fill"></i></span>
+                                {% elif i.type == 7 %} <!-- 来店 -->
+                                    <span style="color: #ff3502; font-weight: bold;"><i class="bi bi-shop"></i></span>
                                 {% endif %}
                             </div>
                             <div style="margin-left: 10px;">
@@ -277,6 +281,7 @@
                                             <option value="3">メルマガ</option>
                                             <option value="4">TEL</option>
                                             <option value="5">外商</option>
+                                            <option value="7">来店</option>
                                             <option value="6">アラート</option>
                                         </select>
                                     </div>
