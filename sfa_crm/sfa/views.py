@@ -60,6 +60,11 @@ def index_api(request):
                 ins.status=i["status"]
                 ins.save()
 
+        # API取得日時
+        ins=Member.objects.get(tantou_id=tantou_id)
+        ins.last_api=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ins.save()
+
     return redirect("sfa:index")
 
 

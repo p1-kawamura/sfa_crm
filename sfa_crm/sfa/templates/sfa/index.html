@@ -26,36 +26,41 @@
             <!-- フィルター -->
             <div>
                 <form action="{% url 'sfa:search' %}" method="post">{% csrf_token %}
-                    <div class="flex">
-                        <div>部署：</div>
+                    <div class="flex3">
+                        <div class="flex">
+                            <div>部署：</div>
+                            <div>
+                                <select class="form-select" name="busho" id="busho" style="width: 150px;">
+                                    {% for key,value in busho_list.items %}
+                                        {% if key == ses.busho %}
+                                        <option value="{{key}}" selected>{{value}}</option>
+                                        {% else %}
+                                        <option value="{{key}}">{{value}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div style="margin-left: 20px;">担当：</div>
+                            <div>
+                                <select class="form-select" name="tantou" id="tantou" style="width: 150px;" required>
+                                    {% for i in tantou_list %}
+                                        {% if i.tantou_id == ses.tantou %}
+                                        <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
+                                        {% else %}
+                                        <option value="{{i.tantou_id}}">{{i.tantou}}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>   
+                            </div>
+                            <div style="margin-left: 30px;">
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-eye"></i> 表示</button>
+                            </div>
+                            <div style="margin-left: 30px;">
+                                <button class="btn btn-outline-dark btn-sm" id="form_clear"><i class="bi bi-eraser"></i> 詳細クリア</button>
+                            </div>
+                        </div>
                         <div>
-                            <select class="form-select" name="busho" id="busho" style="width: 150px;">
-                                {% for key,value in busho_list.items %}
-                                    {% if key == ses.busho %}
-                                    <option value="{{key}}" selected>{{value}}</option>
-                                    {% else %}
-                                    <option value="{{key}}">{{value}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div style="margin-left: 20px;">担当：</div>
-                        <div>
-                            <select class="form-select" name="tantou" id="tantou" style="width: 150px;" required>
-                                {% for i in tantou_list %}
-                                    {% if i.tantou_id == ses.tantou %}
-                                    <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
-                                    {% else %}
-                                    <option value="{{i.tantou_id}}">{{i.tantou}}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>   
-                        </div>
-                        <div style="margin-left: 30px;">
-                            <button type="submit" class="btn btn-primary"><i class="bi bi-eye"></i> 表示</button>
-                        </div>
-                        <div style="margin-left: 30px;">
-                            <button class="btn btn-outline-dark btn-sm" id="form_clear"><i class="bi bi-eraser"></i> 詳細クリア</button>
+                            <button class="btn btn-danger" id="api_reload"><i class="bi bi-arrow-repeat"></i> データ再取得</button>
                         </div>
                     </div>
                     <div class="flex mt-4">
@@ -498,6 +503,18 @@
         })
 
 
+        // API接続
+        document.getElementById("api_reload").addEventListener("click",function(e){
+            e.preventDefault();
+            var tantou=document.getElementById("tantou").value;
+            if (tantou == ""){
+                window.alert("担当者を選択し「表示」を押して確定してください！");
+                return
+            }
+            window.location.href="{% url 'sfa:index_api' %}";
+        });
+
+
         // モーダル_表示設定
         document.getElementById("modal_btn_show").addEventListener("click",function(){
             $.ajax({
@@ -505,10 +522,10 @@
                     'type': 'POST',
                     'data': {"mitsu_id":document.getElementById("modal_mitsu_id").innerText},
                     'dataType': 'json'
-                })
-                .done(function(response){
-                    window.location.href="{% url 'sfa:show' %}";
-                })
+            })
+            .done(function(response){
+                window.location.href="{% url 'sfa:show' %}";
+            })
         });
 
 
