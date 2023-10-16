@@ -186,6 +186,8 @@ def list_add(request):
         ins.text=text
         if type=="4":
             ins.tel_result=tel_result
+        else:
+            ins.tel_result=""
         ins.save()
     return redirect("crm:kokyaku_api")
 
@@ -219,6 +221,27 @@ def grip_index(request):
         dic["juchu_count"]=res["totalReceivedOrders"]
         dic["juchu_money"]=res["totalReceivedOrdersPrice"]
         dic["juchu_last"]=res["lastOrderReceivedDate"]
+        
+        # 最終コンタクト日
+        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id + "/receivedOrders"
+        res2=requests.get(url2)
+        res2=res2.json()
+        last=[]
+        last_mitsu=[]
+        for h in res2["receivedOrders"]:
+            last_mitsu.append(h["firstEstimationDate"])        
+        last.append(max(last_mitsu))
+        if Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).count() > 0:
+            last.append(Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).latest("day").day)
+        if Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").count() > 0:
+            last.append(Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").latest("day").day)
+        if Sfa_action.objects.filter(cus_id=res["id"],type=2).count() > 0:
+            last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
+        if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
+            last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
+
+        print(max(last))
+
         # アラート
         today=str(date.today())
         alert=Crm_action.objects.filter(cus_id=i.cus_id,type=6,alert_check=0,day__lte=today).count()

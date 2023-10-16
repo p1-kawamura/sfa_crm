@@ -351,15 +351,16 @@ def modal_top(request):
 def modal_bot(request):
     act_id=request.POST.get("act_id")
     mitsu_id=request.POST.get("mitsu_id")
+    cus_id=request.POST.get("cus_id")
     day=request.POST.get("day")
     type=request.POST.get("type")
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
     if act_id =="":
         if type=="1":
-            Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,tel_result=tel_result,text=text)
+            Sfa_action.objects.create(mitsu_id=mitsu_id,cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text)
         else:
-            Sfa_action.objects.create(mitsu_id=mitsu_id,day=day,type=type,text=text)
+            Sfa_action.objects.create(mitsu_id=mitsu_id,cus_id=cus_id,day=day,type=type,text=text)
     else:
         ins=Sfa_action.objects.get(act_id=act_id)
         ins.type=type
@@ -698,7 +699,7 @@ def csv_imp(request):
 
 #　DBクリア
 def clear_sfa_data(request):
-    Customer.objects.all().delete()
+    Sfa_action.objects.all().delete()
     return redirect("sfa:index")
 
 def clear_member(request):

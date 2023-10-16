@@ -610,7 +610,11 @@
                 .done(function(response){
                     res=response.res;           
                     document.getElementById("act_type").value=res.type;
-                    document.getElementById("act_tel").value=res.tel_result;
+                    if (res.tel_result == ""){
+                        document.getElementById("act_tel").value="対応";
+                    } else {
+                        document.getElementById("act_tel").value=res.tel_result;
+                    };
                     document.getElementById("act_day").value=res.day;
                     document.getElementById("act_text").value=res.text;
                     if (res.type == 4){

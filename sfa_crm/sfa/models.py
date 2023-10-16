@@ -47,6 +47,7 @@ class Sfa_data(models.Model):
 class Sfa_action(models.Model):
     act_id=models.AutoField("行動ID",primary_key=True)
     mitsu_id=models.CharField("見積ID",max_length=10)
+    cus_id=models.CharField("顧客ID",max_length=10,default="")
     day=models.CharField("日付",max_length=10)
     type=models.IntegerField("種類",null=False)
     text=models.TextField("内容",blank=True)

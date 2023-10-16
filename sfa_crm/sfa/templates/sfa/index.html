@@ -404,6 +404,7 @@
                                             <div style="margin-left: 20px;"><button class="btn btn-outline-dark btn-sm" id="modal_btn_bot_new">新規</button></div>
                                             <div style="margin-left: 20px;"><button class="btn btn-outline-danger btn-sm" id="modal_btn_bot_del">削除</button></div>
                                             <div id="act_id" style="display: none;"></div>
+                                            <div id="modal_cus_id" style="display: none;"></div>
                                         </div>
                                         <div class="flex">
                                             <div style="margin-top: 10px; width: 450px;"><textarea class="form-control" rows="2" id="modal_bot_text"></textarea></div>
@@ -594,6 +595,7 @@
                         };
                         document.getElementById("modal_sfa_action").innerHTML=str;
                         document.getElementById("act_id").value="";
+                        document.getElementById("modal_cus_id").innerText=res.cus_id;
                         modal_bot_click();
                     })
                 },false)
@@ -657,6 +659,7 @@
                     'data': {
                         "act_id":act_id,
                         "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
+                        "cus_id":document.getElementById("modal_cus_id").innerText,
                         "day":document.getElementById("modal_bot_day").value,
                         "type":document.getElementById("modal_bot_type").value,
                         "tel_result":document.getElementById("modal_bot_tel").value,
