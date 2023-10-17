@@ -21,28 +21,142 @@
             {% include "sfa/menu.html" %}
         </div>
 
-        <div style="margin: 0 auto; width: 1300px;">
+        <div style="margin: 0 auto; width: 1210px;">
             <hr>
             グリップ顧客
-            {% for i in list %}
-            <div class="flex sfa_main" style="width: 1250px;">
-                <div style="width: 100px;"><a href="{{i.url}}" target="_blank"><span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}</div>
-                <div style="width: 80px;">{% if i.pref %}{{i.pref}}{% endif %}</div>
-                <div style="width: 200px;">{% if i.com %}{{i.com}}{% endif %}</div>
-                <div style="width: 100px;">{% if i.cus_name_sei %}{{i.cus_name_sei}}{% endif %}{% if i.cus_name_mei %}{{i.cus_name_mei}}{% endif %}</div>
-                <div style="width: 150px;">見積総数：{{i.mitsu_count}}件</div>
-                <div style="width: 150px;">受注総数：{{i.juchu_count}}件</div>
-                <div style="width: 200px;">受注金額：{{i.juchu_money | intcomma}}円</div>
-                <div style="width: 170px;">最終受注日：{% if i.juchu_last %}{{i.juchu_last}}{% endif %}</div>
-                <div style="width: 40px;">
-                    {% if i.alert != 0 %}
-                    <span class="bell"><i class="bi bi-bell-fill"></i></span>
-                    {% endif %}
+            <hr>
+
+            <div style="width: 1210px; margin-bottom: 10px;">
+                <div class="flex mail">
+                    <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
+                    <div style="width: 28px; margin-left: 10px; padding-right:5.7em;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
                 </div>
-                <div style="width: 30px;" id="{{i.cus_id}}" name="crm_list">
-                    <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;">
-                        <i class="bi bi-person-square"></i>
-                    </button>
+            </div>
+
+            {% for i in list %}
+            <div class="flex grip_main" style="width: 1210px; font-size: 1em;">
+                <div>
+                    <div class="flex">
+                        <div style="width: 120px;"><a href="{{i.url}}" target="_blank">
+                            <span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}
+                        </div>
+                        <div style="width: 250px;">{% if i.com %}{{i.com}}{% endif %}</div>
+                        <div style="width: 220px;">見積総数：{{i.mitsu_count}}件</div>
+                        <div style="width: 220px;">受注総数：{{i.juchu_count}}件</div>
+                        <div style="width: 240px;">受注総金額：{{i.juchu_money | intcomma}}円</div>
+                        <div style="width: 110px; text-align: right;">
+                            {% if i.alert != 0 %}<span class="bell"><i class="bi bi-bell-fill"></i></span>{% endif %}
+                        </div>  
+                    </div>
+                    <div class="flex">
+                        <div style="width: 120px;">{% if i.pref %}{{i.pref}}{% endif %}</div>
+                        <div style="width: 250px;">{% if i.cus_name_sei %}{{i.cus_name_sei}}{% endif %}{% if i.cus_name_mei %}{{i.cus_name_mei}}{% endif %}</div>
+                        <div style="width: 220px; font-size: 0.9em;">最終見積日：{% if i.mitsu_last %}{{i.mitsu_last}}{% endif %}</div>
+                        <div style="width: 220px; font-size: 0.9em;">最終受注日：{% if i.juchu_last %}{{i.juchu_last}}{% endif %}</div>
+                        <div style="width: 240px; font-size: 0.9em;">最終コンタクト日：{% if i.contact_last %}{{i.contact_last}}{% endif %}</div>
+                        <div style="width: 50px;">
+                            <button type="button" class="btn btn-outline-success btn-sm"  id="{{i.cus_id}}" name="crm_list" style="border-radius: 50%;">
+                                <i class="bi bi-person-square"></i>
+                            </button>
+                        </div>
+                        <div style="width: 30px;">
+                            {% if i.mw == 0 %}
+                            <input class="form-check-input" type="checkbox" id="{{i.cus_id}}" name="mw_list">
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" id="{{i.cus_id}}" name="mw_list" checked disabled>
+                            {% endif %}
+                        </div>
+                        {% if i.est != 0 %}
+                        <div><button type="button" class="btn btn-outline-danger btn-sm" id="btn_est" name="est_list">案件</button></div>
+                        {% endif %}
+                    </div>
+                </div>
+                <!-- 案件詳細 -->
+                <div style="width: 1210px; margin-bottom: 10px;">
+                    {% for h in i.est_list %}
+                    <hr>
+
+                    {% if h.status == "見積中" %}
+                    <div class="flex" style="background-color: #FFF; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "見積送信" %}
+                    <div class="flex" style="background-color: #ceffb7; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "イメージ" %}
+                    <div class="flex" style="background-color: #c8f7fd; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "受注" %}
+                    <div class="flex" style="background-color: #fff9a7; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "発送完了" %}
+                    <div class="flex" style="background-color: #dbbbff; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "キャンセル" %}
+                    <div class="flex" style="background-color: #c5c5c5; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "終了" %}
+                    <div class="flex" style="background-color: #ffbcbc; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "保留" %}
+                    <div class="flex" style="background-color: #FFF; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "失注" %}
+                    <div class="flex" style="background-color: #c5c5c5; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "連絡待ち" %}
+                    <div class="flex" style="background-color: #FFF; font-size: 0.9em; padding: 0.5em;">
+                    {% elif h.status == "サンクス" %}
+                    <div class="flex" style="background-color: #ffb85c; font-size: 0.9em; padding: 0.5em;">
+                    {% endif %}
+
+                        <div style="width: 100px;">{{h.make_day}}</div>
+                        <div style="width: 100px;"><a href="{{h.mitsu_url}}" target="_blank">
+                            <span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{h.mitsu_num}}-{{h.mitsu_ver}}</div>
+                        <div style="width: 45px;">
+                            {% if h.order_kubun == "新規" %}
+                                <div class="order order_1">新規</div>
+                            {% elif h.order_kubun == "追加" %}
+                                <div class="order order_2">追加</div>
+                            {% elif h.order_kubun == "追加新柄" %}
+                                <div class="order order_3">新追</div>
+                            {% elif h.order_kubun == "刷り直し" %}
+                                <div class="order_4">刷直</div>
+                            {% elif h.order_kubun == "返金" %}
+                            <div class="order_4">返金</div>
+                            {% endif %}
+                        </div>
+                        <div style="width: 30px;">
+                            {% if h.keiro == "Web" %}
+                                <div class="order_use">W</div>
+                            {% elif h.keiro == "Fax" %}
+                                <div class="order_use">F</div>
+                            {% elif h.keiro == "Tel" %}
+                                <div class="order_use">T</div>
+                            {% elif h.keiro == "来店" %}
+                                <div class="order_use">来</div>
+                            {% elif h.keiro == "外商" %}
+                                <div class="order_use">外</div>
+                            {% elif h.keiro == "法人問合せ" %}
+                                <div class="order_use">法</div>
+                            {% endif %}
+                        </div>
+                        <div style="width: 50px;">
+                            {% if h.use_kubun == "企業" %}
+                                <div class="order_use">企</div>
+                            {% elif h.use_kubun == "団体" %}
+                                <div class="order_use">団</div>
+                            {% elif h.use_kubun == "学生" %}
+                                <div class="order_use">学</div>
+                            {% elif h.use_kubun == "個人" %}
+                                <div class="order_use">個</div>
+                            {% endif %}
+                        </div>
+                        <div style="width: 100px;"><b>{{h.status}}</b></div>
+                        <div style="width: 150px;">金額：{{h.money | intcomma}}円</div>
+                        <div style="width: 190px;">
+                            {% if h.nouhin_kigen %}
+                                納品期限日：{{h.nouhin_kigen}}
+                            {% elif h.nouhin_shitei %}
+                                納品指定日：{{h.nouhin_shitei}}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </div>
+                        <div style="width: 170px;">受注日：{% if h.juchu_day %}{{h.juchu_day}}{% endif %}</div>
+                        <div>発送完了日：{% if h.hassou_day %}{{h.hassou_day}}{% endif %}</div>
+                    </div>
+                    {% endfor %}
                 </div>
 
             </div>
@@ -102,6 +216,49 @@
                 })
             },false)
         };
+
+
+        // メールワイズ
+        document.getElementById("btn_mw").addEventListener("click",function(){
+            var item=document.getElementsByName("mw_list");
+            var mw_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked && item[i].disabled==false){
+                    mw_list.push(item[i].id);
+                };
+            };
+            if (mw_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            }
+            mw_list=JSON.stringify(mw_list);
+            $.ajax({
+                    'url': '{% url "crm:mw_add" %}',
+                    'type': 'POST',
+                    'data': {"mw_list":mw_list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.alert("リストに追加しました！");
+                window.location.reload();
+            })
+        });
+
+
+        // メールワイズ_全チェック
+        var mw_check_all = document.getElementById("mw_check_all");
+        mw_check_all.addEventListener("click",function(){
+            var che=document.getElementsByName("mw_list");
+            for (var i=0; i<che.length; i++){
+                if (mw_check_all.checked){
+                    che[i].checked=true;
+                } else {
+                    if (che[i].disabled == false){
+                        che[i].checked=false;
+                    };
+                };
+            };
+        });
 
     </script>
 

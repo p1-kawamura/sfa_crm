@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import index,kokyaku_api,alert_check,list_click_est,list_click_act,list_add,list_del,grip_index,grip_add,mw_bikou, \
-                    mw_page,mw_delete,mw_make,mw_download
+from .views import index,kokyaku_api,alert_check,list_click_est,list_click_act,list_add,list_del,grip_index,grip_add,crm_bikou, \
+                    mw_page,mw_add,mw_delete,mw_make,mw_download
 
 
 app_name="crm"
@@ -14,8 +14,9 @@ urlpatterns = [
     path('list_del/', list_del, name="list_del"),
     path('grip_index/', grip_index, name="grip_index"),
     path('grip_add/', grip_add, name="grip_add"),
-    path('mw_bikou/', mw_bikou, name="mw_bikou"),
+    path('crm_bikou/', crm_bikou, name="crm_bikou"),
     path('mw_page/', mw_page, name="mw_page"),
+    path('mw_add/', mw_add, name="mw_add"),
     path('mw_delete/<int:pk>', mw_delete, name="mw_delete"),
     path('mw_make/', mw_make, name="mw_make"),
     path('mw_download/', mw_download, name="mw_download"),

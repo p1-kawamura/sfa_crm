@@ -30,6 +30,23 @@ def kokyaku_api(request):
     res2=res2.json()
     res2=res2["receivedOrders"]
 
+    # 最終連絡日
+    last=[]
+    last_mitsu=[]
+    for i in res2:
+        last_mitsu.append(i["firstEstimationDate"])        
+    last.append(max(last_mitsu))
+    if Crm_action.objects.filter(cus_id=cus_id,type__in=[2,5,7]).count() > 0:
+        last.append(Crm_action.objects.filter(cus_id=cus_id,type__in=[2,5,7]).latest("day").day)
+    if Crm_action.objects.filter(cus_id=cus_id,type=4,tel_result="対応").count() > 0:
+        last.append(Crm_action.objects.filter(cus_id=cus_id,type=4,tel_result="対応").latest("day").day)
+    if Sfa_action.objects.filter(cus_id=cus_id,type=2).count() > 0:
+        last.append(Sfa_action.objects.filter(cus_id=cus_id,type=2).latest("day").day)
+    if Sfa_action.objects.filter(cus_id=cus_id,type=1,tel_result="対応").count() > 0:
+        last.append(Sfa_action.objects.filter(cus_id=cus_id,type=1,tel_result="対応").latest("day").day)
+    res["mitsu_last"]=max(last)
+
+    # 見積とコメント計算
     est_list=[]
     i=0
     for est in res2:
@@ -205,7 +222,7 @@ def list_del(request):
 def grip_index(request):
     tantou_id=request.session["search"]["tantou"]
     ins=Customer.objects.filter(~Q(grip_busho_id=""),grip_tantou_id=tantou_id)
-    list=[]
+    grip_list=[]
     for i in ins:
         url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
         res=requests.get(url)
@@ -214,6 +231,7 @@ def grip_index(request):
         dic["cus_id"]=res["id"]
         dic["url"]=res["customerMstPageUrl"]
         dic["com"]=res["corporateName"]
+        dic["busho"]=res["departmentName"]
         dic["cus_name_sei"]=res["nameLast"]
         dic["cus_name_mei"]=res["nameFirst"]
         dic["pref"]=res["prefecture"]
@@ -239,14 +257,30 @@ def grip_index(request):
             last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
         if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
             last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
+        dic["mitsu_last"]=max(last_mitsu)
+        dic["contact_last"]=max(last)
 
-        print(max(last))
+        # メールワイズ
+        dic["mw"]=Customer.objects.get(cus_id=i.cus_id).mw
 
         # アラート
         today=str(date.today())
         alert=Crm_action.objects.filter(cus_id=i.cus_id,type=6,alert_check=0,day__lte=today).count()
         dic["alert"]=alert
-        list.append(dic)
+
+        # 案件発生
+        est=Sfa_data.objects.filter(cus_id=i.cus_id,show=0).count()
+        dic["est"]=est
+        
+        # 案件詳細
+        est_detail=Sfa_data.objects.filter(cus_id=i.cus_id,show=0)
+        if est_detail.count()>0:
+            est_list=list(est_detail.values())
+        else:
+            est_list=""
+        dic["est_list"]=est_list
+
+        grip_list.append(dic)
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -255,7 +289,7 @@ def grip_index(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
-    return render(request,"crm/grip.html",{"list":list,"act_user":act_user})
+    return render(request,"crm/grip.html",{"list":grip_list,"act_user":act_user})
 
 
 # グリップ追加
@@ -275,40 +309,15 @@ def grip_add(request):
     return JsonResponse(d)
 
 
-# メールワイズ作成チェックと備考
-def mw_bikou(request):
+# 備考更新
+def crm_bikou(request):
     cus_id=request.POST.get("cus_id")
     bikou1=request.POST.get("bikou1")
     bikou2=request.POST.get("bikou2")
-    mw=request.POST.get("mw")
-    com=request.POST.get("com")
-    cus_name=request.POST.get("cus_name")
-    mail=request.POST.get("mail")
-    busho_id=request.session["search"]["busho"]
-    tantou_id=request.session["search"]["tantou"]
-    tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    if mw=="true":
-        mw=1
-    else:
-        mw=0
-        busho_id=""
-        tantou_id=""
-        tantou=""
-    Customer.objects.update_or_create(
-        cus_id=cus_id,
-        defaults={
-            "cus_id":cus_id,
-            "bikou1":bikou1,
-            "bikou2":bikou2,
-            "mw":mw,
-            "mw_busho_id":busho_id,
-            "mw_tantou_id":tantou_id,
-            "mw_tantou":tantou,
-            "mw_com":com,
-            "mw_name":cus_name,
-            "mw_mail":mail,
-            }
-        )
+    ins=Customer.objects.get(cus_id=cus_id)
+    ins.bikou1=bikou1
+    ins.bikou2=bikou2
+    ins.save()
     d={}
     return JsonResponse(d)
 
@@ -329,10 +338,30 @@ def mw_page(request):
     return render(request,"crm/mw_csv.html",{"busho":busho,"list":ins,"act_user":act_user})
 
 
+# メールワイズ_追加
+def mw_add(request):
+    mw_add_list=request.POST.get("mw_list")
+    mw_add_list=json.loads(mw_add_list)
+    busho_id=request.session["search"]["busho"]
+    tantou_id=request.session["search"]["tantou"]
+    for i in mw_add_list:
+        ins=Customer.objects.get(cus_id=i)
+        ins.mw=1
+        ins.mw_busho_id=busho_id
+        ins.mw_tantou_id=tantou_id
+        ins.mw_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+        ins.save()
+    d={}
+    return JsonResponse(d)
+
+
 # メールワイズ_削除ボタン
 def mw_delete(request,pk):
     ins=Customer.objects.get(pk=pk)
     ins.mw=0
+    ins.mw_busho_id=""
+    ins.mw_tantou_id=""
+    ins.mw_tantou=""
     ins.save()
     return redirect("crm:mw_page")
 
@@ -353,13 +382,16 @@ def mw_download(request):
     for i in mw_list:
         ins=Customer.objects.get(cus_id=i)
         a=[
-            ins.mw_com, #会社
-            ins.mw_name, #氏名
-            ins.mw_mail , #メールアドレス
+            ins.com or "", #会社
+            (ins.sei or "") + (ins.mei or ""), #氏名
+            ins.mail or "" , #メールアドレス
             ins.mw_tantou  #担当
         ]
         mw_csv.append(a)
         ins.mw=0
+        ins.mw_busho_id=""
+        ins.mw_tantou_id=""
+        ins.mw_tantou=""
         ins.save()
     filename=urllib.parse.quote("【顧客】メールワイズ用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
