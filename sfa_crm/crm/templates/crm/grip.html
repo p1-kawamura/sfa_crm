@@ -67,12 +67,12 @@
                             {% endif %}
                         </div>
                         {% if i.est != 0 %}
-                        <div><button type="button" class="btn btn-outline-danger btn-sm" id="btn_est" name="est_list">案件</button></div>
+                        <div><button type="button" class="btn btn-outline-danger btn-sm" name="est_list">案件</button></div>
                         {% endif %}
                     </div>
                 </div>
                 <!-- 案件詳細 -->
-                <div style="width: 1210px; margin-bottom: 10px;">
+                <div style="width: 1210px; margin-bottom: 10px; display: none;">
                     {% for h in i.est_list %}
                     <hr>
 
@@ -131,7 +131,7 @@
                                 <div class="order_use">法</div>
                             {% endif %}
                         </div>
-                        <div style="width: 50px;">
+                        <div style="width: 30px;">
                             {% if h.use_kubun == "企業" %}
                                 <div class="order_use">企</div>
                             {% elif h.use_kubun == "団体" %}
@@ -140,6 +140,23 @@
                                 <div class="order_use">学</div>
                             {% elif h.use_kubun == "個人" %}
                                 <div class="order_use">個</div>
+                            {% endif %}
+                        </div>
+                        <div style="width: 50px;">
+                            {% if h.use_youto == "チームウェア・アイテム" %}
+                                <div class="order_use">チ</div>
+                            {% elif h.use_youto == "制服・スタッフウェア" %}
+                                <div class="order_use">制</div>
+                            {% elif h.use_youto == "販促・ノベルティ" %}
+                                <div class="order_use">ノ</div>
+                            {% elif h.use_youto == "記念品・贈答品" %}
+                                <div class="order_use">記</div>
+                            {% elif h.use_youto == "販売" %}
+                                <div class="order_use">販</div>
+                            {% elif h.use_youto == "自分用" %}
+                                <div class="order_use">自</div>
+                            {% elif h.use_youto == "その他" %}
+                                <div class="order_use">他</div>
                             {% endif %}
                         </div>
                         <div style="width: 100px;"><b>{{h.status}}</b></div>
@@ -259,6 +276,22 @@
                 };
             };
         });
+
+
+        // 案件ボタン
+        var item=document.getElementsByName("est_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                var disp_node = this.parentElement.parentElement.parentElement.nextElementSibling;
+                if (disp_node.style.display == "none"){
+                    disp_node.style.display="block";
+                    this.innerText="戻す"
+                } else {
+                    disp_node.style.display="none";
+                    this.innerText="案件"
+                };
+            },false)
+        };
 
     </script>
 

@@ -98,6 +98,12 @@ def kokyaku_api(request):
                     dic["act_id"]=ac.act_id
         res_det.append(dic)
 
+    # 最終成型_並び替え
+    if request.session["crm_sort"]=="0":
+        res_det=sorted(res_det,key=lambda x: x["day"])
+    else:
+        res_det=sorted(res_det,key=lambda x: x["day"], reverse=True)
+
     # アラート
     today=str(date.today())
     alert=Crm_action.objects.filter(cus_id=cus_id,type=6,alert_check=0,day__lte=today)
@@ -118,12 +124,11 @@ def kokyaku_api(request):
         tantou_id=""
 
     # メールワイズ、備考
-    dic_bikou={"bikou1":"","bikou2":"","mw":0}
+    dic_bikou={"bikou1":"","bikou2":""}
     if Customer.objects.filter(cus_id=cus_id).count() > 0:
         ins=Customer.objects.get(cus_id=cus_id)
         dic_bikou["bikou1"]=ins.bikou1
         dic_bikou["bikou2"]=ins.bikou2
-        dic_bikou["mw"]=ins.mw
         
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -143,8 +148,16 @@ def kokyaku_api(request):
         "tantou_list":Member.objects.filter(busho_id=busho_id),
         "dic_bikou":dic_bikou,
         "act_user":act_user,
+        "crm_sort":request.session["crm_sort"],
     }
     return render(request,"crm/index.html",params)
+
+
+def crm_sort(request):
+    sort=request.POST.get("crm_sort")
+    request.session["crm_sort"]=sort
+    d={}
+    return JsonResponse(d)
 
 
 def alert_check(request):

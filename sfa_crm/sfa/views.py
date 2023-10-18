@@ -48,6 +48,8 @@ def index_api(request):
         request.session["crm_mw_list"]=[]
     if "kakudo_day" not in request.session:
         request.session["kakudo_day"]=datetime.now().strftime("%Y-%m")
+    if "crm_sort" not in request.session:
+        request.session["crm_sort"]="0"
 
     tantou_id=request.session["search"]["tantou"]
     if tantou_id != "":

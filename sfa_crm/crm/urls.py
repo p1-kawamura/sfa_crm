@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,kokyaku_api,alert_check,list_click_est,list_click_act,list_add,list_del,grip_index,grip_add,crm_bikou, \
+from .views import index,kokyaku_api,crm_sort,alert_check,list_click_est,list_click_act,list_add,list_del,grip_index,grip_add,crm_bikou, \
                     mw_page,mw_add,mw_delete,mw_make,mw_download
 
 
@@ -7,6 +7,7 @@ app_name="crm"
 urlpatterns = [
     path('', index, name="index"),
     path('kokyaku_api/', kokyaku_api, name="kokyaku_api"),
+    path('crm_sort/', crm_sort, name="crm_sort"),
     path('alert_check/', alert_check, name="alert_check"),
     path('list_click_est/', list_click_est, name="list_click_est"),
     path('list_click_act/', list_click_act, name="list_click_act"),

@@ -194,72 +194,83 @@
             </div>
             <hr>
             <div class="flex2" style="width: 1300px;">
-
-                <div class="inlineframe" style="height: 1500px; width: 600px; border: 1px solid #ced4da;">
-                    {% for i in res_det %} <!-- 逆順は reversedをつける -->
-                        {% if i.kubun == "est" %}
-                            <div class="main0 main1">
-                        {% else %}
-                            {% if i.type == 1 %}
-                            <div class="main0 main2">
-                            {% elif i.type == 2 %}
-                            <div class="main0 main3">
-                            {% elif i.type == 3 %}
-                            <div class="main0 main4">
-                            {% elif i.type == 4 %}
-                            <div class="main0 main5">
-                            {% elif i.type == 5 %}
-                            <div class="main0 main6">
-                            {% elif i.type == 6 %}
-                            <div class="main0 main7">
-                            {% elif i.type == 7 %}
-                            <div class="main0 main8">
+                <div>
+                    <div style="width: 75px;">
+                        <select class="form-select form-select-sm" id="left_sort">
+                            {% if crm_sort == "0" %}
+                            <option value="0" selected>昇順</option>
+                            <option value="1">降順</option>
+                            {% else %}
+                            <option value="0">昇順</option>
+                            <option value="1" selected>降順</option>
                             {% endif %}
-                        {% endif %}
-
-                        {% if i.kubun == "est" %}
-                        <div class="flex" name="est_list" id="{{i.cus_id}}-{{i.est_num}}">
-                            <div>{{i.day}}</div>
-                            <div style="margin-left: 10px;">
-                                <span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span>
-                            </div>
-                            <div style="margin-left: 10px;">{{i.est_num}}</div>
-                            <div style="margin-left: 10px;">{{i.status}}</div>
-                            <div style="margin-left: 10px;">{{i.money | intcomma}}円</div>
-                        </div>
-                        {% else %}
-                        <div class="flex" name="act_list" id="{{i.act_id}}">
-                            <div>{{i.day}}</div>
-                            <div style="margin-left: 10px;">
-                                {% if i.type == 1 %} <!-- メモ -->
-                                    <span style="color: #646565; font-weight: bold;"><i class="bi bi-clipboard-fill"></i></span>
-                                {% elif i.type == 2 %} <!-- メール -->
-                                    <span style="color: #ff9900; font-weight: bold;"><i class="bi bi-envelope-fill"></i></span>
-                                {% elif i.type == 3 %} <!-- メルマガ -->
-                                    <span style="color: #ff02f2; font-weight: bold;"><i class="bi bi-envelope-heart-fill"></i></span>
-                                {% elif i.type == 4 %} <!-- TEL -->
-                                    <span style="color: green; font-weight: bold;"><i class="bi bi-telephone-forward-fill"></i></span>
-                                {% elif i.type == 5 %} <!-- 外商 -->
-                                    <span style="color: #b200e9; font-weight: bold;"><i class="bi bi-people-fill"></i></span>
-                                {% elif i.type == 6 %} <!-- アラート -->
-                                    <span style="color: red; font-weight: bold;"><i class="bi bi-bell-fill"></i></span>
-                                {% elif i.type == 7 %} <!-- 来店 -->
-                                    <span style="color: #ff3502; font-weight: bold;"><i class="bi bi-shop"></i></span>
-                                {% endif %}
-                            </div>
-                            <div style="margin-left: 10px;">
-                                {% if i.type == 4 %}
-                                    【{{i.tel_result}}】 {{i.text}}
-                                {% else %}
-                                    {{i.text}}
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endif %}
+                        </select>
                     </div>
-                    {% endfor %}
-                </div>
+                    <div class="inlineframe" style="height: 1500px; width: 600px; border: 1px solid #ced4da;">
+                        {% for i in res_det %}
+                            {% if i.kubun == "est" %}
+                                <div class="main0 main1">
+                            {% else %}
+                                {% if i.type == 1 %}
+                                <div class="main0 main2">
+                                {% elif i.type == 2 %}
+                                <div class="main0 main3">
+                                {% elif i.type == 3 %}
+                                <div class="main0 main4">
+                                {% elif i.type == 4 %}
+                                <div class="main0 main5">
+                                {% elif i.type == 5 %}
+                                <div class="main0 main6">
+                                {% elif i.type == 6 %}
+                                <div class="main0 main7">
+                                {% elif i.type == 7 %}
+                                <div class="main0 main8">
+                                {% endif %}
+                            {% endif %}
 
+                            {% if i.kubun == "est" %}
+                            <div class="flex" name="est_list" id="{{i.cus_id}}-{{i.est_num}}">
+                                <div>{{i.day}}</div>
+                                <div style="margin-left: 10px;">
+                                    <span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span>
+                                </div>
+                                <div style="margin-left: 10px;">{{i.est_num}}</div>
+                                <div style="margin-left: 10px;">{{i.status}}</div>
+                                <div style="margin-left: 10px;">{{i.money | intcomma}}円</div>
+                            </div>
+                            {% else %}
+                            <div class="flex" name="act_list" id="{{i.act_id}}">
+                                <div>{{i.day}}</div>
+                                <div style="margin-left: 10px;">
+                                    {% if i.type == 1 %} <!-- メモ -->
+                                        <span style="color: #646565; font-weight: bold;"><i class="bi bi-clipboard-fill"></i></span>
+                                    {% elif i.type == 2 %} <!-- メール -->
+                                        <span style="color: #ff9900; font-weight: bold;"><i class="bi bi-envelope-fill"></i></span>
+                                    {% elif i.type == 3 %} <!-- メルマガ -->
+                                        <span style="color: #ff02f2; font-weight: bold;"><i class="bi bi-envelope-heart-fill"></i></span>
+                                    {% elif i.type == 4 %} <!-- TEL -->
+                                        <span style="color: green; font-weight: bold;"><i class="bi bi-telephone-forward-fill"></i></span>
+                                    {% elif i.type == 5 %} <!-- 外商 -->
+                                        <span style="color: #b200e9; font-weight: bold;"><i class="bi bi-people-fill"></i></span>
+                                    {% elif i.type == 6 %} <!-- アラート -->
+                                        <span style="color: red; font-weight: bold;"><i class="bi bi-bell-fill"></i></span>
+                                    {% elif i.type == 7 %} <!-- 来店 -->
+                                        <span style="color: #ff3502; font-weight: bold;"><i class="bi bi-shop"></i></span>
+                                    {% endif %}
+                                </div>
+                                <div style="margin-left: 10px;">
+                                    {% if i.type == 4 %}
+                                        【{{i.tel_result}}】 {{i.text}}
+                                    {% else %}
+                                        {{i.text}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
                 <div style="width: 700px; padding-left: 30px;">
                     <div>
                         <div class="title">コメント挿入</div>
@@ -498,6 +509,20 @@
                 .done(function(response){
                     window.alert("更新しました！");
                 })
+        });
+
+
+        // リスト並び替え
+        document.getElementById("left_sort").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "crm:crm_sort" %}',
+                    'type': 'POST',
+                    'data': {"crm_sort":document.getElementById("left_sort").value},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
         });
 
 

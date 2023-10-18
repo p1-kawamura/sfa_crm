@@ -46,9 +46,9 @@
                     <tbody>
                         {% for i in list %}
                         <tr>
-                            <td>{{i.com}}</td>
-                            <td>{{i.sei}}{{i.mei}}</td>
-                            <td>{{i.mw_mail}}</td>
+                            <td>{% if i.com %}{{i.com}}{% endif %}{% if i.com_busho %}{{i.com_busho}}{% endif %}</td>
+                            <td>{% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}</td>
+                            <td>{% if i.mail %}{{i.mail}}{% endif %}</td>
                             <td>{{i.mw_tantou}}</td>
                             <td style="text-align: center;">
                                 <form action="{% url 'crm:mw_delete' i.pk %}" method="post">{% csrf_token %}
