@@ -18,6 +18,7 @@ class Crm_action(models.Model):
 
 class Customer(models.Model):
     cus_id=models.CharField("顧客ID",max_length=10)
+    cus_url=models.CharField("顧客URL",max_length=255,blank=True,null=True)
     com=models.CharField("会社名",max_length=255,blank=True,null=True)
     com_busho=models.CharField("部課名",max_length=255,blank=True,null=True)
     sei=models.CharField("姓",max_length=255,blank=True,null=True)
@@ -34,6 +35,13 @@ class Customer(models.Model):
     mw_busho_id=models.CharField("部署ID",max_length=10,blank=True)
     mw_tantou_id=models.CharField("担当ID",max_length=10,blank=True)
     mw_tantou=models.CharField("担当",max_length=10,blank=True)
+    mitsu_all=models.IntegerField("見積総数",default=0)
+    juchu_all=models.IntegerField("受注総数",default=0)
+    juchu_money=models.BigIntegerField("受注総金額",default=0)
+    mitsu_last=models.CharField("最終見積日",max_length=255,blank=True,null=True)
+    juchu_last=models.CharField("最終受注日",max_length=255,blank=True,null=True)
+    contact_last=models.CharField("最終コンタクト日",max_length=255,blank=True,null=True)
+
 
     def __str__(self):
         return self.cus_id

@@ -231,27 +231,14 @@ def list_del(request):
     return JsonResponse(d)
 
 
-# グリップ一覧表示
-def grip_index(request):
+# グリップAPI
+def grip_index_api(request):
     tantou_id=request.session["search"]["tantou"]
-    ins=Customer.objects.filter(~Q(grip_busho_id=""),grip_tantou_id=tantou_id)
-    grip_list=[]
+    ins=Customer.objects.filter(grip_tantou_id=tantou_id)
     for i in ins:
         url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
         res=requests.get(url)
         res=res.json()
-        dic={}
-        dic["cus_id"]=res["id"]
-        dic["url"]=res["customerMstPageUrl"]
-        dic["com"]=res["corporateName"]
-        dic["busho"]=res["departmentName"]
-        dic["cus_name_sei"]=res["nameLast"]
-        dic["cus_name_mei"]=res["nameFirst"]
-        dic["pref"]=res["prefecture"]
-        dic["mitsu_count"]=res["totalEstimations"]
-        dic["juchu_count"]=res["totalReceivedOrders"]
-        dic["juchu_money"]=res["totalReceivedOrdersPrice"]
-        dic["juchu_last"]=res["lastOrderReceivedDate"]
         
         # 最終コンタクト日
         url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id + "/receivedOrders"
@@ -270,8 +257,50 @@ def grip_index(request):
             last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
         if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
             last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
-        dic["mitsu_last"]=max(last_mitsu)
-        dic["contact_last"]=max(last)
+        mitsu_last=max(last_mitsu)
+        contact_last=max(last)
+
+        # DB書込
+        i.cus_url=res["customerMstPageUrl"]
+        i.com=res["corporateName"]
+        i.com_busho=res["departmentName"]
+        i.sei=res["nameLast"]
+        i.mei=res["nameFirst"]
+        i.pref=res["prefecture"]
+        i.tel=res["tel"]
+        i.tel_mob=res["mobilePhone"]
+        i.mail=res["contactEmail"]
+        i.mitsu_all=res["totalEstimations"]
+        i.juchu_all=res["totalReceivedOrders"]
+        i.juchu_money=res["totalReceivedOrdersPrice"]
+        i.mitsu_last=mitsu_last
+        i.juchu_last=res["lastOrderReceivedDate"]
+        i.contact_last=contact_last
+        i.save()
+
+    return redirect("crm:grip_index")
+
+
+# グリップ一覧表示
+def grip_index(request):
+    tantou_id=request.session["search"]["tantou"]
+    ins=Customer.objects.filter(grip_tantou_id=tantou_id)
+    grip_list=[]
+    for i in ins:
+        dic={}
+        dic["cus_id"]=i.cus_id
+        dic["url"]=i.cus_url
+        dic["com"]=i.com
+        dic["com_busho"]=i.com_busho
+        dic["sei"]=i.sei
+        dic["mei"]=i.mei
+        dic["pref"]=i.pref
+        dic["mitsu_all"]=i.mitsu_all
+        dic["juchu_all"]=i.juchu_all
+        dic["juchu_money"]=i.juchu_money
+        dic["mitsu_last"]=i.mitsu_last
+        dic["juchu_last"]=i.juchu_last
+        dic["contact_last"]=i.contact_last
 
         # メールワイズ
         dic["mw"]=Customer.objects.get(cus_id=i.cus_id).mw
@@ -310,14 +339,50 @@ def grip_add(request):
     cus_id=request.POST.get("cus_id")
     busho_id=request.POST.get("busho_id")
     tantou_id=request.POST.get("tantou_id")
-    Customer.objects.update_or_create(
-        cus_id=cus_id,
-        defaults={
-            "cus_id":cus_id,
-            "grip_busho_id":busho_id,
-            "grip_tantou_id":tantou_id,
-            }
-        )
+    # 顧客情報
+    url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
+    res=requests.get(url)
+    res=res.json()
+    # 最終コンタクト日
+    url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
+    res2=requests.get(url2)
+    res2=res2.json()
+    last=[]
+    last_mitsu=[]
+    for h in res2["receivedOrders"]:
+        last_mitsu.append(h["firstEstimationDate"])        
+    last.append(max(last_mitsu))
+    if Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).count() > 0:
+        last.append(Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).latest("day").day)
+    if Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").count() > 0:
+        last.append(Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").latest("day").day)
+    if Sfa_action.objects.filter(cus_id=res["id"],type=2).count() > 0:
+        last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
+    if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
+        last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
+    mitsu_last=max(last_mitsu)
+    contact_last=max(last)
+
+    # DB書込
+    ins=Customer.objects.get(cus_id=cus_id)
+    ins.cus_url=res["customerMstPageUrl"]
+    ins.com=res["corporateName"]
+    ins.com_busho=res["departmentName"]
+    ins.sei=res["nameLast"]
+    ins.mei=res["nameFirst"]
+    ins.pref=res["prefecture"]
+    ins.tel=res["tel"]
+    ins.tel_mob=res["mobilePhone"]
+    ins.mail=res["contactEmail"]
+    ins.mitsu_all=res["totalEstimations"]
+    ins.juchu_all=res["totalReceivedOrders"]
+    ins.juchu_money=res["totalReceivedOrdersPrice"]
+    ins.mitsu_last=mitsu_last
+    ins.juchu_last=res["lastOrderReceivedDate"]
+    ins.contact_last=contact_last
+    ins.grip_busho_id=busho_id
+    ins.grip_tantou_id=tantou_id
+    ins.save()
     d={}
     return JsonResponse(d)
 
