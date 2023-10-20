@@ -18,10 +18,12 @@
         <!-- メニュー -->
         <div style="margin: 0 auto; width: 1000px;">
             {% include "sfa/menu.html" %}
-            <hr>
         </div>
 
         <div style="margin: 0 auto; width: 800px;">
+            <hr>
+            <div class="block_title">確度別集計</div>
+            <hr>
             <div style="margin-top: 50px;">
                 <form action="" method="post">{% csrf_token %}
                     <div class="flex" style="font-size: 1.2em;">

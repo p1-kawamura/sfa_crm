@@ -34,6 +34,7 @@ class Sfa_data(models.Model):
     busho_id=models.CharField("部署ID",max_length=255)
     tantou_id=models.CharField("担当ID",max_length=255)
     show=models.IntegerField("表示",default=0)
+    hidden_day=models.CharField("非表示日時",max_length=255,blank=True,default="")
     mw=models.IntegerField("メールワイズ",default=0)
 
 

@@ -152,6 +152,7 @@ def index(request):
     
     ins=Sfa_data.objects.filter(**fil)
     list=[]
+    alert_all=0
     for i in ins:
         dic={}
         dic["mitsu_id"]=i.mitsu_id
@@ -233,6 +234,8 @@ def index(request):
         today=str(date.today())
         alert_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
         dic["alert"]=alert_count
+        if alert_count>0:
+            alert_all+=1
 
         list.append(dic)
 
@@ -267,6 +270,7 @@ def index(request):
         "sort_list":{"make_sort":"見積作成日","hassou_sort":"発送完了日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
         "ses":ses,
         "act_user":act_user,
+        "alert_all":alert_all,
     }
     return render(request,"sfa/index.html",params)
 
@@ -436,8 +440,10 @@ def show_settei(request):
         ins=Sfa_data.objects.get(mitsu_id=key)
         if value:
             ins.show=0
+            ins.hidden_day=""
         else:
             ins.show=1
+            ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
     d={}
     return JsonResponse(d)
@@ -552,6 +558,7 @@ def show_list_direct(request):
     for i in show_list:
         ins=Sfa_data.objects.get(mitsu_id=i)
         ins.show=1
+        ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
     d={}
     return JsonResponse(d)

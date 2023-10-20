@@ -15,6 +15,13 @@
 .mail{
     justify-content: flex-end;
 }
+.block_title {
+    padding: 0.25em 0.5em;
+    color: #494949;
+    font-size: 1.3em;
+    font-weight: bold;
+    border-left: solid 5px #7db4e6;
+  }
 
 /* CRM */
 .inlineframe {

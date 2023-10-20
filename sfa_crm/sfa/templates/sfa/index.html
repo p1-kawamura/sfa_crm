@@ -23,6 +23,15 @@
 
         <div style="margin: 0 auto; width: 1465px;">
             <hr>
+            <div class="flex">
+                <div class="block_title">案件管理一覧</div>
+                {% if alert_all > 0 %}
+                <div style="margin-left: 30px; background-color: red; color: white; padding: 0.2em;">
+                    <span style="color: yellow;"><i class="bi bi-bell-fill"></i></span> アラート発生中：{{alert_all}}件
+                </div>
+                {% endif %}
+            </div>
+            <hr>
             <!-- フィルター -->
             <div>
                 <form action="{% url 'sfa:search' %}" method="post">{% csrf_token %}
@@ -313,7 +322,7 @@
                             <div id="exampleModalLabel"></div>
                             <div class="flex">
                                 <div id="modal_mitsu_id" style="margin-left: 50px; display: none;"></div>
-                                <div id="modal_mitsu_num" style="color: #008b8b; font-size: 1.3em; font-weight: bold;"></div>
+                                <div id="modal_mitsu_num" style="font-size: 1.3em; font-weight: bold;"></div>
                                 <div class="flex" id="modal_alert_show" style="margin-left: 70px; display: none;">
                                     <div style="font-size: 1.2em;">
                                         <span id="modal_alert_num" style="display: none;"></span>
@@ -547,7 +556,8 @@
                         text=response.text;
                         alert_num=response.alert_num;
                         document.getElementById("modal_mitsu_id").innerText=res.mitsu_id;
-                        document.getElementById("modal_mitsu_num").innerHTML="<i class='bi bi-box-arrow-up-right'></i> " + res.mitsu_num + "-" + res.mitsu_ver;
+                        document.getElementById("modal_mitsu_num").innerHTML="<a href='" + res.mitsu_url + "' target='_blank'><i class='bi bi-box-arrow-up-right'></i></a> " + 
+                            res.mitsu_num + "-" + res.mitsu_ver;
                         if (res3 == 1){
                             document.getElementById("modal_alert_show").style.display="flex";
                             document.getElementById("modal_alert_text").innerText=text;

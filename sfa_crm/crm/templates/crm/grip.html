@@ -23,14 +23,20 @@
 
         <div style="margin: 0 auto; width: 1210px;">
             <hr>
-            グリップ顧客
+            <div class="block_title">グリップ顧客一覧</div>
             <hr>
 
-            <div style="width: 1210px; margin-bottom: 10px;">
-                <div class="flex mail">
-                    <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
-                    <div style="width: 28px; margin-left: 10px; padding-right:5.7em;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
+            <div style="width: 1210px; margin-bottom: 15px;">
+                <div class="flex3">
+                    <div>
+                        <button class="btn btn-danger" id="api_reload"><i class="bi bi-arrow-repeat"></i> データ再取得</button>
+                    </div>
+                    <div class="flex mail">
+                        <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
+                        <div style="width: 28px; margin-left: 10px; padding-right:5.7em;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
+                    </div>
                 </div>
+                
             </div>
 
             {% for i in list %}
@@ -214,6 +220,12 @@
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
             }
+        });
+
+
+        // API接続
+        document.getElementById("api_reload").addEventListener("click",function(e){
+            window.location.href="{% url 'crm:grip_index_api' %}";
         });
 
 
