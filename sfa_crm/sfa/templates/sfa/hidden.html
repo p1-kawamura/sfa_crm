@@ -1,0 +1,196 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="icon" href="{% static 't-shirt_3.gif' %}">
+    <title>非表示案件一覧</title>
+</head>
+<body>
+    <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1000px;">
+            {% include "sfa/menu.html" with act_user=act_user %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1200px;">
+            <hr>
+            <div class="block_title">非表示案件一覧（最新300件）</div>
+            <hr>
+
+            <div style="margin-bottom: 10px;">
+                <button class="btn btn-outline-primary btn-sm" type="button" id="btn_hidden"><i class="bi bi-eye"></i> 再表示</button>
+            </div>
+            <div>
+                {% for h in list %}
+
+                {% if h.status == "見積中" %}
+                <div class="flex sfa_main" style="background-color: #FFF;">
+                {% elif h.status == "見積送信" %}
+                <div class="flex sfa_main" style="background-color: #ceffb7;">
+                {% elif h.status == "イメージ" %}
+                <div class="flex sfa_main" style="background-color: #c8f7fd;">
+                {% elif h.status == "受注" %}
+                <div class="flex sfa_main" style="background-color: #fff9a7;">
+                {% elif h.status == "発送完了" %}
+                <div class="flex sfa_main" style="background-color: #dbbbff;">
+                {% elif h.status == "キャンセル" %}
+                <div class="flex sfa_main" style="background-color: #c5c5c5;">
+                {% elif h.status == "終了" %}
+                <div class="flex sfa_main" style="background-color: #ffbcbc;">
+                {% elif h.status == "保留" %}
+                <div class="flex sfa_main" style="background-color: #FFF;">
+                {% elif h.status == "失注" %}
+                <div class="flex sfa_main" style="background-color: #c5c5c5;">
+                {% elif h.status == "連絡待ち" %}
+                <div class="flex sfa_main" style="background-color: #FFF;">
+                {% elif h.status == "サンクス" %}
+                <div class="flex sfa_main" style="background-color: #ffb85c;">
+                {% endif %}
+                    <div style="width: 30px;"><input class="form-check-input" type="checkbox"  id="{{h.mitsu_id}}" name="hidden_list"></div>
+                    <div style="width: 100px;">{{h.make_day}}</div>
+                    <div style="width: 100px;"><a href="{{h.mitsu_url}}" target="_blank">
+                        <span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{h.mitsu_num}}-{{h.mitsu_ver}}</div>
+                    <div style="width: 45px;">
+                        {% if h.order_kubun == "新規" %}
+                            <div class="order order_1">新規</div>
+                        {% elif h.order_kubun == "追加" %}
+                            <div class="order order_2">追加</div>
+                        {% elif h.order_kubun == "追加新柄" %}
+                            <div class="order order_3">新追</div>
+                        {% elif h.order_kubun == "刷り直し" %}
+                            <div class="order_4">刷直</div>
+                        {% elif h.order_kubun == "返金" %}
+                        <div class="order_4">返金</div>
+                        {% endif %}
+                    </div>
+                    <div style="width: 30px;">
+                        {% if h.keiro == "Web" %}
+                            <div class="order_use">W</div>
+                        {% elif h.keiro == "Fax" %}
+                            <div class="order_use">F</div>
+                        {% elif h.keiro == "Tel" %}
+                            <div class="order_use">T</div>
+                        {% elif h.keiro == "来店" %}
+                            <div class="order_use">来</div>
+                        {% elif h.keiro == "外商" %}
+                            <div class="order_use">外</div>
+                        {% elif h.keiro == "法人問合せ" %}
+                            <div class="order_use">法</div>
+                        {% endif %}
+                    </div>
+                    <div style="width: 30px;">
+                        {% if h.use_kubun == "企業" %}
+                            <div class="order_use">企</div>
+                        {% elif h.use_kubun == "団体" %}
+                            <div class="order_use">団</div>
+                        {% elif h.use_kubun == "学生" %}
+                            <div class="order_use">学</div>
+                        {% elif h.use_kubun == "個人" %}
+                            <div class="order_use">個</div>
+                        {% endif %}
+                    </div>
+                    <div style="width: 50px;">
+                        {% if h.use_youto == "チームウェア・アイテム" %}
+                            <div class="order_use">チ</div>
+                        {% elif h.use_youto == "制服・スタッフウェア" %}
+                            <div class="order_use">制</div>
+                        {% elif h.use_youto == "販促・ノベルティ" %}
+                            <div class="order_use">ノ</div>
+                        {% elif h.use_youto == "記念品・贈答品" %}
+                            <div class="order_use">記</div>
+                        {% elif h.use_youto == "販売" %}
+                            <div class="order_use">販</div>
+                        {% elif h.use_youto == "自分用" %}
+                            <div class="order_use">自</div>
+                        {% elif h.use_youto == "その他" %}
+                            <div class="order_use">他</div>
+                        {% endif %}
+                    </div>
+                    <div style="width: 210px;">{% if h.com %}{{h.com | truncatechars:14}}{% endif %}</div>
+                    <div style="width: 90px;">{% if h.sei %}{{h.sei}}{% endif %}{% if h.mei %}{{h.mei}}{% endif %}</div>
+                    <div style="width: 100px;">{% if h.status %}<span class="order_use">{{h.status}}</span>{% endif %}</div>
+                    <div style="width: 150px;">金額：{{h.money | intcomma}}円</div>
+                    <div>非表示設定：{{h.hidden_day}}</div>
+                    
+                </div>
+                {% endfor %}
+            </div>
+
+
+        </div>
+
+    </div>
+    
+    <!-- 各種Ajax -->
+    <script>
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i <cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+  
+        var csrftoken = getCookie('csrftoken');
+  
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+  
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+
+        // 再表示設定
+        document.getElementById("btn_hidden").addEventListener("click",function(){
+            var item=document.getElementsByName("hidden_list");
+            var hidden_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked){
+                    hidden_list.push(item[i].id);
+                };
+            };
+            if (hidden_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            }
+            hidden_list=JSON.stringify(hidden_list);
+            $.ajax({
+                    'url': '{% url "sfa:hidden_list_direct" %}',
+                    'type': 'POST',
+                    'data': {"hidden_list":hidden_list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+                window.alert("案件管理一覧に再表示しました！");
+            })
+        });
+  
+    </script>
+
+</body>
+</html>

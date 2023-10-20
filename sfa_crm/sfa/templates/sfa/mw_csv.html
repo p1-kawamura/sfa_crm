@@ -122,7 +122,11 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    window.location.href='{% url "sfa:mw_download" %}';
+                    if (response.ans == "yes"){
+                        window.location.href='{% url "sfa:mw_download" %}';
+                    } else {
+                        window.alert("各チームの責任者しか操作できません！")
+                    };
                 })
         });
 

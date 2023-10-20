@@ -519,10 +519,15 @@ def mw_delete(request,pk):
 
 #メールワイズ_CSV準備
 def mw_make(request):
-    mw_list=request.POST.get("list")
-    mw_list=json.loads(mw_list)
-    request.session["mw_list"]=mw_list
-    d={}
+    tantou_id=request.session["search"]["tantou"]
+    if tantou_id not in ["62","8","9","43","56"]: # 町山、武藤、新里、田中、小山田
+        ans="no"
+    else:
+        mw_list=request.POST.get("list")
+        mw_list=json.loads(mw_list)
+        request.session["mw_list"]=mw_list
+        ans="yes"
+    d={"ans":ans}
     return JsonResponse(d)
 
 
@@ -559,6 +564,33 @@ def show_list_direct(request):
         ins=Sfa_data.objects.get(mitsu_id=i)
         ins.show=1
         ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ins.save()
+    d={}
+    return JsonResponse(d)
+
+
+# 非表示案件一覧
+def hidden_index(request):
+    tantou_id=request.session["search"]["tantou"]
+    ins=Sfa_data.objects.filter(tantou_id=tantou_id,show=1).order_by("hidden_day").reverse()[:300] #直近300件
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"sfa/hidden.html",{"list":ins,"act_user":act_user})
+
+
+# 非表示一覧から再表示
+def hidden_list_direct(request):
+    hidden_list=request.POST.get("hidden_list")
+    hidden_list=json.loads(hidden_list)
+    for i in hidden_list:
+        ins=Sfa_data.objects.get(mitsu_id=i)
+        ins.show=0
+        ins.hidden_day=""
         ins.save()
     d={}
     return JsonResponse(d)

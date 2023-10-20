@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import index_api,index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_bot_delete,modal_alert_check,kokyaku_detail_api, \
                     show_index,show,show_search,show_direct,show_settei,clear_sfa_data,clear_member,clear_session,mw_page,mw_add,mw_delete,mw_make,mw_download, \
-                    show_list_direct,kakudo_index,csv_imp,csv_imp_page
+                    show_list_direct,hidden_index,hidden_list_direct,kakudo_index,csv_imp,csv_imp_page
 
 
 
@@ -29,6 +29,8 @@ urlpatterns = [
     path('mw_make/', mw_make, name="mw_make"),
     path('mw_download/', mw_download, name="mw_download"),
     path('show_list_direct/', show_list_direct, name="show_list_direct"),
+    path('hidden_index/', hidden_index, name="hidden_index"),
+    path('hidden_list_direct/', hidden_list_direct, name="hidden_list_direct"),
     path('kakudo_index/', kakudo_index, name="kakudo_index"),
     path('csv_imp/', csv_imp, name="csv_imp"),
     path('csv_imp_page/', csv_imp_page, name="csv_imp_page"),

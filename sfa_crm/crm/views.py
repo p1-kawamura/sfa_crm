@@ -446,10 +446,15 @@ def mw_delete(request,pk):
 
 #メールワイズ_CSV準備
 def mw_make(request):
-    mw_list=request.POST.get("list")
-    mw_list=json.loads(mw_list)
-    request.session["crm_mw_list"]=mw_list
-    d={}
+    tantou_id=request.session["search"]["tantou"]
+    if tantou_id not in ["62","8","9","43","56"]: # 町山、武藤、新里、田中、小山田
+        ans="no"
+    else:
+        mw_list=request.POST.get("list")
+        mw_list=json.loads(mw_list)
+        request.session["crm_mw_list"]=mw_list
+        ans="yes"
+    d={"ans":ans}
     return JsonResponse(d)
 
 

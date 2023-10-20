@@ -1,16 +1,68 @@
 {% load static %}
-<!-- メニュー -->
-<div class="flex3">
-    <div>
-        <span><a href="{% url 'sfa:index' %}">案件管理</a></span>
-        <span style="margin-left: 50px;"><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></span>
-        <span style="margin-left: 50px;"><a href="{% url 'sfa:show_index' %}">案件表示設定</a></span>
-        <span style="margin-left: 50px;"><a href="{% url 'sfa:mw_page' %}">サンクスメール</a></span>
-        <span style="margin-left: 50px;"><a href="{% url 'crm:mw_page' %}">【顧客】メールワイズ</a></span>
-        <span style="margin-left: 50px;"><a href="{% url 'sfa:kakudo_index' %}">確度集計</a></span>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>メニュー</title>
+    <style>
+        nav{ display: none; }
+        .nav-open{
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="flex2">
+        <div>
+            <div><a href="{% url 'sfa:index' %}">案件管理</a></div>
+        </div>
+        <div style="margin-left: 50px;">
+            <div><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></div>
+        </div>
+        <div style="margin-left: 50px;">
+            <div class="nav-open">案件表示設定 +</div>
+            <nav>
+                <div><a href="{% url 'sfa:show_index' %}">見積番号検索</a></div>
+                <div><a href="{% url 'sfa:hidden_index' %}">非表示一覧</a></div>
+
+                </span>
+            </nav>
+        </div>
+        <div style="margin-left: 50px;">
+            <div class="nav-open">メールワイズ作成CSV +</div>
+            <nav>
+                <div><a href="{% url 'sfa:mw_page' %}">サンクスメール</a></div>
+                <div><a href="{% url 'crm:mw_page' %}">顧客メールワイズ</a></div>
+            </nav>
+        </div>
+        <div style="margin-left: 50px;">
+            <div><a href="{% url 'sfa:kakudo_index' %}">確度集計</a></div>
+        </div>
+        <div style="margin-left: 50px;">
+            <i class="bi bi-person-circle"></i><span style="font-size: 0.9em;"> {{act_user}}</span>
+        </div>
+        
+   
+        
     </div>
-    <div>
-        <i class="bi bi-person-circle"></i><span style="font-size: 0.9em;"> {{act_user}}</span>
-    </div>
-</div>
+    
+
+    <script>
+	$(function(){
+		//クリックで動く
+		$('.nav-open').click(function(){
+			$(this).toggleClass('active');
+			$(this).next('nav').slideToggle();
+		});
+	});
+    
+
+
+    </script>
+</body>
+</html>
+
 

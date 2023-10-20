@@ -108,7 +108,7 @@
             for (var i=0; i<mw.length; i++){
                 list.push(mw[i].id);
             };
-            list=JSON.stringify(list)
+            list=JSON.stringify(list);
             $.ajax({
                     'url': '{% url "crm:mw_make" %}',
                     'type': 'POST',
@@ -116,7 +116,11 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    window.location.href='{% url "crm:mw_download" %}';
+                    if (response.ans == "yes"){
+                        window.location.href='{% url "crm:mw_download" %}';
+                    } else {
+                        window.alert("各チームの責任者しか操作できません！")
+                    }; 
                 })
         });
 
