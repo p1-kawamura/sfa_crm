@@ -17,7 +17,7 @@
     <div class="mt-3 mb-5">
 
         <!-- メニュー -->
-        <div style="margin: 0 auto; width: 1000px;">
+        <div style="margin: 0 auto; width: 1000px">
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
@@ -831,7 +831,7 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    window.location.href = "{% url 'crm:kokyaku_api' %}";
+                    window.open("{% url 'crm:kokyaku_api' %}", '_blank');
                 })
             },false)
         };

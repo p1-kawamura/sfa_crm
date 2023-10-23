@@ -23,17 +23,25 @@
 
         <div style="margin: 0 auto; width: 1210px;">
             <hr>
-            <div class="block_title">グリップ顧客一覧</div>
+
+            <div class="flex">
+                <div class="block_title">グリップ顧客一覧</div>
+                {% if alert_all > 0 %}
+                <div style="margin-left: 30px; background-color: red; color: white; padding: 0.2em;">
+                    <span style="color: yellow;"><i class="bi bi-bell-fill"></i></span> アラート発生中：{{alert_all}}件
+                </div>
+                {% endif %}
+            </div>
             <hr>
 
-            <div style="width: 1210px; margin-bottom: 15px;">
+            <div style="width: 1210px; margin-top: 20px; margin-bottom: 15px;">
                 <div class="flex3">
                     <div>
                         <button class="btn btn-danger" id="api_reload"><i class="bi bi-arrow-repeat"></i> データ再取得</button>
                     </div>
                     <div class="flex mail">
                         <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
-                        <div style="width: 28px; margin-left: 10px; padding-right:5.7em;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
+                        <div style="width: 28px; margin-left: 10px; padding-right:5.8em;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
                     </div>
                 </div>
                 
@@ -240,8 +248,7 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    // window.open("{% url 'crm:kokyaku_api' %}", '_blank');
-                    window.location.href = "{% url 'crm:kokyaku_api' %}"
+                    window.open("{% url 'crm:kokyaku_api' %}", '_blank');
                 })
             },false)
         };

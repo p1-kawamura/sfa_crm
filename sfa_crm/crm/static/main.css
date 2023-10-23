@@ -22,6 +22,10 @@
     font-weight: bold;
     border-left: solid 5px #7db4e6;
   }
+hr {
+    background-color: #a5a5a5 !important; 
+    opacity:1 !important;
+}
 
 /* CRM */
 .inlineframe {

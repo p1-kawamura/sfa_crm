@@ -7,59 +7,85 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>メニュー</title>
     <style>
-        nav{ display: none; }
-        .nav-open{
+        nav {
+            display: none; 
+        }
+        .nav-open {
             position: relative;
         }
+        ul {
+            display: flex;
+            list-style: none;
+        }
+        li {
+            height: 35px;
+        }
+        li a, .nav-open {
+            padding: 0.5em;
+            display: block;
+            background: #ececec;
+            border-left: solid 2px #797979;
+            width: 150px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color:#333;
+        }
+        li:hover,li a:hover {
+            background: #797979;
+            color: #ffffff !important;
+        }
+        .menu1 {
+            background: #ececec;
+        }
+        .menu1 a {
+            text-decoration: none;
+        }
+ 
     </style>
 </head>
 <body>
 
-    <div class="flex2">
-        <div>
+    <div style="display: flex;justify-content: space-between;">
+        <ul>
+        <li>
             <div><a href="{% url 'sfa:index' %}">案件管理</a></div>
-        </div>
-        <div style="margin-left: 50px;">
+        </li>
+        <li>
             <div><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></div>
-        </div>
-        <div style="margin-left: 50px;">
-            <div class="nav-open">案件表示設定 +</div>
+        </li>
+        <li>
+            <div class="nav-open">案件表示設定 <i class="bi bi-caret-down-fill"></i></div>
             <nav>
-                <div><a href="{% url 'sfa:show_index' %}">見積番号検索</a></div>
-                <div><a href="{% url 'sfa:hidden_index' %}">非表示一覧</a></div>
-
-                </span>
+                <div class="menu1"><a href="{% url 'sfa:show_index' %}">見積番号検索</a></div>
+                <div class="menu1"><a href="{% url 'sfa:hidden_index' %}">非表示一覧</a></div>
             </nav>
-        </div>
-        <div style="margin-left: 50px;">
-            <div class="nav-open">メールワイズ作成CSV +</div>
+        </li>
+        <li>
+            <div class="nav-open">メールワイズ作成 <i class="bi bi-caret-down-fill"></i></div>
             <nav>
-                <div><a href="{% url 'sfa:mw_page' %}">サンクスメール</a></div>
-                <div><a href="{% url 'crm:mw_page' %}">顧客メールワイズ</a></div>
+                <div class="menu1"><a href="{% url 'sfa:mw_page' %}">サンクスメール</a></div>
+                <div class="menu1"><a href="{% url 'crm:mw_page' %}">顧客メールワイズ</a></div>
             </nav>
-        </div>
-        <div style="margin-left: 50px;">
+        </li>
+        <li>
             <div><a href="{% url 'sfa:kakudo_index' %}">確度集計</a></div>
-        </div>
-        <div style="margin-left: 50px;">
-            <i class="bi bi-person-circle"></i><span style="font-size: 0.9em;"> {{act_user}}</span>
-        </div>
-        
-   
-        
+        </li>
+    </ul>
+    <div style="padding: 0.5em";>
+        <i class="bi bi-person-circle"></i> {{act_user}}
+    </div> 
     </div>
     
 
     <script>
-	$(function(){
-		//クリックで動く
-		$('.nav-open').click(function(){
-			$(this).toggleClass('active');
-			$(this).next('nav').slideToggle();
-		});
-	});
-    
 
+        $(function(){
+            $('.nav-open').click(function(){
+                $(this).toggleClass('active');
+                $(this).next('nav').slideToggle();
+            });
+        });
 
     </script>
 </body>

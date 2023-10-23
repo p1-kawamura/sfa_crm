@@ -286,6 +286,7 @@ def grip_index(request):
     tantou_id=request.session["search"]["tantou"]
     ins=Customer.objects.filter(grip_tantou_id=tantou_id)
     grip_list=[]
+    alert_all=0
     for i in ins:
         dic={}
         dic["cus_id"]=i.cus_id
@@ -308,6 +309,8 @@ def grip_index(request):
         # アラート
         today=str(date.today())
         alert=Crm_action.objects.filter(cus_id=i.cus_id,type=6,alert_check=0,day__lte=today).count()
+        if alert>0:
+            alert_all+=1
         dic["alert"]=alert
 
         # 案件発生
@@ -331,7 +334,7 @@ def grip_index(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
-    return render(request,"crm/grip.html",{"list":grip_list,"act_user":act_user})
+    return render(request,"crm/grip.html",{"list":grip_list,"act_user":act_user,"alert_all":alert_all})
 
 
 # グリップ追加
