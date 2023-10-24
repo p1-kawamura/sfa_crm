@@ -666,6 +666,30 @@ def kakudo_index(request):
     return render(request,"sfa/kakudo.html",params)
 
 
+# 担当者設定_一覧
+def member_index(request):
+    ins=Member.objects.all().order_by("busho_id","id")
+    return render(request,"sfa/member.html",{"list":ins})
+
+
+# 担当者設定_追加
+def member_add(request):
+    busho_list={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    busho_id=request.POST["busho"]
+    busho=busho_list[busho_id]
+    tantou=request.POST["tantou"]
+    tantou_id=request.POST["tantou_id"]
+    last_api=request.POST["last_api"] + " 00:00:00"
+    if Member.objects.filter(tantou_id=tantou_id).count() >0:
+        ans="no"
+    else:
+        Member.objects.create(busho=busho,busho_id=busho_id,tantou=tantou,tantou_id=tantou_id,last_api=last_api)
+        ans="yes"
+    ins=Member.objects.all().order_by("busho_id","id")
+    return render(request,"sfa/member.html",{"ans":ans,"list":ins})
+
+
+
 
 # 元DB取込
 def csv_imp_page(request):
