@@ -57,12 +57,12 @@
                                 {% if ans == "yes" %}
                                 <div class="flex">
                                     <div>担当者を追加しました！</div>
-                                    <div><a href="{% url 'sfa:member_index' %}">リセット</a></div>
+                                    <div style="margin-left: 30px;"><a href="{% url 'sfa:member_index' %}">リセット</a></div>
                                 </div> 
                                 {% else %}
                                 <div class="flex">
                                     <div style="color: red;">既に使われているIDです！</div>
-                                    <div><a href="{% url 'sfa:member_index' %}">リセット</a></div>
+                                    <div style="margin-left: 30px;"><a href="{% url 'sfa:member_index' %}">リセット</a></div>
                                 </div>
                                 {% endif %}
                             {% endif %}

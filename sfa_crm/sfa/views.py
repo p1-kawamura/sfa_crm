@@ -538,10 +538,11 @@ def mw_download(request):
     for i in mw_list:
         ins=Sfa_data.objects.get(mitsu_id=i)
         a=[
-            ins.com, #会社
-            ins.sei + ins.mei, #氏名
-            ins.mail , #メールアドレス
+            ins.com or "", #会社
+            (ins.sei or "") + (ins.mei or ""), #氏名
+            ins.mail or "", #メールアドレス
             Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
+            "サンクス", #区分
         ]
         mw_csv.append(a)
         ins.mw=0

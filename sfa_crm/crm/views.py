@@ -471,7 +471,8 @@ def mw_download(request):
             ins.com or "", #会社
             (ins.sei or "") + (ins.mei or ""), #氏名
             ins.mail or "" , #メールアドレス
-            ins.mw_tantou  #担当
+            ins.mw_tantou,  #担当
+            "グリップ" #区分
         ]
         mw_csv.append(a)
         ins.mw=0
@@ -479,7 +480,7 @@ def mw_download(request):
         ins.mw_tantou_id=""
         ins.mw_tantou=""
         ins.save()
-    filename=urllib.parse.quote("【顧客】メールワイズ用リスト.csv")
+    filename=urllib.parse.quote("グリップ顧客メール用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
     response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
     writer = csv.writer(response)
