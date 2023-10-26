@@ -406,8 +406,13 @@ def crm_bikou(request):
 # メールワイズ_表示ページ
 def mw_page(request):
     busho_id=request.session["search"]["busho"]
+    tantou_id=request.session["search"]["tantou"]
     arr={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
     busho=arr[busho_id]
+    if tantou_id in ["62","8","9","43","56"]: # 町山、武藤、新里、田中、小山田
+        ans="yes"
+    else:
+        ans="no"
     ins=Customer.objects.filter(mw_busho_id=busho_id,mw=1).order_by("mw_tantou_id")
 
     # アクティブ担当
@@ -416,7 +421,7 @@ def mw_page(request):
         act_user="担当者が未設定です"
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
-    return render(request,"crm/mw_csv.html",{"busho":busho,"list":ins,"act_user":act_user})
+    return render(request,"crm/mw_csv.html",{"busho":busho,"list":ins,"ans":ans,"act_user":act_user})
 
 
 # メールワイズ_追加
@@ -449,15 +454,10 @@ def mw_delete(request,pk):
 
 #メールワイズ_CSV準備
 def mw_make(request):
-    tantou_id=request.session["search"]["tantou"]
-    if tantou_id not in ["62","8","9","43","56"]: # 町山、武藤、新里、田中、小山田
-        ans="no"
-    else:
-        mw_list=request.POST.get("list")
-        mw_list=json.loads(mw_list)
-        request.session["crm_mw_list"]=mw_list
-        ans="yes"
-    d={"ans":ans}
+    mw_list=request.POST.get("list")
+    mw_list=json.loads(mw_list)
+    request.session["crm_mw_list"]=mw_list
+    d={}
     return JsonResponse(d)
 
 

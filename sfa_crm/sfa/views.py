@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member
-from crm.models import Customer
+from crm.models import Customer,Crm_action
 import csv
 import io
 import json
@@ -484,8 +484,13 @@ def show(request):
 # メールワイズ_表示ページ
 def mw_page(request):
     busho_id=request.session["search"]["busho"]
+    tantou_id=request.session["search"]["tantou"]
     arr={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
     busho=arr[busho_id]
+    if tantou_id in ["62","8","9","43","56"]: # 町山、武藤、新里、田中、小山田
+        ans="yes"
+    else:
+        ans="no"
     ins=Sfa_data.objects.filter(busho_id=busho_id,show=0,mw=1).order_by("tantou_id")
     member=Member.objects.all()
     # アクティブ担当
@@ -494,7 +499,7 @@ def mw_page(request):
         act_user="担当者が未設定です"
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
-    return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"act_user":act_user})
+    return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"ans":ans,"act_user":act_user})
 
 
 # メールワイズ_追加
@@ -519,15 +524,10 @@ def mw_delete(request,pk):
 
 #メールワイズ_CSV準備
 def mw_make(request):
-    tantou_id=request.session["search"]["tantou"]
-    if tantou_id not in ["62","8","9","43","56"]: # 町山、武藤、新里、田中、小山田
-        ans="no"
-    else:
-        mw_list=request.POST.get("list")
-        mw_list=json.loads(mw_list)
-        request.session["mw_list"]=mw_list
-        ans="yes"
-    d={"ans":ans}
+    mw_list=request.POST.get("list")
+    mw_list=json.loads(mw_list)
+    request.session["mw_list"]=mw_list
+    d={}
     return JsonResponse(d)
 
 
@@ -765,11 +765,13 @@ def csv_imp(request):
 
 #　DBクリア
 def clear_sfa_data(request):
+    Sfa_data.objects.all().delete()
+    Customer.objects.all().delete()
     Sfa_action.objects.all().delete()
+    Crm_action.objects.all().delete()
     return redirect("sfa:index")
 
 def clear_member(request):
-    # Member.objects.all().delete()
     ins=Member.objects.all()
     for i in ins:
         i.last_api="2023-10-01 00:00:00"
