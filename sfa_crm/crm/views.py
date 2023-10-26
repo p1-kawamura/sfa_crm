@@ -34,8 +34,10 @@ def kokyaku_api(request):
     last=[]
     last_mitsu=[]
     for i in res2:
-        last_mitsu.append(i["firstEstimationDate"])        
-    last.append(max(last_mitsu))
+        last_mitsu.append(i["firstEstimationDate"])
+    if len(last_mitsu)>0:
+        last.append(max(last_mitsu))
+        
     if Crm_action.objects.filter(cus_id=cus_id,type__in=[2,5,7]).count() > 0:
         last.append(Crm_action.objects.filter(cus_id=cus_id,type__in=[2,5,7]).latest("day").day)
     if Crm_action.objects.filter(cus_id=cus_id,type=4,tel_result="対応").count() > 0:
@@ -44,7 +46,8 @@ def kokyaku_api(request):
         last.append(Sfa_action.objects.filter(cus_id=cus_id,type=2).latest("day").day)
     if Sfa_action.objects.filter(cus_id=cus_id,type=1,tel_result="対応").count() > 0:
         last.append(Sfa_action.objects.filter(cus_id=cus_id,type=1,tel_result="対応").latest("day").day)
-    res["mitsu_last"]=max(last)
+    if len(last)>0:
+        res["mitsu_last"]=max(last)
 
     # 見積とコメント計算
     est_list=[]
@@ -247,8 +250,13 @@ def grip_index_api(request):
         last=[]
         last_mitsu=[]
         for h in res2["receivedOrders"]:
-            last_mitsu.append(h["firstEstimationDate"])        
-        last.append(max(last_mitsu))
+            last_mitsu.append(h["firstEstimationDate"])
+        if len(last_mitsu)>0:
+            last.append(max(last_mitsu))
+            mitsu_last=max(last_mitsu)
+        else:
+            mitsu_last=""
+
         if Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).count() > 0:
             last.append(Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).latest("day").day)
         if Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").count() > 0:
@@ -257,8 +265,11 @@ def grip_index_api(request):
             last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
         if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
             last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
-        mitsu_last=max(last_mitsu)
-        contact_last=max(last)
+        
+        if len(last)>0:
+            contact_last=max(last)
+        else:
+            contact_last=""
 
         # DB書込
         i.cus_url=res["customerMstPageUrl"]
@@ -353,8 +364,13 @@ def grip_add(request):
     last=[]
     last_mitsu=[]
     for h in res2["receivedOrders"]:
-        last_mitsu.append(h["firstEstimationDate"])        
-    last.append(max(last_mitsu))
+        last_mitsu.append(h["firstEstimationDate"])
+    if len(last_mitsu)>0:
+        last.append(max(last_mitsu))
+        mitsu_last=max(last_mitsu)
+    else:
+        mitsu_last=""
+
     if Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).count() > 0:
         last.append(Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).latest("day").day)
     if Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").count() > 0:
@@ -363,8 +379,11 @@ def grip_add(request):
         last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
     if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
         last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
-    mitsu_last=max(last_mitsu)
-    contact_last=max(last)
+    
+    if len(last)>0:
+        contact_last=max(last)
+    else:
+        contact_last=""
 
     # DB書込
     ins=Customer.objects.get(cus_id=cus_id)
