@@ -769,14 +769,14 @@ def clear_sfa_data(request):
     Customer.objects.all().delete()
     Sfa_action.objects.all().delete()
     Crm_action.objects.all().delete()
-    return redirect("sfa:index_api")
+    return redirect("sfa:index")
 
 def clear_member(request):
     ins=Member.objects.all()
     for i in ins:
         i.last_api="2023-10-01 00:00:00"
         i.save()
-    return redirect("sfa:index_api")
+    return redirect("sfa:index")
 
 def clear_session(request):
     request.session.clear()
