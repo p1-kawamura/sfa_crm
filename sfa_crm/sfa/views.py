@@ -42,6 +42,14 @@ def index_api(request):
         request.session["search"]["sort_name"]="make_sort"
     if "sort_jun" not in request.session["search"]:
         request.session["search"]["sort_jun"]="0"
+    if "com" not in request.session["search"]:
+        request.session["search"]["com"]=""
+    if "cus_sei" not in request.session["search"]:
+        request.session["search"]["cus_sei"]=""
+    if "cus_mei" not in request.session["search"]:
+        request.session["search"]["cus_mei"]=""
+    if "s_mitsu" not in request.session["search"]:
+        request.session["search"]["s_mitsu"]=""
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
@@ -153,6 +161,14 @@ def index(request):
         request.session["search"]["sort_name"]="make_sort"
     if "sort_jun" not in request.session["search"]:
         request.session["search"]["sort_jun"]="0"
+    if "com" not in request.session["search"]:
+        request.session["search"]["com"]=""
+    if "cus_sei" not in request.session["search"]:
+        request.session["search"]["cus_sei"]=""
+    if "cus_mei" not in request.session["search"]:
+        request.session["search"]["cus_mei"]=""
+    if "s_mitsu" not in request.session["search"]:
+        request.session["search"]["s_mitsu"]=""
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
@@ -184,6 +200,14 @@ def index(request):
             fil["hassou_day__gte"]=ses["day_st"]
         if ses["day_ed"] != "":
             fil["hassou_day__lte"]=ses["day_ed"]
+    if ses["s_mitsu"] != "":
+        fil["mitsu_num"]=ses["s_mitsu"]
+    if ses["com"] != "":
+        fil["com__contains"]=ses["com"].strip()
+    if ses["cus_sei"] != "":
+        fil["sei__contains"]=ses["cus_sei"].strip()
+    if ses["cus_mei"] != "":
+        fil["mei__contains"]=ses["cus_mei"].strip()
     if len(ses["st"])!=0:
         fil["status__in"]=ses["st"]
     
@@ -326,6 +350,10 @@ def search(request):
     st=request.POST.getlist("st")
     sort_name=request.POST["sort_name"]
     sort_jun=request.POST["sort_jun"]
+    com=request.POST["com"]
+    cus_sei=request.POST["cus_sei"]
+    cus_mei=request.POST["cus_mei"]
+    s_mitsu=request.POST["s_mitsu"]
 
     request.session["search"]["busho"]=busho
     request.session["search"]["tantou"]=tantou
@@ -339,6 +367,10 @@ def search(request):
     request.session["search"]["st"]=st
     request.session["search"]["sort_name"]=sort_name
     request.session["search"]["sort_jun"]=sort_jun
+    request.session["search"]["com"]=com
+    request.session["search"]["cus_sei"]=cus_sei
+    request.session["search"]["cus_mei"]=cus_mei
+    request.session["search"]["s_mitsu"]=s_mitsu
     return redirect("sfa:index")
 
 

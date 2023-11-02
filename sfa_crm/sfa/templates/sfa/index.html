@@ -138,6 +138,16 @@
                         <div><input class="form-control form-control-sm" type="date" id="day_ed" name="day_ed" style="width: 120px;" value="{{ses.day_ed}}"></div>
                     </div>
                     <div class="flex mt-4">
+                        <div>見積番号：</div>
+                        <div><input class="form-control form-control-sm" type="text" id="s_mitsu" name="s_mitsu" style="width: 100px;" value="{{ses.s_mitsu}}"></div>
+                        <div style="margin-left: 30px;">会社名：</div>
+                        <div><input class="form-control form-control-sm" type="text" id="com" name="com" style="width: 200px;" value="{{ses.com}}"></div>
+                        <div style="margin-left: 30px;">姓：</div>
+                        <div><input class="form-control form-control-sm" type="text" id="cus_sei" name="cus_sei" style="width: 70px;" value="{{ses.cus_sei}}"></div>
+                        <div style="margin-left: 30px;">名：</div>
+                        <div><input class="form-control form-control-sm" type="text" id="cus_mei" name="cus_mei" style="width: 70px;" value="{{ses.cus_mei}}"></div>
+                    </div>
+                    <div class="flex mt-4">
                         <div>ステータス：</div>
                         {% for i in status_list %}
                             {% if i == "見積中" %}
@@ -505,6 +515,10 @@
             document.getElementById("day_type").value="est";
             document.getElementById("day_st").value="";
             document.getElementById("day_ed").value="";
+            document.getElementById("s_mitsu").value="";
+            document.getElementById("com").value="";
+            document.getElementById("cus_sei").value="";
+            document.getElementById("cus_mei").value="";
             var st=document.getElementsByName("st");
             for (var i=0; i<st.length; i++){
                 st[i].checked=false;
