@@ -766,6 +766,11 @@
                 window.alert("削除対象を選択してください！");
                 return
             };
+            var modal_alert_num = document.getElementById("modal_alert_num").innerText;
+            if (modal_alert_num == act_id){
+                window.alert("先に発生中のアラートを解除してください！");
+                return
+            };
             var ans =confirm("本当に削除しますか？");
             if (ans == false){
                 return
@@ -820,6 +825,7 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
+                    document.getElementById("modal_alert_num").innerText="";
                     document.getElementById("modal_alert_show").style.display="none";
                 })
         });
