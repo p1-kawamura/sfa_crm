@@ -233,7 +233,7 @@ def index(request):
             dic["use_youto"]=d[i.use_youto]
         dic["pref"]=i.pref or ""
         dic["com"]=i.com or ""
-        dic["cus"]=(i.sei or "") + (i.mei or "")
+        dic["cus"]=(i.sei or "") + " " + (i.mei or "")
         d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
         dic["status"]=d[i.status]
         dic["money"]=i.money
