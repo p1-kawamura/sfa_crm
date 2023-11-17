@@ -848,7 +848,7 @@ def clear_member(request):
         elif i.busho=="大阪チーム":
             i.last_api="2023-11-01 00:00:00"
         elif i.busho=="高松チーム":
-            i.last_api="2023-11-20 00:00:00"
+            i.last_api="2023-11-01 00:00:00"
         elif i.busho=="福岡チーム":
             i.last_api="2023-11-20 00:00:00"
         i.save()
