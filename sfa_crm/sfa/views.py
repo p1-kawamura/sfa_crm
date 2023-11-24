@@ -67,6 +67,10 @@ def index_api(request):
         res=res.json()
         res=res["estimations"]
         for i in res:
+            ins=Sfa_data.objects.filter(mitsu_id=i["id"])
+            if ins.count()==0 and i["status"]=="終了":
+                continue
+            
             # 案件
             Sfa_data.objects.update_or_create(
             mitsu_id=i["id"],
@@ -216,6 +220,7 @@ def index(request):
     alert_all=0
     for i in ins:
         dic={}
+        dic["id"]=i.id
         dic["mitsu_id"]=i.mitsu_id
         dic["mitsu_url"]=i.mitsu_url
         dic["cus_id"]=i.cus_id
@@ -328,7 +333,7 @@ def index(request):
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち","サンクス"],
-        "sort_list":{"make_sort":"見積作成日","hassou_sort":"発送完了日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
+        "sort_list":{"make_sort":"見積作成日","hassou_sort":"発送完了日","id":"アプリ取込日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
         "ses":ses,
         "act_user":act_user,
         "alert_all":alert_all,
