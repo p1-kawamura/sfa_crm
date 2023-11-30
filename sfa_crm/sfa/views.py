@@ -30,6 +30,8 @@ def index_api(request):
         request.session["search"]["pref"]=""
     if "kakudo" not in request.session["search"]:
         request.session["search"]["kakudo"]=""
+    if "kakudo_day" not in request.session["search"]:
+        request.session["search"]["kakudo_day"]=""
     if "day_type" not in request.session["search"]:
         request.session["search"]["day_type"]="est" 
     if "day_st" not in request.session["search"]:
@@ -153,6 +155,8 @@ def index(request):
         request.session["search"]["pref"]=""
     if "kakudo" not in request.session["search"]:
         request.session["search"]["kakudo"]=""
+    if "kakudo_day" not in request.session["search"]:
+        request.session["search"]["kakudo_day"]=""
     if "day_type" not in request.session["search"]:
         request.session["search"]["day_type"]="est" 
     if "day_st" not in request.session["search"]:
@@ -194,6 +198,8 @@ def index(request):
         fil["pref"]=ses["pref"]
     if ses["kakudo"] != "":
         fil["kakudo"]=ses["kakudo"]
+    if ses["kakudo_day"] != "":
+        fil["kakudo_day"]=ses["kakudo_day"]
     if ses["day_type"]=="est":
         if ses["day_st"] != "":
             fil["make_day__gte"]=ses["day_st"]
@@ -349,6 +355,7 @@ def search(request):
     keiro=request.POST["keiro"]
     pref=request.POST["pref"]
     kakudo=request.POST["kakudo"]
+    kakudo_day=request.POST["kakudo_day"]
     day_type=request.POST["day_type"]
     day_st=request.POST["day_st"]
     day_ed=request.POST["day_ed"]
@@ -366,6 +373,7 @@ def search(request):
     request.session["search"]["keiro"]=keiro
     request.session["search"]["pref"]=pref
     request.session["search"]["kakudo"]=kakudo
+    request.session["search"]["kakudo_day"]=kakudo_day
     request.session["search"]["day_type"]=day_type
     request.session["search"]["day_st"]=day_st
     request.session["search"]["day_ed"]=day_ed

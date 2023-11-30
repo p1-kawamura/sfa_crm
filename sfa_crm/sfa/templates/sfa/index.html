@@ -121,6 +121,9 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div style="margin-left: 10px;">
+                            <input class="form-control form-control-sm" type="month" id="kakudo_day" name="kakudo_day" style="width: 115px;" value="{{ses.kakudo_day}}">
+                        </div>
                         <div style="margin-left: 40px;">
                             <select class="form-select form-select-sm" name="day_type" id="day_type">
                                 {% if ses.day_type == "est" %}
