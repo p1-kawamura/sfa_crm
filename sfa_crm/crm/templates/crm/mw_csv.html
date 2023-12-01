@@ -19,7 +19,7 @@
             {% include "sfa/menu.html" %}
         </div>
 
-        <div style="margin: 0 auto; width: 1000px;">
+        <div style="margin: 0 auto; width: 1150px;">
             <hr>
             <div class="block_title">グリップ顧客メール作成一覧</div>
             <hr>
@@ -51,8 +51,8 @@
                             <td>{% if i.com %}{{i.com}}{% endif %}{% if i.com_busho %}{{i.com_busho}}{% endif %}</td>
                             <td>{% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}</td>
                             <td>{% if i.mail %}{{i.mail}}{% endif %}</td>
-                            <td>{{i.mw_tantou}}</td>
-                            <td style="text-align: center;">
+                            <td nowrap>{{i.mw_tantou}}</td>
+                            <td style="text-align: center;" nowrap>
                                 <form action="{% url 'crm:mw_delete' i.pk %}" method="post">{% csrf_token %}
                                     <button class="btn btn-outline-secondary btn-sm" type="submit" id="{{i.cus_id}}" name="mw_list">削除</button>
                                 </form>
