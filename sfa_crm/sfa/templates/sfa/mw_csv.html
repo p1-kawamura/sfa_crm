@@ -51,14 +51,14 @@
                             <td>{% if i.com %}{{i.com}}{% endif %}</td>
                             <td>{% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}</td>
                             <td>{% if i.mail %}{{i.mail}}{% endif %}</td>
-                            <td>
+                            <td nowrap>
                                 {% for h in member %}
                                     {% if h.tantou_id == i.tantou_id %}
                                         {{h.tantou}}
                                     {% endif %}
                                 {% endfor %}
                             </td>
-                            <td style="text-align: center;">
+                            <td style="text-align: center;" nowrap>
                                 <form action="{% url 'sfa:mw_delete' i.pk %}" method="post">{% csrf_token %}
                                     <button class="btn btn-outline-secondary btn-sm" type="submit" id="{{i.mitsu_id}}" name="mw_list">削除</button>
                                 </form>
