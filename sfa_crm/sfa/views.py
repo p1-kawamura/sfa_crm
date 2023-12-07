@@ -52,6 +52,8 @@ def index_api(request):
         request.session["search"]["cus_mei"]=""
     if "s_mitsu" not in request.session["search"]:
         request.session["search"]["s_mitsu"]=""
+    if "alert" not in request.session["search"]:
+        request.session["search"]["alert"]=[]
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
@@ -177,6 +179,8 @@ def index(request):
         request.session["search"]["cus_mei"]=""
     if "s_mitsu" not in request.session["search"]:
         request.session["search"]["s_mitsu"]=""
+    if "alert" not in request.session["search"]:
+        request.session["search"]["alert"]=[]
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
@@ -223,6 +227,8 @@ def index(request):
     
     ins=Sfa_data.objects.filter(**fil)
     list=[]
+    list1=[]
+    list2=[]
     alert_all=0
     for i in ins:
         dic={}
@@ -309,7 +315,17 @@ def index(request):
         if alert_count>0:
             alert_all+=1
 
-        list.append(dic)
+        if ses["alert"]:
+            if alert_count>0:
+                list1.append(dic)
+        else:
+            list2.append(dic)
+    
+    # アラート抽出
+    if ses["alert"]:
+        list=list1
+    else:
+        list=list2
 
     # 並び替え
     if ses["sort_jun"]=="0":
@@ -366,6 +382,7 @@ def search(request):
     cus_sei=request.POST["cus_sei"]
     cus_mei=request.POST["cus_mei"]
     s_mitsu=request.POST["s_mitsu"]
+    alert=request.POST.getlist("alert")
 
     request.session["search"]["busho"]=busho
     request.session["search"]["tantou"]=tantou
@@ -384,6 +401,7 @@ def search(request):
     request.session["search"]["cus_sei"]=cus_sei
     request.session["search"]["cus_mei"]=cus_mei
     request.session["search"]["s_mitsu"]=s_mitsu
+    request.session["search"]["alert"]=alert
     return redirect("sfa:index")
 
 

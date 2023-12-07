@@ -149,6 +149,13 @@
                         <div><input class="form-control form-control-sm" type="text" id="cus_sei" name="cus_sei" style="width: 70px;" value="{{ses.cus_sei}}"></div>
                         <div style="margin-left: 30px;">名：</div>
                         <div><input class="form-control form-control-sm" type="text" id="cus_mei" name="cus_mei" style="width: 70px;" value="{{ses.cus_mei}}"></div>
+                        <div style="margin-left: 30px;">
+                            {% if ses.alert %}
+                            <input class="form-check-input" type="checkbox" id="alert" name="alert" checked>アラート発生中
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" id="alert" name="alert">アラート発生中
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="flex mt-4">
                         <div>ステータス：</div>
@@ -523,6 +530,7 @@
             document.getElementById("com").value="";
             document.getElementById("cus_sei").value="";
             document.getElementById("cus_mei").value="";
+            document.getElementById("alert").checked=false;
             var st=document.getElementsByName("st");
             for (var i=0; i<st.length; i++){
                 st[i].checked=false;
