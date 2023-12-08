@@ -720,7 +720,6 @@ def mw_download_auto(request):
 
 
 
-
 # 一覧から非表示
 def show_list_direct(request):
     show_list=request.POST.get("show_list")
