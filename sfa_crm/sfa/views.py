@@ -660,6 +660,7 @@ def mw_download(request):
         mw_csv.append(a)
         ins.mw=0
         ins.status="サンクス"
+        ins.show=1
         ins.save()
     filename=urllib.parse.quote("サンクスメール用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
@@ -668,6 +669,56 @@ def mw_download(request):
     for line in mw_csv:
         writer.writerow(line)
     return response
+
+
+
+# メールワイズ（案件、顧客）_DL_自動
+def mw_download_auto(request):
+    # 案件
+    csv_sfa=[]
+    ins=Sfa_data.objects.filter(mw=1,show=0)
+    for i in ins:
+        ins=Sfa_data.objects.get(mitsu_id=i)
+        a=[
+            ins.com or "", #会社
+            (ins.sei or "") + (ins.mei or ""), #氏名
+            ins.mail or "", #メールアドレス
+            Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
+            "サンクス", #区分
+        ]
+        csv_sfa.append(a)
+        # ins.mw=0
+        # ins.status="サンクス"
+        # ins.show=1
+        # ins.save()
+    # 顧客
+    csv_crm=[]
+    ins2=Customer.objects.filter(mw=1)
+    for i in ins2:
+        b=[
+            i.com or "", #会社
+            (i.sei or "") + (i.mei or ""), #氏名
+            i.mail or "" , #メールアドレス
+            i.mw_tantou,  #担当
+            "グリップ" #区分
+        ]
+        csv_crm.append(b)
+        # i.mw=0
+        # i.mw_busho_id=""
+        # i.mw_tantou_id=""
+        # i.mw_tantou=""
+        # i.save()
+    # 出力
+    csv_all=csv_sfa + csv_crm
+    filename=urllib.parse.quote("案件顧客アプリ_MW.csv")
+    response = HttpResponse(content_type='text/csv; charset=CP932')
+    response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
+    writer = csv.writer(response)
+    for line in csv_all:
+        writer.writerow(line)
+    return response
+
+
 
 
 # 一覧から非表示
