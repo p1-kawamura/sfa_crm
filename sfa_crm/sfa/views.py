@@ -661,6 +661,7 @@ def mw_download(request):
         ins.mw=0
         ins.status="サンクス"
         ins.show=1
+        ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
     filename=urllib.parse.quote("サンクスメール用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
@@ -690,6 +691,7 @@ def mw_download_auto(request):
         ins.mw=0
         ins.status="サンクス"
         ins.show=1
+        ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
     # 顧客
     csv_crm=[]
@@ -949,5 +951,10 @@ def clear_member(request):
     return redirect("sfa:index")
 
 def clear_session(request):
-    request.session.clear()
-    return redirect("sfa:index_api")
+    # request.session.clear()
+    ins=Sfa_data.objects.filter(show=1,hidden_day="")
+    for i in ins:
+        i.hidden_day="2023-12-08 17:10:00"
+        i.save()
+
+    return redirect("sfa:index")
