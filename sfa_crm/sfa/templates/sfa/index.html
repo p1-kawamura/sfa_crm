@@ -26,15 +26,15 @@
             <div class="flex">
                 <div class="block_title">案件管理一覧</div>
                 {% if alert_all > 0 %}
-                <div style="margin-left: 30px; background-color: red; color: white; padding: 0.2em;">
-                    <span style="color: yellow;"><i class="bi bi-bell-fill"></i></span> アラート発生中：{{alert_all}}件
+                <div style="margin-left: 30px;">
+                    <button class="btn btn-danger" id="alert_click"><span style="color: yellow;"><i class="bi bi-bell-fill"></i></span> アラート発生中：{{alert_all}}件</button> 
                 </div>
                 {% endif %}
             </div>
             <hr>
             <!-- フィルター -->
             <div>
-                <form action="{% url 'sfa:search' %}" method="post">{% csrf_token %}
+                <form action="{% url 'sfa:search' %}" method="post" name="form_filter">{% csrf_token %}
                     <div class="flex3">
                         <div class="flex">
                             <div>部署：</div>
@@ -522,8 +522,7 @@
 
 
         // フォームクリア
-        document.getElementById("form_clear").addEventListener("click",function(e){
-            e.preventDefault();
+        function form_clear(){
             document.getElementById("chumon_kubun").value="";
             document.getElementById("keiro").value="";
             document.getElementById("pref").value="";
@@ -541,6 +540,12 @@
             for (var i=0; i<st.length; i++){
                 st[i].checked=false;
             };
+        }
+
+        // 詳細クリアボタン
+        document.getElementById("form_clear").addEventListener("click",function(e){
+            e.preventDefault();
+            form_clear();
         })
 
 
@@ -960,6 +965,14 @@
                 };
             };
         });
+
+
+        // アラート表示ボタン
+        document.getElementById("alert_click").addEventListener("click",function(){
+            form_clear();
+            document.getElementById("alert").checked=true;
+            document.form_filter.submit();
+        })
 
     </script>
 

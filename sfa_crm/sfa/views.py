@@ -189,8 +189,18 @@ def index(request):
         request.session["kakudo_day"]=datetime.now().strftime("%Y-%m")
     if "crm_sort" not in request.session:
         request.session["crm_sort"]="0"
-        
+    
     ses=request.session["search"]
+
+    # 全体アラート数
+    today=str(date.today())
+    ins=Sfa_data.objects.filter(tantou_id=ses["tantou"],show=0)
+    alert_all=0
+    for i in ins:
+        h=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
+        alert_all+=h
+
+    # フィルター
     fil={}
     fil["tantou_id"]=ses["tantou"]
     fil["show"]=0
@@ -227,7 +237,6 @@ def index(request):
     
     ins=Sfa_data.objects.filter(**fil)
     list=[]
-    alert_all=0
     for i in ins:
         dic={}
         dic["id"]=i.id
@@ -320,11 +329,8 @@ def index(request):
                 dic["mail_sort"]="1900-01-01"
             dic["mail_result"]=0
 
-        today=str(date.today())
         alert_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
         dic["alert"]=alert_count
-        if alert_count>0:
-            alert_all+=1
 
         list.append(dic)
     
