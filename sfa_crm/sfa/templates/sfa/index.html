@@ -21,7 +21,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1465px;">
+        <div style="margin: 0 auto; width: 1665px;">
             <hr>
             <div class="flex">
                 <div class="block_title">案件管理一覧</div>
@@ -295,6 +295,12 @@
                         {% else %}
                             <span style="color: #b66d00;"><i class="bi bi-envelope-fill"></i> {{i.mail}}</span>
                         {% endif %}
+                    </div>
+                    <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.bikou}}">
+                        {{i.bikou | truncatechars:15}}
+                    </div>
+                    <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.memo2}}">
+                        {{i.memo1 | truncatechars:15}}
                     </div>
                     <div style="width: 40px;">
                         {% if i.kakudo == "A" %}

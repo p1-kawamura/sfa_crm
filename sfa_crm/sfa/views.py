@@ -227,8 +227,6 @@ def index(request):
     
     ins=Sfa_data.objects.filter(**fil)
     list=[]
-    list1=[]
-    list2=[]
     alert_all=0
     for i in ins:
         dic={}
@@ -277,8 +275,21 @@ def index(request):
                 dic["hassou_sort"]="2100-01-01"
             else:
                 dic["hassou_sort"]="1900-01-01"
+        dic["bikou"]=i.bikou
         dic["kakudo"]=i.kakudo
         dic["mw"]=i.mw
+
+        memo1=""
+        memo2=""
+        shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート"}
+        memo=Sfa_action.objects.filter(mitsu_id=i.mitsu_id)
+        if memo.count()>0:
+            for i in memo:
+                if i.text!="":
+                    memo1+=i.text + "、"
+                memo2+=i.day + " " + shurui[i.type] + " " + i.tel_result + " " + i.text + "\n"
+        dic["memo1"]=memo1[:-1]
+        dic["memo2"]=memo2
 
         tel_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() 
         if tel_count > 0:
@@ -315,17 +326,13 @@ def index(request):
         if alert_count>0:
             alert_all+=1
 
-        if ses["alert"]:
-            if alert_count>0:
-                list1.append(dic)
-        else:
-            list2.append(dic)
+        list.append(dic)
     
     # アラート抽出
     if ses["alert"]:
-        list=list1
-    else:
-        list=list2
+        for i in list[:]:
+            if i["alert"]==0:
+                list.remove(i)
 
     # 並び替え
     if ses["sort_jun"]=="0":
