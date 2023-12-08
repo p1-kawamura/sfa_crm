@@ -687,10 +687,10 @@ def mw_download_auto(request):
             "サンクス", #区分
         ]
         csv_sfa.append(a)
-        # ins.mw=0
-        # ins.status="サンクス"
-        # ins.show=1
-        # ins.save()
+        ins.mw=0
+        ins.status="サンクス"
+        ins.show=1
+        ins.save()
     # 顧客
     csv_crm=[]
     ins2=Customer.objects.filter(mw=1)
@@ -703,11 +703,11 @@ def mw_download_auto(request):
             "グリップ" #区分
         ]
         csv_crm.append(b)
-        # i.mw=0
-        # i.mw_busho_id=""
-        # i.mw_tantou_id=""
-        # i.mw_tantou=""
-        # i.save()
+        i.mw=0
+        i.mw_busho_id=""
+        i.mw_tantou_id=""
+        i.mw_tantou=""
+        i.save()
     # 出力
     csv_all=csv_sfa + csv_crm
     filename=urllib.parse.quote("案件顧客アプリ_MW.csv")
