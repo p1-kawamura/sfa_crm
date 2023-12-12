@@ -462,8 +462,20 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
+                        <div class="modal-footer" style="justify-content: space-between; width: 100%;">
+                            <div>
+                                <div class="flex">
+                                    <div style="font-size: 1.1em; font-weight: bold;"><i class="bi bi-hypnotize"></i> 備考・時系列コメント 同期設定</div>
+                                    <div id="id_group_mitsu_num" style="margin-left: 20px;"></div>
+                                    <div id="id_group_select" style="margin-left: 5px;"></div>
+                                    <div>
+                                        <button type="button" class="btn btn-secondary btn-sm" id="id_group_btn" style="margin-left: 10px;">同期する</button>  
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -573,7 +585,7 @@
         });
 
 
-        // モーダル_表示設定
+        // モーダル_案件表示設定ボタン
         document.getElementById("modal_btn_show").addEventListener("click",function(){
             $.ajax({
                     'url': '{% url "sfa:show_direct" %}',
@@ -654,6 +666,12 @@
                         document.getElementById("modal_sfa_action").innerHTML=str;
                         document.getElementById("act_id").value="";
                         document.getElementById("modal_cus_id").innerText=res.cus_id;
+
+                        var str2="";
+                        str2="<select class='form-select form-select-sm' id='id_group_mitsu_ver'><option>1</option><option>2</option></select>";
+                        document.getElementById("id_group_select").innerHTML=str2;
+                        document.getElementById("id_group_mitsu_num").innerText="見積番号："+ res.mitsu_num + " -"
+
                         modal_bot_click();
                     })
                 },false)

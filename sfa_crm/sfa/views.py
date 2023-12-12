@@ -596,7 +596,7 @@ def show_index(request):
 # 案件表示_結果ページ
 def show(request):
     mitsu_num=request.session["mitsu_num"]
-    ins=Sfa_data.objects.filter(mitsu_num=mitsu_num)
+    ins=Sfa_data.objects.filter(mitsu_num=mitsu_num).order_by("mitsu_ver")
     if ins.count()>0:
         for i in ins:
             com=i.com or ""

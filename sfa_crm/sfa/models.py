@@ -70,3 +70,11 @@ class Member(models.Model):
 
     def __str__(self):
         return self.tantou_id
+    
+
+class sfa_group(models.Model):
+    mitsu_id_parent=models.CharField("親ID",max_length=10)
+    mitsu_id_child=models.CharField("子ID",max_length=10)
+
+    def __str__(self):
+        return self.mitsu_id_child
