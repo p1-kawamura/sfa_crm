@@ -44,6 +44,8 @@ def index_api(request):
         request.session["search"]["sort_name"]="make_sort"
     if "sort_jun" not in request.session["search"]:
         request.session["search"]["sort_jun"]="0"
+    if "sort_group" not in request.session["search"]:
+        request.session["search"]["sort_group"]=""
     if "com" not in request.session["search"]:
         request.session["search"]["com"]=""
     if "cus_sei" not in request.session["search"]:
@@ -171,6 +173,8 @@ def index(request):
         request.session["search"]["sort_name"]="make_sort"
     if "sort_jun" not in request.session["search"]:
         request.session["search"]["sort_jun"]="0"
+    if "sort_group" not in request.session["search"]:
+        request.session["search"]["sort_group"]=""
     if "com" not in request.session["search"]:
         request.session["search"]["com"]=""
     if "cus_sei" not in request.session["search"]:
@@ -342,9 +346,20 @@ def index(request):
 
     # 並び替え
     if ses["sort_jun"]=="0":
-        list=sorted(list,key=lambda x: x[ses["sort_name"]])
+        list=sorted(list,key=lambda x: (x[ses["sort_name"]],x["mitsu_num"]))
     else:
-        list=sorted(list,key=lambda x: x[ses["sort_name"]], reverse=True)
+        list=sorted(list,key=lambda x: (x[ses["sort_name"]],x["mitsu_num"]), reverse=True)
+
+    
+    # グループ並び替え
+    if ses["sort_group"]=="顧客ID":
+        try:
+            list=sorted(list,key=lambda x: (x["cus_id"],x["mitsu_num"]))
+        except:
+            list=sorted(list,key=lambda x: (x["com"],x["mitsu_num"]))
+    elif ses["sort_group"]=="見積番号":
+        list=sorted(list,key=lambda x: x["mitsu_num"])
+
 
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
 
@@ -369,6 +384,7 @@ def index(request):
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "status_list":["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち","サンクス"],
         "sort_list":{"make_sort":"見積作成日","hassou_sort":"発送完了日","id":"アプリ取込日","money":"金額","nouki_sort":"納期","tel_sort":"最終TEL","mail_sort":"最終メール"},
+        "sort_group_list":["","顧客ID","見積番号"],
         "ses":ses,
         "act_user":act_user,
         "alert_all":alert_all,
@@ -391,11 +407,14 @@ def search(request):
     st=request.POST.getlist("st")
     sort_name=request.POST["sort_name"]
     sort_jun=request.POST["sort_jun"]
+    sort_group=request.POST["sort_group"]
     com=request.POST["com"]
     cus_sei=request.POST["cus_sei"]
     cus_mei=request.POST["cus_mei"]
     s_mitsu=request.POST["s_mitsu"]
     alert=request.POST.getlist("alert")
+    s_mitsu=request.POST["s_mitsu"]
+    
 
     request.session["search"]["busho"]=busho
     request.session["search"]["tantou"]=tantou
@@ -410,6 +429,7 @@ def search(request):
     request.session["search"]["st"]=st
     request.session["search"]["sort_name"]=sort_name
     request.session["search"]["sort_jun"]=sort_jun
+    request.session["search"]["sort_group"]=sort_group
     request.session["search"]["com"]=com
     request.session["search"]["cus_sei"]=cus_sei
     request.session["search"]["cus_mei"]=cus_mei

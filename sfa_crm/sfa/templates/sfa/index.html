@@ -199,6 +199,18 @@
                                 {% endif %}
                             </select>
                         </div>
+                        <div style="margin-left: 30px;"><i class="bi bi-sort-alpha-down"></i> <b>グループ順：</b></div>
+                        <div>
+                            <select class="form-select form-select-sm" id="sort_group" name="sort_group" style="width: 110px;">
+                                {% for i in sort_group_list %}
+                                    {% if i == ses.sort_group %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
                 </form>
             </div>
