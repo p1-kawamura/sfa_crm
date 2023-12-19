@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
-from .models import Sfa_data,Sfa_action,Member
+from .models import Sfa_data,Sfa_action,Member,Sfa_group
 from crm.models import Customer,Crm_action
 import csv
 import io
@@ -287,26 +287,33 @@ def index(request):
             if ses["sort_jun"]=="0":
                 dic["hassou_sort"]="2100-01-01"
             else:
-                dic["hassou_sort"]="1900-01-01"
-        dic["bikou"]=i.bikou
+                dic["hassou_sort"]="1900-01-01" 
         dic["kakudo"]=i.kakudo
         dic["mw"]=i.mw
+        
+        # バージョンの同期
+        try:
+            parent_id=Sfa_group.objects.get(mitsu_id_child=i.mitsu_id).mitsu_id_parent
+            group_id=parent_id
+        except:
+            group_id=i.mitsu_id
 
+        dic["bikou"]=Sfa_data.objects.get(mitsu_id=group_id).bikou
+        memo=Sfa_action.objects.filter(mitsu_id=group_id)
         memo1=""
         memo2=""
         shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート"}
-        memo=Sfa_action.objects.filter(mitsu_id=i.mitsu_id)
         if memo.count()>0:
-            for i in memo:
-                if i.text!="":
-                    memo1+=i.text + "、"
-                memo2+=i.day + " " + shurui[i.type] + " " + i.tel_result + " " + i.text + "\n"
+            for h in memo:
+                if h.text!="":
+                    memo1+=h.text + "、"
+                memo2+=h.day + " " + shurui[h.type] + " " + h.tel_result + " " + h.text + "\n"
         dic["memo1"]=memo1[:-1]
         dic["memo2"]=memo2
 
-        tel_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).count() 
+        tel_count=Sfa_action.objects.filter(mitsu_id=group_id,type=1).count() 
         if tel_count > 0:
-            act_tel=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=1).latest("day")
+            act_tel=Sfa_action.objects.filter(mitsu_id=group_id,type=1).latest("day")
             dic["tel"]=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
             dic["tel_sort"]=act_tel.day
             if act_tel.tel_result=="対応":
@@ -318,11 +325,11 @@ def index(request):
                 dic["tel_sort"]="2100-01-01"
             else:
                 dic["tel_sort"]="1900-01-01"
-            dic["tel_result"]=0      
+            dic["tel_result"]=0
 
-        mail_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).count()
+        mail_count=Sfa_action.objects.filter(mitsu_id=group_id,type=2).count()
         if mail_count > 0:
-            act_mail=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=2).latest("day")
+            act_mail=Sfa_action.objects.filter(mitsu_id=group_id,type=2).latest("day")
             dic["mail"]=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ") "
             dic["mail_sort"]=act_mail.day
             dic["mail_result"]=1
@@ -449,11 +456,38 @@ def busho_tantou(request):
 # モーダルで詳細表示
 def mitsu_detail_api(request):
     mitsu_id=request.POST.get("mitsu_id")
+    try:
+        parent_id=Sfa_group.objects.get(mitsu_id_child=mitsu_id).mitsu_id_parent
+        parent_ver=Sfa_data.objects.get(mitsu_id=parent_id).mitsu_ver
+    except:
+        parent_id=""
+        parent_ver=""
+    
+    version_list=[""]
+    mitsu_num=Sfa_data.objects.get(mitsu_id=mitsu_id).mitsu_num
+    mitsu_ver_now=Sfa_data.objects.get(mitsu_id=mitsu_id).mitsu_ver
+    ins=Sfa_data.objects.filter(mitsu_num=mitsu_num).order_by("mitsu_id")
+    for i in ins:
+        if i.mitsu_ver != mitsu_ver_now:
+            version_list.append(i.mitsu_ver)
+
     res=list(Sfa_data.objects.filter(mitsu_id=mitsu_id).values())[0]
     for i in res:
         if res[i]==None:
             res[i]=""
-    res2=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
+    
+    if parent_id=="":
+        res2=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
+        parent_bikou=""
+        if Sfa_group.objects.filter(mitsu_id_parent=mitsu_id).count()>0:
+            parent_me="yes"
+        else:
+            parent_me="no"
+    else:
+        res2=list(Sfa_action.objects.filter(mitsu_id=parent_id).order_by("day").values())
+        parent_bikou=Sfa_data.objects.get(mitsu_id=parent_id).bikou
+        parent_me="no"
+
     today=str(date.today())
     alert=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=4,alert_check=0,day__lte=today)
     if alert.count()==0:
@@ -465,23 +499,43 @@ def mitsu_detail_api(request):
         for i in alert:
             text=i.text
             alert_num=i.act_id
-    d={"res":res,"res2":res2,"res3":res3,"text":text,"alert_num":alert_num}
+    d={
+        "res":res,
+        "res2":res2,
+        "res3":res3,
+        "text":text,
+        "alert_num":alert_num,
+        "parent_id":parent_id,
+        "parent_ver":parent_ver,
+        "parent_bikou":parent_bikou,
+        "parent_me":parent_me,
+        "version_list":version_list,
+        }
     return JsonResponse(d)
 
 
 # モーダル上部（確度、ステータス）
 def modal_top(request):
     mitsu_id=request.POST.get("mitsu_id")
+    parent_id=request.POST.get("parent_id")
     kakudo=request.POST.get("kakudo")
     kakudo_day=request.POST.get("kakudo_day")
     status=request.POST.get("status")
     bikou=request.POST.get("bikou")
+    # 備考以外
     ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
     ins.kakudo=kakudo
     ins.kakudo_day=kakudo_day
     ins.status=status
-    ins.bikou=bikou
     ins.save()
+    # 備考
+    if parent_id == "":
+        ins.bikou=bikou
+        ins.save()
+    else:
+        ins2=Sfa_data.objects.get(mitsu_id=parent_id)
+        ins2.bikou=bikou
+        ins2.save()
     d={}
     return JsonResponse(d)
 
@@ -490,11 +544,15 @@ def modal_top(request):
 def modal_bot(request):
     act_id=request.POST.get("act_id")
     mitsu_id=request.POST.get("mitsu_id")
+    parent_id=request.POST.get("parent_id")
     cus_id=request.POST.get("cus_id")
     day=request.POST.get("day")
     type=request.POST.get("type")
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
+    if parent_id != "":
+        mitsu_id=parent_id
+
     if act_id =="":
         if type=="1":
             Sfa_action.objects.create(mitsu_id=mitsu_id,cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text)
@@ -526,7 +584,10 @@ def modal_bot_click(request):
 def modal_bot_delete(request):
     act_id=request.POST.get("act_id")
     mitsu_id=request.POST.get("mitsu_id")
+    parent_id=request.POST.get("parent_id")
     Sfa_action.objects.get(act_id=act_id).delete()
+    if parent_id != "":
+        mitsu_id=parent_id
     res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     d={"res":res}
     return JsonResponse(d)
@@ -539,6 +600,32 @@ def modal_alert_check(request):
     ins.alert_check=1
     ins.save()
     d={}
+    return JsonResponse(d)
+
+
+# モーダル_同期
+def modal_group_click(request):
+    mitsu_id=request.POST.get("mitsu_id")
+    mitsu_num=request.POST.get("mitsu_num")
+    parent_ver=request.POST.get("parent_ver")
+    if parent_ver=="":
+        Sfa_group.objects.get(mitsu_id_child=mitsu_id).delete()
+        res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
+        d={"res":res}
+    else:
+        parent_id=Sfa_data.objects.get(mitsu_num=mitsu_num,mitsu_ver=parent_ver).mitsu_id
+        if Sfa_group.objects.filter(mitsu_id_child=parent_id).count()>0:
+            parent_id=Sfa_group.objects.get(mitsu_id_child=parent_id).mitsu_id_parent
+        Sfa_group.objects.update_or_create(
+            mitsu_id_child=mitsu_id,
+            defaults={
+                "mitsu_id_child":mitsu_id,
+                "mitsu_id_parent":parent_id,
+            }
+        )
+        res=list(Sfa_action.objects.filter(mitsu_id=parent_id).order_by("day").values())
+        d={"res":res}
+
     return JsonResponse(d)
 
 
@@ -596,7 +683,8 @@ def show_index(request):
 # 案件表示_結果ページ
 def show(request):
     mitsu_num=request.session["mitsu_num"]
-    ins=Sfa_data.objects.filter(mitsu_num=mitsu_num).order_by("mitsu_ver")
+    tantou_id=request.session["search"]["tantou"]
+    ins=Sfa_data.objects.filter(mitsu_num=mitsu_num,tantou_id=tantou_id).order_by("mitsu_ver")
     if ins.count()>0:
         for i in ins:
             com=i.com or ""

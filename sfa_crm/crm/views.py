@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from .models import Crm_action,Customer
-from sfa.models import Member,Sfa_data,Sfa_action
+from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
 import requests
 from django.http import JsonResponse
 from datetime import date
@@ -181,6 +181,11 @@ def list_click_est(request):
     res=res.json()
     if Sfa_data.objects.filter(mitsu_num=sp[1],mitsu_ver=sp[2]).count() > 0:
         mitsu_id=Sfa_data.objects.get(mitsu_num=sp[1],mitsu_ver=sp[2]).mitsu_id
+        # 同期対応
+        try:
+            mitsu_id=Sfa_group.objects.get(mitsu_id_child=mitsu_id).mitsu_id_parent
+        except:
+            pass
         bikou=Sfa_data.objects.get(mitsu_id=mitsu_id).bikou
         detail=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     else:
