@@ -21,7 +21,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1665px;">
+        <div style="margin: 0 auto; width: 1695px;">
             <hr>
             <div class="flex">
                 <div class="block_title">案件管理一覧</div>
@@ -89,7 +89,7 @@
                         </div>
                         <div style="margin-left: 30px;">流入経路：</div>
                         <div>
-                            <select class="form-select form-select-sm" id="keiro" name="keiro" style="width: 100px;">
+                            <select class="form-select form-select-sm" id="keiro" name="keiro" style="width: 125px;">
                                 {% for i in keiro_list %}
                                     {% if i == ses.keiro %}
                                     <option value="{{i}}" selected>{{i}}</option>
@@ -289,9 +289,14 @@
                     <div style="width: 40px;"><div class="order_use">{{i.status}}</div></div>
                     <div style="width: 90px;">{{i.money | intcomma}}円</div>
                     <div style="width: 90px;">{{i.nouki}}</div>
-                    <div style="width: 40px;">
+                    <div style="width: 35px;">
                         {% if i.alert != 0 %}
                             <span class="bell"><i class="bi bi-bell-fill"></i></span>
+                        {% endif %}
+                    </div>
+                    <div style="width: 35px;">
+                        {% if i.keiro_tempo == 1 %}
+                            <span style="color: red; font-size: 1.2em;" title="来店あり"><i class="bi bi-shop"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 100px;">
@@ -469,7 +474,7 @@
                         <div class="modal-footer" style="justify-content: space-between; width: 100%;">
                             <div>
                                 <div class="flex" id="id_group_show" style="display: none;">
-                                    <div><i class="bi bi-bounding-box"></i> 備考・時系列コメント：</div>
+                                    <div>■ 備考・時系列コメント：</div>
                                     <div id="id_group_now"></div>
                                     <div id="id_group_mitsu_num" style="display: none;"></div>
                                     <div id="id_group_mitsu_num_text" style="margin-left: 30px;"></div>

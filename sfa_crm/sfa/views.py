@@ -253,6 +253,8 @@ def index(request):
         dic["order_kubun"]=i.order_kubun or ""
         if i.keiro != None:
             dic["keiro"]=i.keiro[:1]
+            if i.keiro in ["WEB → 来店","Tel → 来店","来店"]:
+                dic["keiro_tempo"]=1        
         if i.use_kubun != None:
             dic["use_kubun"]=i.use_kubun[:1]
         if i.use_youto != None:
@@ -382,7 +384,7 @@ def index(request):
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
         "chumon_kubun":["","新規","追加","追加新柄","刷り直し","返金"],
-        "keiro_list":["","Web","Fax","Tel","来店","外商","法人問合せ"],
+        "keiro_list":["","Web","WEB → 来店","Fax","Tel","Tel → 来店","来店","外商","法人問合せ","即日プリント","アンバサダー","イベント"],
         "kakudo_list":["","A","B","C"],
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
