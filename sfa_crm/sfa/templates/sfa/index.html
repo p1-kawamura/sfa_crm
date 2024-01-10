@@ -435,7 +435,7 @@
                                     <hr>
                                     <!-- BOT -->
                                     <div style="margin-top: 20px;">
-                                        <div>■電話入れ / メール / メモ / アラート</div>
+                                        <div>■TEL / メール / メモ / 来店 / アラート</div>
                                         <div class="flex mt-3">
                                             <div>種類：</div>
                                             <div>
@@ -444,6 +444,7 @@
                                                     <option value="1">TEL</option>
                                                     <option value="2">メール</option>
                                                     <option value="3">メモ</option>
+                                                    <option value="5">来店</option>
                                                     <option value="4">アラート</option>
                                                 </select>
                                             </div>
@@ -679,6 +680,8 @@
                                 icon="<span style='color: #646565; font-weight: bold;'><i class='bi bi-clipboard-fill'></i></span>"
                             } else if (i.type == 4) {
                                 icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
+                            } else if (i.type == 5) {
+                                icon="<span style='color: #ff3502; font-weight: bold;'><i class='bi bi-shop'></i></span>"
                             };
                             str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
                                 "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
@@ -816,6 +819,8 @@
                             icon="<span style='color: #646565; font-weight: bold;'><i class='bi bi-clipboard-fill'></i></span>"
                         } else if (i.type == 4) {
                             icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
+                        } else if (i.type == 5) {
+                            icon="<span style='color: #ff3502; font-weight: bold;'><i class='bi bi-shop'></i></span>"
                         };
                         str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
                             "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
@@ -911,6 +916,8 @@
                             icon="<span style='color: #646565; font-weight: bold;'><i class='bi bi-clipboard-fill'></i></span>"
                         } else if (i.type == 4) {
                             icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
+                        } else if (i.type == 5) {
+                            icon="<span style='color: #ff3502; font-weight: bold;'><i class='bi bi-shop'></i></span>"
                         };
                         str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
                             "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +

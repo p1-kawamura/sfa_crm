@@ -58,7 +58,7 @@ class Sfa_action(models.Model):
     def __str__(self):
         return self.mitsu_id
     
-    # type（種類） 1:TEL　2：メール　3：メモ　4：アラート
+    # type（種類） 1:TEL　2：メール　3：メモ　4：アラート　5：来店
 
 
 class Member(models.Model):

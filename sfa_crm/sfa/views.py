@@ -304,7 +304,7 @@ def index(request):
         memo=Sfa_action.objects.filter(mitsu_id=group_id)
         memo1=""
         memo2=""
-        shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート"}
+        shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート",5:"来店"}
         if memo.count()>0:
             for h in memo:
                 if h.text!="":
