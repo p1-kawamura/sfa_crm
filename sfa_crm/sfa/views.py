@@ -56,6 +56,8 @@ def index_api(request):
         request.session["search"]["s_mitsu"]=""
     if "alert" not in request.session["search"]:
         request.session["search"]["alert"]=[]
+    if "show" not in request.session["search"]:
+        request.session["search"]["show"]=[]
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
@@ -185,6 +187,8 @@ def index(request):
         request.session["search"]["s_mitsu"]=""
     if "alert" not in request.session["search"]:
         request.session["search"]["alert"]=[]
+    if "show" not in request.session["search"]:
+        request.session["search"]["show"]=[]
     if "mw_list" not in request.session:
         request.session["mw_list"]=[]
     if "crm_mw_list" not in request.session:
@@ -207,7 +211,8 @@ def index(request):
     # フィルター
     fil={}
     fil["tantou_id"]=ses["tantou"]
-    fil["show"]=0
+    if not ses["show"]:
+        fil["show"]=0
     if ses["chumon_kubun"] != "":
         fil["order_kubun"]=ses["chumon_kubun"]
     if ses["keiro"] != "":
@@ -292,6 +297,7 @@ def index(request):
                 dic["hassou_sort"]="1900-01-01" 
         dic["kakudo"]=i.kakudo
         dic["mw"]=i.mw
+        dic["show"]=i.show
         
         # バージョンの同期
         try:
@@ -423,6 +429,7 @@ def search(request):
     s_mitsu=request.POST["s_mitsu"]
     alert=request.POST.getlist("alert")
     s_mitsu=request.POST["s_mitsu"]
+    show=request.POST.getlist("no_show")
     
 
     request.session["search"]["busho"]=busho
@@ -444,6 +451,7 @@ def search(request):
     request.session["search"]["cus_mei"]=cus_mei
     request.session["search"]["s_mitsu"]=s_mitsu
     request.session["search"]["alert"]=alert
+    request.session["search"]["show"]=show
     return redirect("sfa:index")
 
 
