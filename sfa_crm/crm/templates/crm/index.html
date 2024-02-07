@@ -148,7 +148,7 @@
                 </div>
                 
                 <!-- 備考 -->
-                <div style="margin-left: 100px;">
+                <div style="margin-left: 70px;">
                     ■グリップ担当者
                     <div class="flex" style="margin-top: 10px;">
                         <div>
@@ -178,16 +178,18 @@
                         </div>
                     </div>
                     <hr>
-                    <div style="width: 500px; text-align: right;">
-                        <button class="btn btn-secondary btn-sm" id="btn_crm">備考更新</button>
-                    </div>
-                    <div>
-                        <div>■企業情報</div>
-                        <div style="margin-top: 5px;"><textarea class="form-control" rows="3" id="crm_bikou_1">{{dic_bikou.bikou1}}</textarea></div>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <div>■備考</div>
-                        <div style="margin-top: 5px;"><textarea class="form-control" rows="6" id="crm_bikou_2" disabled>{{dic_bikou.bikou2}}</textarea></div>
+                    <div style="width: 500px;">
+                        <div class="flex3" style="align-items: end;">
+                            <div>■備考（基幹システムと連動）</div>
+                            <div><button class="btn btn-secondary" id="btn_crm">更新</button></div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            {% if res.remark %}
+                            <textarea class="form-control" rows="12" id="crm_bikou_new">{{res.remark}}</textarea>
+                            {% else %}
+                            <textarea class="form-control" rows="12" id="crm_bikou_new"></textarea>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>  
                 
@@ -498,8 +500,7 @@
                     'type': 'POST',
                     'data': {
                         "cus_id":document.getElementById("grip_cus_id").innerText,
-                        "bikou1":document.getElementById("crm_bikou_1").value,
-                        "bikou2":document.getElementById("crm_bikou_2").value
+                        "bikou":document.getElementById("crm_bikou_new").value,
                     },
                     'dataType': 'json'
                 })

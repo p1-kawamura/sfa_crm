@@ -125,13 +125,6 @@ def kokyaku_api(request):
     else:
         busho_id=""
         tantou_id=""
-
-    # メールワイズ、備考
-    dic_bikou={"bikou1":"","bikou2":""}
-    if Customer.objects.filter(cus_id=cus_id).count() > 0:
-        ins=Customer.objects.get(cus_id=cus_id)
-        dic_bikou["bikou1"]=ins.bikou1
-        dic_bikou["bikou2"]=ins.bikou2
         
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -149,7 +142,6 @@ def kokyaku_api(request):
         "tantou_id":tantou_id,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":Member.objects.filter(busho_id=busho_id),
-        "dic_bikou":dic_bikou,
         "act_user":act_user,
         "crm_sort":request.session["crm_sort"],
     }
@@ -417,12 +409,11 @@ def grip_add(request):
 # 備考更新
 def crm_bikou(request):
     cus_id=request.POST.get("cus_id")
-    bikou1=request.POST.get("bikou1")
-    bikou2=request.POST.get("bikou2")
-    ins=Customer.objects.get(cus_id=cus_id)
-    ins.bikou1=bikou1
-    ins.bikou2=bikou2
-    ins.save()
+    bikou=request.POST.get("bikou")
+    data={"remark":bikou}
+    data=json.dumps(data)
+    url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/remark"
+    requests.put(url,data=data)
     d={}
     return JsonResponse(d)
 
