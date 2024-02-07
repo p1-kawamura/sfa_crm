@@ -231,7 +231,7 @@
                     <div style="margin-left: 10px;"><button class="btn btn-outline-danger btn-sm" type="button" id="btn_show"><i class="bi bi-eye-slash"></i> 非表示</button></div> 
                 </div>
                 <div class="flex">
-                    <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> サンクスメール作成</button></div>
+                    <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
                     <div style="width: 28px; margin-left: 10px;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
                 </div>
             </div>
@@ -358,7 +358,15 @@
                     </div>
                     <div style="width: 20px; text-align: right;">
                         {% if i.show == 0 %}
-                            {% if i.status == "発" or i.status == "終" %}
+                            {% if i.status == "発" or i.status == "終" or i.status == "失" %}
+                                {% if i.mw == 0 %}
+                                <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
+                                {% else %}
+                                <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list" checked disabled>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            {% if i.status == "失" %}
                                 {% if i.mw == 0 %}
                                 <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
                                 {% else %}

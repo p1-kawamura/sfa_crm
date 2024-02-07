@@ -11,6 +11,7 @@ from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum
 from datetime import datetime
+from django.db.models import Q 
 
 
 def index_api(request):
@@ -722,7 +723,7 @@ def mw_page(request):
         ans="yes"
     else:
         ans="no"
-    ins=Sfa_data.objects.filter(busho_id=busho_id,show=0,mw=1).order_by("tantou_id")
+    ins=Sfa_data.objects.filter(~Q(mw=0),busho_id=busho_id).order_by("tantou_id")
     member=Member.objects.all()
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -739,7 +740,10 @@ def mw_add(request):
     mw_add_list=json.loads(mw_add_list)
     for i in mw_add_list:
         ins=Sfa_data.objects.get(mitsu_id=i)
-        ins.mw=1
+        if ins.status == "失注":
+            ins.mw=2
+        else:
+            ins.mw=1
         ins.save()
     d={}
     return JsonResponse(d)
@@ -768,20 +772,32 @@ def mw_download(request):
     mw_csv=[]
     for i in mw_list:
         ins=Sfa_data.objects.get(mitsu_id=i)
-        a=[
-            ins.com or "", #会社
-            (ins.sei or "") + (ins.mei or ""), #氏名
-            ins.mail or "", #メールアドレス
-            Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
-            "サンクス", #区分
-        ]
-        mw_csv.append(a)
-        ins.mw=0
-        ins.status="サンクス"
-        ins.show=1
-        ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        ins.save()
-    filename=urllib.parse.quote("サンクスメール用リスト.csv")
+        if ins.mw==1:
+            a=[
+                ins.com or "", #会社
+                (ins.sei or "") + (ins.mei or ""), #氏名
+                ins.mail or "", #メールアドレス
+                Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
+                "サンクス", #区分
+            ]
+            mw_csv.append(a)
+            ins.mw=0
+            ins.status="サンクス"
+            ins.show=1
+            ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            ins.save()
+        else:
+            a=[
+                ins.com or "", #会社
+                (ins.sei or "") + (ins.mei or ""), #氏名
+                ins.mail or "", #メールアドレス
+                Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
+                "失注", #区分
+            ]
+            mw_csv.append(a)
+            ins.mw=0
+            ins.save()
+    filename=urllib.parse.quote("案件ベースのメール用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
     response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
     writer = csv.writer(response)
@@ -795,22 +811,34 @@ def mw_download(request):
 def mw_download_auto(request):
     # 案件
     csv_sfa=[]
-    ins=Sfa_data.objects.filter(mw=1,show=0)
+    ins=Sfa_data.objects.filter(~Q(mw=0))
     for i in ins:
         ins=Sfa_data.objects.get(mitsu_id=i)
-        a=[
-            ins.com or "", #会社
-            (ins.sei or "") + (ins.mei or ""), #氏名
-            ins.mail or "", #メールアドレス
-            Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
-            "サンクス", #区分
-        ]
-        csv_sfa.append(a)
-        ins.mw=0
-        ins.status="サンクス"
-        ins.show=1
-        ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        ins.save()
+        if ins.mw==1:
+            a=[
+                ins.com or "", #会社
+                (ins.sei or "") + (ins.mei or ""), #氏名
+                ins.mail or "", #メールアドレス
+                Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
+                "サンクス", #区分
+            ]
+            csv_sfa.append(a)
+            ins.mw=0
+            ins.status="サンクス"
+            ins.show=1
+            ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            ins.save()
+        else:
+            a=[
+                ins.com or "", #会社
+                (ins.sei or "") + (ins.mei or ""), #氏名
+                ins.mail or "", #メールアドレス
+                Member.objects.get(tantou_id=ins.tantou_id).tantou, #担当
+                "失注", #区分
+            ]
+            csv_sfa.append(a)
+            ins.mw=0
+            ins.save()
     # 顧客
     csv_crm=[]
     ins2=Customer.objects.filter(mw=1)

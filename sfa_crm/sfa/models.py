@@ -42,7 +42,7 @@ class Sfa_data(models.Model):
         return self.mitsu_id
     
     # show（表示） 0:表示　1：非表示
-    # mw（メールワイズ） 0:無し　1：作成
+    # mw（メールワイズ） 0:無し　1：サンクス　2：失注
 
 
 class Sfa_action(models.Model):
