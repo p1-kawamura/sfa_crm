@@ -636,6 +636,7 @@
 
         // 詳細モーダル
         $("#modal_est").on("show.bs.modal", function (event) {
+            document.getElementById("modal_alert_show").style.display="none";
             var item=document.getElementsByName("sfa_list");
             for (var i=0; i<item.length; i++){
                 item[i].addEventListener("click",function(){
