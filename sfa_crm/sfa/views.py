@@ -920,9 +920,9 @@ def kakudo_index(request):
     all=[]
     for i in ["A","B","C"]:
         li=[]
-        all_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,kakudo_day=kakudo_day).count()
+        all_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,kakudo_day=kakudo_day).count()
         li.append(all_count)
-        all_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
+        all_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
         if all_money["money__sum"] != None:
             li.append(all_money["money__sum"])
         else:
@@ -936,9 +936,9 @@ def kakudo_index(request):
         team_li=[]
         for i in ["A","B","C"]:
             li=[]
-            team_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).count()
+            team_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).count()
             li.append(team_count)
-            team_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).aggregate(Sum("money"))
+            team_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).aggregate(Sum("money"))
             if team_money["money__sum"] != None:
                 li.append(team_money["money__sum"])
             else:
@@ -956,9 +956,9 @@ def kakudo_index(request):
             kaku_li.append(Member.objects.get(tantou_id=i).tantou)
             for h in ["A","B","C"]:
                 li=[]
-                person_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).count()
+                person_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).count()
                 li.append(person_count)
-                person_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
+                person_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
                 if person_money["money__sum"] != None:
                     li.append(person_money["money__sum"])
                 else:
