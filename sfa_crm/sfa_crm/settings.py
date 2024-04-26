@@ -151,3 +151,4 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ※朝日町サーバー起動
 # waitress-serve --listen=192.168.91.74:8000 sfa_crm.wsgi:application
+# waitress-serve --listen=192.168.91.74:8000 --threads 20 sfa_crm.wsgi:application
