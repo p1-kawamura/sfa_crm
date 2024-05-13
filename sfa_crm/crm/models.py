@@ -47,6 +47,7 @@ class Customer(models.Model):
     juchu_last=models.CharField("最終受注日",max_length=255,blank=True,null=True)
     contact_last=models.CharField("最終コンタクト日",max_length=255,blank=True,null=True)
     taimen=models.CharField("対面",max_length=10,blank=True)
+    royal=models.IntegerField("ロイヤル",default=0)
 
 
     def __str__(self):

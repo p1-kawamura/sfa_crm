@@ -502,3 +502,7 @@ def mw_download(request):
     for line in mw_csv:
         writer.writerow(line)
     return response
+
+
+def cus_list_index(request):
+    return render(request,"crm/cus_list.html")
