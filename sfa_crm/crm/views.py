@@ -505,4 +505,170 @@ def mw_download(request):
 
 
 def cus_list_index(request):
-    return render(request,"crm/cus_list.html")
+    if "cus_search" not in request.session:
+        request.session["cus_search"]={}
+    if "cus_id" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_id"]=""
+    if "com" not in request.session["cus_search"]:
+        request.session["cus_search"]["com"]=""
+    if "cus_sei" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_sei"]=""
+    if "cus_mei" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_mei"]=""
+    if "cus_tel" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_tel"]=""
+    if "cus_mob" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_mob"]=""
+    if "pref" not in request.session["cus_search"]:
+        request.session["cus_search"]["pref"]=""
+    if "cus_mail" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_mail"]=""
+    if "busho" not in request.session["cus_search"]:
+        request.session["cus_search"]["busho"]=""
+    if "tantou" not in request.session["cus_search"]:
+        request.session["cus_search"]["tantou"]=""
+    if "cus_touroku_st" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_touroku_st"]=""
+    if "cus_touroku_ed" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_touroku_ed"]=""
+    if "last_mitsu_st" not in request.session["cus_search"]:
+        request.session["cus_search"]["last_mitsu_st"]=""
+    if "last_mitsu_ed" not in request.session["cus_search"]:
+        request.session["cus_search"]["last_mitsu_ed"]=""
+    if "last_juchu_st" not in request.session["cus_search"]:
+        request.session["cus_search"]["last_juchu_st"]=""
+    if "last_juchu_ed" not in request.session["cus_search"]:
+        request.session["cus_search"]["last_juchu_ed"]=""
+    if "last_contact_st" not in request.session["cus_search"]:
+        request.session["cus_search"]["last_contact_st"]=""
+    if "last_contact_ed" not in request.session["cus_search"]:
+        request.session["cus_search"]["last_contact_ed"]=""
+    if "mitsu_all_st" not in request.session["cus_search"]:
+        request.session["cus_search"]["mitsu_all_st"]=""
+    if "mitsu_all_ed" not in request.session["cus_search"]:
+        request.session["cus_search"]["mitsu_all_ed"]=""
+    if "juchu_all_st" not in request.session["cus_search"]:
+        request.session["cus_search"]["juchu_all_st"]=""
+    if "juchu_all_ed" not in request.session["cus_search"]:
+        request.session["cus_search"]["juchu_all_ed"]=""
+    if "juchu_money_st" not in request.session["cus_search"]:
+        request.session["cus_search"]["juchu_money_st"]=""
+    if "juchu_money_ed" not in request.session["cus_search"]:
+        request.session["cus_search"]["juchu_money_ed"]=""
+    if "grip" not in request.session["cus_search"]:
+        request.session["cus_search"]["grip"]=[]
+    if "royal" not in request.session["cus_search"]:
+        request.session["cus_search"]["royal"]=[]
+    if "taimen" not in request.session["cus_search"]:
+        request.session["cus_search"]["taimen"]=[]
+
+    ses=request.session["cus_search"]
+
+    # フィルター
+    fil={}
+    if ses["cus_id"] != "":
+        fil["cus_id"]=ses["cus_id"]
+    if ses["com"] != "":
+        fil["com__contains"]=ses["com"].strip()
+    if ses["cus_sei"] != "":
+        fil["sei__contains"]=ses["cus_sei"].strip()
+    if ses["cus_mei"] != "":
+        fil["mei__contains"]=ses["cus_mei"].strip()
+    if ses["cus_tel"] != "":
+        fil["tel_serch"]=ses["cus_tel"].strip()
+    if ses["cus_mob"] != "":
+        fil["tel_mob_serch"]=ses["cus_mob"].strip()
+
+
+
+
+    
+    if not ses["show"]:
+        fil["show"]=0
+    if ses["chumon_kubun"] != "":
+        fil["order_kubun"]=ses["chumon_kubun"]
+    if ses["keiro"] != "":
+        fil["keiro"]=ses["keiro"]
+    if ses["pref"] != "":
+        fil["pref"]=ses["pref"]
+    if ses["kakudo"] != "":
+        fil["kakudo"]=ses["kakudo"]
+    if ses["kakudo_day"] != "":
+        fil["kakudo_day"]=ses["kakudo_day"]
+    if ses["day_type"]=="est":
+        if ses["day_st"] != "":
+            fil["make_day__gte"]=ses["day_st"]
+        if ses["day_ed"] != "":
+            fil["make_day__lte"]=ses["day_ed"]
+    else:
+        if ses["day_st"] != "":
+            fil["hassou_day__gte"]=ses["day_st"]
+        if ses["day_ed"] != "":
+            fil["hassou_day__lte"]=ses["day_ed"]
+    if ses["s_mitsu"] != "":
+        fil["mitsu_num"]=ses["s_mitsu"]
+    if ses["com"] != "":
+        fil["com__contains"]=ses["com"].strip()
+    if ses["cus_sei"] != "":
+        fil["sei__contains"]=ses["cus_sei"].strip()
+    if ses["cus_mei"] != "":
+        fil["mei__contains"]=ses["cus_mei"].strip()
+    if len(ses["st"])!=0:
+        fil["status__in"]=ses["st"]
+    
+    ins=Sfa_data.objects.filter(**fil)
+
+    ins=Customer.objects.filter(cus_id=1258271)
+    # ins=Customer.objects.filter(pref="高知県")
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    params={
+        "cus_list":ins,
+        "pref_list":[
+            '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
+            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
+            '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
+            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "act_user":act_user,
+    }
+    
+    return render(request,"crm/cus_list.html",params)
+
+
+
+def cus_list_search(request):
+    request.session["cus_search"]["cus_id"]=request.POST["cus_id"]
+    request.session["cus_search"]["com"]=request.POST["com"]
+    request.session["cus_search"]["cus_sei"]=request.POST["cus_sei"]
+    request.session["cus_search"]["cus_mei"]=request.POST["cus_mei"]
+    request.session["cus_search"]["cus_tel"]=request.POST["cus_tel"]
+    request.session["cus_search"]["cus_mob"]=request.POST["cus_mob"]
+    request.session["cus_search"]["pref"]=request.POST["pref"]
+    request.session["cus_search"]["cus_mail"]=request.POST["cus_mail"]
+    request.session["cus_search"]["busho"]=request.POST["busho"]
+    request.session["cus_search"]["tantou"]=request.POST["tantou"]
+    request.session["cus_search"]["cus_touroku_st"]=request.POST["cus_touroku_st"]
+    request.session["cus_search"]["cus_touroku_ed"]=request.POST["cus_touroku_ed"]
+    request.session["cus_search"]["last_mitsu_st"]=request.POST["last_mitsu_st"]
+    request.session["cus_search"]["last_mitsu_ed"]=request.POST["last_mitsu_ed"]
+    request.session["cus_search"]["last_juchu_st"]=request.POST["last_juchu_st"]
+    request.session["cus_search"]["last_juchu_ed"]=request.POST["last_juchu_ed"]
+    request.session["cus_search"]["last_contact_st"]=request.POST["last_contact_st"]
+    request.session["cus_search"]["last_contact_ed"]=request.POST["last_contact_ed"]
+    request.session["cus_search"]["mitsu_all_st"]=request.POST["mitsu_all_st"]
+    request.session["cus_search"]["mitsu_all_ed"]=request.POST["mitsu_all_ed"]
+    request.session["cus_search"]["juchu_all_st"]=request.POST["juchu_all_st"]
+    request.session["cus_search"]["juchu_all_ed"]=request.POST["juchu_all_ed"]
+    request.session["cus_search"]["juchu_money_st"]=request.POST["juchu_money_st"]
+    request.session["cus_search"]["juchu_money_ed"]=request.POST["juchu_money_ed"]
+    request.session["cus_search"]["grip"]=request.POST.getlist("grip")
+    request.session["cus_search"]["royal"]=request.POST.getlist("royal")
+    request.session["cus_search"]["taimen"]=request.POST.getlist("taimen")
+
+    return redirect("crm:cus_list_index")

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import index,kokyaku_api,crm_sort,alert_check,list_click_est,list_click_act,list_add,list_del,grip_index_api,grip_index,grip_add,crm_bikou, \
-                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index
+                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_search
 
 
 app_name="crm"
@@ -23,4 +23,5 @@ urlpatterns = [
     path('mw_make/', mw_make, name="mw_make"),
     path('mw_download/', mw_download, name="mw_download"),
     path('cus_list_index/', cus_list_index, name="cus_list_index"),
+    path('cus_list_search/', cus_list_search, name="cus_list_search"),
 ]

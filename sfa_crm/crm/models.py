@@ -26,9 +26,9 @@ class Customer(models.Model):
     mei=models.CharField("名",max_length=255,blank=True,null=True)
     pref=models.CharField("都道府県",max_length=255,blank=True,null=True)
     tel=models.CharField("電話番号",max_length=255,blank=True,null=True)
-    tel_serch=models.CharField("電話番号_検索",max_length=255,blank=True,null=True)
+    tel_search=models.CharField("電話番号_検索",max_length=255,blank=True,null=True)
     tel_mob=models.CharField("携帯番号",max_length=255,blank=True,null=True)
-    tel_mob_serch=models.CharField("携帯番号_検索",max_length=255,blank=True,null=True)
+    tel_mob_search=models.CharField("携帯番号_検索",max_length=255,blank=True,null=True)
     mail=models.CharField("メール",max_length=255,blank=True,null=True)
     grip_busho_id=models.CharField("グリップ部署ID",max_length=10,blank=True)
     grip_tantou_id=models.CharField("グリップ担当者ID",max_length=10,blank=True)
@@ -54,3 +54,4 @@ class Customer(models.Model):
         return self.cus_id
     
     # mw（メールワイズ） 0:無し　1：作成
+    # royal（ロイヤル） 0:いいえ　1：はい

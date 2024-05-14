@@ -21,17 +21,17 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1400px;">
+        <div style="margin: 0 auto; width: 1320px;">
             <hr>
             <div class="block_title">顧客管理一覧</div>
             <hr>
             <!-- フィルター -->
             <div>
-                <form action="{% url 'sfa:search' %}" method="post" name="form_filter">{% csrf_token %}
+                <form action="{% url 'crm:cus_list_search' %}" method="post" name="form_filter">{% csrf_token %}
 
                     <div class="flex mt-4">
                         <div>顧客ID：</div>
-                        <div><input class="form-control form-control-sm" type="text" id="cus_id" name="cus_id" style="width: 100px;" value="{{ses.s_mitsu}}"></div>
+                        <div><input class="form-control form-control-sm" type="text" id="cus_id" name="cus_id" style="width: 100px;" value="{{ses.cus_id}}"></div>
                         <div style="margin-left: 30px;">会社名：</div>
                         <div><input class="form-control form-control-sm" type="text" id="com" name="com" style="width: 200px;" value="{{ses.com}}"></div>
                         <div style="margin-left: 30px;">姓：</div>
@@ -39,9 +39,9 @@
                         <div style="margin-left: 30px;">名：</div>
                         <div><input class="form-control form-control-sm" type="text" id="cus_mei" name="cus_mei" style="width: 70px;" value="{{ses.cus_mei}}"></div>
                         <div style="margin-left: 30px;">電話番号：</div>
-                        <div><input class="form-control form-control-sm" type="text" id="cus_tel" name="cus_tel" style="width: 150px;" value="{{ses.cus_mei}}"></div>
+                        <div><input class="form-control form-control-sm" type="text" id="cus_tel" name="cus_tel" style="width: 150px;" value="{{ses.cus_tel}}"></div>
                         <div style="margin-left: 30px;">携帯番号：</div>
-                        <div><input class="form-control form-control-sm" type="text" id="cus_mob" name="cus_mob" style="width: 150px;" value="{{ses.cus_mei}}"></div>
+                        <div><input class="form-control form-control-sm" type="text" id="cus_mob" name="cus_mob" style="width: 150px;" value="{{ses.cus_mob}}"></div>
                     </div>
 
                     <div class="flex mt-4">
@@ -58,181 +58,141 @@
                             </select>
                         </div>
                         <div style="margin-left: 30px;">メールアドレス：</div>
-                        <div><input class="form-control form-control-sm" type="text" id="cus_mail" name="cus_mail" style="width: 250px;" value="{{ses.cus_mei}}"></div>
+                        <div><input class="form-control form-control-sm" type="text" id="cus_mail" name="cus_mail" style="width: 270px;" value="{{ses.cus_mail}}"></div>
                         <div style="margin-left: 30px;">部署：</div>
-                        <div><input class="form-control form-control-sm" type="text" id="busho" name="busho" style="width: 150px;" value="{{ses.cus_mei}}"></div>
+                        <div><input class="form-control form-control-sm" type="text" id="busho" name="busho" style="width: 150px;" value="{{ses.busho}}"></div>
                         <div style="margin-left: 30px;">担当：</div>
-                        <div><input class="form-control form-control-sm" type="text" id="busho" name="busho" style="width: 100px;" value="{{ses.cus_mei}}"></div>
+                        <div><input class="form-control form-control-sm" type="text" id="tantou" name="tantou" style="width: 100px;" value="{{ses.tantou}}"></div>
                     </div>
 
-                    <div class="flex mt-4">
-                        <div style="margin-left: 40px;">
-                            <select class="form-select form-select-sm" name="day_type" id="day_type">
-                                {% if ses.day_type == "est" %}
-                                <option value="est" selected>見積作成日</option>
-                                <option value="hassou">発送完了日</option>
-                                {% else %}
-                                <option value="est">見積作成日</option>
-                                <option value="hassou" selected>発送完了日</option>
-                                {% endif %}
-                            </select>
+                    <div class="flex">
+                        <div class="flex mt-4">
+                            <div>顧客登録日：</div>
+                            <div><input class="form-control form-control-sm" type="date" id="cus_touroku_st" name="cus_touroku_st" style="width: 120px;" value="{{ses.cus_touroku_st}}"></div>
+                            <div style="margin: 0px 10px;">～</div>
+                            <div><input class="form-control form-control-sm" type="date" id="cus_touroku_ed" name="cus_touroku_ed" style="width: 120px;" value="{{ses.cus_touroku_ed}}"></div>
                         </div>
-                        <div>：</div>
-                        <div><input class="form-control form-control-sm" type="date" id="day_st" name="day_st" style="width: 120px;" value="{{ses.day_st}}"></div>
-                        <div style="margin: 0px 10px;">～</div>
-                        <div><input class="form-control form-control-sm" type="date" id="day_ed" name="day_ed" style="width: 120px;" value="{{ses.day_ed}}"></div>
+                        <div class="flex mt-4" style="margin-left: 30px;">
+                            <div>最終見積日：</div>
+                            <div><input class="form-control form-control-sm" type="date" id="last_mitsu_st" name="last_mitsu_st" style="width: 120px;" value="{{ses.last_mitsu_st}}"></div>
+                            <div style="margin: 0px 10px;">～</div>
+                            <div><input class="form-control form-control-sm" type="date" id="last_mitsu_ed" name="last_mitsu_ed" style="width: 120px;" value="{{ses.last_mitsu_ed}}"></div>
+                        </div>
+                        <div class="flex mt-4" style="margin-left: 30px;">
+                            <div>最終受注日：</div>
+                            <div><input class="form-control form-control-sm" type="date" id="last_juchu_st" name="last_juchu_st" style="width: 120px;" value="{{ses.last_juchu_st}}"></div>
+                            <div style="margin: 0px 10px;">～</div>
+                            <div><input class="form-control form-control-sm" type="date" id="last_juchu_ed" name="last_juchu_ed" style="width: 120px;" value="{{ses.last_juchu_ed}}"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex">
+                        <div class="flex mt-4">
+                            <div>最終コンタクト日：</div>
+                            <div><input class="form-control form-control-sm" type="date" id="last_contact_st" name="last_contact_st" style="width: 120px;" value="{{ses.last_contact_st}}"></div>
+                            <div style="margin: 0px 10px;">～</div>
+                            <div><input class="form-control form-control-sm" type="date" id="last_contact_ed" name="last_contact_ed" style="width: 120px;" value="{{ses.last_contact_ed}}"></div>
+                        </div>
+                        <div class="flex mt-4" style="margin-left: 30px;">
+                            <div>見積総数：</div>
+                            <div><input class="form-control form-control-sm" type="text" id="mitsu_all_st" name="mitsu_all_st" style="width: 50px;" value="{{ses.mitsu_all_st}}"></div>
+                            <div style="margin: 0px 10px;">～</div>
+                            <div><input class="form-control form-control-sm" type="text" id="mitsu_all_ed" name="mitsu_all_ed" style="width: 50px;" value="{{ses.mitsu_all_ed}}"></div>
+                        </div>
+                        <div class="flex mt-4" style="margin-left: 30px;">
+                            <div>受注総数：</div>
+                            <div><input class="form-control form-control-sm" type="text" id="juchu_all_st" name="juchu_all_st" style="width: 50px;" value="{{ses.juchu_all_st}}"></div>
+                            <div style="margin: 0px 10px;">～</div>
+                            <div><input class="form-control form-control-sm" type="text" id="juchu_all_ed" name="juchu_all_ed" style="width: 50px;" value="{{ses.juchu_all_ed}}"></div>
+                        </div>
+                        <div class="flex mt-4" style="margin-left: 30px;">
+                            <div>受注総金額：</div>
+                            <div><input class="form-control form-control-sm" type="text" id="juchu_money_st" name="juchu_money_st" style="width: 100px;" value="{{ses.juchu_money_st}}"></div>
+                            <div style="margin: 0px 10px;">～</div>
+                            <div><input class="form-control form-control-sm" type="text" id="juchu_money_ed" name="juchu_money_ed" style="width: 100px;" value="{{ses.juchu_money_ed}}"></div>
+                        </div>
+                        
                     </div>
 
                     <div class="flex mt-4">
+                        <div class="form-check">
+                            {% if ses.grip %}
+                            <input class="form-check-input" type="checkbox" id="grip" name="grip" checked>グリップ顧客
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" id="grip" name="grip">グリップ顧客
+                            {% endif %}
+                        </div>
+                        <div class="form-check" style="margin-left: 30px;">
+                            {% if ses.royal %}
+                            <input class="form-check-input" type="checkbox" id="royal" name="royal" checked>ロイヤルカスタマー
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" id="royal" name="royal">ロイヤルカスタマー
+                            {% endif %}
+                        </div>
+                        <div class="form-check" style="margin-left: 30px;">
+                            {% if ses.taimen %}
+                            <input class="form-check-input" type="checkbox" id="taimen" name="taimen" checked>対面あり
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" id="taimen" name="taimen">対面あり
+                            {% endif %}
+                        </div>
                         <div style="margin-left: 30px;">
                             <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> 検索</button>
                         </div>
                         <div style="margin-left: 30px;">
-                            <button class="btn btn-outline-dark btn-sm" id="form_clear"><i class="bi bi-eraser"></i> 詳細クリア</button>
+                            <button class="btn btn-outline-dark" id="form_clear"><i class="bi bi-eraser"></i> 詳細クリア</button>
                         </div>
                     </div>
  
                 </form>
             </div>
             <hr>
-            <!-- 案件一覧 -->
+
+            <!-- 顧客一覧 -->
             <div style="margin-top: 15px;">
-                {% for i in list %}
 
-                {% if i.status == "未" %}
-                <div class="flex sfa_main" style="background-color: #FFF;">
-                {% elif i.status == "見" %}
-                <div class="flex sfa_main" style="background-color: #ceffb7;">
-                {% elif i.status == "イ" %}
-                <div class="flex sfa_main" style="background-color: #c8f7fd;">
-                {% elif i.status == "受" %}
-                <div class="flex sfa_main" style="background-color: #fff9a7;">
-                {% elif i.status == "発" %}
-                <div class="flex sfa_main" style="background-color: #dbbbff;">
-                {% elif i.status == "キ" %}
-                <div class="flex sfa_main" style="background-color: #c5c5c5;">
-                {% elif i.status == "終" %}
-                <div class="flex sfa_main" style="background-color: #ffbcbc;">
-                {% elif i.status == "保" %}
-                <div class="flex sfa_main" style="background-color: #FFF;">
-                {% elif i.status == "失" %}
-                <div class="flex sfa_main" style="background-color: #c5c5c5;">
-                {% elif i.status == "待" %}
-                <div class="flex sfa_main" style="background-color: #FFF;">
-                {% elif i.status == "サ" %}
-                <div class="flex sfa_main" style="background-color: #ffb85c;">
-                {% endif %}
+                {% for i in cus_list %}
 
-                    <div class="red-check" style="width: 25px;">
-                        {% if i.show == 0 %}
-                        <input class="form-check-input" type="checkbox" id="{{i.mitsu_id}}" name="show_list">
-                        {% else %}
-                        <i class="bi bi-eye-slash"></i>
-                        {% endif %}
+                <div class="flex sfa_main" style="background-color: #FFF; font-size: 1em;">
+
+                    <div style="width: 90px;">
+                        <a href="{{i.cus_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}
                     </div>
-                    <div style="width: 50px;">{{i.make_day}}</div>
-                    <div style="width: 100px;">
-                        <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}
-                    </div>
-                    <div style="width: 45px;">
-                        {% if i.order_kubun == "新規" %}
-                            <div class="order order_1">新規</div>
-                        {% elif i.order_kubun == "追加" %}
-                            <div class="order order_2">追加</div>
-                        {% elif i.order_kubun == "追加新柄" %}
-                            <div class="order order_3">新追</div>
-                        {% elif i.order_kubun == "刷り直し" %}
-                            <div class="order_4">刷直</div>
-                        {% elif i.order_kubun == "返金" %}
-                        <div class="order_4">返金</div>
+                    <div style="width: 30px;">
+                        {% if i.grip_tantou_id != "" %}
+                        <span style="color: green; font-size: 1.2em;" title="グリップ顧客"><i class="bi bi-hand-thumbs-up"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 30px;">
-                        {% if i.keiro %}<div class="order_use">{{i.keiro}}</div>{% endif %}                    
+                        {% if i.royal == 1 %}
+                        <span style="color: #ff9900; font-size: 1.2em;" title="ロイヤルカスタマー"><i class="bi bi-cash-coin"></i></span>
+                        {% endif %}
                     </div>
                     <div style="width: 30px;">
-                        {% if i.use_kubun %}<div class="order_use">{{i.use_kubun}}</div>{% endif %}                                            
-                    </div>
-                    <div style="width: 35px;">
-                        {% if i.use_youto %}<div class="order_use">{{i.use_youto}}</div>{% endif %}            
+                        {% if i.taimen == "1" %}
+                        <span style="color: #ff3502; font-size: 1.2em;" title="対面あり"><i class="bi bi-shop"></i></span>
+                        {% endif %}
                     </div>
                     <div style="width: 70px;">{{i.pref}}</div>
-                    <div style="width: 210px;">{{i.com | truncatechars:14}}</div>
-                    <div style="width: 90px;">{{i.cus | truncatechars:6}}</div>
-                    <div style="width: 40px;"><div class="order_use">{{i.status}}</div></div>
-                    <div style="width: 90px;">{{i.money | intcomma}}円</div>
-                    <div style="width: 90px;">{{i.nouki}}</div>
-                    <div style="width: 35px;">
-                        {% if i.alert != 0 %}
-                            <span class="bell"><i class="bi bi-bell-fill"></i></span>
-                        {% endif %}
+                    <div style="width: 220px;">{% if i.com %}{{i.com | truncatechars:14}}{% endif %}</div>
+                    <div style="width: 120px;">{% if i.sei %}{{i.sei}}{% endif %} {% if i.mei %}{{i.mei}}{% endif %}</div>
+                    <div style="width: 190px;"><i class="bi bi-bar-chart-line-fill"></i> {{i.juchu_all}}回（{{i.juchu_money | intcomma}}円）</div>
+                    <div style="width: 140px;" class="flex">
+                        <div class="order_use">受</div>
+                        <div style="margin-left: 5px;">{% if i.juchu_last %}{{i.juchu_last}}{% endif %}</div>
                     </div>
-                    <div style="width: 35px;">
-                        {% if i.keiro_tempo == 1 %}
-                            <span style="color: red; font-size: 1.2em;" title="来店あり"><i class="bi bi-shop"></i></span>
-                        {% endif %}
+                    <div style="width: 140px;" class="flex">
+                        <div class="order_use">見</div>
+                        <div style="margin-left: 5px;">{% if i.mitsu_last %}{{i.mitsu_last}}{% endif %}</div>
                     </div>
-                    <div style="width: 100px;">
-                        {% if i.tel_result == 0 %}
-                            <span><i class="bi bi-telephone"></i></span>
-                        {% elif i.tel_result == 1 %}
-                            <span style="color: blue;"><i class="bi bi-telephone-forward-fill"></i>　{{i.tel}}</span>
-                        {% elif i.tel_result == 2 %}
-                            <span style="color: gray"><i class="bi bi-telephone-x-fill"></i>　{{i.tel}}</span>
-                        {% endif %}
-                    </div>
-                    <div style="width: 90px;">
-                        {% if i.mail_result == 0 %}
-                            <span><i class="bi bi-envelope"></i></span>
-                        {% else %}
-                            <span style="color: #b66d00;"><i class="bi bi-envelope-fill"></i> {{i.mail}}</span>
-                        {% endif %}
-                    </div>
-                    <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.bikou}}">
-                        {{i.bikou | truncatechars:15}}
-                    </div>
-                    <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.memo2}}">
-                        {{i.memo1 | truncatechars:15}}
-                    </div>
-                    <div style="width: 40px;">
-                        {% if i.kakudo == "A" %}
-                            <div class="kakudo kakudo_A">A</div>
-                        {% elif i.kakudo == "B" %}
-                            <div class="kakudo kakudo_B">B</div>
-                        {% elif i.kakudo == "C" %}
-                            <div class="kakudo kakudo_C">C</div>
-                        {% endif %}</div>
-                    <div style="width: 80px;">受：{{i.juchu}}</div>
-                    <div style="width: 90px;">発：{{i.hassou}}</div>
-                    <div style="width: 40px;" id="{{i.mitsu_id}}" name="sfa_list">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" style="border-radius: 50%;" data-bs-toggle="modal" data-bs-target="#modal_est">
-                            <i class="bi bi-pencil-square"></i>
-                        </button>
+                    <div style="width: 200px; font-size: 0.9em;">
+                        {% if i.mitsu_last_tantou %}<i class="bi bi-person-circle"></i> {{i.mitsu_last_busho}}：{{i.mitsu_last_tantou}}{% endif %}
                     </div>
                     <div style="width: 40px;" id="{{i.cus_id}}" name="crm_list">
                         {% if i.cus_id != None %}
                         <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;">
                             <i class="bi bi-person-square"></i>
                         </button>
-                        {% endif %}
-                    </div>
-                    <div style="width: 20px; text-align: right;">
-                        {% if i.show == 0 %}
-                            {% if i.status == "発" or i.status == "終" or i.status == "失" %}
-                                {% if i.mw == 0 %}
-                                <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
-                                {% else %}
-                                <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list" checked disabled>
-                                {% endif %}
-                            {% endif %}
-                        {% else %}
-                            {% if i.status == "失" %}
-                                {% if i.mw == 0 %}
-                                <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
-                                {% else %}
-                                <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list" checked disabled>
-                                {% endif %}
-                            {% endif %}
                         {% endif %}
                     </div>
 
@@ -280,48 +240,35 @@
         });
   
 
-
-        
-        // 部署選択
-        document.getElementById("busho").addEventListener("change",function(){
-            $.ajax({
-                    'url': '{% url "sfa:busho_tantou" %}',
-                    'type': 'POST',
-                    'data': {
-                        "busho":document.getElementById("busho").value,
-                    },
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    tantou=response.tantou;
-                    var str="";
-                    for (var i of tantou){
-                        str=str+"<option value='" + i.tantou_id + "'>" + i.tantou + "</option>"
-                    };
-                    document.getElementById("tantou").innerHTML=str;
-                })
-        });
-
-
         // フォームクリア
         function form_clear(){
-            document.getElementById("chumon_kubun").value="";
-            document.getElementById("keiro").value="";
-            document.getElementById("pref").value="";
-            document.getElementById("kakudo").value="";
-            document.getElementById("kakudo_day").value="";
-            document.getElementById("day_type").value="est";
-            document.getElementById("day_st").value="";
-            document.getElementById("day_ed").value="";
-            document.getElementById("s_mitsu").value="";
+            document.getElementById("cus_id").value="";
             document.getElementById("com").value="";
             document.getElementById("cus_sei").value="";
             document.getElementById("cus_mei").value="";
-            document.getElementById("alert").checked=false;
-            var st=document.getElementsByName("st");
-            for (var i=0; i<st.length; i++){
-                st[i].checked=false;
-            };
+            document.getElementById("cus_tel").value="";
+            document.getElementById("cus_mob").value="";
+            document.getElementById("pref").value="";
+            document.getElementById("cus_mail").value="";
+            document.getElementById("busho").value="";
+            document.getElementById("tantou").value="";
+            document.getElementById("cus_touroku_st").value="";
+            document.getElementById("cus_touroku_ed").value="";
+            document.getElementById("last_mitsu_st").value="";
+            document.getElementById("last_mitsu_ed").value="";
+            document.getElementById("last_juchu_st").value="";
+            document.getElementById("last_juchu_ed").value="";
+            document.getElementById("last_contact_st").value="";
+            document.getElementById("last_contact_ed").value="";
+            document.getElementById("mitsu_all_st").value="";
+            document.getElementById("mitsu_all_ed").value="";
+            document.getElementById("juchu_all_st").value="";
+            document.getElementById("juchu_all_ed").value="";
+            document.getElementById("juchu_money_st").value="";
+            document.getElementById("juchu_money_ed").value="";
+            document.getElementById("grip").checked=false;
+            document.getElementById("royal").checked=false;
+            document.getElementById("taimen").checked=false;
         }
 
         // 詳細クリアボタン
@@ -330,20 +277,6 @@
             form_clear();
         })
 
-
-        // API接続
-        document.getElementById("api_reload").addEventListener("click",function(e){
-            e.preventDefault();
-            var tantou=document.getElementById("tantou").value;
-            if (tantou == ""){
-                window.alert("担当者を選択し「表示」を押して確定してください！");
-                return
-            }
-            window.location.href="{% url 'sfa:index_api' %}";
-        });
-
-
-        
 
         // 顧客詳細ボタン
         var item=document.getElementsByName("crm_list");
@@ -361,100 +294,6 @@
             },false)
         };
 
-
-        // サンクスメール
-        document.getElementById("btn_mw").addEventListener("click",function(){
-            var item=document.getElementsByName("mw_list");
-            var mw_list=[];
-            for (var i=0; i<item.length; i++){
-                if (item[i].checked && item[i].disabled==false){
-                    mw_list.push(item[i].id);
-                };
-            };
-            if (mw_list.length==0){
-                window.alert("対象がチェックされていません！");
-                return
-            }
-            mw_list=JSON.stringify(mw_list);
-            $.ajax({
-                    'url': '{% url "sfa:mw_add" %}',
-                    'type': 'POST',
-                    'data': {"mw_list":mw_list},
-                    'dataType': 'json'
-            })
-            .done(function(response){
-                window.alert("リストに追加しました！");
-                window.location.reload();
-            })
-        });
-
-
-        // サンクス_全チェック
-        var mw_check_all = document.getElementById("mw_check_all");
-        mw_check_all.addEventListener("click",function(){
-            var che=document.getElementsByName("mw_list");
-            for (var i=0; i<che.length; i++){
-                if (mw_check_all.checked){
-                    che[i].checked=true;
-                } else {
-                    if (che[i].disabled == false){
-                        che[i].checked=false;
-                    };
-                };
-            };
-        });
-
-
-        // 非表示設定
-        document.getElementById("btn_show").addEventListener("click",function(){
-            var item=document.getElementsByName("show_list");
-            var show_list=[];
-            for (var i=0; i<item.length; i++){
-                if (item[i].checked){
-                    show_list.push(item[i].id);
-                };
-            };
-            if (show_list.length==0){
-                window.alert("対象がチェックされていません！");
-                return
-            }
-            var ans =confirm("本当に「非表示」にしますか？");
-            if (ans == false){
-                return
-            };
-            show_list=JSON.stringify(show_list);
-            $.ajax({
-                    'url': '{% url "sfa:show_list_direct" %}',
-                    'type': 'POST',
-                    'data': {"show_list":show_list},
-                    'dataType': 'json'
-            })
-            .done(function(response){
-                window.location.reload();
-            })
-        });
-
-
-        // 非表示_全チェック
-        var show_check_all = document.getElementById("show_check_all");
-        show_check_all.addEventListener("click",function(){
-            var che=document.getElementsByName("show_list");
-            for (var i=0; i<che.length; i++){
-                if (show_check_all.checked){
-                    che[i].checked=true;
-                } else {
-                    che[i].checked=false;
-                };
-            };
-        });
-
-
-        // アラート表示ボタン
-        document.getElementById("alert_click").addEventListener("click",function(){
-            form_clear();
-            document.getElementById("alert").checked=true;
-            document.form_filter.submit();
-        })
 
     </script>
 
