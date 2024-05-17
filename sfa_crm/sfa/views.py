@@ -1043,47 +1043,38 @@ def csv_imp_page(request):
 
 def csv_imp(request):
 
-    #見積リスト
     data = io.TextIOWrapper(request.FILES['csv1'].file, encoding="cp932")
     csv_content = csv.reader(data)
     csv_list=list(csv_content)
-        
+
     h=0
     for i in csv_list:
         if h!=0:
-            Sfa_data.objects.update_or_create(
-                mitsu_id=i[0],
-                defaults={
-                    "mitsu_id":i[0],
-                    "mitsu_num":i[1],
-                    "mitsu_ver":i[2],
-                    "status":i[3],
-                    "order_kubun":i[4],
-                    "use_kubun":i[5],
-                    "use_youto":i[6],
-                    "nouhin_kigen":i[7],
-                    "nouhin_shitei":i[8],
-                    "mitsu_day":i[9],
-                    "update_day":i[10],
-                    "juchu_day":i[11],
-                    "hassou_day":i[12],
-                    "tantou_id":i[13],
-                    "busho_id":i[14],
-                    "cus_id":i[15],
-                    "sei":i[16],
-                    "mei":i[17],
-                    "mail":i[18],
-                    "pref":i[19],
-                    "com":i[20],
-                    "com_busho":i[21],
-                    "tel":i[22],
-                    "tel_mob":i[23],
-                    "pay":i[24],
-                    "keiro":i[25],
-                    "money":i[26],
-                }            
-            )
+            Crm_action.objects.create(
+                cus_id=i[0],
+                day="2023-11-13",
+                type="1",
+                text=i[1],
+                approach_id="1"
+                )
         h+=1
+        
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:
+    #         Sfa_data.objects.update_or_create(
+    #             mitsu_id=i[0],
+    #             defaults={
+    #                 "mitsu_id":i[0],
+    #                 "mitsu_num":i[1],
+    #                 "mitsu_ver":i[2],
+    #                 "status":i[3],
+    #                 "order_kubun":i[4],
+    #                 "use_kubun":i[5],
+    #                 "use_youto":i[6],
+    #             }            
+    #         )
+    #     h+=1
 
     return render(request,"sfa/csv_imp.html",{"message":"取込が完了しました！"})
 
@@ -1093,8 +1084,8 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Sfa_action.objects.filter(type=5)
+    ins=Crm_action.objects.filter(text="【大阪】DTF CP")
     for i in ins:
-        Crm_action.objects.create(cus_id=i.cus_id,day=i.day,type=7,text=i.text)
+        i.delete()
         
     return redirect("sfa:index")

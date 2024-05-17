@@ -225,22 +225,12 @@
                             {% if i.kubun == "est" %}
                                 <div class="main0 main1">
                             {% else %}
-                                {% if i.type == 1 %}
-                                <div class="main0 main2">
-                                {% elif i.type == 2 %}
-                                <div class="main0 main3">
-                                {% elif i.type == 3 %}
-                                <div class="main0 main4">
-                                {% elif i.type == 4 %}
-                                <div class="main0 main5">
-                                {% elif i.type == 5 %}
-                                <div class="main0 main6">
-                                {% elif i.type == 6 %}
-                                <div class="main0 main7">
-                                {% elif i.type == 7 %}
-                                <div class="main0 main8">
+                                {% if i.type == 3 %}
+                                    <div class="main0 main2">
                                 {% elif i.type == 8 %}
-                                <div class="main0 main9">
+                                    <div class="main0 main3">
+                                {% else %}
+                                    <div class="main0 main_all">
                                 {% endif %}
                             {% endif %}
 
@@ -270,7 +260,7 @@
                                     {% elif i.type == 7 %} <!-- 来店 -->
                                         <span style="color: #ff3502; font-weight: bold;"><i class="bi bi-shop"></i></span>
                                     {% elif i.type == 8 %} <!-- 追っかけリスト -->
-                                        <span style="color: #b200e9; font-weight: bold;"><i class="bi bi-person-lines-fill"></i></span>
+                                        <span style="color: #b37400; font-weight: bold;"><i class="bi bi-stack"></i></span>
                                     {% endif %}
                                 </div>
                                 <div style="margin-left: 10px;">
@@ -302,8 +292,8 @@
                                             <option value="4">TEL</option>
                                             <option value="5">外商</option>
                                             <option value="7">来店</option>
+                                            <option value="8">アプローチリスト</option>
                                             <option value="6">アラート</option>
-                                            <option value="8">追っかけリスト</option>
                                         </select>
                                     </div>
                                     <div id="act_tel_show" style="display: none;">

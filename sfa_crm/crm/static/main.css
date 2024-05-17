@@ -37,7 +37,6 @@ hr {
     overflow-x:hidden;
 }
 .main0 {
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
     padding: 10px 10px;
     margin-top: 10px;
     font-size: 0.9em;
@@ -48,46 +47,22 @@ hr {
     background: #e0f7ff;
     border-left: solid 5px #27acd9;
     border-bottom: solid 0.5px #27acd9;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
 }
 .main2 {
-    background: #eeeeee;
-    border-left: solid 5px #646565;;
-    border-bottom: solid 0.5px #646565;;
-}
-.main3 {
-    background: #ffeed8;
-    border-left: solid 5px #e28001;
-    border-bottom: solid 0.5px #e28001;
-}
-.main4 {
     background: #ffdae5;
     border-left: solid 5px #ff3e78;
     border-bottom: solid 0.5px #ff3e78;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
 }
-.main5 {
-    background: #ddf9d3;
-    border-left: solid 5px #60b664;
-    border-bottom: solid 0.5px #60b664;
+.main3 {
+    background: #fff7af;
+    border-left: solid 5px #ffa703;
+    border-bottom: solid 0.5px #ffa703;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
 }
-.main6 {
-    background: #9effda;
-    border-left: solid 5px #00c2b8;
-    border-bottom: solid 0.5px #00c2b8;
-}
-.main7 {
-    background: #fdffa5;
-    border-left: solid 5px #c0c400;
-    border-bottom: solid 0.5px #c0c400;
-}
-.main8 {
-    background: #ffd3ae;
-    border-left: solid 5px #ff7300;
-    border-bottom: solid 0.5px #ff7300;
-}
-.main9 {
-    background: #fedaff;
-    border-left: solid 5px #c701ce;
-    border-bottom: solid 0.5px #c701ce;
+.main_all {
+    border-bottom: solid 0.5px #979797;
 }
 .title {
     background-color: #dee2e6;

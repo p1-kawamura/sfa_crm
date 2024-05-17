@@ -15,21 +15,11 @@
             <label for="csv1">見積案件：</label>
             <input class="form-control" type="file" name="csv1" id="csv1">
             <br>
-            <label for="csv2">担当者：</label>
-            <input class="form-control" type="file" name="csv2" id="csv2">
-            <br>
             <input type="submit" name="btn_upload" value="取込">
             <span style="color: red;">　{{message}}</span>
         </form>
     </div>
     <hr>
-    <div>
-        <a href="{% url 'sfa:clear_sfa_data' %}">Sfa_dataクリア</a>
-    </div>
-    <br>
-    <div>
-        <a href="{% url 'sfa:clear_member' %}">Memberクリア</a>
-    </div>
 
 </body>
 </html>
