@@ -21,7 +21,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1320px;">
+        <div style="margin: 0 auto; width: 1340px;">
             <hr>
             <div class="block_title">顧客管理一覧</div>
             <hr>
@@ -151,6 +151,14 @@
             <!-- 顧客一覧 -->
             <div style="margin-top: 15px;">
 
+                <div class="flex3">
+                    <div>検索結果：{{result | intcomma}}件</div>
+                    <div class="flex mail mb-2">
+                        <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
+                        <div style="width: 28px; margin-left: 10px;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
+                    </div>
+                </div>
+
                 {% for i in cus_list %}
 
                 <div class="flex sfa_main" style="background-color: #FFF; font-size: 1em;">
@@ -160,12 +168,16 @@
                     </div>
                     <div style="width: 30px;">
                         {% if i.grip_tantou_id != "" %}
-                        <span style="color: green; font-size: 1.2em;" title="グリップ顧客"><i class="bi bi-hand-thumbs-up"></i></span>
+                            {% for h in member_list %}
+                                {% if i.grip_tantou_id == h.tantou_id %}
+                                <span style="color: green; font-size: 1.2em; cursor: pointer;" title="{{h.busho}}：{{h.tantou}}"><i class="bi bi-flag-fill"></i></span>
+                                {% endif %}
+                            {% endfor %}
                         {% endif %}
                     </div>
                     <div style="width: 30px;">
                         {% if i.royal == 1 %}
-                        <span style="color: #ff9900; font-size: 1.2em;" title="ロイヤルカスタマー"><i class="bi bi-cash-coin"></i></span>
+                        <span style="color: #ff9900; font-size: 1.2em;" title="ロイヤルカスタマー"><i class="bi bi-trophy-fill"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 30px;">
@@ -173,7 +185,7 @@
                         <span style="color: #ff3502; font-size: 1.2em;" title="対面あり"><i class="bi bi-shop"></i></span>
                         {% endif %}
                     </div>
-                    <div style="width: 70px;">{{i.pref}}</div>
+                    <div style="width: 70px;">{% if i.pref%}{{i.pref}}{% endif %}</div>
                     <div style="width: 220px;">{% if i.com %}{{i.com | truncatechars:14}}{% endif %}</div>
                     <div style="width: 120px;">{% if i.sei %}{{i.sei}}{% endif %} {% if i.mei %}{{i.mei}}{% endif %}</div>
                     <div style="width: 190px;"><i class="bi bi-bar-chart-line-fill"></i> {{i.juchu_all}}回（{{i.juchu_money | intcomma}}円）</div>
@@ -188,18 +200,38 @@
                     <div style="width: 200px; font-size: 0.9em;">
                         {% if i.mitsu_last_tantou %}<i class="bi bi-person-circle"></i> {{i.mitsu_last_busho}}：{{i.mitsu_last_tantou}}{% endif %}
                     </div>
-                    <div style="width: 40px;" id="{{i.cus_id}}" name="crm_list">
+                    <div style="width: 45px;" id="{{i.cus_id}}" name="crm_list">
                         {% if i.cus_id != None %}
                         <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;">
                             <i class="bi bi-person-square"></i>
                         </button>
                         {% endif %}
                     </div>
-
+                    <div>
+                        {% if i.mw == 0 %}
+                        <input class="form-check-input" type="checkbox" id="{{i.cus_id}}" name="mw_list">
+                        {% else %}
+                        <input class="form-check-input" type="checkbox" id="{{i.cus_id}}" name="mw_list" checked disabled>
+                        {% endif %}
+                    </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
+
+        <!-- ページネーション -->
+        <div style="margin: 0 auto;">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination mt-4">
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_first' %}">最初へ</a></li>
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_prev' %}">前へ</a></li>
+                <li class="page-item"><a class="page-link" pointer-events: none;>{{num}}/{{all_num}}</a></li>               
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_next' %}">次へ</a></li>
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_last' %}">最後へ</a></li> 
+                </ul>
+            </nav>
+        </div>
+
     </div>
 
 
@@ -293,6 +325,50 @@
                 })
             },false)
         };
+
+
+        // メールワイズ
+        document.getElementById("btn_mw").addEventListener("click",function(){
+            var item=document.getElementsByName("mw_list");
+            var mw_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked && item[i].disabled==false){
+                    mw_list.push(item[i].id);
+                };
+            };
+            if (mw_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            }
+            mw_list=JSON.stringify(mw_list);
+            $.ajax({
+                    'url': '{% url "crm:mw_add" %}',
+                    'type': 'POST',
+                    'data': {"mw_list":mw_list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.alert("リストに追加しました！");
+                window.location.reload();
+            })
+        });
+
+
+        // メールワイズ_全チェック
+        var mw_check_all = document.getElementById("mw_check_all");
+        mw_check_all.addEventListener("click",function(){
+            var che=document.getElementsByName("mw_list");
+            for (var i=0; i<che.length; i++){
+                if (mw_check_all.checked){
+                    che[i].checked=true;
+                } else {
+                    if (che[i].disabled == false){
+                        che[i].checked=false;
+                    };
+                };
+            };
+        });
+
 
 
     </script>

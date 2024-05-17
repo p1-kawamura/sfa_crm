@@ -8,11 +8,15 @@ class Crm_action(models.Model):
     text=models.TextField("内容",blank=True)
     tel_result=models.CharField("TEL結果",max_length=5,blank=True)
     alert_check=models.IntegerField("アラート",default=0)
+    approach_id=models.IntegerField("アプローチID",default=0)
 
     def __str__(self):
         return self.cus_id
     
-    # type（種類） 1:メモ　2：メール　3：メルマガ　4：TEL　5：外商　6：アラート
+    # type（種類） 1:メモ　 2：メール　  3：メルマガ　4：TEL
+    #             5：外商　6：アラート　７：来店     8：アプローチリストID
+
+    # approach_id（アプローチID）　0:通常コメント（アプローチリスト以外）
 
     
 

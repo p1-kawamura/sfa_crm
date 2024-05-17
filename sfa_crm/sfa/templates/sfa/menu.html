@@ -7,20 +7,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>メニュー</title>
     <style>
-        nav {
+        #menu nav {
             display: none; 
         }
-        .nav-open {
+        #menu .nav-open {
             position: relative;
         }
-        ul {
+        #menu ul {
             display: flex;
             list-style: none;
         }
-        li {
+        #menu li {
             height: 35px;
         }
-        li a, .nav-open {
+        #menu li a, #menu .nav-open {
             padding: 0.5em;
             display: block;
             background: #ececec;
@@ -31,14 +31,14 @@
             text-decoration: none;
             color:#333;
         }
-        li:hover,li a:hover {
+        #menu li:hover,#menu li a:hover {
             background: #797979;
             color: #ffffff !important;
         }
-        .menu1 {
+        #menu .menu1 {
             background: #ececec;
         }
-        .menu1 a {
+        #menu .menu1 a {
             text-decoration: none;
         }
  
@@ -46,7 +46,7 @@
 </head>
 <body>
 
-    <div style="display: flex;justify-content: space-between;">
+    <div id="menu" style="display: flex;justify-content: space-between;">
         <div>
             <a href="https://core-sys.p1-intl.co.jp/login/" target="_blank"><img src="{% static 'logo.webp' %}"></a>
         </div>
@@ -68,7 +68,7 @@
                 <div class="nav-open">メールワイズ作成 <i class="bi bi-caret-down-fill"></i></div>
                 <nav>
                     <div class="menu1"><a href="{% url 'sfa:mw_page' %}">案件一覧から</a></div>
-                    <div class="menu1"><a href="{% url 'crm:mw_page' %}">グリップ顧客から</a></div>
+                    <div class="menu1"><a href="{% url 'crm:mw_page' %}">顧客一覧から</a></div>
                 </nav>
             </li>
             <li>

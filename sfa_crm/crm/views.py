@@ -30,26 +30,10 @@ def kokyaku_api(request):
     res2=res2.json()
     res2=res2["receivedOrders"]
 
-    # 最終連絡日
-    last=[]
-    last_mitsu=[]
-    for i in res2:
-        last_mitsu.append(i["firstEstimationDate"])
-    if len(last_mitsu)>0:
-        last.append(max(last_mitsu))
-        
-    if Crm_action.objects.filter(cus_id=cus_id,type__in=[2,5,7]).count() > 0:
-        last.append(Crm_action.objects.filter(cus_id=cus_id,type__in=[2,5,7]).latest("day").day)
-    if Crm_action.objects.filter(cus_id=cus_id,type=4,tel_result="対応").count() > 0:
-        last.append(Crm_action.objects.filter(cus_id=cus_id,type=4,tel_result="対応").latest("day").day)
-    if Sfa_action.objects.filter(cus_id=cus_id,type=2).count() > 0:
-        last.append(Sfa_action.objects.filter(cus_id=cus_id,type=2).latest("day").day)
-    if Sfa_action.objects.filter(cus_id=cus_id,type=1,tel_result="対応").count() > 0:
-        last.append(Sfa_action.objects.filter(cus_id=cus_id,type=1,tel_result="対応").latest("day").day)
-    if len(last)>0:
-        res["mitsu_last"]=max(last)
+    # 最終コンタクト日
+    res["mitsu_last"]=Customer.objects.get(cus_id=cus_id).contact_last
 
-    # 見積とコメント計算
+    # 見積とコメント 一覧順の計算
     est_list=[]
     i=0
     for est in res2:
@@ -219,6 +203,15 @@ def list_add(request):
         else:
             ins.tel_result=""
         ins.save()
+
+    # 最終コンタクト日
+    if type in ["2","5","7"] or (type=="4" and tel_result=="対応"):
+        cus=Customer.objects.get(cus_id=cus_id)
+        contact=cus.contact_last
+        if contact==None or contact<day:
+            cus.contact_last = day
+            cus.save()
+
     return redirect("crm:kokyaku_api")
 
 
@@ -561,6 +554,10 @@ def cus_list_index(request):
         request.session["cus_search"]["royal"]=[]
     if "taimen" not in request.session["cus_search"]:
         request.session["cus_search"]["taimen"]=[]
+    if "page_num" not in request.session["cus_search"]:
+        request.session["cus_search"]["page_num"]=1
+    if "all_page_num" not in request.session["cus_search"]:
+        request.session["cus_search"]["all_page_num"]=""
 
     ses=request.session["cus_search"]
 
@@ -575,51 +572,72 @@ def cus_list_index(request):
     if ses["cus_mei"] != "":
         fil["mei__contains"]=ses["cus_mei"].strip()
     if ses["cus_tel"] != "":
-        fil["tel_serch"]=ses["cus_tel"].strip()
+        fil["tel_search"]=ses["cus_tel"].strip()
     if ses["cus_mob"] != "":
-        fil["tel_mob_serch"]=ses["cus_mob"].strip()
-
-
-
-
-    
-    if not ses["show"]:
-        fil["show"]=0
-    if ses["chumon_kubun"] != "":
-        fil["order_kubun"]=ses["chumon_kubun"]
-    if ses["keiro"] != "":
-        fil["keiro"]=ses["keiro"]
+        fil["tel_mob_search"]=ses["cus_mob"].strip()
     if ses["pref"] != "":
         fil["pref"]=ses["pref"]
-    if ses["kakudo"] != "":
-        fil["kakudo"]=ses["kakudo"]
-    if ses["kakudo_day"] != "":
-        fil["kakudo_day"]=ses["kakudo_day"]
-    if ses["day_type"]=="est":
-        if ses["day_st"] != "":
-            fil["make_day__gte"]=ses["day_st"]
-        if ses["day_ed"] != "":
-            fil["make_day__lte"]=ses["day_ed"]
-    else:
-        if ses["day_st"] != "":
-            fil["hassou_day__gte"]=ses["day_st"]
-        if ses["day_ed"] != "":
-            fil["hassou_day__lte"]=ses["day_ed"]
-    if ses["s_mitsu"] != "":
-        fil["mitsu_num"]=ses["s_mitsu"]
-    if ses["com"] != "":
-        fil["com__contains"]=ses["com"].strip()
-    if ses["cus_sei"] != "":
-        fil["sei__contains"]=ses["cus_sei"].strip()
-    if ses["cus_mei"] != "":
-        fil["mei__contains"]=ses["cus_mei"].strip()
-    if len(ses["st"])!=0:
-        fil["status__in"]=ses["st"]
-    
-    ins=Sfa_data.objects.filter(**fil)
+    if ses["cus_mail"] != "":
+        fil["mail"]=ses["cus_mail"]
+    if ses["busho"] != "":
+        fil["mitsu_last_busho__contains"]=ses["busho"].strip()
+    if ses["tantou"] != "":
+        fil["mitsu_last_tantou__contains"]=ses["tantou"].strip()
 
-    ins=Customer.objects.filter(cus_id=1258271)
-    # ins=Customer.objects.filter(pref="高知県")
+    if ses["cus_touroku_st"] != "":
+        fil["cus_touroku__gte"]=ses["cus_touroku_st"]
+    if ses["cus_touroku_ed"] != "":
+        fil["cus_touroku__lte"]=ses["cus_touroku_ed"]
+    if ses["last_mitsu_st"] != "":
+        fil["mitsu_last__gte"]=ses["last_mitsu_st"]
+    if ses["last_mitsu_ed"] != "":
+        fil["mitsu_last__lte"]=ses["last_mitsu_ed"]
+    if ses["last_juchu_st"] != "":
+        fil["juchu_last__gte"]=ses["last_juchu_st"]
+    if ses["last_juchu_ed"] != "":
+        fil["juchu_last__lte"]=ses["last_juchu_ed"]
+    if ses["last_contact_st"] != "":
+        fil["contact_last__gte"]=ses["last_contact_st"]
+    if ses["last_contact_ed"] != "":
+        fil["contact_last__lte"]=ses["last_contact_ed"]
+    if ses["mitsu_all_st"] != "":
+        fil["mitsu_all__gte"]=ses["mitsu_all_st"]
+    if ses["mitsu_all_ed"] != "":
+        fil["mitsu_all__lte"]=ses["mitsu_all_ed"]
+    if ses["juchu_all_st"] != "":
+        fil["juchu_all__gte"]=ses["juchu_all_st"]
+    if ses["juchu_all_ed"] != "":
+        fil["juchu_all__lte"]=ses["juchu_all_ed"]
+    if ses["juchu_money_st"] != "":
+        fil["juchu_money__gte"]=ses["juchu_money_st"]
+    if ses["juchu_money_ed"] != "":
+        fil["juchu_money__lte"]=ses["juchu_money_ed"]
+    
+    if ses["grip"]:
+        fil["grip_tantou_id__gte"]=0
+    if ses["royal"]:
+        fil["royal"]=1
+    if ses["taimen"]:
+        fil["taimen"]=1
+
+    items=Customer.objects.filter(**fil).order_by("cus_touroku").reverse()
+    result=items.count()
+    #全ページ数
+    if result == 0:
+        all_num = 1
+    elif result % 50 == 0:
+        all_num = result / 50
+    else:
+        all_num = result // 50 + 1
+    all_num=int(all_num)
+    request.session["cus_search"]["all_page_num"]=all_num
+    num=ses["page_num"]
+    if all_num==1:
+        num=1
+        request.session["cus_search"]["page_num"]=1
+    items=items[(num-1)*50 : num*50]
+
+    member_list=Member.objects.all()
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -629,13 +647,18 @@ def cus_list_index(request):
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
     params={
-        "cus_list":ins,
+        "cus_list":items,
+        "member_list":member_list,
+        "ses":ses,
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "num":num,
+        "all_num":all_num,
         "act_user":act_user,
+        "result":result,
     }
     
     return render(request,"crm/cus_list.html",params)
@@ -671,4 +694,30 @@ def cus_list_search(request):
     request.session["cus_search"]["royal"]=request.POST.getlist("royal")
     request.session["cus_search"]["taimen"]=request.POST.getlist("taimen")
 
+    return redirect("crm:cus_list_index")
+
+
+def cus_list_page_prev(request):
+    num=request.session["cus_search"]["page_num"]
+    if num-1 > 0:
+        request.session["cus_search"]["page_num"] = num - 1
+    return redirect("crm:cus_list_index")
+
+
+def cus_list_page_first(request):
+    request.session["cus_search"]["page_num"] = 1
+    return redirect("crm:cus_list_index")
+
+
+def cus_list_page_next(request):
+    num=request.session["cus_search"]["page_num"]
+    all_num=request.session["cus_search"]["all_page_num"]
+    if num+1 <= all_num:
+        request.session["cus_search"]["page_num"] = num + 1
+    return redirect("crm:cus_list_index")
+
+
+def cus_list_page_last(request):
+    all_num=request.session["cus_search"]["all_page_num"]
+    request.session["cus_search"]["page_num"]=all_num
     return redirect("crm:cus_list_index")

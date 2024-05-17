@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import index,kokyaku_api,crm_sort,alert_check,list_click_est,list_click_act,list_add,list_del,grip_index_api,grip_index,grip_add,crm_bikou, \
-                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_search
+                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_search,cus_list_page_prev,cus_list_page_first,cus_list_page_next, \
+                    cus_list_page_last
 
 
 app_name="crm"
@@ -24,4 +25,8 @@ urlpatterns = [
     path('mw_download/', mw_download, name="mw_download"),
     path('cus_list_index/', cus_list_index, name="cus_list_index"),
     path('cus_list_search/', cus_list_search, name="cus_list_search"),
+    path('cus_list_page_prev/', cus_list_page_prev, name="cus_list_page_prev"),
+    path('cus_list_page_first/', cus_list_page_first, name="cus_list_page_first"),
+    path('cus_list_page_next/', cus_list_page_next, name="cus_list_page_next"),
+    path('cus_list_page_last/', cus_list_page_last, name="cus_list_page_last"),
 ]

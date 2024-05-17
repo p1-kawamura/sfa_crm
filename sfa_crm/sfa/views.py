@@ -122,18 +122,36 @@ def index_api(request):
 
             # 顧客
             if i["customerId"] != None:
+                url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"])
+                res2=requests.get(url2)
+                res2=res2.json()
+
+                tel_search=None
+                if res2["tel"] != None:
+                    tel_serch=res2["tel"].replace("-","")
+                tel_mob_search=None
+                if res2["mobilePhone"] != None:
+                    tel_mob_search=res2["mobilePhone"].replace("-","")
+                    
                 Customer.objects.update_or_create(
-                cus_id=i["customerId"],
+                cus_id=res2["id"],
                 defaults={
-                    "cus_id":i["customerId"],
-                    "com":i["ordererCorporateName"],
-                    "com_busho":i["ordererDepartmentName"],
-                    "sei":i["ordererNameLast"],
-                    "mei":i["ordererNameFirst"],
-                    "pref":i["ordererPrefecture"],
-                    "tel":i["ordererTel"],
-                    "tel_mob":i["ordererMobilePhone"],
-                    "mail":i["ordererEmailMain"],
+                    "cus_id":res2["id"],
+                    "cus_url":res2["customerMstPageUrl"],
+                    "com":res2["corporateName"],
+                    "com_busho":res2["departmentName"],
+                    "sei":res2["nameLast"],
+                    "mei":res2["nameFirst"],
+                    "pref":res2["prefecture"],
+                    "tel":res2["tel"],
+                    "tel_search":tel_search,
+                    "tel_mob":res2["mobilePhone"],
+                    "tel_mob_search":tel_mob_search,
+                    "mail":res2["contactEmail"],
+                    "mitsu_all":res2["totalEstimations"],
+                    "juchu_all":res2["totalReceivedOrders"],
+                    "juchu_money":res2["totalReceivedOrdersPrice"],
+                    "juchu_last":res2["lastOrderReceivedDate"],
                     }
                 )
 
@@ -577,6 +595,21 @@ def modal_bot(request):
             ins.tel_result=tel_result
         ins.text=text
         ins.save()
+
+    # 最終コンタクト日
+    if type=="2" or (type=="1" and tel_result=="対応") or type=="5":
+        try:
+            cus=Customer.objects.get(cus_id=cus_id)
+            contact=cus.contact_last
+            if contact==None or contact<day:
+                cus.contact_last = day
+                cus.save()
+            # 来店
+            if type=="5":
+                Crm_action.objects.create(cus_id=cus_id,day=day,type=7,text=text)
+        except:
+            pass
+
     res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     d={"res":res}
     return JsonResponse(d)
@@ -1052,55 +1085,16 @@ def csv_imp(request):
             )
         h+=1
 
-    # #担当リスト
-    # data = io.TextIOWrapper(request.FILES['csv2'].file, encoding="cp932")
-    # csv_content = csv.reader(data)
-    # csv_list=list(csv_content)
-        
-    # h=0
-    # for i in csv_list:
-    #     if h!=0:
-    #         Member.objects.update_or_create(
-    #             tantou_id=i[2],
-    #             defaults={
-    #                 "busho":i[0],
-    #                 "busho_id":i[1],
-    #                 "tantou":i[2],
-    #                 "tantou_id":i[3],
-    #             }            
-    #         )
-    #     h+=1
-
     return render(request,"sfa/csv_imp.html",{"message":"取込が完了しました！"})
 
 
-#　DBクリア
-def clear_sfa_data(request):
-    Sfa_data.objects.all().delete()
-    Customer.objects.all().delete()
-    Sfa_action.objects.all().delete()
-    Crm_action.objects.all().delete()
-    return redirect("sfa:index")
 
-def clear_member(request):
-    ins=Member.objects.all()
-    for i in ins:
-        if i.busho=="東京チーム":
-            i.last_api="2023-11-01 00:00:00"
-        elif i.busho=="大阪チーム":
-            i.last_api="2023-11-01 00:00:00"
-        elif i.busho=="高松チーム":
-            i.last_api="2023-11-01 00:00:00"
-        elif i.busho=="福岡チーム":
-            i.last_api="2023-11-20 00:00:00"
-        i.save()
-    return redirect("sfa:index")
-
+# 色々と個別で動かす用
 def clear_session(request):
     # request.session.clear()
-    ins=Sfa_data.objects.filter(show=1,hidden_day="")
-    for i in ins:
-        i.hidden_day="2023-12-08 17:10:00"
-        i.save()
 
+    ins=Sfa_action.objects.filter(type=5)
+    for i in ins:
+        Crm_action.objects.create(cus_id=i.cus_id,day=i.day,type=7,text=i.text)
+        
     return redirect("sfa:index")
