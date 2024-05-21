@@ -10,7 +10,7 @@ from datetime import date
 from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum
-from datetime import datetime
+import datetime
 from django.db.models import Q 
 
 
@@ -64,7 +64,7 @@ def index_api(request):
     if "crm_mw_list" not in request.session:
         request.session["crm_mw_list"]=[]
     if "kakudo_day" not in request.session:
-        request.session["kakudo_day"]=datetime.now().strftime("%Y-%m")
+        request.session["kakudo_day"]=datetime.datetime.now().strftime("%Y-%m")
     if "crm_sort" not in request.session:
         request.session["crm_sort"]="0"
 
@@ -77,7 +77,7 @@ def index_api(request):
         res=res["estimations"]
         for i in res:
             ins=Sfa_data.objects.filter(mitsu_id=i["id"])
-            if ins.count()==0 and i["status"]=="終了":
+            if (ins.count()==0 and i["status"]=="終了") or i["customerId"]==None:
                 continue
             
             # 案件
@@ -119,6 +119,10 @@ def index_api(request):
             if ins.status not in ["失注","連絡待ち","サンクス"]:
                 ins.status=i["status"]
                 ins.save()
+            if ins.last_status == None and i["status"] in ["終了","キャンセル"]:
+                ins.last_status=datetime.datetime.now().strftime("%Y-%m-%d")
+                ins.save()
+
 
             # 顧客
             if i["customerId"] != None:
@@ -128,7 +132,7 @@ def index_api(request):
 
                 tel_search=None
                 if res2["tel"] != None:
-                    tel_serch=res2["tel"].replace("-","")
+                    tel_search=res2["tel"].replace("-","")
                 tel_mob_search=None
                 if res2["mobilePhone"] != None:
                     tel_mob_search=res2["mobilePhone"].replace("-","")
@@ -157,7 +161,7 @@ def index_api(request):
 
         # API取得日時
         ins=Member.objects.get(tantou_id=tantou_id)
-        ins.last_api=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
 
     return redirect("sfa:index")
@@ -213,7 +217,7 @@ def index(request):
     if "crm_mw_list" not in request.session:
         request.session["crm_mw_list"]=[]
     if "kakudo_day" not in request.session:
-        request.session["kakudo_day"]=datetime.now().strftime("%Y-%m")
+        request.session["kakudo_day"]=datetime.datetime.now().strftime("%Y-%m")
     if "crm_sort" not in request.session:
         request.session["crm_sort"]="0"
     
@@ -226,6 +230,16 @@ def index(request):
     for i in ins:
         h=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
         alert_all+=h
+
+
+    # 自動非表示
+    kigen=str(date.today() - datetime.timedelta(days=7))
+    ins=Sfa_data.objects.filter(tantou_id=ses["tantou"],show=0,last_status__lt=kigen)
+    for i in ins:
+        i.show=1
+        i.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        i.save()
+
 
     # フィルター
     fil={}
@@ -264,6 +278,12 @@ def index(request):
         fil["status__in"]=ses["st"]
     
     ins=Sfa_data.objects.filter(**fil)
+
+    # ページネーション
+    # print(ins.count())
+
+
+    # 詳細作成
     list=[]
     for i in ins:
         dic={}
@@ -556,6 +576,10 @@ def modal_top(request):
     ins.kakudo=kakudo
     ins.kakudo_day=kakudo_day
     ins.status=status
+    if status in ["終了","キャンセル","失注","サンクス"] and ins.last_status==None:
+        ins.last_status=datetime.datetime.now().strftime("%Y-%m-%d")
+    else:
+        ins.last_status=None
     ins.save()
     # 備考
     if parent_id == "":
@@ -705,9 +729,10 @@ def show_settei(request):
         if value:
             ins.show=0
             ins.hidden_day=""
+            ins.last_status=None
         else:
             ins.show=1
-            ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            ins.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
     d={}
     return JsonResponse(d)
@@ -817,7 +842,7 @@ def mw_download(request):
             ins.mw=0
             ins.status="サンクス"
             ins.show=1
-            ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            ins.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             ins.save()
         else:
             a=[
@@ -859,7 +884,7 @@ def mw_download_auto(request):
             ins.mw=0
             ins.status="サンクス"
             ins.show=1
-            ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            ins.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             ins.save()
         else:
             a=[
@@ -908,7 +933,7 @@ def show_list_direct(request):
     for i in show_list:
         ins=Sfa_data.objects.get(mitsu_id=i)
         ins.show=1
-        ins.hidden_day=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ins.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
     d={}
     return JsonResponse(d)
@@ -936,6 +961,7 @@ def hidden_list_direct(request):
         ins=Sfa_data.objects.get(mitsu_id=i)
         ins.show=0
         ins.hidden_day=""
+        ins.last_status=None
         ins.save()
     d={}
     return JsonResponse(d)
@@ -1052,10 +1078,9 @@ def csv_imp(request):
         if h!=0:
             Crm_action.objects.create(
                 cus_id=i[0],
-                day="2023-11-13",
-                type="1",
+                day="2024-05-21",
+                type=1,
                 text=i[1],
-                approach_id="1"
                 )
         h+=1
         
@@ -1084,8 +1109,9 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Crm_action.objects.filter(text="【大阪】DTF CP")
+    ins=Sfa_data.objects.filter(show=0,status__in=["終了","キャンセル","失注","サンクス"])
     for i in ins:
-        i.delete()
+        i.last_status="2024-05-21"
+        i.save()
         
     return redirect("sfa:index")

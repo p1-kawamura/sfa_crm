@@ -36,6 +36,7 @@ class Sfa_data(models.Model):
     show=models.IntegerField("表示",default=0)
     hidden_day=models.CharField("非表示日時",max_length=255,blank=True,default="")
     mw=models.IntegerField("メールワイズ",default=0)
+    last_status=models.CharField("ステータス最終日",max_length=255,blank=True,null=True)
 
 
     def __str__(self):
