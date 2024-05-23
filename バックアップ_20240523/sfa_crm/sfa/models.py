@@ -11,7 +11,6 @@ class Sfa_data(models.Model):
     use_youto=models.CharField("使用用途",max_length=255,blank=True,null=True)
     nouhin_kigen=models.CharField("納品期限日",max_length=255,blank=True,null=True)
     nouhin_shitei=models.CharField("納品指定日",max_length=255,blank=True,null=True)
-    nouki=models.CharField("納期",max_length=255,blank=True,null=True)
     make_day=models.CharField("見積作成日",max_length=255,blank=True)
     mitsu_day=models.CharField("初回見積日",max_length=255,blank=True,null=True)
     update_day=models.CharField("更新日",max_length=255,blank=True)
@@ -38,8 +37,6 @@ class Sfa_data(models.Model):
     hidden_day=models.CharField("非表示日時",max_length=255,blank=True,default="")
     mw=models.IntegerField("メールワイズ",default=0)
     last_status=models.CharField("ステータス最終日",max_length=255,blank=True,null=True)
-    tel_last_day=models.CharField("TEL最終日",max_length=255,blank=True,null=True)
-    mail_last_day=models.CharField("メール最終日",max_length=255,blank=True,null=True)
 
 
     def __str__(self):

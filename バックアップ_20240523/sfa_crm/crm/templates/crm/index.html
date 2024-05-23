@@ -1,0 +1,705 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="icon" href="{% static 't-shirt_3.gif' %}">
+    <title>顧客管理</title>
+</head>
+<body>
+    <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1150px;">
+            {% include "sfa/menu.html" %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1300px;">
+            <hr>
+            {% if alert.show == 1 %}
+            <div class="flex">
+                <div style="font-size: 1.2em;">
+                    <span id="alert_num" style="display: none;">{{alert.alert_num}}</span>
+                    <span class="bell"><i class="bi bi-bell-fill"></i></span>
+                    <span style="color: red;">{{alert.text}}</span>
+                </div>
+                <div style="margin-left: 20px;">
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="alert_check">アラート解除</button>
+                </div>
+            </div>
+            {% else %}
+            <div id="alert_check" style="display: none;">※Javascriptのエラー回避のため</div>
+            {% endif %}
+
+            <div class="flex2" style="margin-top: 30px;">
+                <!-- リスト -->
+                <div style="width: 700px;">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>顧客ID</th>
+                            <td>
+                                <a href="{{res.customerMstPageUrl}}" target="_blank"><span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a>
+                                <span id="grip_cus_id"> {{res.id}}</span>
+                            </td>
+                            <th>顧客登録日</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>姓名</th>
+                            <td>
+                                {% if res.nameLast %}{{res.nameLast}}{% endif %}{% if res.nameFirst %}{{res.nameFirst}}{% endif %}
+                            </td>
+                            <th>受注総金額</th>
+                            <td>{{res.totalReceivedOrdersPrice | intcomma}}円</td>
+                        </tr>
+                        <tr>
+                            <th>会社名</th>
+                            <td>{% if res.corporateName %}{{res.corporateName}}{% endif %}</td>
+                            <th>受注総件数</th>
+                            <td>{{res.totalReceivedOrders}}件</td>
+                        </tr>
+                        <tr>
+                            <th>部課名</th>
+                            <td>{% if res.departmentName %}{{res.departmentName}}{% endif %}</td>
+                            <th>見積総件数</th>
+                            <td>{{res.totalEstimations}}件</td>
+                            
+                        </tr>
+                        <tr>
+                            <th rowspan="2">住所</th>
+                            <td rowspan="2">
+                                {% if res.prefecture %}{{res.prefecture}}{% endif %}{% if res.city %}{{res.city}}{% endif %}<br>
+                                {% if res.address1 %}{{res.address1}}{% endif %}{% if res.address2 %} {{res.address2}}{% endif %}
+                                
+                            </td>
+                            <th>最終見積日</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>最終受注日</th>
+                            <td>{% if res.lastOrderReceivedDate %}{{res.lastOrderReceivedDate}}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>電話番号</th>
+                            <td>{% if res.tel %}{{res.tel}}{% endif %}</td>
+                            <th>最終コンタクト日</th>
+                            <td>{% if res.mitsu_last %}{{res.mitsu_last}}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>携帯番号</th>
+                            <td>{% if res.mobilePhone %}{{res.mobilePhone}}{% endif %}</td>
+                            <th>最終見積部署</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>FAX番号</th>
+                            <td>{% if res.fax %}{{res.fax}}{% endif %}</td>
+                            <th>最終見積担当</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>メールアドレス</th>
+                            <td>{% if res.contactEmail %}{{res.contactEmail}}{% endif %}</td>
+                            <th>対面あり</th>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th>メルマガ送付</th>
+                            <td>
+                                {% if res.isNotSentMailMagazine %}
+                                    {% if res.isNotSentMailMagazine %}
+                                    しない
+                                    {% else %}
+                                    する
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <th>生年月日</th>
+                            <td>{% if res.birthDay %}{{res.birthDay}}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>職業</th>
+                            <td>
+                                {% if res.occupation %}
+                                    {% if res.occupation == 1 %}会社員
+                                    {% elif res.occupation == 2 %}会社役員
+                                    {% elif res.occupation == 3 %}自営
+                                    {% elif res.occupation == 4 %}公務員・団体職員
+                                    {% elif res.occupation == 5 %}教職員
+                                    {% elif res.occupation == 6 %}学生
+                                    {% elif res.occupation == 7 %}パート・アルバイト
+                                    {% elif res.occupation == 8 %}主婦
+                                    {% elif res.occupation == 9 %}その他
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <th>通常ポイント</th>
+                            <td>{% if res.point %}{{res.point}}{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <th>性別</th>
+                            <td>
+                                {% if res.sexId %}
+                                    {% if res.sexId == 1 %}男性
+                                    {% elif res.sexId == 2 %}女性
+                                    {% elif res.sexId == 3 %}その他
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <th>プレミアムポイント</th>
+                            <td>{% if res.premiumPoint %}{{res.premiumPoint}}{% endif %}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- 備考 -->
+                <div style="margin-left: 70px;">
+                    ■グリップ担当者
+                    <div class="flex" style="margin-top: 10px;">
+                        <div>
+                            <select class="form-select" id="busho" style="width: 150px;">
+                                {% for key,value in busho_list.items %}
+                                    {% if key == busho_id %}
+                                    <option value="{{key}}" selected>{{value}}</option>
+                                    {% else %}
+                                    <option value="{{key}}">{{value}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <select class="form-select" id="tantou" style="width: 150px;">
+                                {% for i in tantou_list %}
+                                    {% if i.tantou_id == tantou_id %}
+                                    <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
+                                    {% else %}
+                                    <option value="{{i.tantou_id}}">{{i.tantou}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <button class="btn btn-outline-success" type="button" id="btn_grip">登録</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="width: 500px;">
+                        <div class="flex3" style="align-items: end;">
+                            <div>■備考（基幹システムと連動）</div>
+                            <div><button class="btn btn-secondary" id="btn_crm">更新</button></div>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            {% if res.remark %}
+                            <textarea class="form-control" rows="15" id="crm_bikou_new">{{res.remark}}</textarea>
+                            {% else %}
+                            <textarea class="form-control" rows="15" id="crm_bikou_new"></textarea>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>  
+                
+            </div>
+            <hr>
+            <div class="flex2" style="width: 1300px;">
+                <div>
+                    <div style="width: 75px;">
+                        <select class="form-select form-select-sm" id="left_sort">
+                            {% if crm_sort == "0" %}
+                            <option value="0" selected>昇順</option>
+                            <option value="1">降順</option>
+                            {% else %}
+                            <option value="0">昇順</option>
+                            <option value="1" selected>降順</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="inlineframe" style="height: 1500px; width: 600px; border: 1px solid #ced4da;">
+                        {% for i in res_det %}
+                            {% if i.kubun == "est" %}
+                                <div class="main0 main1">
+                            {% else %}
+                                {% if i.type == 3 %}
+                                    <div class="main0 main2">
+                                {% elif i.type == 8 %}
+                                    <div class="main0 main3">
+                                {% else %}
+                                    <div class="main0 main_all">
+                                {% endif %}
+                            {% endif %}
+
+                            {% if i.kubun == "est" %}
+                            <div class="flex" name="est_list" id="{{i.cus_id}}-{{i.est_num}}">
+                                <div>{{i.day}}</div>
+                                <div style="margin-left: 10px;">{{i.est_num}}</div>
+                                <div style="margin-left: 10px;">{{i.status}}</div>
+                                <div style="margin-left: 10px;">{{i.money | intcomma}}円</div>
+                            </div>
+                            {% else %}
+                            <div class="flex" name="act_list" id="{{i.act_id}}">
+                                <div>{{i.day}}</div>
+                                <div style="margin-left: 10px;">
+                                    {% if i.type == 1 %} <!-- メモ -->
+                                        <span style="color: #646565; font-weight: bold;"><i class="bi bi-clipboard-fill"></i></span>
+                                    {% elif i.type == 2 %} <!-- メール -->
+                                        <span style="color: #ff9900; font-weight: bold;"><i class="bi bi-envelope-fill"></i></span>
+                                    {% elif i.type == 3 %} <!-- メルマガ -->
+                                        <span style="color: #ff02f2; font-weight: bold;"><i class="bi bi-envelope-heart-fill"></i></span>
+                                    {% elif i.type == 4 %} <!-- TEL -->
+                                        <span style="color: green; font-weight: bold;"><i class="bi bi-telephone-forward-fill"></i></span>
+                                    {% elif i.type == 5 %} <!-- 外商 -->
+                                        <span style="color: #00c2b8; font-weight: bold;"><i class="bi bi-people-fill"></i></span>
+                                    {% elif i.type == 6 %} <!-- アラート -->
+                                        <span style="color: red; font-weight: bold;"><i class="bi bi-bell-fill"></i></span>
+                                    {% elif i.type == 7 %} <!-- 来店 -->
+                                        <span style="color: #ff3502; font-weight: bold;"><i class="bi bi-shop"></i></span>
+                                    {% elif i.type == 8 %} <!-- 追っかけリスト -->
+                                        <span style="color: #b37400; font-weight: bold;"><i class="bi bi-stack"></i></span>
+                                    {% endif %}
+                                </div>
+                                <div style="margin-left: 10px;">
+                                    {% if i.type == 4 %}
+                                        【{{i.tel_result}}】 {{i.text}}
+                                    {% else %}
+                                        {{i.text}}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div style="width: 700px; padding-left: 30px;">
+                    <div>
+                        <div class="title">コメント挿入</div>
+                        <form action="{% url 'crm:list_add' %}" method="post" id="form1">{% csrf_token %}
+                            <div style="margin-top: 20px;">
+                                <div class="flex">
+                                    <div>種類：</div>
+                                    <div>
+                                        <select class="form-select" id="act_type" name="act_type" required>
+                                            <option></option>
+                                            <option value="1">メモ</option>
+                                            <option value="2">メール</option>
+                                            <option value="3">メルマガ</option>
+                                            <option value="4">TEL</option>
+                                            <option value="5">外商</option>
+                                            <option value="7">来店</option>
+                                            <option value="8">アプローチリスト</option>
+                                            <option value="6">アラート</option>
+                                        </select>
+                                    </div>
+                                    <div id="act_tel_show" style="display: none;">
+                                        <select class="form-select" id="act_tel" name="act_tel">
+                                            <option value="対応">対応</option>
+                                            <option value="不在">不在</option>
+                                        </select>
+                                    </div>
+                                    <div style="margin-left: 20px;">日付：</div>
+                                    <div>
+                                        <input class="form-control" type="date" id="act_day" name="act_day" required>
+                                    </div>
+                                    <div style="margin-left: 30px;">
+                                        <button class="btn btn-outline-dark btn-sm" id="act_reset">新規</button>
+                                    </div>
+                                    <div style="margin-left: 20px;">
+                                        <button class="btn btn-outline-danger btn-sm" id="act_del">削除</button>
+                                    </div>
+                                </div>
+                                <div class="flex" style="margin-top: 20px;">
+                                   
+                                        <div style="width: 500px;">
+                                            <textarea class="form-control" id="act_text" name="act_text" rows="3"></textarea>
+                                        </div>
+                                        <div style="margin-left: 20px;">
+                                            <button class="btn btn-primary" type="submit" id="act_add">決定</button>
+                                        </div>
+                                </div>
+                                <div class="flex" style="margin-top: 20px; display: none;">
+                                    <div>
+                                        <input class="form-control" type="text" id="act_id" name="act_id" style="width: 100px;">
+                                    </div>
+                                    <div>
+                                        <input class="form-control" type="text" id="act_cus_id" name="act_cus_id" style="width: 100px;" value="{{res.id}}">
+                                    </div>  
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="mt-5">
+                        <div class="title">見積詳細</div>
+                        <table class="table table-bordered" style="margin-top: 20px;">
+                            <tr>
+                                <td>
+                                    <div class="flex">
+                                        <div>見積番号：</div><div id="estimationPageUrl"></div><div id="estlist_number" style="margin-left: 5px;"></div>   
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <div>ステータス：</div><div id="estlist_status"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex">
+                                        <div>合計金額：</div><div id="estlist_totalprice"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <div>支払方法：</div><div id="estlist_payment"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="flex">
+                                        <div>初回見積日：</div><div id="estlist_estday"></div>
+                                        <div style="margin-left: 50px;">受注日：</div><div id="estlist_recday"></div>
+                                        <div style="margin-left: 50px;">発送完了日：</div><div id="estlist_sendday"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="flex">
+                                        <div>担当部署：</div><div id="handledDepartmentName"></div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <div>担当者：</div><div id="handledByName"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■備考</div><div><textarea class="form-control" id="estlist_bikou" rows="5"></textarea></div></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■やり取り</div><div class="inlineframe" id="estlist_detail" style="height: 180px; margin-top: 0px;"></div></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■見積商品：</div><div id="estlist_shouhin"></div></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■加工名称：</div><div id="estlist_kakou"></div></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><div>■イメージ図：</div><div id="estlist_image"></div></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            <div>
+        
+ 
+        
+        </div>
+    </div>
+    
+
+
+    <!-- 各種Ajax -->
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i <cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+  
+        var csrftoken = getCookie('csrftoken');
+  
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+  
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+  
+
+        // アラート解除
+        document.getElementById("alert_check").addEventListener("click",function(){
+            $.ajax({
+                    'url': '{% url "crm:alert_check" %}',
+                    'type': 'POST',
+                    'data': {"alert_num":document.getElementById("alert_num").innerText},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.location.reload();
+                })
+        });
+
+
+        // 部署選択
+        document.getElementById("busho").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "sfa:busho_tantou" %}',
+                    'type': 'POST',
+                    'data': {"busho":document.getElementById("busho").value},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    tantou=response.tantou;
+                    var str="";
+                    for (var i of tantou){
+                        str=str+"<option value='" + i.tantou_id + "'>" + i.tantou + "</option>"
+                    };
+                    document.getElementById("tantou").innerHTML=str;
+                })
+        });
+
+
+        // グリップ顧客
+        document.getElementById("btn_grip").addEventListener("click",function(){
+            $.ajax({
+                    'url': '{% url "crm:grip_add" %}',
+                    'type': 'POST',
+                    'data': {
+                        "cus_id":document.getElementById("grip_cus_id").innerText,
+                        "busho_id":document.getElementById("busho").value,
+                        "tantou_id":document.getElementById("tantou").value,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.location.reload();
+                    var i = document.getElementById("busho").value;
+                    if (i != ""){
+                        window.alert("グリップ顧客として登録/変更しました！");
+                    } else {
+                        window.alert("グリップ顧客を解除しました！");
+                    };
+                })
+        });
+
+
+        // 備考
+        document.getElementById("btn_crm").addEventListener("click",function(){
+            $.ajax({
+                    'url': '{% url "crm:crm_bikou" %}',
+                    'type': 'POST',
+                    'data': {
+                        "cus_id":document.getElementById("grip_cus_id").innerText,
+                        "bikou":document.getElementById("crm_bikou_new").value,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.alert("更新しました！");
+                })
+        });
+
+
+        // リスト並び替え
+        document.getElementById("left_sort").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "crm:crm_sort" %}',
+                    'type': 'POST',
+                    'data': {"crm_sort":document.getElementById("left_sort").value},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // リストクリック（見積）
+        var item=document.getElementsByName("est_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                $.ajax({
+                    'url': '{% url "crm:list_click_est" %}',
+                    'type': 'POST',
+                    'data': {"est_num":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){                
+                    res=response.res.receivedOrder;
+                    bikou=response.bikou;
+                    detail=response.detail;
+                    document.getElementById("estlist_number").innerText=res.estimationNumber + "-" + res.estimationVersion;
+                    document.getElementById("estlist_status").innerText=res.estimationStatus;
+                    document.getElementById("estlist_totalprice").innerText=res.totalPrice.toLocaleString() + "円";
+                    document.getElementById("estlist_payment").innerText=res.paymentMethod;
+                    document.getElementById("estlist_estday").innerText=res.firstEstimationDate;
+                    document.getElementById("estlist_recday").innerText=res.orderReceivedDate;
+                    document.getElementById("estlist_sendday").innerText=res.shippedDate;
+                    document.getElementById("handledDepartmentName").innerText=res.handledDepartmentName;
+                    document.getElementById("handledByName").innerText=res.handledByName;
+                    document.getElementById("estimationPageUrl").innerHTML="<a href='" + res.estimationPageUrl + 
+                        "' target='_blank'><span style='color: #008bc2; font-weight: bold;''><i class='bi bi-box-arrow-up-right'></i></span></a>";
+                    
+
+                    // 備考
+                    document.getElementById("estlist_bikou").value=bikou;
+
+                    // やり取り
+                    var str = "";
+                    var icon = "";
+                    for (var i of detail){
+                        if (i.type == 1) {
+                            icon="<span style='color: green; font-weight: bold;'><i class='bi bi-telephone-forward-fill'></i></span>";
+                        } else if (i.type == 2) {
+                            icon="<span style='color: #ff9900; font-weight: bold;'><i class='bi bi-envelope-fill'></i></span>"
+                        } else if (i.type == 3) {
+                            icon="<span style='color: #646565; font-weight: bold;'><i class='bi bi-clipboard-fill'></i></span>"
+                        } else if (i.type == 4) {
+                            icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>"
+                        } else if (i.type == 5) {
+                                icon="<span style='color: #ff3502; font-weight: bold;'><i class='bi bi-shop'></i></span>"
+                        };
+                        str=str + "<div class='flex modal_action' id='" + i.act_id + "' name='act_list' style='font-size:0.9em'>" +
+                            "<div style='width: 100px'>" + i.day + "</div><div style='width: 30px'>" + icon + "</div>" +
+                            "<div style='width: 50px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
+                            "</div>";
+                    };
+                    document.getElementById("estlist_detail").innerHTML=str;
+
+                    // 商品
+                    var str ="";
+                    for (var item of res.itemEstimations){
+                        str=str + "<tr><td>" + item.name + "　" + item.options + "</td></td><td>" + item.quantity + "</td></tr>";
+                    };
+                    document.getElementById("estlist_shouhin").innerHTML="<table class='table table-bordered'>" + str + "</table>";
+                    
+                    // 加工
+                    str="";
+                    var i = 1;
+                    for (var kakou of res.workEstimations){
+                        str= str + i + ". " + kakou.name + "<br>";
+                        i=i+1;
+                    };
+                    document.getElementById("estlist_kakou").innerHTML=str;
+
+                    // イメージ図
+                    str="";
+                    i = 1;
+                    for (var image of res.designPatterns){
+                        str= str + i + ". " + image.name + "<br><img src='" + image.url + "' width='650px'><br><br>";
+                        i=i+1;
+                    };
+                    document.getElementById("estlist_image").innerHTML=str;
+
+                    // 行動クリア
+                    document.getElementById("act_type").value="";
+                    document.getElementById("act_day").value="";
+                    document.getElementById("act_text").value="";
+                    document.getElementById("act_id").value="";
+                })
+            },false)
+        };
+
+
+        // リストクリック（行動）
+        var item=document.getElementsByName("act_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                document.getElementById("act_id").value=this.id;
+                $.ajax({
+                    'url': '{% url "crm:list_click_act" %}',
+                    'type': 'POST',
+                    'data': {"act_id":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    res=response.res;           
+                    document.getElementById("act_type").value=res.type;
+                    if (res.tel_result == ""){
+                        document.getElementById("act_tel").value="対応";
+                    } else {
+                        document.getElementById("act_tel").value=res.tel_result;
+                    };
+                    document.getElementById("act_day").value=res.day;
+                    document.getElementById("act_text").value=res.text;
+                    if (res.type == 4){
+                        document.getElementById("act_tel_show").style.display="block";
+                    } else {
+                        document.getElementById("act_tel_show").style.display="none";
+                    };
+                })
+            },false)
+        };
+
+
+        // コメント種類_TEL
+        var type = document.getElementById("act_type");
+        type.addEventListener("change",function(){
+            if (type.value == 4){
+                document.getElementById("act_tel_show").style.display="block"
+                document.getElementById("tel_act").options[0].selected=true;
+            } else {
+                document.getElementById("act_tel_show").style.display="none";
+            };
+        });
+
+
+        // リセット
+        document.getElementById("act_reset").addEventListener("click",function(e){
+            e.preventDefault();
+            document.getElementById("act_type").value="";
+            document.getElementById("act_day").value="";
+            document.getElementById("act_text").value="";
+            document.getElementById("act_id").value="";
+            document.getElementById("act_tel_show").style.display="none";
+        });
+
+
+        // リスト削除
+        document.getElementById("act_del").addEventListener("click",function(e){
+            e.preventDefault();
+            var act_id=document.getElementById("act_id").value;
+            if (act_id == ""){
+                window.alert("対象のコメントがありません！");
+                return
+            };
+            var ans =confirm("本当に削除しますか？");
+            if (ans == false){
+                return
+            };
+            $.ajax({
+                'url': '{% url "crm:list_del" %}',
+                'type': 'POST',
+                'data': {
+                    "act_id":document.getElementById("act_id").value,
+                    "cus_id":document.getElementById("act_cus_id").value
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+
+        },false);
+
+    </script>
+    
+</body>
+</html>

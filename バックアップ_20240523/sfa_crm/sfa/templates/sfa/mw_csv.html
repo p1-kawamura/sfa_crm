@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="icon" href="{% static 't-shirt_3.gif' %}">
+    <title>案件ベースのメール作成一覧</title>
+</head>
+<body>
+    <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1150px;">
+            {% include "sfa/menu.html" %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1150px;">
+            <hr>
+            <div class="block_title">案件ベースのメール作成一覧</div>
+            <hr>
+            <div class="flex3 mt-5">
+                <div>
+                    <h5>{{busho}}</h5>
+                    件数：{{list | length}}件
+                </div>
+                <div class="mt-3" style="text-align: right;">
+                    {% if ans == "yes" %}
+                    <button class="btn btn-primary" type="button" id="btn_download"><i class="bi bi-download"></i> CSVダウンロード</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mt-3">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>会社</th>
+                            <th>氏名</th>
+                            <th>メール</th>
+                            <th>担当</th>
+                            <th>区分</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in list %}
+                        <tr>
+                            <td>{% if i.com %}{{i.com}}{% endif %}</td>
+                            <td>{% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}</td>
+                            <td>{% if i.mail %}{{i.mail}}{% endif %}</td>
+                            <td nowrap>
+                                {% for h in member %}
+                                    {% if h.tantou_id == i.tantou_id %}
+                                        {{h.tantou}}
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if i.mw == 1 %}
+                                サンクス
+                                {% else %}
+                                失注
+                                {% endif %}
+                            </td>
+                            <td style="text-align: center;" nowrap>
+                                <form action="{% url 'sfa:mw_delete' i.pk %}" method="post">{% csrf_token %}
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit" id="{{i.mitsu_id}}" name="mw_list">削除</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>  
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 各種Ajax -->
+    <script>
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i <cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    
+        var csrftoken = getCookie('csrftoken');
+    
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+    
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    
+
+
+        
+        // CSVダウンロード
+        document.getElementById("btn_download").addEventListener("click",function(){
+            var list = [];
+            var mw = document.getElementsByName("mw_list");
+            for (var i=0; i<mw.length; i++){
+                list.push(mw[i].id);
+            };
+            list=JSON.stringify(list)
+            $.ajax({
+                    'url': '{% url "sfa:mw_make" %}',
+                    'type': 'POST',
+                    'data': {"list":list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.href='{% url "sfa:mw_download" %}';
+            })
+        });
+
+    </script>
+
+</body>
+</html>

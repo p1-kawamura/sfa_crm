@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="icon" href="{% static 't-shirt_3.gif' %}">
+    <title>担当者設定</title>
+</head>
+<body>
+    
+    <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1150px">
+            {% include "sfa/menu.html" with act_user=act_user %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1150px;">
+            <hr>
+            <div class="block_title">担当者設定</div>
+            <hr>
+
+            <div>
+                <form action="{% url 'sfa:member_add' %}" method="post">{% csrf_token %}
+                    <div class="flex">
+                        <div>部署：</div>
+                        <div>
+                            <select class="form-select" name="busho" style="width: 150px;">
+                                <option value="398">東京チーム</option>
+                                <option value="400">大阪チーム</option>
+                                <option value="401">高松チーム</option>
+                                <option value="402">福岡チーム</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div>担当者名：</div>
+                        <div><input class="form-control" type="text" name="tantou" style="width: 150px;" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div>担当者ID：</div>
+                        <div><input class="form-control" type="text" name="tantou_id" style="width: 60px;" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div>API初期値：</div>
+                        <div><input class="form-control" name="last_api" type="date" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div><button type="submit" class="btn btn-primary">設定</button></div>
+                        <div style="margin-left: 30px;">
+                            {% if ans %}
+                                {% if ans == "yes" %}
+                                <div class="flex">
+                                    <div>担当者を追加しました！</div>
+                                    <div style="margin-left: 30px;"><a href="{% url 'sfa:member_index' %}">リセット</a></div>
+                                </div> 
+                                {% else %}
+                                <div class="flex">
+                                    <div style="color: red;">既に使われているIDです！</div>
+                                    <div style="margin-left: 30px;"><a href="{% url 'sfa:member_index' %}">リセット</a></div>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="mt-5">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>部署</th>
+                        <th>担当者</th>
+                        <th>ID</th>
+                        <th>最終API</th>
+                    </tr>
+                    {% for i in list %}
+                    <tr>
+                        <td>{{i.busho}}</td>
+                        <td>{{i.tantou}}</td>
+                        <td>{{i.tantou_id}}</td>
+                        <td>{{i.last_api}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+
+
+        </div>
+
+</body>
+</html>

@@ -86,11 +86,6 @@ def index_api(request):
                 continue
             
             # 案件
-            if i["deliveryAppointedDate"] != None:
-                nouki=i["deliveryAppointedDate"]
-            else:
-                nouki=i["deliveryLimitDate"]
-
             Sfa_data.objects.update_or_create(
             mitsu_id=i["id"],
             defaults={
@@ -103,7 +98,6 @@ def index_api(request):
                 "use_youto":i["purpose"],
                 "nouhin_kigen":i["deliveryLimitDate"],
                 "nouhin_shitei":i["deliveryAppointedDate"],
-                "nouki":nouki,
                 "make_day":i["createdAt"],
                 "mitsu_day":i["firstEstimationDate"],
                 "update_day":i["updatedAt"],
@@ -297,8 +291,6 @@ def index(request):
     # pandasで作り替え
     df=read_frame(ins) 
 
-
-
     # 通常並び替え
     sort_dic={
         "make_sort":"make_day",
@@ -353,7 +345,7 @@ def index(request):
         list3.append(h)
 
 
-    # 詳細作成
+    # 詳細作成テスト
     list=[]
     for i in list3:
         dic={}
@@ -438,6 +430,114 @@ def index(request):
 
         list.append(dic)
 
+    # # 詳細作成
+    # list=[]
+    # for i in ins:
+    #     dic={}
+    #     dic["id"]=i.id
+    #     dic["mitsu_id"]=i.mitsu_id
+    #     dic["mitsu_url"]=i.mitsu_url
+    #     dic["cus_id"]=i.cus_id
+    #     dic["make_day"]=i.make_day[5:].replace("-","/")
+    #     dic["make_sort"]=i.make_day
+    #     dic["mitsu_num"]=i.mitsu_num + "-" + i.mitsu_ver
+    #     dic["order_kubun"]=i.order_kubun or ""
+    #     if i.keiro != None:
+    #         dic["keiro"]=i.keiro[:1]
+    #         if i.keiro in ["WEB → 来店","Tel → 来店","来店"]:
+    #             dic["keiro_tempo"]=1        
+    #     if i.use_kubun != None:
+    #         dic["use_kubun"]=i.use_kubun[:1]
+    #     if i.use_youto != None:
+    #         d={"チームウェア・アイテム":"チ","制服・スタッフウェア":"制","販促・ノベルティ":"ノ",
+    #         "記念品・贈答品":"記","販売":"販","自分用":"自","その他":"他","":""}
+    #         dic["use_youto"]=d[i.use_youto]
+    #     dic["pref"]=i.pref or ""
+    #     dic["com"]=i.com or ""
+    #     dic["cus"]=(i.sei or "") + " " + (i.mei or "")
+    #     d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
+    #     dic["status"]=d[i.status]
+    #     dic["money"]=i.money
+    #     if i.nouhin_kigen != None:
+    #         dic["nouki"]="期限：" + i.nouhin_kigen[5:].replace("-","/")
+    #         dic["nouki_sort"]=i.nouhin_kigen
+    #     elif i.nouhin_shitei != None:
+    #         dic["nouki"]="指定：" +i.nouhin_shitei[5:].replace("-","/")
+    #         dic["nouki_sort"]=i.nouhin_shitei
+    #     else:
+    #         dic["nouki"]=""
+    #         if ses["sort_jun"]=="0":
+    #             dic["nouki_sort"]="2100-01-01"
+    #         else:
+    #             dic["nouki_sort"]="1900-01-01"
+    #     if i.juchu_day != None:
+    #         dic["juchu"]=i.juchu_day[5:].replace("-","/")
+    #     if i.hassou_day != None:
+    #         dic["hassou"]=i.hassou_day[5:].replace("-","/")
+    #     if i.hassou_day != None:
+    #         dic["hassou_sort"]=i.hassou_day
+    #     else:
+    #         if ses["sort_jun"]=="0":
+    #             dic["hassou_sort"]="2100-01-01"
+    #         else:
+    #             dic["hassou_sort"]="1900-01-01" 
+    #     dic["kakudo"]=i.kakudo
+    #     dic["mw"]=i.mw
+    #     dic["show"]=i.show
+        
+    #     # バージョンの同期
+    #     try:
+    #         parent_id=Sfa_group.objects.get(mitsu_id_child=i.mitsu_id).mitsu_id_parent
+    #         group_id=parent_id
+    #     except:
+    #         group_id=i.mitsu_id
+
+    #     dic["bikou"]=Sfa_data.objects.get(mitsu_id=group_id).bikou
+    #     memo=Sfa_action.objects.filter(mitsu_id=group_id)
+    #     memo1=""
+    #     memo2=""
+    #     shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート",5:"来店"}
+    #     if memo.count()>0:
+    #         for h in memo:
+    #             if h.text!="":
+    #                 memo1+=h.text + "、"
+    #             memo2+=h.day + " " + shurui[h.type] + " " + h.tel_result + " " + h.text + "\n"
+    #     dic["memo1"]=memo1[:-1]
+    #     dic["memo2"]=memo2
+
+    #     tel_count=Sfa_action.objects.filter(mitsu_id=group_id,type=1).count() 
+    #     if tel_count > 0:
+    #         act_tel=Sfa_action.objects.filter(mitsu_id=group_id,type=1).latest("day")
+    #         dic["tel"]=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
+    #         dic["tel_sort"]=act_tel.day
+    #         if act_tel.tel_result=="対応":
+    #             dic["tel_result"]=1
+    #         else:
+    #             dic["tel_result"]=2
+    #     else:
+    #         if ses["sort_jun"]=="0":
+    #             dic["tel_sort"]="2100-01-01"
+    #         else:
+    #             dic["tel_sort"]="1900-01-01"
+    #         dic["tel_result"]=0
+
+    #     mail_count=Sfa_action.objects.filter(mitsu_id=group_id,type=2).count()
+    #     if mail_count > 0:
+    #         act_mail=Sfa_action.objects.filter(mitsu_id=group_id,type=2).latest("day")
+    #         dic["mail"]=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ") "
+    #         dic["mail_sort"]=act_mail.day
+    #         dic["mail_result"]=1
+    #     else:
+    #         if ses["sort_jun"]=="0":
+    #             dic["mail_sort"]="2100-01-01"
+    #         else:
+    #             dic["mail_sort"]="1900-01-01"
+    #         dic["mail_result"]=0
+
+    #     alert_count=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
+    #     dic["alert"]=alert_count
+
+    #     list.append(dic)
     
     # アラート抽出
     if ses["alert"]:
@@ -445,6 +545,21 @@ def index(request):
             if i["alert"]==0:
                 list.remove(i)
 
+    # # 並び替え
+    # if ses["sort_jun"]=="0":
+    #     list=sorted(list,key=lambda x: (x[ses["sort_name"]],x["mitsu_num"]))
+    # else:
+    #     list=sorted(list,key=lambda x: (x[ses["sort_name"]],x["mitsu_num"]), reverse=True)
+
+    
+    # # グループ並び替え
+    # if ses["sort_group"]=="顧客ID":
+    #     try:
+    #         list=sorted(list,key=lambda x: (x["cus_id"],x["mitsu_num"]))
+    #     except:
+    #         list=sorted(list,key=lambda x: (x["com"],x["mitsu_num"]))
+    # elif ses["sort_group"]=="見積番号":
+    #     list=sorted(list,key=lambda x: x["mitsu_num"])
 
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
 
@@ -634,8 +749,6 @@ def modal_bot(request):
     type=request.POST.get("type")
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
-
-    mitsu_id_2=mitsu_id
     if parent_id != "":
         mitsu_id=parent_id
 
@@ -667,21 +780,6 @@ def modal_bot(request):
         except:
             pass
 
-    # 最終TELと最終メール
-    tel_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).count() 
-    if tel_count > 0:
-        act_tel=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
-        ins.tel_last_day=act_tel.day
-        ins.save()
-
-    mail_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).count()
-    if mail_count > 0:
-        act_mail=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
-        ins.mail_last_day=act_mail.day
-        ins.save()
-
     res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     d={"res":res}
     return JsonResponse(d)
@@ -701,36 +799,9 @@ def modal_bot_delete(request):
     act_id=request.POST.get("act_id")
     mitsu_id=request.POST.get("mitsu_id")
     parent_id=request.POST.get("parent_id")
-
     Sfa_action.objects.get(act_id=act_id).delete()
-
-    mitsu_id_2=mitsu_id
     if parent_id != "":
         mitsu_id=parent_id
-
-    # 最終TELと最終メール
-    tel_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).count() 
-    if tel_count > 0:
-        act_tel=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
-        ins.tel_last_day=act_tel.day
-        ins.save()
-    else:
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
-        ins.tel_last_day=None
-        ins.save()
-
-    mail_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).count()
-    if mail_count > 0:
-        act_mail=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
-        ins.mail_last_day=act_mail.day
-        ins.save()
-    else:
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
-        ins.mail_last_day=None
-        ins.save()
-
     res=list(Sfa_action.objects.filter(mitsu_id=mitsu_id).order_by("day").values())
     d={"res":res}
     return JsonResponse(d)

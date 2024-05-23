@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>メニュー</title>
+    <style>
+        #menu nav {
+            display: none; 
+        }
+        #menu .nav-open {
+            position: relative;
+        }
+        #menu ul {
+            display: flex;
+            list-style: none;
+        }
+        #menu li {
+            height: 35px;
+        }
+        #menu li a, #menu .nav-open {
+            padding: 0.5em;
+            display: block;
+            background: #ececec;
+            border-left: solid 2px #797979;
+            width: 150px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            color:#333;
+        }
+        #menu li:hover,#menu li a:hover {
+            background: #797979;
+            color: #ffffff !important;
+        }
+        #menu .menu1 {
+            background: #ececec;
+        }
+        #menu .menu1 a {
+            text-decoration: none;
+        }
+ 
+    </style>
+</head>
+<body>
+
+    <div id="menu" style="display: flex;justify-content: space-between;">
+        <div>
+            <a href="https://core-sys.p1-intl.co.jp/login/" target="_blank"><img src="{% static 'logo.webp' %}"></a>
+        </div>
+        <ul style="padding: 0px;">
+            <li>
+                <div><a href="{% url 'sfa:index' %}">案件管理</a></div>
+            </li>
+            <li>
+                <div><a href="{% url 'crm:grip_index' %}">グリップ顧客</a></div>
+            </li>
+            <li>
+                <div class="nav-open">案件表示設定 <i class="bi bi-caret-down-fill"></i></div>
+                <nav>
+                    <div class="menu1"><a href="{% url 'sfa:show_index' %}">見積番号検索</a></div>
+                    <div class="menu1"><a href="{% url 'sfa:hidden_index' %}">非表示一覧</a></div>
+                </nav>
+            </li>
+            <li>
+                <div class="nav-open">メールワイズ作成 <i class="bi bi-caret-down-fill"></i></div>
+                <nav>
+                    <div class="menu1"><a href="{% url 'sfa:mw_page' %}">案件一覧から</a></div>
+                    <div class="menu1"><a href="{% url 'crm:mw_page' %}">顧客一覧から</a></div>
+                </nav>
+            </li>
+            <li>
+                <div><a href="{% url 'sfa:kakudo_index' %}">確度集計</a></div>
+            </li>
+        </ul>
+        <div style="padding: 0.5em";>
+            <i class="bi bi-person-circle"></i> {{act_user}}
+        </div> 
+    </div>
+    
+
+    <script>
+
+        $(function(){
+            $('.nav-open').click(function(){
+                $(this).toggleClass('active');
+                $(this).next('nav').slideToggle();
+            });
+        });
+
+    </script>
+</body>
+</html>
+
+
