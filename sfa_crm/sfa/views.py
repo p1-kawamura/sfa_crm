@@ -635,7 +635,6 @@ def modal_bot(request):
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
 
-    mitsu_id_2=mitsu_id
     if parent_id != "":
         mitsu_id=parent_id
 
@@ -671,14 +670,14 @@ def modal_bot(request):
     tel_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).count() 
     if tel_count > 0:
         act_tel=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
+        ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
         ins.save()
 
     mail_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).count()
     if mail_count > 0:
         act_mail=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
+        ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
         ins.save()
 
@@ -704,7 +703,6 @@ def modal_bot_delete(request):
 
     Sfa_action.objects.get(act_id=act_id).delete()
 
-    mitsu_id_2=mitsu_id
     if parent_id != "":
         mitsu_id=parent_id
 
@@ -712,22 +710,22 @@ def modal_bot_delete(request):
     tel_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).count() 
     if tel_count > 0:
         act_tel=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=1).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
+        ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
         ins.save()
     else:
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
+        ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=None
         ins.save()
 
     mail_count=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).count()
     if mail_count > 0:
         act_mail=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=2).latest("day")
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
+        ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
         ins.save()
     else:
-        ins=Sfa_data.objects.get(mitsu_id=mitsu_id_2)
+        ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=None
         ins.save()
 
@@ -1184,9 +1182,40 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Sfa_data.objects.filter(show=0,status__in=["終了","キャンセル","失注","サンクス"])
-    for i in ins:
-        i.last_status="2024-05-21"
+    # 最終TELと最終メール
+    sfall=Sfa_data.objects.filter(show=0)
+
+    for i in sfall:
+
+        # 納期
+        if i.nouhin_shitei != None:
+            i.nouki=i.nouhin_shitei
+        else:
+            i.nouki=i.nouhin_kigen
         i.save()
+
+        try:
+            parent_id=Sfa_group.objects.get(mitsu_id_child=i.mitsu_id).mitsu_id_parent
+            group_id=parent_id
+        except:
+            group_id=i.mitsu_id
+
+        # 最終TEL
+        tel_count=Sfa_action.objects.filter(mitsu_id=group_id,type=1).count() 
+        if tel_count > 0:
+            act_tel=Sfa_action.objects.filter(mitsu_id=group_id,type=1).latest("day")
+            ins=Sfa_data.objects.get(mitsu_id=group_id)
+            ins.tel_last_day=act_tel.day
+            ins.save()
+
+        # 最終メール
+        mail_count=Sfa_action.objects.filter(mitsu_id=group_id,type=2).count()
+        if mail_count > 0:
+            act_mail=Sfa_action.objects.filter(mitsu_id=group_id,type=2).latest("day")
+            ins=Sfa_data.objects.get(mitsu_id=group_id)
+            ins.mail_last_day=act_mail.day
+            ins.save()
+
+        
         
     return redirect("sfa:index")
