@@ -693,6 +693,7 @@ def cus_list_search(request):
     request.session["cus_search"]["grip"]=request.POST.getlist("grip")
     request.session["cus_search"]["royal"]=request.POST.getlist("royal")
     request.session["cus_search"]["taimen"]=request.POST.getlist("taimen")
+    request.session["cus_search"]["page_num"]=1
 
     return redirect("crm:cus_list_index")
 

@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import index_api,index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_bot_delete,modal_alert_check,kokyaku_detail_api, \
                     show_index,show,show_search,show_direct,show_settei,clear_session,mw_page,mw_add,mw_delete,mw_make,mw_download, \
-                    mw_download_auto,show_list_direct,hidden_index,hidden_list_direct,kakudo_index,member_index,member_add,csv_imp,csv_imp_page,modal_group_click
+                    mw_download_auto,show_list_direct,hidden_index,hidden_list_direct,kakudo_index,member_index,member_add,csv_imp,csv_imp_page,modal_group_click, \
+                    sfa_page_prev,sfa_page_first,sfa_page_next,sfa_page_last
 
 
 
@@ -10,6 +11,10 @@ urlpatterns = [
     path('', index_api, name="index_api"),
     path('index/', index, name="index"),
     path('search/', search, name="search"),
+    path('sfa_page_prev/', sfa_page_prev, name="sfa_page_prev"),
+    path('sfa_page_first/', sfa_page_first, name="sfa_page_first"),
+    path('sfa_page_next/', sfa_page_next, name="sfa_page_next"),
+    path('sfa_page_last/', sfa_page_last, name="sfa_page_last"),
     path('busho_tantou/', busho_tantou, name="busho_tantou"),
     path('mitsu_detail_api/', mitsu_detail_api, name="mitsu_detail_api"),
     path('modal_top/', modal_top, name="modal_top"),

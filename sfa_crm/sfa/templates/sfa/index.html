@@ -27,7 +27,7 @@
                 <div class="block_title">案件管理一覧</div>
                 {% if alert_all > 0 %}
                 <div style="margin-left: 30px;">
-                    <button class="btn btn-danger" id="alert_click"><span style="color: yellow;"><i class="bi bi-bell-fill"></i></span> アラート発生中：{{alert_all}}件</button> 
+                    <button class="btn btn-danger" id="alert_click"><span style="color: yellow;"><i class="bi bi-bell-fill"></i></span> アラート発生中：{{alert_all}}件　（クリックで表示）</button> 
                 </div>
                 {% else %}
                     <button id="alert_click" style="display: none;"></button>
@@ -380,6 +380,18 @@
                 {% endfor %}
             </div>
 
+            <!-- ページネーション -->
+            <div style="margin: 0 auto;">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination mt-4">
+                    <li class="page-item"><a class="page-link" href="{% url 'sfa:sfa_page_first' %}">最初へ</a></li>
+                    <li class="page-item"><a class="page-link" href="{% url 'sfa:sfa_page_prev' %}">前へ</a></li>
+                    <li class="page-item"><a class="page-link" pointer-events: none;>{{num}}/{{all_num}}</a></li>               
+                    <li class="page-item"><a class="page-link" href="{% url 'sfa:sfa_page_next' %}">次へ</a></li>
+                    <li class="page-item"><a class="page-link" href="{% url 'sfa:sfa_page_last' %}">最後へ</a></li> 
+                    </ul>
+                </nav>
+            </div>
 
             <!-- モーダル -->
             <div class="modal fade" id="modal_est" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

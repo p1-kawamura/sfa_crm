@@ -175,6 +175,14 @@ def index_api(request):
         ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ins.save()
 
+        # 自動非表示
+        kigen=str(date.today() - datetime.timedelta(days=7))
+        ins=Sfa_data.objects.filter(tantou_id=tantou_id,show=0,last_status__lt=kigen)
+        for i in ins:
+            i.show=1
+            i.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            i.save()
+    
     return redirect("sfa:index")
 
 
@@ -246,16 +254,6 @@ def index(request):
         h=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
         alert_all+=h
 
-
-    # 自動非表示
-    kigen=str(date.today() - datetime.timedelta(days=7))
-    ins=Sfa_data.objects.filter(tantou_id=ses["tantou"],show=0,last_status__lt=kigen)
-    for i in ins:
-        i.show=1
-        i.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        i.save()
-
-
     # フィルター
     fil={}
     fil["tantou_id"]=ses["tantou"]
@@ -294,10 +292,19 @@ def index(request):
     
     ins=Sfa_data.objects.filter(**fil)
 
+    # アラートの場合
+    if ses["alert"]:
+        alert_list=[]
+        for i in ins:
+            cnt=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today)
+            if cnt.count()>0:
+                alert_list.append(i.mitsu_id)
+        if len(alert_list)>0:
+            ins=Sfa_data.objects.filter(**fil, mitsu_id__in=alert_list)
+
+
     # pandasで作り替え
     df=read_frame(ins) 
-
-
 
     # 通常並び替え
     sort_dic={
@@ -326,24 +333,22 @@ def index(request):
         df.sort_values(by=["mitsu_num","mitsu_ver"],inplace=True)
 
 
-    # # ページネーション
-    # result=ins.count()
-    # if result == 0:
-    #     all_num = 1
-    # elif result % 50 == 0:
-    #     all_num = result / 50
-    # else:
-    #     all_num = result // 50 + 1
-    # all_num=int(all_num)
-    # request.session["search"]["all_page_num"]=all_num
-    # num=ses["page_num"]
-    # if all_num==1:
-    #     num=1
-    #     request.session["search"]["page_num"]=1
-    # df2=df.iloc[(num-1)*50 : num*50].copy()
+    # ページネーション
+    result=ins.count()
+    if result == 0:
+        all_num = 1
+    elif result % 50 == 0:
+        all_num = result / 50
+    else:
+        all_num = result // 50 + 1
+    all_num=int(all_num)
+    request.session["search"]["all_page_num"]=all_num
+    num=ses["page_num"]
+    if all_num==1:
+        num=1
+        request.session["search"]["page_num"]=1
 
-    # 一旦全表示
-    df2=df.copy()
+    df2=df.iloc[(num-1)*50 : num*50].copy()
 
 
     # データフレームから直接リスト作成
@@ -404,7 +409,7 @@ def index(request):
             group_id=i["mitsu_id"]
 
         dic["bikou"]=Sfa_data.objects.get(mitsu_id=group_id).bikou
-        memo=Sfa_action.objects.filter(mitsu_id=group_id)
+        memo=Sfa_action.objects.filter(mitsu_id=group_id).order_by("day")
         memo1=""
         memo2=""
         shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート",5:"来店"}
@@ -438,14 +443,6 @@ def index(request):
 
         list.append(dic)
 
-    
-    # アラート抽出
-    if ses["alert"]:
-        for i in list[:]:
-            if i["alert"]==0:
-                list.remove(i)
-
-
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
 
     # アクティブ担当
@@ -473,6 +470,8 @@ def index(request):
         "ses":ses,
         "act_user":act_user,
         "alert_all":alert_all,
+        "num":num,
+        "all_num":all_num,
     }
     return render(request,"sfa/index.html",params)
 
@@ -501,7 +500,6 @@ def search(request):
     s_mitsu=request.POST["s_mitsu"]
     show=request.POST.getlist("no_show")
     
-
     request.session["search"]["busho"]=busho
     request.session["search"]["tantou"]=tantou
     request.session["search"]["chumon_kubun"]=chumon_kubun
@@ -522,6 +520,38 @@ def search(request):
     request.session["search"]["s_mitsu"]=s_mitsu
     request.session["search"]["alert"]=alert
     request.session["search"]["show"]=show
+    request.session["search"]["page_num"]=1
+
+    return redirect("sfa:index")
+
+
+# ページネーション（前）
+def sfa_page_prev(request):
+    num=request.session["search"]["page_num"]
+    if num-1 > 0:
+        request.session["search"]["page_num"] = num - 1
+    return redirect("sfa:index")
+
+
+# ページネーション（最初）
+def sfa_page_first(request):
+    request.session["search"]["page_num"] = 1
+    return redirect("sfa:index")
+
+
+# ページネーション（次）
+def sfa_page_next(request):
+    num=request.session["search"]["page_num"]
+    all_num=request.session["search"]["all_page_num"]
+    if num+1 <= all_num:
+        request.session["search"]["page_num"] = num + 1
+    return redirect("sfa:index")
+
+
+# ページネーション（最後）
+def sfa_page_last(request):
+    all_num=request.session["search"]["all_page_num"]
+    request.session["search"]["page_num"]=all_num
     return redirect("sfa:index")
 
 
