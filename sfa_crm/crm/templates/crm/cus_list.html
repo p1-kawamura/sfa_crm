@@ -161,7 +161,7 @@
 
                 {% for i in cus_list %}
 
-                <div class="flex sfa_main" style="background-color: #FFF; font-size: 1em;">
+                <div class="flex sfa_main" style="background-color: #FFF;">
 
                     <div style="width: 90px;">
                         <a href="{{i.cus_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}
@@ -188,16 +188,25 @@
                     <div style="width: 70px;">{% if i.pref%}{{i.pref}}{% endif %}</div>
                     <div style="width: 220px;">{% if i.com %}{{i.com | truncatechars:14}}{% endif %}</div>
                     <div style="width: 120px;">{% if i.sei %}{{i.sei}}{% endif %} {% if i.mei %}{{i.mei}}{% endif %}</div>
-                    <div style="width: 190px;"><i class="bi bi-bar-chart-line-fill"></i> {{i.juchu_all}}回（{{i.juchu_money | intcomma}}円）</div>
+                    <div style="width: 80px;">
+                        {% if i.juchu_all >= 50 %}
+                            <span style="color: #ff3737;"><i class="bi bi-bar-chart-line-fill"></i></span>
+                        {% elif i.juchu_all >= 20 %}
+                            <span style="color: #4245ff;"><i class="bi bi-bar-chart-line-fill"></i></span>
+                        {% else %}
+                            <span style="color: #dadada;"><i class="bi bi-bar-chart-line-fill"></i></span>
+                        {% endif %}
+                         {{i.juchu_all}}回</div>
+                    <div style="width: 120px;">{{i.juchu_money | intcomma}}円</div>
                     <div style="width: 140px;" class="flex">
                         <div class="order_use">受</div>
-                        <div style="margin-left: 5px;">{% if i.juchu_last %}{{i.juchu_last}}{% endif %}</div>
+                        <div style="margin-left: 7px;">{% if i.juchu_last %}{{i.juchu_last}}{% endif %}</div>
                     </div>
                     <div style="width: 140px;" class="flex">
-                        <div class="order_use">見</div>
-                        <div style="margin-left: 5px;">{% if i.mitsu_last %}{{i.mitsu_last}}{% endif %}</div>
+                        <div class="order_use">接</div>
+                        <div style="margin-left: 7px;">{% if i.contact_last %}{{i.contact_last}}{% endif %}</div>
                     </div>
-                    <div style="width: 200px; font-size: 0.9em;">
+                    <div style="width: 190px; font-size: 0.9em;">
                         {% if i.mitsu_last_tantou %}<i class="bi bi-person-circle"></i> {{i.mitsu_last_busho}}：{{i.mitsu_last_tantou}}{% endif %}
                     </div>
                     <div style="width: 45px;" id="{{i.cus_id}}" name="crm_list">

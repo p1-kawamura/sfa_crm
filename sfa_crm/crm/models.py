@@ -21,7 +21,7 @@ class Crm_action(models.Model):
     
 
 class Customer(models.Model):
-    cus_id=models.CharField("顧客ID",max_length=10)
+    cus_id=models.CharField("顧客ID",max_length=10,unique=True)
     cus_url=models.CharField("顧客URL",max_length=255,blank=True,null=True)
     cus_touroku=models.CharField("顧客登録日",max_length=255,blank=True,null=True)
     com=models.CharField("会社名",max_length=255,blank=True,null=True)

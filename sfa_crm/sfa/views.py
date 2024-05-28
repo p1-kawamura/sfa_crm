@@ -1179,30 +1179,57 @@ def csv_imp(request):
     h=0
     for i in csv_list:
         if h!=0:
-            Crm_action.objects.create(
-                cus_id=i[0],
-                day="2024-05-21",
-                type=1,
-                text=i[1],
-                )
+
+            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i[0])
+            res2=requests.get(url2)
+            res2=res2.json()
+
+            tel_search=None
+            if res2["tel"] != None:
+                tel_search=res2["tel"].replace("-","")
+            tel_mob_search=None
+            if res2["mobilePhone"] != None:
+                tel_mob_search=res2["mobilePhone"].replace("-","")
+                
+            Customer.objects.update_or_create(
+            cus_id=res2["id"],
+            defaults={
+                "cus_id":res2["id"],
+                "cus_url":res2["customerMstPageUrl"],
+                "com":res2["corporateName"],
+                "com_busho":res2["departmentName"],
+                "sei":res2["nameLast"],
+                "mei":res2["nameFirst"],
+                "pref":res2["prefecture"],
+                "tel":res2["tel"],
+                "tel_search":tel_search,
+                "tel_mob":res2["mobilePhone"],
+                "tel_mob_search":tel_mob_search,
+                "mail":res2["contactEmail"],
+                "mitsu_all":res2["totalEstimations"],
+                "juchu_all":res2["totalReceivedOrders"],
+                "juchu_money":res2["totalReceivedOrdersPrice"],
+                "juchu_last":res2["lastOrderReceivedDate"],
+                "royal":1,
+                }
+            )
         h+=1
-        
+
+
+    # # Crm_actionへの入力
     # h=0
     # for i in csv_list:
     #     if h!=0:
-    #         Sfa_data.objects.update_or_create(
-    #             mitsu_id=i[0],
-    #             defaults={
-    #                 "mitsu_id":i[0],
-    #                 "mitsu_num":i[1],
-    #                 "mitsu_ver":i[2],
-    #                 "status":i[3],
-    #                 "order_kubun":i[4],
-    #                 "use_kubun":i[5],
-    #                 "use_youto":i[6],
-    #             }            
-    #         )
+    #         Crm_action.objects.create(
+    #             cus_id=i[0],
+    #             day="2024-05-28",
+    #             type=8,
+    #             text=i[1],
+    #             approach_id="12"
+    #             )
     #     h+=1
+        
+    
 
     return render(request,"sfa/csv_imp.html",{"message":"取込が完了しました！"})
 

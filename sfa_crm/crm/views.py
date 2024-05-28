@@ -572,9 +572,9 @@ def cus_list_index(request):
     if ses["cus_mei"] != "":
         fil["mei__contains"]=ses["cus_mei"].strip()
     if ses["cus_tel"] != "":
-        fil["tel_search"]=ses["cus_tel"].strip()
+        fil["tel_search"]=ses["cus_tel"].strip().replace("-","")
     if ses["cus_mob"] != "":
-        fil["tel_mob_search"]=ses["cus_mob"].strip()
+        fil["tel_mob_search"]=ses["cus_mob"].strip().replace("-","")
     if ses["pref"] != "":
         fil["pref"]=ses["pref"]
     if ses["cus_mail"] != "":
