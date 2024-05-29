@@ -299,8 +299,7 @@ def index(request):
             cnt=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today)
             if cnt.count()>0:
                 alert_list.append(i.mitsu_id)
-        if len(alert_list)>0:
-            ins=Sfa_data.objects.filter(**fil, mitsu_id__in=alert_list)
+        ins=Sfa_data.objects.filter(**fil, mitsu_id__in=alert_list)
 
 
     # pandasで作り替え
