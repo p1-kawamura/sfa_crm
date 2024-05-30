@@ -3,7 +3,7 @@ from django.db import models
 class Sfa_data(models.Model):
     mitsu_id=models.CharField("見積ID",max_length=255,unique=True)
     mitsu_num=models.CharField("見積番号",max_length=255)
-    mitsu_ver=models.CharField("見積バージョン",max_length=255)
+    mitsu_ver=models.IntegerField("見積バージョン")
     mitsu_url=models.CharField("見積URL",max_length=255,blank=True,null=True)
     status=models.CharField("ステータス",max_length=255,blank=True,null=True)
     order_kubun=models.CharField("注文区分",max_length=255,blank=True,null=True)

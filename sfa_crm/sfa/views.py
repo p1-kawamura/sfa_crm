@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member,Sfa_group
-from crm.models import Customer,Crm_action
+from crm.models import Customer,Crm_action,Approach
 import csv
 import io
 import json
@@ -366,7 +366,7 @@ def index(request):
         dic["mitsu_url"]=i["mitsu_url"]
         dic["cus_id"]=i["cus_id"]
         dic["make_day"]=i["make_day"][5:].replace("-","/")
-        dic["mitsu_num"]=i["mitsu_num"] + "-" + i["mitsu_ver"]
+        dic["mitsu_num"]=i["mitsu_num"] + "-" + str(i["mitsu_ver"])
         dic["order_kubun"]=i["order_kubun"] or ""
         if i["keiro"]!= None:
             dic["keiro"]=i["keiro"][:1]
@@ -1169,50 +1169,65 @@ def csv_imp_page(request):
     return render(request,"sfa/csv_imp.html")
 
 
+
+# CSVデータを取り込む用
 def csv_imp(request):
 
     data = io.TextIOWrapper(request.FILES['csv1'].file, encoding="cp932")
     csv_content = csv.reader(data)
     csv_list=list(csv_content)
 
+
+    # Approachへの入力
     h=0
     for i in csv_list:
-        if h!=0:
+        if h!=0:                
+            Approach.objects.create(
+                cus_id=i["id"],
 
-            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i[0])
-            res2=requests.get(url2)
-            res2=res2.json()
-
-            tel_search=None
-            if res2["tel"] != None:
-                tel_search=res2["tel"].replace("-","")
-            tel_mob_search=None
-            if res2["mobilePhone"] != None:
-                tel_mob_search=res2["mobilePhone"].replace("-","")
-                
-            Customer.objects.update_or_create(
-            cus_id=res2["id"],
-            defaults={
-                "cus_id":res2["id"],
-                "cus_url":res2["customerMstPageUrl"],
-                "com":res2["corporateName"],
-                "com_busho":res2["departmentName"],
-                "sei":res2["nameLast"],
-                "mei":res2["nameFirst"],
-                "pref":res2["prefecture"],
-                "tel":res2["tel"],
-                "tel_search":tel_search,
-                "tel_mob":res2["mobilePhone"],
-                "tel_mob_search":tel_mob_search,
-                "mail":res2["contactEmail"],
-                "mitsu_all":res2["totalEstimations"],
-                "juchu_all":res2["totalReceivedOrders"],
-                "juchu_money":res2["totalReceivedOrdersPrice"],
-                "juchu_last":res2["lastOrderReceivedDate"],
-                "royal":1,
-                }
             )
         h+=1
+
+
+    # # Customerへの入力
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:
+
+    #         url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i[0])
+    #         res2=requests.get(url2)
+    #         res2=res2.json()
+
+    #         tel_search=None
+    #         if res2["tel"] != None:
+    #             tel_search=res2["tel"].replace("-","")
+    #         tel_mob_search=None
+    #         if res2["mobilePhone"] != None:
+    #             tel_mob_search=res2["mobilePhone"].replace("-","")
+                
+    #         Customer.objects.update_or_create(
+    #         cus_id=res2["id"],
+    #         defaults={
+    #             "cus_id":res2["id"],
+    #             "cus_url":res2["customerMstPageUrl"],
+    #             "com":res2["corporateName"],
+    #             "com_busho":res2["departmentName"],
+    #             "sei":res2["nameLast"],
+    #             "mei":res2["nameFirst"],
+    #             "pref":res2["prefecture"],
+    #             "tel":res2["tel"],
+    #             "tel_search":tel_search,
+    #             "tel_mob":res2["mobilePhone"],
+    #             "tel_mob_search":tel_mob_search,
+    #             "mail":res2["contactEmail"],
+    #             "mitsu_all":res2["totalEstimations"],
+    #             "juchu_all":res2["totalReceivedOrders"],
+    #             "juchu_money":res2["totalReceivedOrdersPrice"],
+    #             "juchu_last":res2["lastOrderReceivedDate"],
+    #             "royal":1,
+    #             }
+    #         )
+    #     h+=1
 
 
     # # Crm_actionへの入力
