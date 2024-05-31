@@ -1183,8 +1183,30 @@ def csv_imp(request):
     for i in csv_list:
         if h!=0:                
             Approach.objects.create(
-                cus_id=i["id"],
-
+                approach_id="1",
+                mitsu_id=i[0],
+                mitsu_num=i[1],
+                mitsu_ver=i[2],
+                order_kubun=i[3],
+                juchu_day=i[4],
+                busho_id=i[8],
+                busho_name=i[9],
+                tantou_id=i[5],
+                tantou_sei=i[6],
+                tantou_mei=i[7],
+                cus_id=i[10],
+                cus_com=i[16],
+                cus_busho=i[17],
+                cus_sei=i[11],
+                cus_mei=i[12],
+                cus_tel=i[18],
+                cus_mob=i[19],
+                cus_mail=i[13],
+                money=i[20],
+                kakou=i[22],
+                factory=i[24],
+                gara=i[25],
+                kigen=i[27]
             )
         h+=1
 
@@ -1286,7 +1308,5 @@ def clear_session(request):
             ins=Sfa_data.objects.get(mitsu_id=group_id)
             ins.mail_last_day=act_mail.day
             ins.save()
-
-        
-        
+  
     return redirect("sfa:index")

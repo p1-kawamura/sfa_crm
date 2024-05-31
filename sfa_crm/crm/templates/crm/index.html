@@ -208,6 +208,7 @@
             </div>
             <hr>
             <div class="flex2" style="width: 1300px;">
+                <!-- 履歴一覧 -->
                 <div>
                     <div style="width: 75px;">
                         <select class="form-select form-select-sm" id="left_sort">
@@ -240,6 +241,7 @@
                                 <div style="margin-left: 10px;">{{i.est_num}}</div>
                                 <div style="margin-left: 10px;">{{i.status}}</div>
                                 <div style="margin-left: 10px;">{{i.money | intcomma}}円</div>
+                                <div style="font-size: 0.9em;">（{{i.busho}}：{{i.tantou}}）</div>
                             </div>
                             {% else %}
                             <div class="flex" name="act_list" id="{{i.act_id}}">
@@ -276,6 +278,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                <!-- コメント挿入 -->
                 <div style="width: 700px; padding-left: 30px;">
                     <div>
                         <div class="title">コメント挿入</div>

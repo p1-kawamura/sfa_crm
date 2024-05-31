@@ -88,7 +88,7 @@ class Approach(models.Model):
     cus_tel=models.CharField("顧客_電話",max_length=255,blank=True,null=True)
     cus_mob=models.CharField("顧客_携帯",max_length=255,blank=True,null=True)
     cus_mail=models.CharField("顧客_メール",max_length=255,blank=True,null=True)
-    moeny=models.IntegerField("金額",blank=True,null=True)
+    money=models.IntegerField("金額",blank=True,null=True)
     kakou=models.CharField("加工方法",max_length=255,blank=True,null=True)
     factory=models.CharField("加工場",max_length=255,blank=True,null=True)
     gara=models.CharField("柄名",max_length=255,blank=True,null=True)
