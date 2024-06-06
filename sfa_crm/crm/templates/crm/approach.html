@@ -27,7 +27,7 @@
             <hr>
             <!-- フィルター -->
             <div>
-                <form action="{% url 'crm:cus_list_search' %}" method="post" name="form_filter">{% csrf_token %}
+                <form action="" method="post" name="form_filter">{% csrf_token %}
 
                     <div class="flex">
                         <div>対象リスト：</div>
@@ -56,7 +56,7 @@
                         </div>
                         <div style="margin-left: 30px;">担当者：</div>
                         <div>
-                            <select class="form-select" name="busho" id="busho" style="width: 150px;">
+                            <select class="form-select" name="tantou" id="tantou" style="width: 150px;">
                                 {% for key,value in busho_list.items %}
                                     {% if key == ses.busho %}
                                     <option value="{{key}}" selected>{{value}}</option>
@@ -292,9 +292,9 @@
 
         // フォームクリア
         function form_clear(){
-            document.getElementById("cus_id").value="";
-            document.getElementById("com").value="";
-            document.getElementById("cus_sei").value="";
+            // document.getElementById("cus_id").value="";
+            // document.getElementById("com").value="";
+            // document.getElementById("cus_sei").value="";
         }
 
         // 詳細クリアボタン
