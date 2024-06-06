@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member,Sfa_group
-from crm.models import Customer,Crm_action,Approach
+from crm.models import Customer,Crm_action,Approach,Approach_list
 import csv
 import io
 import json
@@ -1142,7 +1142,15 @@ def kakudo_index(request):
 # 担当者設定_一覧
 def member_index(request):
     ins=Member.objects.all().order_by("busho_id","id")
-    return render(request,"sfa/member.html",{"list":ins})
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+        
+    return render(request,"sfa/member.html",{"list":ins,"act_user":act_user})
 
 
 # 担当者設定_追加
@@ -1159,7 +1167,15 @@ def member_add(request):
         Member.objects.create(busho=busho,busho_id=busho_id,tantou=tantou,tantou_id=tantou_id,last_api=last_api)
         ans="yes"
     ins=Member.objects.all().order_by("busho_id","id")
-    return render(request,"sfa/member.html",{"ans":ans,"list":ins})
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    return render(request,"sfa/member.html",{"ans":ans,"list":ins,"act_user":act_user})
 
 
 
@@ -1178,37 +1194,49 @@ def csv_imp(request):
     csv_list=list(csv_content)
 
 
-    # Approachへの入力
+    # Approach_listへの入力
     h=0
     for i in csv_list:
-        if h!=0:                
-            Approach.objects.create(
-                approach_id="1",
-                mitsu_id=i[0],
-                mitsu_num=i[1],
-                mitsu_ver=i[2],
-                order_kubun=i[3],
-                juchu_day=i[4],
-                busho_id=i[8],
-                busho_name=i[9],
-                tantou_id=i[5],
-                tantou_sei=i[6],
-                tantou_mei=i[7],
-                cus_id=i[10],
-                cus_com=i[16],
-                cus_busho=i[17],
-                cus_sei=i[11],
-                cus_mei=i[12],
-                cus_tel=i[18],
-                cus_mob=i[19],
-                cus_mail=i[13],
-                money=i[20],
-                kakou=i[22],
-                factory=i[24],
-                gara=i[25],
-                kigen=i[27]
-            )
+        if h!=0:
+            Approach_list.objects.create(
+                approach_id=i[0],
+                title=i[1],
+                day=i[2]
+                )
         h+=1
+
+
+    # # Approachへの入力
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:                
+    #         Approach.objects.create(
+    #             approach_id="1",
+    #             mitsu_id=i[0],
+    #             mitsu_num=i[1],
+    #             mitsu_ver=i[2],
+    #             order_kubun=i[3],
+    #             juchu_day=i[4],
+    #             busho_id=i[8],
+    #             busho_name=i[9],
+    #             tantou_id=i[5],
+    #             tantou_sei=i[6],
+    #             tantou_mei=i[7],
+    #             cus_id=i[10],
+    #             cus_com=i[16],
+    #             cus_busho=i[17],
+    #             cus_sei=i[11],
+    #             cus_mei=i[12],
+    #             cus_tel=i[18],
+    #             cus_mob=i[19],
+    #             cus_mail=i[13],
+    #             money=i[20],
+    #             kakou=i[22],
+    #             factory=i[24],
+    #             gara=i[25],
+    #             kigen=i[27]
+    #         )
+    #     h+=1
 
 
     # # Customerへの入力

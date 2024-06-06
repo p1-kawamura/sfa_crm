@@ -1,14 +1,16 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action,Customer
+from .models import Crm_action,Customer,Approach,Approach_list
 from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
 import requests
 from django.http import JsonResponse
 from datetime import date
 import json
 import csv
+import io
 from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Q
+from django.db.models import Max
 
 
 
@@ -505,6 +507,7 @@ def mw_download(request):
     return response
 
 
+# 顧客管理一覧
 def cus_list_index(request):
     if "cus_search" not in request.session:
         request.session["cus_search"]={}
@@ -566,6 +569,8 @@ def cus_list_index(request):
         request.session["cus_search"]["page_num"]=1
     if "all_page_num" not in request.session["cus_search"]:
         request.session["cus_search"]["all_page_num"]=""
+    if "apr_list" not in request.session["cus_search"]:
+        request.session["cus_search"]["apr_list"]=""
 
     ses=request.session["cus_search"]
 
@@ -627,6 +632,9 @@ def cus_list_index(request):
         fil["royal"]=1
     if ses["taimen"]:
         fil["taimen"]=1
+    if ses["apr_list"]!="":
+        ins_apr=list(Crm_action.objects.filter(type=8,approach_id=ses["apr_list"]).values_list("cus_id",flat=True))
+        fil["cus_id__in"]=ins_apr
 
     items=Customer.objects.filter(**fil).order_by("cus_touroku").reverse()
     result=items.count()
@@ -647,6 +655,12 @@ def cus_list_index(request):
 
     member_list=Member.objects.all()
 
+    # アプローチリスト
+    apr_list={}
+    for i in Approach_list.objects.all():
+        if i.approach_id != 12:
+            apr_list[str(i.approach_id)]=i.title
+
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
@@ -663,6 +677,7 @@ def cus_list_index(request):
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "apr_list":apr_list,
         "num":num,
         "all_num":all_num,
         "act_user":act_user,
@@ -672,7 +687,7 @@ def cus_list_index(request):
     return render(request,"crm/cus_list.html",params)
 
 
-
+# 顧客一覧の検索
 def cus_list_search(request):
     request.session["cus_search"]["cus_id"]=request.POST["cus_id"]
     request.session["cus_search"]["com"]=request.POST["com"]
@@ -701,6 +716,7 @@ def cus_list_search(request):
     request.session["cus_search"]["grip"]=request.POST.getlist("grip")
     request.session["cus_search"]["royal"]=request.POST.getlist("royal")
     request.session["cus_search"]["taimen"]=request.POST.getlist("taimen")
+    request.session["cus_search"]["apr_list"]=request.POST["apr_list"]
     request.session["cus_search"]["page_num"]=1
 
     return redirect("crm:cus_list_index")
@@ -730,3 +746,115 @@ def cus_list_page_last(request):
     all_num=request.session["cus_search"]["all_page_num"]
     request.session["cus_search"]["page_num"]=all_num
     return redirect("crm:cus_list_index")
+
+
+# アプローチリスト
+def approach(request):
+
+    ins=Approach.objects.all()
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    result_list={99:"全て表示", 0:"", 1:"すでに受注済み", 2:"限定デザイン等", 3:"問合せあり", 4:"見積中", 5:"架電後：検討する",
+             6:"架電後：見積",7:"架電後：受注",8:"追加なし", 9:"架電後：不在", 10:"新追履歴あり", 11:"他拠点へ送客", 12:"折り返しあり"}
+
+    params={
+        "cus_list":ins,
+        "act_user":act_user,
+        "result_list":result_list,
+    }
+    return render(request,"crm/approach.html",params)
+
+
+# アプローチリスト入力画面表示
+def approach_click(request):
+    pk=request.POST.get("pk")
+    apr_result=request.POST.get("apr_result")
+    tel_day=request.POST.get("tel_day")
+    tel_tantou=request.POST.get("tel_tantou")
+    tel_result=request.POST.get("tel_result")
+    tel_text=request.POST.get("tel_text")
+    cus_id=request.POST.get("cus_id")
+    result_list={"0":"", "1":"すでに受注済み", "2":"限定デザイン等", "3":"問合せあり", "4":"見積中", "5":"架電後：検討する",
+             "6":"架電後：見積","7":"架電後：受注","8":"追加なし", "9":"架電後：不在", "10":"新追履歴あり", "11":"他拠点へ送客", "12":"折り返しあり"}
+
+    ins=Approach.objects.get(pk=pk)
+    ins.result=apr_result
+    ins.tel_day=tel_day
+    ins.tel_result=tel_result
+    ins.tel_tantou=tel_tantou
+    ins.tel_text=tel_text
+    ins.save()
+
+    if tel_day != "":
+        text=tel_tantou + "：" + tel_text
+        # Crm_action.objects.create(cus_id=cus_id, day=tel_day, type=4, text=text, tel_result=tel_result)
+
+    d={
+        "pk":pk,
+        "ans":apr_result,
+        "apr_result":result_list[apr_result],
+        "tel_day":tel_day,
+        "tel_tantou":tel_tantou,
+        "tel_text":tel_text
+        }
+    return JsonResponse(d)
+
+
+# アプローチリスト一覧表示
+def approach_list(request):
+    ins=Approach_list.objects.all()
+    num=ins.aggregate(Max('approach_id'))["approach_id__max"]+1
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"crm/approach_list.html",{"list":ins,"num":num,"act_user":act_user})
+
+
+# アプローチリスト追加
+def approach_list_add(request):
+    approach_id=request.POST["approach_id"]
+    title=request.POST["title"]
+    day=request.POST["day"]
+
+    # Approach_list
+    Approach_list.objects.create(approach_id=approach_id, title=title, day=day)
+    ins=Approach_list.objects.all()
+    ans="ok"
+
+    # CSV取込
+    data = io.TextIOWrapper(request.FILES['csv1'].file, encoding="cp932")
+    csv_content = csv.reader(data)
+    csv_list=list(csv_content)
+
+    h=0
+    for i in csv_list:
+        if h!=0:
+            # Approach
+            Approach.objects.create(
+                approach_id=i[0],
+                title=i[1],
+                day=i[2]
+                )
+            
+            # Crm_action
+
+
+        h+=1
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"crm/approach.html",{"list":ins,"ans":ans,"act_user":act_user})

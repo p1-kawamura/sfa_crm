@@ -84,6 +84,28 @@ hr {
 .pagination{
     justify-content: center;
 }
+.table_wrap {
+    overflow-x: scroll;
+}
+.table_approach {
+    width: max-content !important;
+    border-collapse: collapse;
+    white-space: nowrap;
+    table-layout: fixed;
+}
+.table_approach .th1{
+    width: 350px;
+}
+.table_approach td{
+    vertical-align:middle;
+}
+.table_approach .bikou{
+    white-space: normal;
+    width: 350px;
+}
+.hover2:hover {
+    background-color: rgb(255, 255, 194);
+}
 
 /* SFA */
 .sfa_main{

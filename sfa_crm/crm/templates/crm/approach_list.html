@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="icon" href="{% static 't-shirt_3.gif' %}">
+    <title>アプローチリスト設定</title>
+</head>
+<body>
+    
+    <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1150px">
+            {% include "sfa/menu.html" with act_user=act_user %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1150px;">
+            <hr>
+            <div class="block_title">アプローチリスト設定</div>
+            <hr>
+
+            <div>
+                <form action="{% url 'crm:approach_list_add' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">ID：</div>
+                        <div><input class="form-control" type="text" name="approach_id" style="width: 50px;" value="{{num}}" readonly></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div>データCSV：</div>
+                        <div><input class="form-control" type="file" name="csv1" style="width: 400px;" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">タイトル：</div>
+                        <div><input class="form-control" type="text" name="title" style="width: 600px;" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">日付：</div>
+                        <div><input class="form-control" type="date" name="day" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="margin-left: 80px;"><button type="submit" class="btn btn-primary">取込</button></div>
+                        <div style="margin-left: 30px;">
+                            {% if ans %}
+                                <div class="flex">
+                                    <div>リストを追加しました！</div>
+                                    <div style="margin-left: 30px;"><a href="{% url 'crm:approach_list' %}">リセット</a></div>
+                                </div> 
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="mt-5">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>ID</th>
+                        <th>タイトル</th>
+                        <th>日付</th>
+                    </tr>
+                    {% for i in list %}
+                    <tr>
+                        <td>{{i.approach_id}}</td>
+                        <td>{{i.title}}</td>
+                        <td>{{i.day}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+
+
+        </div>
+
+</body>
+</html>

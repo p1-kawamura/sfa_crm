@@ -53,7 +53,6 @@ class Customer(models.Model):
     taimen=models.CharField("対面",max_length=10,blank=True)
     royal=models.IntegerField("ロイヤル",default=0)
 
-
     def __str__(self):
         return self.cus_id
     
@@ -92,9 +91,17 @@ class Approach(models.Model):
     kakou=models.CharField("加工方法",max_length=255,blank=True,null=True)
     factory=models.CharField("加工場",max_length=255,blank=True,null=True)
     gara=models.CharField("柄名",max_length=255,blank=True,null=True)
-    kigen=models.CharField("期限",max_length=255,blank=True,null=True)
-
+    kigen=models.CharField("版期限",max_length=255,blank=True,null=True)
 
     def __str__(self):
         return self.cus_id
     
+    
+
+class Approach_list(models.Model):
+    approach_id=models.IntegerField("アプローチID")
+    title=models.CharField("タイトル",max_length=255)
+    day=models.CharField("日付",max_length=255)
+
+    def __str__(self):
+        return self.cus_id

@@ -136,6 +136,19 @@
                             <input class="form-check-input" type="checkbox" id="taimen" name="taimen">対面あり
                             {% endif %}
                         </div>
+                        <div style="margin-left: 30px;">アプローチリスト：</div>
+                        <div>
+                            <select class="form-select form-select-sm" id="apr_list" name="apr_list" style="width: 350px;">
+                                <option value=""></option>
+                                {% for i,h in apr_list.items %}
+                                    {% if i == ses.apr_list %}
+                                    <option value="{{i}}" selected>{{h}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{h}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
                         <div style="margin-left: 30px;">
                             <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> 検索</button>
                         </div>
@@ -310,6 +323,7 @@
             document.getElementById("grip").checked=false;
             document.getElementById("royal").checked=false;
             document.getElementById("taimen").checked=false;
+            document.getElementById("apr_list").value=0;
         }
 
         // 詳細クリアボタン
