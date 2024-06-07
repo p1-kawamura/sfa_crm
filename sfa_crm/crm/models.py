@@ -62,7 +62,7 @@ class Customer(models.Model):
 
 
 class Approach(models.Model):
-    approach_id=models.CharField("アプローチID",max_length=2)
+    approach_id=models.IntegerField("アプローチID")
     result=models.IntegerField("進捗",default=0)
     tel_day=models.CharField("架電日",max_length=255,blank=True,null=True)
     tel_result=models.CharField("対応不在",max_length=255,blank=True,null=True)
@@ -87,6 +87,7 @@ class Approach(models.Model):
     cus_tel=models.CharField("顧客_電話",max_length=255,blank=True,null=True)
     cus_mob=models.CharField("顧客_携帯",max_length=255,blank=True,null=True)
     cus_mail=models.CharField("顧客_メール",max_length=255,blank=True,null=True)
+    pref=models.CharField("都道府県",max_length=255,blank=True,null=True)
     money=models.IntegerField("金額",blank=True,null=True)
     kakou=models.CharField("加工方法",max_length=255,blank=True,null=True)
     factory=models.CharField("加工場",max_length=255,blank=True,null=True)
@@ -104,4 +105,4 @@ class Approach_list(models.Model):
     day=models.CharField("日付",max_length=255)
 
     def __str__(self):
-        return self.cus_id
+        return self.title

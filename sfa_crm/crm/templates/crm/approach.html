@@ -27,26 +27,27 @@
             <hr>
             <!-- フィルター -->
             <div>
-                <form action="" method="post" name="form_filter">{% csrf_token %}
+                <form action="{% url 'crm:approach_search' %}" method="post" name="form_filter">{% csrf_token %}
 
                     <div class="flex">
                         <div>対象リスト：</div>
                         <div>
-                            <select class="form-select" name="busho" id="busho" style="width: 500px;">
-                                {% for key,value in busho_list.items %}
-                                    {% if key == ses.busho %}
-                                    <option value="{{key}}" selected>{{value}}</option>
+                            <select class="form-select" name="apr_id" id="apr_id" style="width: 500px;">
+                                {% for i in apr_list %}
+                                    {% if i.approach_id == ses.apr_id %}
+                                    <option value={{i.approach_id}} selected>{{i.title}}</option>
                                     {% else %}
-                                    <option value="{{key}}">{{value}}</option>
+                                    <option value={{i.approach_id}}>{{i.title}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
                         <div style="margin-left: 30px;">部署：</div>
                         <div>
-                            <select class="form-select" name="busho" id="busho" style="width: 150px;">
+                            <select class="form-select" name="apr_busho" id="apr_busho" style="width: 150px;">
+                                <option value=""></option>
                                 {% for key,value in busho_list.items %}
-                                    {% if key == ses.busho %}
+                                    {% if key == ses.apr_busho %}
                                     <option value="{{key}}" selected>{{value}}</option>
                                     {% else %}
                                     <option value="{{key}}">{{value}}</option>
@@ -56,9 +57,10 @@
                         </div>
                         <div style="margin-left: 30px;">担当者：</div>
                         <div>
-                            <select class="form-select" name="tantou" id="tantou" style="width: 150px;">
-                                {% for key,value in busho_list.items %}
-                                    {% if key == ses.busho %}
+                            <select class="form-select" name="apr_tantou" id="apr_tantou" style="width: 150px;">
+                                <option value=""></option>
+                                {% for key,value in tantou_list.items %}
+                                    {% if key == ses.apr_tantou %}
                                     <option value="{{key}}" selected>{{value}}</option>
                                     {% else %}
                                     <option value="{{key}}">{{value}}</option>
@@ -66,10 +68,39 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div style="margin-left: 30px;">都道府県：</div>
+                        <div>
+                            <select class="form-select form-select-sm" id="apr_pref" name="apr_pref" style="width: 100px;">
+                                {% for i in pref_list %}
+                                    {% if i == ses.pref %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
-
                     <div class="flex mt-4">
-                        <div style="margin-left: 30px;">
+                        <div>進捗：</div>
+                        <div style="margin-left: -20px;" class="flex">
+                            {% for i in result_list %}                                
+                                {% if i in ses.result %}
+                                <div class="flex" style="margin-left: 20px;">
+                                    <div><input class="form-check-input" type="checkbox" name="apr_result" value="{{i.0}}"> {{i.1}}</div>
+                                    <div id="result_{{i.0}}">（{{i.2}}）</div>
+                                </div>
+                                {% else %}
+                                <div class="flex" style="margin-left: 20px;">
+                                    <div><input class="form-check-input" type="checkbox" name="apr_result" value="{{i.0}}"> {{i.1}}</div>
+                                    <div id="result_{{i.0}}">（{{i.2}}）</div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="flex mt-4">
+                        <div>
                             <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> 検索</button>
                         </div>
                         <div style="margin-left: 30px;">
@@ -97,6 +128,7 @@
                         <th>担当部署</th>
                         <th>担当者</th>
                         <th>詳細</th>
+                        <th>都道府県</th>
                         <th>会社</th>
                         <th>部署</th>
                         <th>氏名</th>
@@ -114,31 +146,31 @@
                         <td><span style="font-size: 1.2em; cursor: pointer;" name="open_list" id="open_{{i.pk}}"><i class="bi bi-pencil-square"></i></span></td>
 
                         {% if i.result == 0 %}
-                        <td><span style="color: #212529;">{{result_list.0}}</span></td>
+                        <td><span style="color: #212529;"></span></td>
                         {% elif i.result == 1 %}
-                        <td style="background-color: #e4e4e4;"><span style="color: #212529;">{{result_list.1}}</span></td>
+                        <td style="background-color: #e4e4e4;"><span style="color: #212529;">{{result_list.1.1}}</span></td>
                         {% elif i.result == 2 %}
-                        <td style="background-color: #f0ff9c;"><span style="color: #212529;">{{result_list.2}}</span></td>
+                        <td style="background-color: #f0ff9c;"><span style="color: #212529;">{{result_list.2.1}}</span></td>
                         {% elif i.result == 3 %}
-                        <td style="background-color: #d1ff7c;"><span style="color: #212529;">{{result_list.3}}</span></td>
+                        <td style="background-color: #d1ff7c;"><span style="color: #212529;">{{result_list.3.1}}</span></td>
                         {% elif i.result == 4 %}
-                        <td style="background-color: #b3fcff;"><span style="color: #212529;">{{result_list.4}}</span></td>
+                        <td style="background-color: #b3fcff;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
                         {% elif i.result == 5 %}
-                        <td style="background-color: #ac1400;"><span style="color: white;">{{result_list.5}}</span></td>
+                        <td style="background-color: #ac1400;"><span style="color: white;">{{result_list.5.1}}</span></td>
                         {% elif i.result == 6 %}
-                        <td style="background-color: #007e00;"><span style="color: white;">{{result_list.6}}</span></td>
+                        <td style="background-color: #007e00;"><span style="color: white;">{{result_list.6.1}}</span></td>
                         {% elif i.result == 7 %}
-                        <td style="background-color: #002791;"><span style="color: white;">{{result_list.7}}</span></td>
+                        <td style="background-color: #002791;"><span style="color: white;">{{result_list.7.1}}</span></td>
                         {% elif i.result == 8 %}
-                        <td style="background-color: #303030;"><span style="color: white;">{{result_list.8}}</span></td>
+                        <td style="background-color: #303030;"><span style="color: white;">{{result_list.8.1}}</span></td>
                         {% elif i.result == 9 %}
-                        <td style="background-color: #5e0083;"><span style="color: white;">{{result_list.9}}</span></td>
+                        <td style="background-color: #5e0083;"><span style="color: white;">{{result_list.9.1}}</span></td>
                         {% elif i.result == 10 %}
-                        <td style="background-color: #ffaff8;"><span style="color: #212529;">{{result_list.10}}</span></td>
+                        <td style="background-color: #ffaff8;"><span style="color: #212529;">{{result_list.10.1}}</span></td>
                         {% elif i.result == 11 %}
-                        <td style="background-color: #6d0d00;"><span style="color: white;">{{result_list.11}}</span></td>
+                        <td style="background-color: #6d0d00;"><span style="color: white;">{{result_list.11.1}}</span></td>
                         {% elif i.result == 12 %}
-                        <td style="background-color: #015001;"><span style="color: white;">{{result_list.12}}</span></td>
+                        <td style="background-color: #015001;"><span style="color: white;">{{result_list.12.1}}</span></td>
                         {% endif %}
 
                         <td>{% if i.tel_day %}{{i.tel_day}}{% endif %}</td>
@@ -156,6 +188,7 @@
                                 <i class="bi bi-person-square"></i>
                             </button>
                         </td>
+                        <td>{% if i.pref %}{{i.pref}}{% endif %}</td>
                         <td>{{i.cus_com}}</td>
                         <td>{{i.cus_busho}}</td>
                         <td>{{i.cus_sei}}{{i.cus_mei}}</td>

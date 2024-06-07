@@ -168,21 +168,15 @@
                     </div>
                     <div class="flex mt-4">
                         <div>ステータス：</div>
-                        {% for i in status_list %}
-                            {% if i == "見積中" %}
-                                {% if i in ses.st %}
-                                <div><input class="form-check-input" type="checkbox" name="st" value="{{i}}" checked>{{i}}</div>
-                                {% else %}
-                                <div><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
-                                {% endif %}
-                            {% else %}
+                        <div style="margin-left: -20px;" class="flex">
+                            {% for i in status_list %}                                
                                 {% if i in ses.st %}
                                 <div style="margin-left: 20px;"><input class="form-check-input" type="checkbox" name="st" value="{{i}}" checked>{{i}}</div>
                                 {% else %}
                                 <div style="margin-left: 20px;"><input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}</div>
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="flex mt-4">
                         <div><i class="bi bi-arrow-down-up"></i> <b>並び替え：</b></div>

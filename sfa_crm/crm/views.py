@@ -625,13 +625,14 @@ def cus_list_index(request):
         fil["juchu_money__gte"]=ses["juchu_money_st"]
     if ses["juchu_money_ed"] != "":
         fil["juchu_money__lte"]=ses["juchu_money_ed"]
-    
+    if ses["taimen"]:
+        fil["taimen"]=True
     if ses["grip"]:
         fil["grip_tantou_id__gte"]=0
     if ses["royal"]:
         fil["royal"]=1
-    if ses["taimen"]:
-        fil["taimen"]=1
+
+
     if ses["apr_list"]!="":
         ins_apr=list(Crm_action.objects.filter(type=8,approach_id=ses["apr_list"]).values_list("cus_id",flat=True))
         fil["cus_id__in"]=ins_apr
@@ -749,9 +750,50 @@ def cus_list_page_last(request):
 
 
 # アプローチリスト
-def approach(request):
+def approach_index(request):
+    if "apr_search" not in request.session:
+        request.session["apr_search"]={}
+    if "apr_id" not in request.session["apr_search"]:
+        request.session["apr_search"]["apr_id"]=1
+    if "apr_busho" not in request.session["apr_search"]:
+        request.session["apr_search"]["apr_busho"]=""
+    if "apr_tantou" not in request.session["apr_search"]:
+        request.session["apr_search"]["apr_tantou"]=""
+    if "apr_pref" not in request.session["apr_search"]:
+        request.session["apr_search"]["apr_pref"]=""
+    if "apr_result" not in request.session["apr_search"]:
+        request.session["apr_search"]["apr_result"]=[]
 
-    ins=Approach.objects.all()
+    ses=request.session["apr_search"]
+
+    # フィルター
+    fil={}
+
+    fil["approach_id"]=ses["apr_id"]
+    if ses["apr_busho"] != "":
+        fil["busho_id"]=ses["apr_busho"]
+    if ses["apr_tantou"] != "":
+        fil["tantou_id"]=ses["apr_tantou"]
+    if ses["apr_pref"] != "":
+        fil["pref"]=ses["apr_pref"]
+    if len(ses["apr_result"])!=0:
+        fil["approach_id__in"]=ses["apr_result"]
+
+    ins=Approach.objects.filter(**fil)
+
+    result_list=[[0,"未対応"],[1,"すでに受注済み"],[2,"限定デザイン等"],[3,"問合せあり"],[4,"見積中"],[5,"架電後：検討する"],
+             [6,"架電後：見積"],[7,"架電後：受注"],[8,"追加なし"],[9,"架電後：不在"],[10,"新追履歴あり"],[11,"他拠点へ送客"],[12,"折り返しあり"]]
+    for i in range(13):
+        result_list[i].append(ins.filter(result=i).count())
+
+    apr_list=Approach_list.objects.all()
+    busho_list={}
+    tantou_list={}
+    for i in Approach.objects.filter(approach_id=ses["apr_id"]):
+        if i.busho_id not in busho_list:
+            busho_list[i.busho_id]=i.busho_name
+        if i.tantou_id not in tantou_list:
+            tantou_list[i.tantou_id]=i.tantou_sei + i.tantou_mei
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -760,15 +802,31 @@ def approach(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
-    result_list={99:"全て表示", 0:"", 1:"すでに受注済み", 2:"限定デザイン等", 3:"問合せあり", 4:"見積中", 5:"架電後：検討する",
-             6:"架電後：見積",7:"架電後：受注",8:"追加なし", 9:"架電後：不在", 10:"新追履歴あり", 11:"他拠点へ送客", 12:"折り返しあり"}
-
     params={
         "cus_list":ins,
         "act_user":act_user,
         "result_list":result_list,
+        "apr_list":apr_list,
+        "busho_list":busho_list,
+        "tantou_list":tantou_list,
+        "pref_list":[
+            '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
+            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
+            '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
+            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "ses":ses,
     }
     return render(request,"crm/approach.html",params)
+
+
+# アプローチリストの検索
+def approach_search(request):
+    request.session["apr_search"]["apr_id"]=int(request.POST["apr_id"])
+    request.session["apr_search"]["apr_busho"]=request.POST["apr_busho"]
+    request.session["apr_search"]["apr_tantou"]=request.POST["apr_tantou"]
+    request.session["apr_search"]["apr_pref"]=request.POST["apr_pref"]
+    # request.session["apr_search"]["apr_result"]=request.POST.getlist("apr_result")
+    return redirect("crm:approach_index")
 
 
 # アプローチリスト入力画面表示
@@ -794,6 +852,10 @@ def approach_click(request):
     if tel_day != "":
         text=tel_tantou + "：" + tel_text
         # Crm_action.objects.create(cus_id=cus_id, day=tel_day, type=4, text=text, tel_result=tel_result)
+
+    result_count=[]
+    for i in range(13):
+        result_count.append(ins.filter(result=i).count())
 
     d={
         "pk":pk,

@@ -136,39 +136,55 @@ def index_api(request):
 
 
             # 顧客
-            if i["customerId"] != None:
-                url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"])
-                res2=requests.get(url2)
-                res2=res2.json()
+            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"])
+            res2=requests.get(url2)
+            res2=res2.json()
 
-                tel_search=None
-                if res2["tel"] != None:
-                    tel_search=res2["tel"].replace("-","")
-                tel_mob_search=None
-                if res2["mobilePhone"] != None:
-                    tel_mob_search=res2["mobilePhone"].replace("-","")
-                    
-                Customer.objects.update_or_create(
-                cus_id=res2["id"],
-                defaults={
-                    "cus_id":res2["id"],
-                    "cus_url":res2["customerMstPageUrl"],
-                    "com":res2["corporateName"],
-                    "com_busho":res2["departmentName"],
-                    "sei":res2["nameLast"],
-                    "mei":res2["nameFirst"],
-                    "pref":res2["prefecture"],
-                    "tel":res2["tel"],
-                    "tel_search":tel_search,
-                    "tel_mob":res2["mobilePhone"],
-                    "tel_mob_search":tel_mob_search,
-                    "mail":res2["contactEmail"],
-                    "mitsu_all":res2["totalEstimations"],
-                    "juchu_all":res2["totalReceivedOrders"],
-                    "juchu_money":res2["totalReceivedOrdersPrice"],
-                    "juchu_last":res2["lastOrderReceivedDate"],
-                    }
-                )
+            tel_search=None
+            if res2["tel"] != None:
+                tel_search=res2["tel"].replace("-","")
+            tel_mob_search=None
+            if res2["mobilePhone"] != None:
+                tel_mob_search=res2["mobilePhone"].replace("-","")
+
+            try:
+                con_last=Customer.objects.get(cus_id=i["customerId"]).contact_last
+                if con_last==None or res2["lastEstimatedAt"]>con_last:
+                    contact_last=res2["lastEstimatedAt"]
+                else:
+                    contact_last=con_last
+            except:
+                contact_last=res2["lastEstimatedAt"]
+                
+            Customer.objects.update_or_create(
+            cus_id=res2["id"],
+            defaults={
+                "cus_id":res2["id"],
+                "cus_url":res2["customerMstPageUrl"],
+                "cus_touroku":res2["createdAt"],
+                "com":res2["corporateName"],
+                "com_busho":res2["departmentName"],
+                "sei":res2["nameLast"],
+                "mei":res2["nameFirst"],
+                "pref":res2["prefecture"],
+                "tel":res2["tel"],
+                "tel_search":tel_search,
+                "tel_mob":res2["mobilePhone"],
+                "tel_mob_search":tel_mob_search,
+                "mail":res2["contactEmail"],
+                "mitsu_all":res2["totalEstimations"],
+                "juchu_all":res2["totalReceivedOrders"],
+                "juchu_money":res2["totalReceivedOrdersPrice"],
+                "mitsu_last":res2["lastEstimatedAt"],
+                "mitsu_last_busho_id":res2["lastHandledDepartmentId"],
+                "mitsu_last_busho":res2["lastHandledDepartmentName"],
+                "mitsu_last_tantou_id":res2["lastHandledId"],
+                "mitsu_last_tantou":res2["lastHandledName"],
+                "juchu_last":res2["lastOrderReceivedDate"],
+                "contact_last":contact_last,
+                "taimen":res2["isVisited"],
+                }
+            )
 
         # API取得日時
         ins=Member.objects.get(tantou_id=tantou_id)
@@ -1303,38 +1319,11 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    # 最終TELと最終メール
-    sfall=Sfa_data.objects.filter(show=0)
-
-    for i in sfall:
-
-        # 納期
-        if i.nouhin_shitei != None:
-            i.nouki=i.nouhin_shitei
-        else:
-            i.nouki=i.nouhin_kigen
+    ins=Customer.objects.all()
+    for i in ins:
+        i.taimen=False
         i.save()
 
-        try:
-            parent_id=Sfa_group.objects.get(mitsu_id_child=i.mitsu_id).mitsu_id_parent
-            group_id=parent_id
-        except:
-            group_id=i.mitsu_id
-
-        # 最終TEL
-        tel_count=Sfa_action.objects.filter(mitsu_id=group_id,type=1).count() 
-        if tel_count > 0:
-            act_tel=Sfa_action.objects.filter(mitsu_id=group_id,type=1).latest("day")
-            ins=Sfa_data.objects.get(mitsu_id=group_id)
-            ins.tel_last_day=act_tel.day
-            ins.save()
-
-        # 最終メール
-        mail_count=Sfa_action.objects.filter(mitsu_id=group_id,type=2).count()
-        if mail_count > 0:
-            act_mail=Sfa_action.objects.filter(mitsu_id=group_id,type=2).latest("day")
-            ins=Sfa_data.objects.get(mitsu_id=group_id)
-            ins.mail_last_day=act_mail.day
-            ins.save()
+    
   
     return redirect("sfa:index")
