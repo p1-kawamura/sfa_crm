@@ -8,7 +8,7 @@ class Crm_action(models.Model):
     text=models.TextField("内容",blank=True)
     tel_result=models.CharField("TEL結果",max_length=5,blank=True)
     alert_check=models.IntegerField("アラート",default=0)
-    approach_id=models.IntegerField("アプローチID",default=0)
+    approach_id=models.CharField("アプローチID",max_length=2,default=0)
 
     def __str__(self):
         return self.cus_id
@@ -16,7 +16,7 @@ class Crm_action(models.Model):
     # type（種類） 1:メモ　 2：メール　  3：メルマガ　4：TEL
     #             5：外商　6：アラート　７：来店     8：アプローチリストID
 
-    # approach_id（アプローチID）　0:通常コメント（アプローチリスト以外）
+    # approach_id（アプローチID）　"0":通常コメント（アプローチリスト以外）
 
     
 
@@ -62,8 +62,8 @@ class Customer(models.Model):
 
 
 class Approach(models.Model):
-    approach_id=models.IntegerField("アプローチID")
-    result=models.IntegerField("進捗",default=0)
+    approach_id=models.CharField("アプローチID",max_length=2)
+    result=models.CharField("進捗",max_length=2, default=0)
     tel_day=models.CharField("架電日",max_length=255,blank=True,null=True)
     tel_result=models.CharField("対応不在",max_length=255,blank=True,null=True)
     tel_tantou=models.CharField("架電者",max_length=255,blank=True,null=True)
@@ -100,7 +100,7 @@ class Approach(models.Model):
     
 
 class Approach_list(models.Model):
-    approach_id=models.IntegerField("アプローチID")
+    approach_id=models.CharField("アプローチID",max_length=2)
     title=models.CharField("タイトル",max_length=255)
     day=models.CharField("日付",max_length=255)
 

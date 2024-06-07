@@ -763,12 +763,13 @@ def approach_index(request):
         request.session["apr_search"]["apr_pref"]=""
     if "apr_result" not in request.session["apr_search"]:
         request.session["apr_search"]["apr_result"]=[]
+    if "apr_ins" not in request.session["apr_search"]:
+        request.session["apr_search"]["apr_ins"]=""
 
     ses=request.session["apr_search"]
-
+ 
     # フィルター
     fil={}
-
     fil["approach_id"]=ses["apr_id"]
     if ses["apr_busho"] != "":
         fil["busho_id"]=ses["apr_busho"]
@@ -776,15 +777,18 @@ def approach_index(request):
         fil["tantou_id"]=ses["apr_tantou"]
     if ses["apr_pref"] != "":
         fil["pref"]=ses["apr_pref"]
-    if len(ses["apr_result"])!=0:
-        fil["approach_id__in"]=ses["apr_result"]
-
+    
+    # 進捗を含めない個数
     ins=Approach.objects.filter(**fil)
+    result_list=[["0","未対応"],["1","すでに受注済み"],["2","限定デザイン等"],["3","問合せあり"],["4","見積中"],["5","架電後：検討する"],
+             ["6","架電後：見積"],["7","架電後：受注"],["8","追加なし"],["9","架電後：不在"],["10","新追履歴あり"],["11","他拠点へ送客"],["12","折り返しあり"]]
+    for i in result_list:
+        i.append(ins.filter(result=i[0]).count())
 
-    result_list=[[0,"未対応"],[1,"すでに受注済み"],[2,"限定デザイン等"],[3,"問合せあり"],[4,"見積中"],[5,"架電後：検討する"],
-             [6,"架電後：見積"],[7,"架電後：受注"],[8,"追加なし"],[9,"架電後：不在"],[10,"新追履歴あり"],[11,"他拠点へ送客"],[12,"折り返しあり"]]
-    for i in range(13):
-        result_list[i].append(ins.filter(result=i).count())
+    # 進捗を含む
+    if len(ses["apr_result"])!=0:
+        fil["result__in"]=ses["apr_result"]
+    ins=Approach.objects.filter(**fil)
 
     apr_list=Approach_list.objects.all()
     busho_list={}
@@ -821,11 +825,11 @@ def approach_index(request):
 
 # アプローチリストの検索
 def approach_search(request):
-    request.session["apr_search"]["apr_id"]=int(request.POST["apr_id"])
+    request.session["apr_search"]["apr_id"]=request.POST["apr_id"]
     request.session["apr_search"]["apr_busho"]=request.POST["apr_busho"]
     request.session["apr_search"]["apr_tantou"]=request.POST["apr_tantou"]
     request.session["apr_search"]["apr_pref"]=request.POST["apr_pref"]
-    # request.session["apr_search"]["apr_result"]=request.POST.getlist("apr_result")
+    request.session["apr_search"]["apr_result"]=request.POST.getlist("apr_result")
     return redirect("crm:approach_index")
 
 
@@ -852,7 +856,18 @@ def approach_click(request):
     if tel_day != "":
         text=tel_tantou + "：" + tel_text
         # Crm_action.objects.create(cus_id=cus_id, day=tel_day, type=4, text=text, tel_result=tel_result)
+    
+    ses=request.session["apr_search"]
+    fil={}
+    fil["approach_id"]=ses["apr_id"]
+    if ses["apr_busho"] != "":
+        fil["busho_id"]=ses["apr_busho"]
+    if ses["apr_tantou"] != "":
+        fil["tantou_id"]=ses["apr_tantou"]
+    if ses["apr_pref"] != "":
+        fil["pref"]=ses["apr_pref"]
 
+    ins=Approach.objects.filter(**fil)
     result_count=[]
     for i in range(13):
         result_count.append(ins.filter(result=i).count())
@@ -863,7 +878,8 @@ def approach_click(request):
         "apr_result":result_list[apr_result],
         "tel_day":tel_day,
         "tel_tantou":tel_tantou,
-        "tel_text":tel_text
+        "tel_text":tel_text,
+        "result_count":result_count,
         }
     return JsonResponse(d)
 
