@@ -49,7 +49,7 @@
                                 <span id="grip_cus_id"> {{res.id}}</span>
                             </td>
                             <th>顧客登録日</th>
-                            <td></td>
+                            <td>{{res.createdAt}}</td>
                         </tr>
                         <tr>
                             <th>姓名</th>
@@ -80,7 +80,7 @@
                                 
                             </td>
                             <th>最終見積日</th>
-                            <td></td>
+                            <td>{% if res.lastEstimatedAt %}{{res.lastEstimatedAt}}{% endif %}</td>
                         </tr>
                         <tr>
                             <th>最終受注日</th>
@@ -96,29 +96,29 @@
                             <th>携帯番号</th>
                             <td>{% if res.mobilePhone %}{{res.mobilePhone}}{% endif %}</td>
                             <th>最終見積部署</th>
-                            <td></td>
+                            <td>{% if res.lastHandledDepartmentName %}{{res.lastHandledDepartmentName}}{% endif %}</td>
                         </tr>
                         <tr>
                             <th>FAX番号</th>
                             <td>{% if res.fax %}{{res.fax}}{% endif %}</td>
                             <th>最終見積担当</th>
-                            <td></td>
+                            <td>{% if res.lastHandledName %}{{res.lastHandledName}}{% endif %}</td>
                         </tr>
                         <tr>
                             <th>メールアドレス</th>
                             <td>{% if res.contactEmail %}{{res.contactEmail}}{% endif %}</td>
                             <th>対面あり</th>
-                            <td></td>
+                            <td>
+                                {% if res.isVisited %}あり{% else %}なし{% endif %}
+                            </td>
                         </tr>
                         <tr>
                             <th>メルマガ送付</th>
                             <td>
                                 {% if res.isNotSentMailMagazine %}
-                                    {% if res.isNotSentMailMagazine %}
-                                    しない
-                                    {% else %}
-                                    する
-                                    {% endif %}
+                                しない
+                                {% else %}
+                                する
                                 {% endif %}
                             </td>
                             <th>生年月日</th>

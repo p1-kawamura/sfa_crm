@@ -16,7 +16,7 @@ class Crm_action(models.Model):
     # type（種類） 1:メモ　 2：メール　  3：メルマガ　4：TEL
     #             5：外商　6：アラート　７：来店     8：アプローチリストID
 
-    # approach_id（アプローチID）　"0":通常コメント（アプローチリスト以外）
+    # approach_id（アプローチID）　0:通常コメント（アプローチリスト以外）
 
     
 
@@ -44,13 +44,13 @@ class Customer(models.Model):
     juchu_all=models.IntegerField("受注総数",default=0)
     juchu_money=models.BigIntegerField("受注総金額",default=0)
     mitsu_last=models.CharField("最終見積日",max_length=255,blank=True,null=True)
-    mitsu_last_busho_id=models.CharField("最終見積_部署ID",max_length=10,blank=True)
+    mitsu_last_busho_id=models.CharField("最終見積_部署ID",max_length=10,blank=True,null=True)
     mitsu_last_busho=models.CharField("最終見積_部署名",max_length=255,blank=True,null=True)
-    mitsu_last_tantou_id=models.CharField("最終見積_担当ID",max_length=10,blank=True)
+    mitsu_last_tantou_id=models.CharField("最終見積_担当ID",max_length=10,blank=True,null=True)
     mitsu_last_tantou=models.CharField("最終見積_担当名",max_length=255,blank=True,null=True)
     juchu_last=models.CharField("最終受注日",max_length=255,blank=True,null=True)
     contact_last=models.CharField("最終コンタクト日",max_length=255,blank=True,null=True)
-    taimen=models.CharField("対面",max_length=10,blank=True)
+    taimen=models.BooleanField("対面")
     royal=models.IntegerField("ロイヤル",default=0)
 
     def __str__(self):

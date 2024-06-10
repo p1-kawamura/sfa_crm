@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import index,kokyaku_api,crm_sort,alert_check,list_click_est,list_click_act,list_add,list_del,grip_index_api,grip_index,grip_add,crm_bikou, \
-                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_search,cus_list_page_prev,cus_list_page_first,cus_list_page_next, \
-                    cus_list_page_last,approach_index,approach_search,approach_click,approach_list
+                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_busho,cus_list_search,cus_list_page_prev,cus_list_page_first,cus_list_page_next, \
+                    cus_list_page_last,approach_index,approach_search,approach_click,approach_title,approach_busho,approach_list
 
 
 app_name="crm"
@@ -24,6 +24,7 @@ urlpatterns = [
     path('mw_make/', mw_make, name="mw_make"),
     path('mw_download/', mw_download, name="mw_download"),
     path('cus_list_index/', cus_list_index, name="cus_list_index"),
+    path('cus_list_busho/', cus_list_busho, name="cus_list_busho"),
     path('cus_list_search/', cus_list_search, name="cus_list_search"),
     path('cus_list_page_prev/', cus_list_page_prev, name="cus_list_page_prev"),
     path('cus_list_page_first/', cus_list_page_first, name="cus_list_page_first"),
@@ -32,5 +33,7 @@ urlpatterns = [
     path('approach_index/', approach_index, name="approach_index"),
     path('approach_search/', approach_search, name="approach_search"),
     path('approach_click/', approach_click, name="approach_click"),
+    path('approach_title/', approach_title, name="approach_title"),
+    path('approach_busho/', approach_busho, name="approach_busho"),
     path('approach_list/', approach_list, name="approach_list"),
 ]

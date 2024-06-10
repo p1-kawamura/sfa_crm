@@ -521,8 +521,6 @@ def cus_list_index(request):
         request.session["cus_search"]["cus_mei"]=""
     if "cus_tel" not in request.session["cus_search"]:
         request.session["cus_search"]["cus_tel"]=""
-    if "cus_mob" not in request.session["cus_search"]:
-        request.session["cus_search"]["cus_mob"]=""
     if "pref" not in request.session["cus_search"]:
         request.session["cus_search"]["pref"]=""
     if "cus_mail" not in request.session["cus_search"]:
@@ -584,10 +582,6 @@ def cus_list_index(request):
         fil["sei__contains"]=ses["cus_sei"].strip()
     if ses["cus_mei"] != "":
         fil["mei__contains"]=ses["cus_mei"].strip()
-    if ses["cus_tel"] != "":
-        fil["tel_search"]=ses["cus_tel"].strip().replace("-","")
-    if ses["cus_mob"] != "":
-        fil["tel_mob_search"]=ses["cus_mob"].strip().replace("-","")
     if ses["pref"] != "":
         fil["pref"]=ses["pref"]
     if ses["cus_mail"] != "":
@@ -632,8 +626,14 @@ def cus_list_index(request):
     if ses["royal"]:
         fil["royal"]=1
 
+    if ses["cus_tel"] != "":
+        tel=ses["cus_tel"].strip().replace("-","")
+        ins_tel=list(Customer.objects.filter(tel_search=tel).values_list("cus_id",flat=True))
+        ins_mob=list(Customer.objects.filter(tel_mob_search=tel).values_list("cus_id",flat=True))
+        list_tel_mob=set(ins_tel + ins_mob)
+        fil["cus_id__in"]=list_tel_mob
 
-    if ses["apr_list"]!="":
+    if ses["apr_list"] != "":
         ins_apr=list(Crm_action.objects.filter(type=8,approach_id=ses["apr_list"]).values_list("cus_id",flat=True))
         fil["cus_id__in"]=ins_apr
 
@@ -656,10 +656,14 @@ def cus_list_index(request):
 
     member_list=Member.objects.all()
 
+    # 部署、担当
+    busho_list=list(Customer.objects.filter(mitsu_last_busho__isnull=False).values_list("mitsu_last_busho_id","mitsu_last_busho").order_by("mitsu_last_busho_id").distinct())
+    tantou_list=list(Customer.objects.filter(mitsu_last_tantou__isnull=False).values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
+
     # アプローチリスト
     apr_list={}
     for i in Approach_list.objects.all():
-        if i.approach_id != 12:
+        if i.approach_id != "12":
             apr_list[str(i.approach_id)]=i.title
 
     # アクティブ担当
@@ -672,6 +676,8 @@ def cus_list_index(request):
     params={
         "cus_list":items,
         "member_list":member_list,
+        "busho_list":busho_list,
+        "tantou_list":tantou_list,
         "ses":ses,
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
@@ -688,6 +694,18 @@ def cus_list_index(request):
     return render(request,"crm/cus_list.html",params)
 
 
+# 顧客一覧の部署選択
+def cus_list_busho(request):
+    approach_id=request.POST.get("approach_id")
+    busho_id=request.POST.get("busho_id")
+    if busho_id != "":
+        tantou_list=list(Approach.objects.filter(approach_id=approach_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    else:
+        tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    d={"tantou_list":tantou_list}
+    return JsonResponse(d)
+
+
 # 顧客一覧の検索
 def cus_list_search(request):
     request.session["cus_search"]["cus_id"]=request.POST["cus_id"]
@@ -695,7 +713,6 @@ def cus_list_search(request):
     request.session["cus_search"]["cus_sei"]=request.POST["cus_sei"]
     request.session["cus_search"]["cus_mei"]=request.POST["cus_mei"]
     request.session["cus_search"]["cus_tel"]=request.POST["cus_tel"]
-    request.session["cus_search"]["cus_mob"]=request.POST["cus_mob"]
     request.session["cus_search"]["pref"]=request.POST["pref"]
     request.session["cus_search"]["cus_mail"]=request.POST["cus_mail"]
     request.session["cus_search"]["busho"]=request.POST["busho"]
@@ -790,14 +807,9 @@ def approach_index(request):
         fil["result__in"]=ses["apr_result"]
     ins=Approach.objects.filter(**fil)
 
+    busho_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("busho_id","busho_name").order_by("busho_id").distinct())
+    tantou_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
     apr_list=Approach_list.objects.all()
-    busho_list={}
-    tantou_list={}
-    for i in Approach.objects.filter(approach_id=ses["apr_id"]):
-        if i.busho_id not in busho_list:
-            busho_list[i.busho_id]=i.busho_name
-        if i.tantou_id not in tantou_list:
-            tantou_list[i.tantou_id]=i.tantou_sei + i.tantou_mei
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -821,6 +833,27 @@ def approach_index(request):
         "ses":ses,
     }
     return render(request,"crm/approach.html",params)
+
+
+# アプローチリストのタイトル選択
+def approach_title(request):
+    approach_id=request.POST.get("approach_id")
+    busho_list=list(Approach.objects.filter(approach_id=approach_id).values_list("busho_id","busho_name").order_by("busho_id").distinct())
+    tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    d={"busho_list":busho_list,"tantou_list":tantou_list}
+    return JsonResponse(d)
+
+
+# アプローチリストの部署選択
+def approach_busho(request):
+    approach_id=request.POST.get("approach_id")
+    busho_id=request.POST.get("busho_id")
+    if busho_id != "":
+        tantou_list=list(Approach.objects.filter(approach_id=approach_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    else:
+        tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    d={"tantou_list":tantou_list}
+    return JsonResponse(d)
 
 
 # アプローチリストの検索
@@ -884,7 +917,7 @@ def approach_click(request):
     return JsonResponse(d)
 
 
-# アプローチリスト一覧表示
+# アプローチリスト設定_一覧表示
 def approach_list(request):
     ins=Approach_list.objects.all()
     num=ins.aggregate(Max('approach_id'))["approach_id__max"]+1
@@ -898,7 +931,7 @@ def approach_list(request):
     return render(request,"crm/approach_list.html",{"list":ins,"num":num,"act_user":act_user})
 
 
-# アプローチリスト追加
+# アプローチリスト設定_追加
 def approach_list_add(request):
     approach_id=request.POST["approach_id"]
     title=request.POST["title"]

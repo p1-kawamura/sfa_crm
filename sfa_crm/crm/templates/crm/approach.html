@@ -46,11 +46,11 @@
                         <div>
                             <select class="form-select" name="apr_busho" id="apr_busho" style="width: 150px;">
                                 <option value=""></option>
-                                {% for key,value in busho_list.items %}
-                                    {% if key == ses.apr_busho %}
-                                    <option value="{{key}}" selected>{{value}}</option>
+                                {% for i in busho_list %}
+                                    {% if i.0 == ses.apr_busho %}
+                                    <option value="{{i.0}}" selected>{{i.1}}</option>
                                     {% else %}
-                                    <option value="{{key}}">{{value}}</option>
+                                    <option value="{{i.0}}">{{i.1}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -59,11 +59,11 @@
                         <div>
                             <select class="form-select" name="apr_tantou" id="apr_tantou" style="width: 150px;">
                                 <option value=""></option>
-                                {% for key,value in tantou_list.items %}
-                                    {% if key == ses.apr_tantou %}
-                                    <option value="{{key}}" selected>{{value}}</option>
+                                {% for i in tantou_list %}
+                                    {% if i.0 == ses.apr_tantou %}
+                                    <option value="{{i.0}}" selected>{{i.1}} {{i.2}}</option>
                                     {% else %}
-                                    <option value="{{key}}">{{value}}</option>
+                                    <option value="{{i.0}}">{{i.1}} {{i.2}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -202,7 +202,7 @@
                         <td>{{i.kigen}}</td>
                     </tr>
                     <tr style="display: none; background-color: #ffc6c6;">
-                        <td colspan="22">
+                        <td colspan="23">
                             <div class="flex">
                                 <div>進捗：</div>
                                 <div>
@@ -255,6 +255,9 @@
                                 <div style="margin-left: 30px;">
                                     <button type="button" class="btn btn-secondary btn-sm" name="approach_click" id="{{i.pk}}">決定</button>                                    
                                 </div>
+                                <div style="margin-left: 20px;">
+                                    <button type="button" class="btn btn-outline-dark btn-sm" name="approach_clear">クリア</button>                                    
+                                </div>
                             </div>
                         </td>
 
@@ -264,21 +267,6 @@
 
             </div>
 
-        </div>
-
-        
-
-        <!-- ページネーション -->
-        <div style="margin: 0 auto;">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination mt-4">
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_first' %}">最初へ</a></li>
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_prev' %}">前へ</a></li>
-                <li class="page-item"><a class="page-link" pointer-events: none;>{{num}}/{{all_num}}</a></li>               
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_next' %}">次へ</a></li>
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_last' %}">最後へ</a></li> 
-                </ul>
-            </nav>
         </div>
 
     </div>
@@ -320,6 +308,59 @@
             }
         });
   
+
+
+        // リスト選択
+        document.getElementById("apr_id").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "crm:approach_title" %}',
+                    'type': 'POST',
+                    'data': {
+                        "approach_id":document.getElementById("apr_id").value,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    busho_list=response.busho_list;
+                    tantou_list=response.tantou_list;
+
+                    var str="<option value=''></option>";
+                    for (var i of busho_list){
+                        str=str+"<option value='" + i[0]+ "'>" + i[1] + "</option>"
+                    };
+                    document.getElementById("apr_busho").innerHTML=str;
+
+                    var str2="<option value=''></option>";
+                    for (var i of tantou_list){
+                        str2=str2+"<option value='" + i[0]+ "'>" + i[1] +" "+ i[2] + "</option>"
+                    };
+                    document.getElementById("apr_tantou").innerHTML=str2;
+                })
+        });
+
+
+
+        // 部署選択
+        document.getElementById("apr_busho").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "crm:approach_busho" %}',
+                    'type': 'POST',
+                    'data': {
+                        "approach_id":document.getElementById("apr_id").value,
+                        "busho_id":document.getElementById("apr_busho").value,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    tantou_list=response.tantou_list;
+                    var str="<option value=''></option>";
+                    for (var i of tantou_list){
+                        str=str+"<option value='" + i[0]+ "'>" + i[1] +" "+ i[2] + "</option>"
+                    };
+                    document.getElementById("apr_tantou").innerHTML=str;
+                })
+        });
+        
 
 
         // 検索クリアボタン
@@ -413,13 +454,27 @@
                     open_list[3].innerText=response.tel_tantou;
                     open_list[4].innerText=response.tel_text;
                     // document.getElementById(pk).parentElement.parentElement.nextElementSibling.style.display="none";
-                    // document.getElementById(pk).innerHTML="<i class='bi bi-caret-down-square'></i>";
+                    // document.getElementById(pk).innerHTML="<i class='bi bi-pencil-square'></i>";
 
                     var rc=response.result_count;
                     for (i=0; i<rc.length; i++){
                         document.getElementById("result_"+i).innerText="（" + rc[i] + "）";
                     };
                 })
+            },false)
+        };
+
+
+        // コメントクリアボタン
+        var item=document.getElementsByName("approach_clear");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                var oya=this.parentElement.parentElement;
+                oya.getElementsByTagName("select")[0].value=0;
+                oya.getElementsByTagName("input")[0].value="";
+                oya.getElementsByTagName("input")[1].value="";
+                oya.getElementsByTagName("select")[1].value="";
+                oya.getElementsByTagName("input")[2].value="";
             },false)
         };
 
