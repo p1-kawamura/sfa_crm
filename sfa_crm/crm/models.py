@@ -103,6 +103,9 @@ class Approach_list(models.Model):
     approach_id=models.CharField("アプローチID",max_length=2)
     title=models.CharField("タイトル",max_length=255)
     day=models.CharField("日付",max_length=255)
+    action=models.IntegerField("行動",default=0)
 
     def __str__(self):
         return self.title
+    
+    # action（追っ掛け）　0:なし　1:あり

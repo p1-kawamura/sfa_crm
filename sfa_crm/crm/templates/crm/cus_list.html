@@ -314,6 +314,27 @@
         });
   
 
+        // 部署選択
+        document.getElementById("busho").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "crm:cus_list_busho" %}',
+                    'type': 'POST',
+                    'data': {
+                        "busho_id":document.getElementById("busho").value,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    tantou_list=response.tantou_list;
+                    var str="<option value=''></option>";
+                    for (var i of tantou_list){
+                        str=str+"<option value='" + i[0]+ "'>" + i[1] + "</option>"
+                    };
+                    document.getElementById("tantou").innerHTML=str;
+                })
+        });
+
+
         // フォームクリア
         function form_clear(){
             document.getElementById("cus_id").value="";

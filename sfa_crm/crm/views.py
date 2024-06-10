@@ -696,12 +696,11 @@ def cus_list_index(request):
 
 # 顧客一覧の部署選択
 def cus_list_busho(request):
-    approach_id=request.POST.get("approach_id")
     busho_id=request.POST.get("busho_id")
     if busho_id != "":
-        tantou_list=list(Approach.objects.filter(approach_id=approach_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_list=list(Customer.objects.filter(mitsu_last_busho_id=busho_id).values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
     else:
-        tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_list=list(Customer.objects.filter(mitsu_last_tantou__isnull=False).values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
     d={"tantou_list":tantou_list}
     return JsonResponse(d)
 
