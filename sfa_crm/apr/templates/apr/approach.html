@@ -27,7 +27,7 @@
             <hr>
             <!-- フィルター -->
             <div>
-                <form action="{% url 'crm:approach_search' %}" method="post" name="form_filter">{% csrf_token %}
+                <form action="{% url 'apr:approach_search' %}" method="post" name="form_filter">{% csrf_token %}
 
                     <div class="flex">
                         <div>対象リスト：</div>
@@ -313,7 +313,7 @@
         // リスト選択
         document.getElementById("apr_id").addEventListener("change",function(){
             $.ajax({
-                    'url': '{% url "crm:approach_title" %}',
+                    'url': '{% url "apr:approach_title" %}',
                     'type': 'POST',
                     'data': {
                         "approach_id":document.getElementById("apr_id").value,
@@ -343,7 +343,7 @@
         // 部署選択
         document.getElementById("apr_busho").addEventListener("change",function(){
             $.ajax({
-                    'url': '{% url "crm:approach_busho" %}',
+                    'url': '{% url "apr:approach_busho" %}',
                     'type': 'POST',
                     'data': {
                         "approach_id":document.getElementById("apr_id").value,
@@ -425,7 +425,7 @@
                 var cus_id=oya.parentElement.parentElement.previousElementSibling.getElementsByTagName("td")[10].childNodes[1].id;
 
                 $.ajax({
-                    'url': '{% url "crm:approach_click" %}',
+                    'url': '{% url "apr:approach_click" %}',
                     'type': 'POST',
                     'data': {
                         "pk":this.id,

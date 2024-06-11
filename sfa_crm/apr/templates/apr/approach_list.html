@@ -26,7 +26,7 @@
             <hr>
 
             <div>
-                <form action="{% url 'crm:approach_list_add' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+                <form action="{% url 'apr:approach_list_add' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
 
                     <div class="flex" style="margin-top: 15px;">
                         <div style="width: 80px; text-align: right;">ID：</div>
@@ -50,7 +50,7 @@
                             {% if ans %}
                                 <div class="flex">
                                     <div>リストを追加しました！</div>
-                                    <div style="margin-left: 30px;"><a href="{% url 'crm:approach_list' %}">リセット</a></div>
+                                    <div style="margin-left: 30px;"><a href="{% url 'apr:approach_list' %}">リセット</a></div>
                                 </div> 
                             {% endif %}
                         </div>

@@ -1,7 +1,8 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member,Sfa_group
-from crm.models import Customer,Crm_action,Approach,Approach_list
+from crm.models import Customer,Crm_action
+from apr.models import Approach,Approach_list
 import csv
 import io
 import json
@@ -11,7 +12,7 @@ from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum
 import datetime
-from django.db.models import Q 
+from django.db.models import Q,Max
 from django_pandas.io import read_frame
 
 
@@ -1342,9 +1343,29 @@ def clear_session(request):
 
     ins=Customer.objects.all()
     for i in ins:
-        i.taimen=False
+        last_list=[]
+        # sfa
+        sfa=Sfa_action.objects.filter(Q(type="2") | Q(tel_result = "対応") | Q(type="5"), cus_id=i.cus_id).aggregate(Max('day'))
+        if sfa["day__max"] is not None:
+            last_list.append(sfa["day__max"])
+
+        # crm
+        crm=Crm_action.objects.filter(Q(type__in=["2","5","7"]) | Q(tel_result = "対応"), cus_id=i.cus_id).aggregate(Max('day'))
+        if crm["day__max"] is not None:
+            last_list.append(crm["day__max"])
+
+        if len(last_list)==2:
+            ans=max(last_list)
+        elif len(last_list)==1:
+            ans=last_list[0]
+        else:
+            ans=None
+        
+        i.contact_last=ans
         i.save()
 
-    
+
+    #     i.taimen=False
+    #     i.save()
   
     return redirect("sfa:index")
