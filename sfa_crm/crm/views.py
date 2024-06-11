@@ -353,55 +353,8 @@ def grip_add(request):
     cus_id=request.POST.get("cus_id")
     busho_id=request.POST.get("busho_id")
     tantou_id=request.POST.get("tantou_id")
-    # 顧客情報
-    url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
-    res=requests.get(url)
-    res=res.json()
-    # 最終コンタクト日
-    url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
-    res2=requests.get(url2)
-    res2=res2.json()
-    last=[]
-    last_mitsu=[]
-    for h in res2["receivedOrders"]:
-        last_mitsu.append(h["firstEstimationDate"])
-    if len(last_mitsu)>0:
-        last.append(max(last_mitsu))
-        mitsu_last=max(last_mitsu)
-    else:
-        mitsu_last=""
-
-    if Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).count() > 0:
-        last.append(Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).latest("day").day)
-    if Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").count() > 0:
-        last.append(Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").latest("day").day)
-    if Sfa_action.objects.filter(cus_id=res["id"],type=2).count() > 0:
-        last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
-    if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
-        last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
-    
-    if len(last)>0:
-        contact_last=max(last)
-    else:
-        contact_last=""
-
     # DB書込
     ins=Customer.objects.get(cus_id=cus_id)
-    ins.cus_url=res["customerMstPageUrl"]
-    ins.com=res["corporateName"]
-    ins.com_busho=res["departmentName"]
-    ins.sei=res["nameLast"]
-    ins.mei=res["nameFirst"]
-    ins.pref=res["prefecture"]
-    ins.tel=res["tel"]
-    ins.tel_mob=res["mobilePhone"]
-    ins.mail=res["contactEmail"]
-    ins.mitsu_all=res["totalEstimations"]
-    ins.juchu_all=res["totalReceivedOrders"]
-    ins.juchu_money=res["totalReceivedOrdersPrice"]
-    ins.mitsu_last=mitsu_last
-    ins.juchu_last=res["lastOrderReceivedDate"]
-    ins.contact_last=contact_last
     ins.grip_busho_id=busho_id
     ins.grip_tantou_id=tantou_id
     ins.save()
@@ -587,9 +540,9 @@ def cus_list_index(request):
     if ses["cus_mail"] != "":
         fil["mail"]=ses["cus_mail"]
     if ses["busho"] != "":
-        fil["mitsu_last_busho__contains"]=ses["busho"].strip()
+        fil["mitsu_last_busho_id"]=ses["busho"]
     if ses["tantou"] != "":
-        fil["mitsu_last_tantou__contains"]=ses["tantou"].strip()
+        fil["mitsu_last_tantou_id"]=ses["tantou"]
 
     if ses["cus_touroku_st"] != "":
         fil["cus_touroku__gte"]=ses["cus_touroku_st"]
@@ -657,8 +610,14 @@ def cus_list_index(request):
     member_list=Member.objects.all()
 
     # 部署、担当
-    busho_list=list(Customer.objects.filter(mitsu_last_busho__isnull=False).values_list("mitsu_last_busho_id","mitsu_last_busho").order_by("mitsu_last_busho_id").distinct())
-    tantou_list=list(Customer.objects.filter(mitsu_last_tantou__isnull=False).values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
+    busho_list=list(Customer.objects.filter(mitsu_last_busho__isnull=False).\
+                    values_list("mitsu_last_busho_id","mitsu_last_busho").order_by("mitsu_last_busho_id").distinct())
+    if ses["busho"]!="":
+        tantou_list=list(Customer.objects.filter(mitsu_last_busho_id=ses["busho"]).\
+                         values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
+    else:
+        tantou_list=list(Customer.objects.filter(mitsu_last_tantou__isnull=False).\
+                         values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
 
     # アプローチリスト
     apr_list={}
@@ -698,9 +657,11 @@ def cus_list_index(request):
 def cus_list_busho(request):
     busho_id=request.POST.get("busho_id")
     if busho_id != "":
-        tantou_list=list(Customer.objects.filter(mitsu_last_busho_id=busho_id).values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
+        tantou_list=list(Customer.objects.filter(mitsu_last_busho_id=busho_id).\
+                         values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
     else:
-        tantou_list=list(Customer.objects.filter(mitsu_last_tantou__isnull=False).values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
+        tantou_list=list(Customer.objects.filter(mitsu_last_tantou__isnull=False).\
+                         values_list("mitsu_last_tantou_id","mitsu_last_tantou").order_by("mitsu_last_tantou_id").distinct())
     d={"tantou_list":tantou_list}
     return JsonResponse(d)
 
@@ -808,7 +769,7 @@ def approach_index(request):
 
     busho_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("busho_id","busho_name").order_by("busho_id").distinct())
     tantou_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
-    apr_list=Approach_list.objects.all()
+    apr_list=Approach_list.objects.filter(action=1)
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -848,9 +809,11 @@ def approach_busho(request):
     approach_id=request.POST.get("approach_id")
     busho_id=request.POST.get("busho_id")
     if busho_id != "":
-        tantou_list=list(Approach.objects.filter(approach_id=approach_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_list=list(Approach.objects.filter(approach_id=approach_id,busho_id=busho_id).\
+                         values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
     else:
-        tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_list=list(Approach.objects.filter(approach_id=approach_id).\
+                         values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
     d={"tantou_list":tantou_list}
     return JsonResponse(d)
 
