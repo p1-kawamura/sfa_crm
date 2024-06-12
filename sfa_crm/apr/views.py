@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from .models import Approach,Approach_list
 from crm.models import Crm_action,Customer
-from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
+from sfa.models import Member
 import requests
 from django.http import JsonResponse
 from datetime import date
@@ -171,8 +171,6 @@ def approach_click(request):
 # アプローチリスト設定_一覧表示
 def approach_list_index(request):
     ins=Approach_list.objects.all()
-    # num=ins.aggregate(Max('approach_id'))["approach_id__max"]+1
-    num=0
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -180,7 +178,7 @@ def approach_list_index(request):
         act_user="担当者が未設定です"
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
-    return render(request,"apr/approach_list.html",{"list":ins,"num":num,"act_user":act_user})
+    return render(request,"apr/approach_list.html",{"list":ins,"act_user":act_user})
 
 
 # アプローチリスト設定_追加
@@ -221,3 +219,8 @@ def approach_list_add(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     return render(request,"apr/approach.html",{"list":ins,"ans":ans,"act_user":act_user})
+
+
+
+def hangire_index(request):
+    return render(request,"apr/hangire.html")
