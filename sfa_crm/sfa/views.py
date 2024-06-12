@@ -86,7 +86,9 @@ def index_api(request):
             if (ins.count()==0 and i["status"]=="終了") or i["customerId"]==None:
                 continue
             
+            # ------------------------
             # 案件
+            # ------------------------
             if i["deliveryAppointedDate"] != None:
                 nouki=i["deliveryAppointedDate"]
             else:
@@ -135,8 +137,9 @@ def index_api(request):
                 ins.last_status=datetime.datetime.now().strftime("%Y-%m-%d")
                 ins.save()
 
-
+            # ------------------------
             # 顧客
+            # ------------------------
             url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"])
             res2=requests.get(url2)
             res2=res2.json()
@@ -182,7 +185,7 @@ def index_api(request):
                 "mitsu_last_tantou_id":res2["lastHandledId"],
                 "mitsu_last_tantou":res2["lastHandledName"],
                 "juchu_last":res2["lastOrderReceivedDate"],
-                # "contact_last":contact_last,
+                "contact_last":contact_last,
                 "taimen":res2["isVisited"],
                 }
             )
@@ -265,11 +268,8 @@ def index(request):
 
     # 全体アラート数
     today=str(date.today())
-    ins=Sfa_data.objects.filter(tantou_id=ses["tantou"],show=0)
-    alert_all=0
-    for i in ins:
-        h=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today).count()
-        alert_all+=h
+    ins_alert=list(Sfa_data.objects.filter(tantou_id=ses["tantou"],show=0).values_list("mitsu_id",flat=True))
+    alert_all=Sfa_action.objects.filter(mitsu_id__in=ins_alert,type=4,alert_check=0,day__lte=today).count()
 
     # フィルター
     fil={}
@@ -311,14 +311,9 @@ def index(request):
 
     # アラートの場合
     if ses["alert"]:
-        alert_list=[]
-        for i in ins:
-            cnt=Sfa_action.objects.filter(mitsu_id=i.mitsu_id,type=4,alert_check=0,day__lte=today)
-            if cnt.count()>0:
-                alert_list.append(i.mitsu_id)
-        ins=Sfa_data.objects.filter(**fil, mitsu_id__in=alert_list)
-
-
+        cnt=list(Sfa_action.objects.filter(type=4,alert_check=0,day__lte=today).values_list("mitsu_id",flat=True))
+        ins=Sfa_data.objects.filter(**fil, mitsu_id__in=cnt)
+    
     # pandasで作り替え
     df=read_frame(ins) 
 
@@ -375,7 +370,7 @@ def index(request):
 
 
     # 詳細作成
-    list=[]
+    list_result=[]
     for i in list3:
         dic={}
         dic["id"]=i["id"]
@@ -443,8 +438,10 @@ def index(request):
             dic["tel"]=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
             if act_tel.tel_result=="対応":
                 dic["tel_result"]=1
-            else:
+            elif act_tel.tel_result=="不在":
                 dic["tel_result"]=2
+        else:
+            dic["tel_result"]=0
 
         mail_count=Sfa_action.objects.filter(mitsu_id=group_id,type=2).count()
         if mail_count > 0:
@@ -457,7 +454,7 @@ def index(request):
         alert_count=Sfa_action.objects.filter(mitsu_id=i["mitsu_id"],type=4,alert_check=0,day__lte=today).count()
         dic["alert"]=alert_count
 
-        list.append(dic)
+        list_result.append(dic)
 
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
 
@@ -469,7 +466,7 @@ def index(request):
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
     
     params={
-        "list":list,
+        "list":list_result,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
         "chumon_kubun":["","新規","追加","追加新柄","刷り直し","返金"],

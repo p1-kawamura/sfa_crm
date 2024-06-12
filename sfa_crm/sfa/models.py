@@ -40,13 +40,27 @@ class Sfa_data(models.Model):
     last_status=models.CharField("ステータス最終日",max_length=255,blank=True,null=True)
     tel_last_day=models.CharField("TEL最終日",max_length=255,blank=True,null=True)
     mail_last_day=models.CharField("メール最終日",max_length=255,blank=True,null=True)
-
+    s_status=models.CharField("s_ステータス",max_length=255,blank=True,null=True)
+    s_use_youto=models.CharField("s_使用用途",max_length=255,blank=True,null=True)
+    s_nouki=models.CharField("s_納期",max_length=255,blank=True,null=True)
+    s_make_day=models.CharField("s_見積作成日",max_length=255,blank=True)
+    s_juchu_day=models.CharField("s_受注日",max_length=255,blank=True,null=True)
+    s_hassou_day=models.CharField("s_発送完了日",max_length=255,blank=True,null=True)
+    s_cus_name=models.CharField("s_顧客氏名",max_length=255,blank=True,null=True)
+    s_keiro_tempo=models.IntegerField("s_対面あり",default=0)
+    s_tel=models.CharField("s_TEL最終日_回数",max_length=255,blank=True,null=True)
+    s_tel_result=models.IntegerField("s_TEL色",default=0)
+    s_mail=models.CharField("s_メール最終日_回数",max_length=255,blank=True,null=True)
+    s_mail_result=models.IntegerField("s_メール色",default=0)
+    s_memo1=models.TextField("s_コメント表示用",blank=True,null=True)
+    s_memo2=models.TextField("s_コメントポップアップ用",blank=True,null=True)
 
     def __str__(self):
         return self.mitsu_id
     
     # show（表示） 0:表示　1：非表示
     # mw（メールワイズ） 0:無し　1：サンクス　2：失注
+
 
 
 class Sfa_action(models.Model):
