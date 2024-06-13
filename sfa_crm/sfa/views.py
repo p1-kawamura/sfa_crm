@@ -758,7 +758,7 @@ def modal_bot(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
-        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + tel_count + "）"
+        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
         if act_tel.tel_result=="対応":
             ins.s_tel_result=1
         else:
@@ -768,7 +768,7 @@ def modal_bot(request):
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.tel_last_day=act_tel.day
-            ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + tel_count + "）"
+            ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
             if act_tel.tel_result=="対応":
                 ins.s_tel_result=1
             else:
@@ -782,14 +782,14 @@ def modal_bot(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
-        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + mail_count + "）"
+        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
         ins.s_mail_result=1
         ins.save()
         # 親
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.mail_last_day=act_mail.day
-            ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + mail_count + "）"
+            ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
             ins.s_mail_result=1
             ins.save()
 
@@ -851,7 +851,7 @@ def modal_bot_delete(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
-        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + tel_count + "）"
+        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
         if act_tel.tel_result=="対応":
             ins.s_tel_result=1
         else:
@@ -861,7 +861,7 @@ def modal_bot_delete(request):
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.tel_last_day=act_tel.day
-            ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + tel_count + "）"
+            ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
             if act_tel.tel_result=="対応":
                 ins.s_tel_result=1
             else:
@@ -875,14 +875,14 @@ def modal_bot_delete(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
-        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + mail_count + "）"
+        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
         ins.s_mail_result=1
         ins.save()
         # 親
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.mail_last_day=act_mail.day
-            ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + mail_count + "）"
+            ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
             ins.s_mail_result=1
             ins.save()
 
@@ -959,7 +959,7 @@ def modal_group_click(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
-        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + tel_count + "）"
+        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
         if act_tel.tel_result=="対応":
             ins.s_tel_result=1
         else:
@@ -973,7 +973,7 @@ def modal_group_click(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
-        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + mail_count + "）"
+        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
         ins.s_mail_result=1
         ins.save()
 
