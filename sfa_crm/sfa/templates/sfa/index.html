@@ -218,6 +218,7 @@
                 </form>
             </div>
             <hr>
+
             <!-- 案件一覧 -->
             <div class="flex3">
                 <div class="flex">
@@ -233,27 +234,27 @@
             <div style="margin-top: 15px;">
                 {% for i in list %}
 
-                {% if i.status == "未" %}
+                {% if i.s_status == "未" %}
                 <div class="flex sfa_main" style="background-color: #FFF;">
-                {% elif i.status == "見" %}
+                {% elif i.s_status == "見" %}
                 <div class="flex sfa_main" style="background-color: #ceffb7;">
-                {% elif i.status == "イ" %}
+                {% elif i.s_status == "イ" %}
                 <div class="flex sfa_main" style="background-color: #c8f7fd;">
-                {% elif i.status == "受" %}
+                {% elif i.s_status == "受" %}
                 <div class="flex sfa_main" style="background-color: #fff9a7;">
-                {% elif i.status == "発" %}
+                {% elif i.s_status == "発" %}
                 <div class="flex sfa_main" style="background-color: #dbbbff;">
-                {% elif i.status == "キ" %}
+                {% elif i.s_status == "キ" %}
                 <div class="flex sfa_main" style="background-color: #c5c5c5;">
-                {% elif i.status == "終" %}
+                {% elif i.s_status == "終" %}
                 <div class="flex sfa_main" style="background-color: #ffbcbc;">
-                {% elif i.status == "保" %}
+                {% elif i.s_status == "保" %}
                 <div class="flex sfa_main" style="background-color: #FFF;">
-                {% elif i.status == "失" %}
+                {% elif i.s_status == "失" %}
                 <div class="flex sfa_main" style="background-color: #c5c5c5;">
-                {% elif i.status == "待" %}
+                {% elif i.s_status == "待" %}
                 <div class="flex sfa_main" style="background-color: #FFF;">
-                {% elif i.status == "サ" %}
+                {% elif i.s_status == "サ" %}
                 <div class="flex sfa_main" style="background-color: #ffb85c;">
                 {% endif %}
 
@@ -264,9 +265,9 @@
                         <i class="bi bi-eye-slash"></i>
                         {% endif %}
                     </div>
-                    <div style="width: 50px;">{{i.make_day}}</div>
+                    <div style="width: 50px;">{{i.s_make_day}}</div>
                     <div style="width: 100px;">
-                        <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}
+                        <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
                     </div>
                     <div style="width: 45px;">
                         {% if i.order_kubun == "新規" %}
@@ -282,51 +283,51 @@
                         {% endif %}
                     </div>
                     <div style="width: 30px;">
-                        {% if i.keiro %}<div class="order_use">{{i.keiro}}</div>{% endif %}                    
+                        {% if i.keiro %}<div class="order_use">{{i.keiro | slice:":1"}}</div>{% endif %}                    
                     </div>
                     <div style="width: 30px;">
-                        {% if i.use_kubun %}<div class="order_use">{{i.use_kubun}}</div>{% endif %}                                            
+                        {% if i.use_kubun %}<div class="order_use">{{i.use_kubun | slice:":1"}}</div>{% endif %}                                            
                     </div>
                     <div style="width: 35px;">
-                        {% if i.use_youto %}<div class="order_use">{{i.use_youto}}</div>{% endif %}            
+                        {% if i.s_use_youto %}<div class="order_use">{{i.s_use_youto}}</div>{% endif %}            
                     </div>
-                    <div style="width: 70px;">{{i.pref}}</div>
-                    <div style="width: 210px;">{{i.com | truncatechars:14}}</div>
-                    <div style="width: 90px;">{{i.cus | truncatechars:6}}</div>
-                    <div style="width: 40px;"><div class="order_use">{{i.status}}</div></div>
+                    <div style="width: 70px;">{% if i.pref %}{{i.pref}}{% endif %}</div>
+                    <div style="width: 210px;">{% if i.com %}{{i.com | truncatechars:14}}{% endif %}</div>
+                    <div style="width: 90px;">{{i.s_cus_name | truncatechars:6}}</div>
+                    <div style="width: 40px;"><div class="order_use">{{i.s_status}}</div></div>
                     <div style="width: 90px;">{{i.money | intcomma}}円</div>
-                    <div style="width: 90px;">{{i.nouki}}</div>
+                    <div style="width: 90px;">{% if i.s_nouki %}{{i.s_nouki}}{% endif %}</div>
                     <div style="width: 35px;">
-                        {% if i.alert != 0 %}
+                        {% if i.mitsu_id in alert_list %}
                             <span class="bell"><i class="bi bi-bell-fill"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 35px;">
-                        {% if i.keiro_tempo == 1 %}
+                        {% if i.s_keiro_tempo == 1 %}
                             <span style="color: red; font-size: 1.2em;" title="来店あり"><i class="bi bi-shop"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 100px;">
-                        {% if i.tel_result == 0 %}
+                        {% if i.s_tel_result == 0 %}
                             <span><i class="bi bi-telephone"></i></span>
-                        {% elif i.tel_result == 1 %}
-                            <span style="color: blue;"><i class="bi bi-telephone-forward-fill"></i>　{{i.tel}}</span>
-                        {% elif i.tel_result == 2 %}
-                            <span style="color: gray"><i class="bi bi-telephone-x-fill"></i>　{{i.tel}}</span>
+                        {% elif i.s_tel_result == 1 %}
+                            <span style="color: blue;"><i class="bi bi-telephone-forward-fill"></i>　{{i.s_tel}}</span>
+                        {% elif i.s_tel_result == 2 %}
+                            <span style="color: gray"><i class="bi bi-telephone-x-fill"></i>　{{i.s_tel}}</span>
                         {% endif %}
                     </div>
                     <div style="width: 90px;">
-                        {% if i.mail_result == 0 %}
+                        {% if i.s_mail_result == 0 %}
                             <span><i class="bi bi-envelope"></i></span>
                         {% else %}
-                            <span style="color: #b66d00;"><i class="bi bi-envelope-fill"></i> {{i.mail}}</span>
+                            <span style="color: #b66d00;"><i class="bi bi-envelope-fill"></i> {{i.s_mail}}</span>
                         {% endif %}
                     </div>
                     <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.bikou}}">
                         {{i.bikou | truncatechars:15}}
                     </div>
                     <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.memo2}}">
-                        {{i.memo1 | truncatechars:15}}
+                        {{i.s_memo1 | truncatechars:15}}
                     </div>
                     <div style="width: 40px;">
                         {% if i.kakudo == "A" %}
@@ -336,8 +337,8 @@
                         {% elif i.kakudo == "C" %}
                             <div class="kakudo kakudo_C">C</div>
                         {% endif %}</div>
-                    <div style="width: 80px;">受：{{i.juchu}}</div>
-                    <div style="width: 90px;">発：{{i.hassou}}</div>
+                    <div style="width: 80px;">受：{% if i.s_juchu_day %}{{i.s_juchu_day}}{% endif %}</div>
+                    <div style="width: 90px;">発：{% if i.s_hassou_day %}{{i.s_hassou_day}}{% endif %}</div>
                     <div style="width: 40px;" id="{{i.mitsu_id}}" name="sfa_list">
                         <button type="button" class="btn btn-outline-secondary btn-sm" style="border-radius: 50%;" data-bs-toggle="modal" data-bs-target="#modal_est">
                             <i class="bi bi-pencil-square"></i>
@@ -352,7 +353,7 @@
                     </div>
                     <div style="width: 20px; text-align: right;">
                         {% if i.show == 0 %}
-                            {% if i.status == "発" or i.status == "終" or i.status == "失" %}
+                            {% if i.s_status == "発" or i.s_status == "終" or i.s_status == "失" %}
                                 {% if i.mw == 0 %}
                                 <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
                                 {% else %}
@@ -360,7 +361,7 @@
                                 {% endif %}
                             {% endif %}
                         {% else %}
-                            {% if i.status == "失" %}
+                            {% if i.s_status == "失" %}
                                 {% if i.mw == 0 %}
                                 <input class="form-check-input" type="checkbox"  id="{{i.mitsu_id}}" name="mw_list">
                                 {% else %}

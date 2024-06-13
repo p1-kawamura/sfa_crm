@@ -345,9 +345,11 @@ def index(request):
     ins=Sfa_data.objects.filter(**fil)
 
     # アラートの場合
+    cnt=list(Sfa_action.objects.filter(type=4,alert_check=0,day__lte=today).values_list("mitsu_id",flat=True))
     if ses["alert"]:
-        cnt=list(Sfa_action.objects.filter(type=4,alert_check=0,day__lte=today).values_list("mitsu_id",flat=True))
         ins=Sfa_data.objects.filter(**fil, mitsu_id__in=cnt)
+    
+    alert_list=list(Sfa_data.objects.filter(**fil, mitsu_id__in=cnt).values_list("mitsu_id",flat=True))
     
     # pandasで作り替え
     df=read_frame(ins) 
@@ -481,7 +483,7 @@ def index(request):
         mail_count=Sfa_action.objects.filter(mitsu_id=group_id,type=2).count()
         if mail_count > 0:
             act_mail=Sfa_action.objects.filter(mitsu_id=group_id,type=2).latest("day")
-            dic["mail"]=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ") "
+            dic["mail"]=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + " )"
             dic["mail_result"]=1
         else:
             dic["mail_result"]=0
@@ -502,6 +504,7 @@ def index(request):
     
     params={
         "list":list_result,
+        "alert_list":alert_list,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
         "chumon_kubun":["","新規","追加","追加新柄","刷り直し","返金"],
@@ -758,7 +761,7 @@ def modal_bot(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
-        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
+        ins.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
         if act_tel.tel_result=="対応":
             ins.s_tel_result=1
         else:
@@ -768,7 +771,7 @@ def modal_bot(request):
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.tel_last_day=act_tel.day
-            ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
+            ins.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
             if act_tel.tel_result=="対応":
                 ins.s_tel_result=1
             else:
@@ -782,14 +785,14 @@ def modal_bot(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
-        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
+        ins.s_mail=act_mail.day[5:].replace("-","/") + "(" + str(mail_count) + ")"
         ins.s_mail_result=1
         ins.save()
         # 親
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.mail_last_day=act_mail.day
-            ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
+            ins.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
             ins.s_mail_result=1
             ins.save()
 
@@ -851,7 +854,7 @@ def modal_bot_delete(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
-        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
+        ins.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
         if act_tel.tel_result=="対応":
             ins.s_tel_result=1
         else:
@@ -861,7 +864,7 @@ def modal_bot_delete(request):
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.tel_last_day=act_tel.day
-            ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
+            ins.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
             if act_tel.tel_result=="対応":
                 ins.s_tel_result=1
             else:
@@ -875,14 +878,14 @@ def modal_bot_delete(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
-        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
+        ins.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
         ins.s_mail_result=1
         ins.save()
         # 親
         if parent==1:
             ins=Sfa_data.objects.get(mitsu_id=parent_id)
             ins.mail_last_day=act_mail.day
-            ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
+            ins.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
             ins.s_mail_result=1
             ins.save()
 
@@ -959,7 +962,7 @@ def modal_group_click(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.tel_last_day=act_tel.day
-        ins.s_tel=act_tel.day[5:].replace("-","/") + "（" + str(tel_count) + "）"
+        ins.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
         if act_tel.tel_result=="対応":
             ins.s_tel_result=1
         else:
@@ -973,7 +976,7 @@ def modal_group_click(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
-        ins.s_mail=act_mail.day[5:].replace("-","/") + "（" + str(mail_count) + "）"
+        ins.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
         ins.s_mail_result=1
         ins.save()
 
@@ -1521,31 +1524,35 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Customer.objects.all()
+    ins=Sfa_data.objects.all()
     for i in ins:
-        last_list=[]
-        # sfa
-        sfa=Sfa_action.objects.filter(Q(type="2") | Q(tel_result = "対応") | Q(type="5"), cus_id=i.cus_id).aggregate(Max('day'))
-        if sfa["day__max"] is not None:
-            last_list.append(sfa["day__max"])
 
-        # crm
-        crm=Crm_action.objects.filter(Q(type__in=["2","5","7"]) | Q(tel_result = "対応"), cus_id=i.cus_id).aggregate(Max('day'))
-        if crm["day__max"] is not None:
-            last_list.append(crm["day__max"])
+        try:
+            parent_id=Sfa_group.objects.get(mitsu_id_child=i.mitsu_id).mitsu_id_parent
+        except:
+            parent_id =i.mitsu_id
+            
+        # 最終TEL
+        tel_count=Sfa_action.objects.filter(mitsu_id=parent_id,type=1).count() 
+        if tel_count > 0:
+            act_tel=Sfa_action.objects.filter(mitsu_id=parent_id,type=1).latest("day")
+            # 子
+            i.tel_last_day=act_tel.day
+            i.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
+            if act_tel.tel_result=="対応":
+                i.s_tel_result=1
+            else:
+                i.s_tel_result=2
 
-        if len(last_list)==2:
-            ans=max(last_list)
-        elif len(last_list)==1:
-            ans=last_list[0]
-        else:
-            ans=None
+        # 最終メール
+        mail_count=Sfa_action.objects.filter(mitsu_id=parent_id,type=2).count()
+        if mail_count > 0:
+            act_mail=Sfa_action.objects.filter(mitsu_id=parent_id,type=2).latest("day")
+            # 子
+            i.mail_last_day=act_mail.day
+            i.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
+            i.s_mail_result=1
         
-        i.contact_last=ans
         i.save()
-
-
-    #     i.taimen=False
-    #     i.save()
   
     return redirect("sfa:index")
