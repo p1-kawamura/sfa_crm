@@ -326,8 +326,8 @@
                     <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.bikou}}">
                         {{i.bikou | truncatechars:15}}
                     </div>
-                    <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.memo2}}">
-                        {{i.s_memo1 | truncatechars:15}}
+                    <div style="width: 100px; font-size: 0.8em; padding-right: 10px; cursor: pointer;" title="{{i.s_memo2}}">
+                        {% if i.s_memo1 %}{{i.s_memo1 | truncatechars:15}}{% endif %}
                     </div>
                     <div style="width: 40px;">
                         {% if i.kakudo == "A" %}
