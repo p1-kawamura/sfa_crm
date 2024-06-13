@@ -60,6 +60,10 @@ class Sfa_data(models.Model):
     
     # show（表示） 0:表示　1：非表示
     # mw（メールワイズ） 0:無し　1：サンクス　2：失注
+    # s_keiro_tempo（s_対面あり）0:無し　1:あり
+    # s_tel_result（s_TEL色）　0:なし　1:対応　2:不在
+    # s_mail_result（s_メール色）　0:なし　2:あり
+
 
 
 
