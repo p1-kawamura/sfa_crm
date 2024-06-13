@@ -785,7 +785,7 @@ def modal_bot(request):
         # 子
         ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
         ins.mail_last_day=act_mail.day
-        ins.s_mail=act_mail.day[5:].replace("-","/") + "(" + str(mail_count) + ")"
+        ins.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
         ins.s_mail_result=1
         ins.save()
         # 親
