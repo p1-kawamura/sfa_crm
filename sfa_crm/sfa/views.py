@@ -306,6 +306,22 @@ def index(request):
     ins_alert=list(Sfa_data.objects.filter(tantou_id=ses["tantou"],show=0).values_list("mitsu_id",flat=True))
     alert_all=Sfa_action.objects.filter(mitsu_id__in=ins_alert,type=4,alert_check=0,day__lte=today).count()
 
+    
+    # ステータスの件数
+    st_fil={}
+    st_fil["tantou_id"]=ses["tantou"]
+    if not ses["show"]:
+        st_fil["show"]=0
+    
+    st_ins=Sfa_data.objects.filter(**st_fil)
+    df_st=read_frame(st_ins) 
+    df_st=df_st[["status","id"]].groupby("status").count()
+    st_count_list=df_st.to_dict(orient='dict')["id"]
+    for i in ["見積中","見積送信","イメージ","受注","発送完了","キャンセル","終了","保留","失注","連絡待ち","サンクス"]:
+        if i not in st_count_list:
+            st_count_list[i]=0
+
+
     # フィルター
     fil={}
     fil["tantou_id"]=ses["tantou"]
@@ -418,6 +434,7 @@ def index(request):
     params={
         "list":list3,
         "alert_list":alert_list,
+        "st_count_list":st_count_list,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
         "chumon_kubun":["","新規","追加","追加新柄","刷り直し","返金"],
