@@ -1328,16 +1328,18 @@ def csv_imp(request):
     csv_list=list(csv_content)
 
 
-    # Approach_listへの入力
-    h=0
-    for i in csv_list:
-        if h!=0:
-            Approach_list.objects.create(
-                approach_id=i[0],
-                title=i[1],
-                day=i[2]
-                )
-        h+=1
+    # # Crm_actionへの入力
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:
+    #         Crm_action.objects.create(
+    #             cus_id=i[0],
+    #             day="2024-06-14",
+    #             type=8,
+    #             text="半年版切れ　2023年12月分",
+    #             approach_id="14"
+    #             )
+    #     h+=1
 
 
     # # Approachへの入力
@@ -1345,7 +1347,7 @@ def csv_imp(request):
     # for i in csv_list:
     #     if h!=0:                
     #         Approach.objects.create(
-    #             approach_id="1",
+    #             approach_id="14",
     #             mitsu_id=i[0],
     #             mitsu_num=i[1],
     #             mitsu_ver=i[2],
@@ -1354,6 +1356,7 @@ def csv_imp(request):
     #             busho_id=i[8],
     #             busho_name=i[9],
     #             tantou_id=i[5],
+    #             tantou_apr_id=i[5],
     #             tantou_sei=i[6],
     #             tantou_mei=i[7],
     #             cus_id=i[10],
@@ -1373,7 +1376,7 @@ def csv_imp(request):
     #     h+=1
 
 
-    # # Customerへの入力
+    # Customerへの入力
     # h=0
     # for i in csv_list:
     #     if h!=0:
@@ -1458,11 +1461,10 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Sfa_group.objects.all()
+    ins=Approach.objects.all()
+
     for i in ins:
-        chi=Sfa_data.objects.get(mitsu_id=i.mitsu_id_child)
-        oya=Sfa_data.objects.get(mitsu_id=i.mitsu_id_parent)
-        chi.bikou=oya.bikou
-        chi.save()
+        i.tantou_apr_id=i.tantou_id
+        i.save()
   
     return redirect("sfa:index")

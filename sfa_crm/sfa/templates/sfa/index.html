@@ -172,14 +172,14 @@
                             {% for i in status_list %}                                
                                 {% if i in ses.st %}
                                 <div style="margin-left: 20px;">
-                                    <input class="form-check-input" type="checkbox" name="st" value="{{i}}" checked>{{i}}
+                                    <input class="form-check-input" type="checkbox" name="st" value="{{i}}" checked> {{i}}
                                     {% for h,j in st_count_list.items %}
                                         {% if h == i %}({{j}}){% endif %}
                                     {% endfor %}                            
                                 </div>
                                 {% else %}
                                 <div style="margin-left: 20px;">
-                                    <input class="form-check-input" type="checkbox" name="st" value="{{i}}">{{i}}
+                                    <input class="form-check-input" type="checkbox" name="st" value="{{i}}"> {{i}}
                                     {% for h,j in st_count_list.items %}
                                         {% if h == i %}({{j}}){% endif %}
                                     {% endfor %}

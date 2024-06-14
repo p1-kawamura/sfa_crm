@@ -20,7 +20,7 @@ def approach_index(request):
     if "apr_search" not in request.session:
         request.session["apr_search"]={}
     if "apr_id" not in request.session["apr_search"]:
-        request.session["apr_search"]["apr_id"]=1
+        request.session["apr_search"]["apr_id"]=""
     if "apr_busho" not in request.session["apr_search"]:
         request.session["apr_search"]["apr_busho"]=""
     if "apr_tantou" not in request.session["apr_search"]:
@@ -40,7 +40,7 @@ def approach_index(request):
     if ses["apr_busho"] != "":
         fil["busho_id"]=ses["apr_busho"]
     if ses["apr_tantou"] != "":
-        fil["tantou_id"]=ses["apr_tantou"]
+        fil["tantou_apr_id"]=ses["apr_tantou"]
     if ses["apr_pref"] != "":
         fil["pref"]=ses["apr_pref"]
     
@@ -200,12 +200,31 @@ def approach_list_add(request):
     h=0
     for i in csv_list:
         if h!=0:
-            # Approach
-            Approach.objects.create(
-                approach_id=i[0],
-                title=i[1],
-                day=i[2]
-                )
+            # Approach_list
+
+
+            # approach本体
+
+ 
+
+            # url
+            ins=Approach.objects.all()
+            for i in ins:
+                url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id + "/receivedOrders/" + i.mitsu_num + "/" + i.mitsu_ver
+                res=requests.get(url)
+                res=res.json()
+                res=res["receivedOrder"]
+                i.mitsu_url=res["estimationPageUrl"]
+                i.save()
+            
+            # 都道府県
+            for i in ins:
+                url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
+                res=requests.get(url)
+                res=res.json()
+                i.pref=res["prefecture"]
+                i.save()
+
             
             # Crm_action
 
