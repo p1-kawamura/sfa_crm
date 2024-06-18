@@ -138,8 +138,8 @@ def approach_click(request):
     ins.save()
 
     if tel_day != "":
-        text=tel_tantou + "：" + tel_text
-        # Crm_action.objects.create(cus_id=cus_id, day=tel_day, type=4, text=text, tel_result=tel_result)
+        text=tel_text + "（" + tel_tantou + "）"
+        Crm_action.objects.create(cus_id=cus_id, day=tel_day, type=4, text=text, tel_result=tel_result)
     
     ses=request.session["apr_search"]
     fil={}

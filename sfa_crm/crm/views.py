@@ -235,120 +235,6 @@ def list_del(request):
     return JsonResponse(d)
 
 
-# グリップAPI
-def grip_index_api(request):
-    tantou_id=request.session["search"]["tantou"]
-    ins=Customer.objects.filter(grip_tantou_id=tantou_id)
-    for i in ins:
-        url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
-        res=requests.get(url)
-        res=res.json()
-        
-        # 最終コンタクト日
-        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id + "/receivedOrders"
-        res2=requests.get(url2)
-        res2=res2.json()
-        last=[]
-        last_mitsu=[]
-        for h in res2["receivedOrders"]:
-            last_mitsu.append(h["firstEstimationDate"])
-        if len(last_mitsu)>0:
-            last.append(max(last_mitsu))
-            mitsu_last=max(last_mitsu)
-        else:
-            mitsu_last=""
-
-        if Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).count() > 0:
-            last.append(Crm_action.objects.filter(cus_id=res["id"],type__in=[2,5,7]).latest("day").day)
-        if Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").count() > 0:
-            last.append(Crm_action.objects.filter(cus_id=res["id"],type=4,tel_result="対応").latest("day").day)
-        if Sfa_action.objects.filter(cus_id=res["id"],type=2).count() > 0:
-            last.append(Sfa_action.objects.filter(cus_id=res["id"],type=2).latest("day").day)
-        if Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").count() > 0:
-            last.append(Sfa_action.objects.filter(cus_id=res["id"],type=1,tel_result="対応").latest("day").day)
-        
-        if len(last)>0:
-            contact_last=max(last)
-        else:
-            contact_last=""
-
-        # DB書込
-        i.cus_url=res["customerMstPageUrl"]
-        i.com=res["corporateName"]
-        i.com_busho=res["departmentName"]
-        i.sei=res["nameLast"]
-        i.mei=res["nameFirst"]
-        i.pref=res["prefecture"]
-        i.tel=res["tel"]
-        i.tel_mob=res["mobilePhone"]
-        i.mail=res["contactEmail"]
-        i.mitsu_all=res["totalEstimations"]
-        i.juchu_all=res["totalReceivedOrders"]
-        i.juchu_money=res["totalReceivedOrdersPrice"]
-        i.mitsu_last=mitsu_last
-        i.juchu_last=res["lastOrderReceivedDate"]
-        i.contact_last=contact_last
-        i.save()
-
-    return redirect("crm:grip_index")
-
-
-# グリップ一覧表示
-def grip_index(request):
-    tantou_id=request.session["search"]["tantou"]
-    ins=Customer.objects.filter(grip_tantou_id=tantou_id)
-    grip_list=[]
-    alert_all=0
-    for i in ins:
-        dic={}
-        dic["cus_id"]=i.cus_id
-        dic["url"]=i.cus_url
-        dic["com"]=i.com
-        dic["com_busho"]=i.com_busho
-        dic["sei"]=i.sei
-        dic["mei"]=i.mei
-        dic["pref"]=i.pref
-        dic["mitsu_all"]=i.mitsu_all
-        dic["juchu_all"]=i.juchu_all
-        dic["juchu_money"]=i.juchu_money
-        dic["mitsu_last"]=i.mitsu_last
-        dic["juchu_last"]=i.juchu_last
-        dic["contact_last"]=i.contact_last
-
-        # メールワイズ
-        dic["mw"]=Customer.objects.get(cus_id=i.cus_id).mw
-
-        # アラート
-        today=str(date.today())
-        alert=Crm_action.objects.filter(cus_id=i.cus_id,type=6,alert_check=0,day__lte=today).count()
-        if alert>0:
-            alert_all+=1
-        dic["alert"]=alert
-
-        # 案件発生
-        est=Sfa_data.objects.filter(cus_id=i.cus_id,show=0).count()
-        dic["est"]=est
-        
-        # 案件詳細
-        est_detail=Sfa_data.objects.filter(cus_id=i.cus_id,show=0)
-        if est_detail.count()>0:
-            est_list=list(est_detail.values())
-        else:
-            est_list=""
-        dic["est_list"]=est_list
-
-        grip_list.append(dic)
-
-    # アクティブ担当
-    act_id=request.session["search"]["tantou"]
-    if act_id=="":
-        act_user="担当者が未設定です"
-    else:
-        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
-
-    return render(request,"crm/grip.html",{"list":grip_list,"act_user":act_user,"alert_all":alert_all})
-
-
 # グリップ追加
 def grip_add(request):
     cus_id=request.POST.get("cus_id")
@@ -452,7 +338,7 @@ def mw_download(request):
         ins.mw_tantou_id=""
         ins.mw_tantou=""
         ins.save()
-    filename=urllib.parse.quote("グリップ顧客メール用リスト.csv")
+    filename=urllib.parse.quote("顧客メール用リスト.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
     response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
     writer = csv.writer(response)
