@@ -47,7 +47,7 @@ def approach_index(request):
     # 進捗を含めない個数
     ins=Approach.objects.filter(**fil)
     result_list=[["0","未対応"],["1","すでに受注済み"],["2","限定デザイン等"],["3","問合せあり"],["4","見積中"],["5","架電後：検討する"],
-             ["6","架電後：見積"],["7","架電後：受注"],["8","追加なし"],["9","架電後：不在"],["10","新追履歴あり"],["11","他拠点へ送客"],["12","折り返しあり"]]
+             ["6","架電後：見積"],["7","架電後：受注"],["8","架電後：不在"],["9","追加なし"],["10","新追履歴あり"],["11","折り返しあり"],["12","不要"]]
     for i in result_list:
         i.append(ins.filter(result=i[0]).count())
 
@@ -127,7 +127,7 @@ def approach_click(request):
     tel_text=request.POST.get("tel_text")
     cus_id=request.POST.get("cus_id")
     result_list={"0":"", "1":"すでに受注済み", "2":"限定デザイン等", "3":"問合せあり", "4":"見積中", "5":"架電後：検討する",
-             "6":"架電後：見積","7":"架電後：受注","8":"追加なし", "9":"架電後：不在", "10":"新追履歴あり", "11":"他拠点へ送客", "12":"折り返しあり"}
+             "6":"架電後：見積","7":"架電後：受注","8":"架電後：不在", "9":"追加なし", "10":"新追履歴あり", "11":"折り返しあり","12":"不要"}
 
     ins=Approach.objects.get(pk=pk)
     ins.result=apr_result
@@ -165,6 +165,15 @@ def approach_click(request):
         "tel_text":tel_text,
         "result_count":result_count,
         }
+    return JsonResponse(d)
+
+
+# 別担当へ転送
+def approach_send(request):
+    pk=request.POST.get("pk")
+    tantou_id=request.POST.get("tantou_id")
+    print(pk,tantou_id)
+    d={}
     return JsonResponse(d)
 
 

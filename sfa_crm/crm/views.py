@@ -596,17 +596,17 @@ def cus_list_index(request):
     #全ページ数
     if result == 0:
         all_num = 1
-    elif result % 50 == 0:
-        all_num = result / 50
+    elif result % 100 == 0:
+        all_num = result / 100
     else:
-        all_num = result // 50 + 1
+        all_num = result // 100 + 1
     all_num=int(all_num)
     request.session["cus_search"]["all_page_num"]=all_num
     num=ses["page_num"]
     if all_num==1:
         num=1
         request.session["cus_search"]["page_num"]=1
-    items=items[(num-1)*50 : num*50]
+    items=items[(num-1)*100 : num*100]
 
     member_list=Member.objects.all()
 

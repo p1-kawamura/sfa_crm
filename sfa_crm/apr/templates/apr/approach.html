@@ -84,7 +84,7 @@
                     <div class="flex mt-4">
                         <div>進捗：</div>
                         <div style="margin-left: -20px;" class="flex">
-                            {% for i in result_list %}                                
+                            {% for i in result_list %}
                                 {% if i.0 in ses.apr_result %}
                                 <div class="flex" style="margin-left: 20px;">
                                     <div><input class="form-check-input" type="checkbox" name="apr_result" value="{{i.0}}" checked> {{i.1}}</div>
@@ -146,36 +146,36 @@
                         <td><span style="font-size: 1.2em; cursor: pointer;" name="open_list" id="open_{{i.pk}}"><i class="bi bi-pencil-square"></i></span></td>
 
                         {% if i.result == "0" %}
-                        <td><span style="color: #212529;"></span></td>
+                        <td id="ans_apr_result_{{i.pk}}"><span style="color: #212529;"></span></td>
                         {% elif i.result == "1" %}
-                        <td style="background-color: #e4e4e4;"><span style="color: #212529;">{{result_list.1.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #e4e4e4;"><span style="color: #212529;">{{result_list.1.1}}</span></td>
                         {% elif i.result == "2" %}
-                        <td style="background-color: #f0ff9c;"><span style="color: #212529;">{{result_list.2.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #f0ff9c;"><span style="color: #212529;">{{result_list.2.1}}</span></td>
                         {% elif i.result == "3" %}
-                        <td style="background-color: #d1ff7c;"><span style="color: #212529;">{{result_list.3.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #d1ff7c;"><span style="color: #212529;">{{result_list.3.1}}</span></td>
                         {% elif i.result == "4" %}
-                        <td style="background-color: #b3fcff;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #b3fcff;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
                         {% elif i.result == "5" %}
-                        <td style="background-color: #ac1400;"><span style="color: white;">{{result_list.5.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #ac1400;"><span style="color: white;">{{result_list.5.1}}</span></td>
                         {% elif i.result == "6" %}
-                        <td style="background-color: #007e00;"><span style="color: white;">{{result_list.6.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #007e00;"><span style="color: white;">{{result_list.6.1}}</span></td>
                         {% elif i.result == "7" %}
-                        <td style="background-color: #002791;"><span style="color: white;">{{result_list.7.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #002791;"><span style="color: white;">{{result_list.7.1}}</span></td>
                         {% elif i.result == "8" %}
-                        <td style="background-color: #303030;"><span style="color: white;">{{result_list.8.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #303030;"><span style="color: white;">{{result_list.8.1}}</span></td>
                         {% elif i.result == "9" %}
-                        <td style="background-color: #5e0083;"><span style="color: white;">{{result_list.9.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #5e0083;"><span style="color: white;">{{result_list.9.1}}</span></td>
                         {% elif i.result == "10" %}
-                        <td style="background-color: #ffaff8;"><span style="color: #212529;">{{result_list.10.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #ffaff8;"><span style="color: #212529;">{{result_list.10.1}}</span></td>
                         {% elif i.result == "11" %}
-                        <td style="background-color: #6d0d00;"><span style="color: white;">{{result_list.11.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #6d0d00;"><span style="color: white;">{{result_list.11.1}}</span></td>
                         {% elif i.result == "12" %}
-                        <td style="background-color: #015001;"><span style="color: white;">{{result_list.12.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #616161;"><span style="color: white;">{{result_list.12.1}}</span></td>
                         {% endif %}
 
-                        <td>{% if i.tel_day %}{{i.tel_day}}{% endif %}</td>
-                        <td>{% if i.tel_tantou %}{{i.tel_tantou}}{% endif %}</td>
-                        <td class="bikou">{% if i.tel_text %}{{i.tel_text}}{% endif %}</td>
+                        <td id="ans_tel_day_{{i.pk}}">{% if i.tel_day %}{{i.tel_day}}{% endif %}</td>
+                        <td id="ans_tel_tantou_{{i.pk}}">{% if i.tel_tantou %}{{i.tel_tantou}}{% endif %}</td>
+                        <td id="ans_tel_text_{{i.pk}}" class="bikou">{% if i.tel_text %}{{i.tel_text}}{% endif %}</td>
                         <td>
                             <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
                         </td>
@@ -184,8 +184,9 @@
                         <td>{{i.busho_name}}</td>
                         <td>{{i.tantou_sei}}{{i.tantou_mei}}</td>
                         <td>
-                            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" name="crm_list" id="{{i.cus_id}}">
+                            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" name="crm_list">
                                 <i class="bi bi-person-square"></i>
+                                <span style="display: none;" id="apr_cus_{{i.pk}}">{{i.cus_id}}</span>
                             </button>
                         </td>
                         <td>{% if i.pref %}{{i.pref}}{% endif %}</td>
@@ -206,7 +207,7 @@
                             <div class="flex">
                                 <div>進捗：</div>
                                 <div>
-                                    <select class="form-select form-select-sm" id="apr_result" name="pref" style="width: 160px;">
+                                    <select class="form-select form-select-sm" id="apr_result_{{i.pk}}" name="apr_result_shows" style="width: 160px;">
                                         {% for h in result_list %}
                                             {% if h.0 == i.result %}
                                             <option value="{{h.0}}" selected>{{h.1}}</option>
@@ -214,49 +215,68 @@
                                             <option value="{{h.0}}">{{h.1}}</option>
                                             {% endif %}
                                         {% endfor %}
+                                        <option value="13">別担当へ転送</option>
                                     </select>
                                 </div>
-                                <div style="margin-left: 30px;">架電日：</div>
-                                <div>
-                                    {% if i.tel_day %}
-                                    <input class="form-control form-control-sm" type="date" id="tel_day" name="tel_day" style="width: 120px;" value="{{i.tel_day}}">
-                                    {% else %}
-                                    <input class="form-control form-control-sm" type="date" id="tel_day" name="tel_day" style="width: 120px;">
-                                    {% endif %}
-                                </div>
-                                <div style="margin-left: 30px;">架電者：</div>
-                                <div>
-                                    {% if i.tel_tantou %}    
-                                    <input class="form-control form-control-sm" type="text" id="tel_tantou" name="tel_tantou" style="width: 70px;" value="{{i.tel_tantou}}">
-                                    {% else %}
-                                    <input class="form-control form-control-sm" type="text" id="tel_tantou" name="tel_tantou" style="width: 70px;">
-                                    {% endif %}
-                                </div>
-                                <div style="margin-left: 30px;">対応/不在：</div>
-                                <div>
-                                    <select class="form-select form-select-sm" id="tel_result" name="tel_result" style="width: 80px;">
-                                        {% if i.tel_result == "不在" %}
-                                        <option value="対応">対応</option>
-                                        <option value="不在" selected>不在</option>
+                                <!-- コメント入力 -->
+                                <div class="flex" id="show_A_{{i.pk}}">
+                                    <div style="margin-left: 30px;">架電日：</div>
+                                    <div>
+                                        {% if i.tel_day %}
+                                        <input class="form-control form-control-sm" type="date" id="tel_day_{{i.pk}}" style="width: 120px;" value="{{i.tel_day}}">
                                         {% else %}
-                                        <option value="対応" selected>対応</option>
-                                        <option value="不在">不在</option>
+                                        <input class="form-control form-control-sm" type="date" id="tel_day_{{i.pk}}" style="width: 120px;">
                                         {% endif %}
-                                    </select>
+                                    </div>
+                                    <div style="margin-left: 30px;">架電者：</div>
+                                    <div>
+                                        {% if i.tel_tantou %}    
+                                        <input class="form-control form-control-sm" type="text" id="tel_tantou_{{i.pk}}" style="width: 70px;" value="{{i.tel_tantou}}">
+                                        {% else %}
+                                        <input class="form-control form-control-sm" type="text" id="tel_tantou_{{i.pk}}" style="width: 70px;">
+                                        {% endif %}
+                                    </div>
+                                    <div style="margin-left: 30px;">対応/不在：</div>
+                                    <div>
+                                        <select class="form-select form-select-sm" id="tel_result_{{i.pk}}" style="width: 80px;">
+                                            {% if i.tel_result == "不在" %}
+                                            <option value="対応">対応</option>
+                                            <option value="不在" selected>不在</option>
+                                            {% else %}
+                                            <option value="対応" selected>対応</option>
+                                            <option value="不在">不在</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                    <div style="margin-left: 30px;">備考：</div>
+                                    <div>
+                                        {% if i.tel_text %} 
+                                        <input class="form-control form-control-sm" type="text" id="tel_text_{{i.pk}}" style="width: 350px;" value="{{i.tel_text}}">
+                                        {% else %}
+                                        <input class="form-control form-control-sm" type="text" id="tel_text_{{i.pk}}" style="width: 350px;">
+                                        {% endif %}
+                                    </div>
+                                    <div style="margin-left: 30px;">
+                                        <button type="button" class="btn btn-secondary btn-sm" name="approach_click" id="{{i.pk}}">決定</button>                                    
+                                    </div>
+                                    <div style="margin-left: 20px;">
+                                        <button type="button" class="btn btn-outline-dark btn-sm" name="approach_clear" id="clear_{{i.pk}}">クリア</button>                                    
+                                    </div>
                                 </div>
-                                <div style="margin-left: 30px;">備考：</div>
-                                <div>
-                                    {% if i.tel_text %} 
-                                    <input class="form-control form-control-sm" type="text" id="tel_text" name="tel_text" style="width: 350px;" value="{{i.tel_text}}">
-                                    {% else %}
-                                    <input class="form-control form-control-sm" type="text" id="tel_text" name="tel_text" style="width: 350px;">
-                                    {% endif %}
-                                </div>
-                                <div style="margin-left: 30px;">
-                                    <button type="button" class="btn btn-secondary btn-sm" name="approach_click" id="{{i.pk}}">決定</button>                                    
-                                </div>
-                                <div style="margin-left: 20px;">
-                                    <button type="button" class="btn btn-outline-dark btn-sm" name="approach_clear">クリア</button>                                    
+                                <!-- 他拠点へ転送 -->
+                                <div class="flex" id="show_B_{{i.pk}}" style="display: none;">
+                                    <div style="margin-left: 30px;">担当者：</div>
+                                    <div>
+                                        <select class="form-select form-select-sm" name="send_tantou" id="send_tantou_{{i.pk}}" style="width: 120px;">
+                                            <option value=""></option>
+                                            {% for i in tantou_list %}
+                                                <option value="{{i.0}}">{{i.1}} {{i.2}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div style="margin-left: 30px;">
+                                        <button type="button" class="btn btn-secondary btn-sm" name="send_click" id="send_click_{{i.pk}}">転送</button>                                    
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -384,7 +404,7 @@
                 $.ajax({
                     'url': '{% url "sfa:kokyaku_detail_api" %}',
                     'type': 'POST',
-                    'data': {"cus_id":this.id},
+                    'data': {"cus_id":this.childNodes[3].innerText},
                     'dataType': 'json'
                 })
                 .done(function(response){
@@ -411,18 +431,33 @@
         };
 
 
+        // 進捗セレクト表示切替
+        var item=document.getElementsByName("apr_result_shows");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("change",function(){
+                var id=this.id.split("_")[2];
+                if (this.value=="13"){
+                    document.getElementById("show_A_" + id).style.display="none";
+                    document.getElementById("show_B_" + id).style.display="";
+                } else {
+                    document.getElementById("show_A_" + id).style.display="";
+                    document.getElementById("show_B_" + id).style.display="none";
+                };
+            },false)
+        };
+
+
         // コメント決定ボタン
         var item=document.getElementsByName("approach_click");
         for (var i=0; i<item.length; i++){
             item[i].addEventListener("click",function(){
-
-                var oya=this.parentElement.parentElement;
-                var apr_result=oya.getElementsByTagName("select")[0].value;
-                var tel_day=oya.getElementsByTagName("input")[0].value;
-                var tel_tantou=oya.getElementsByTagName("input")[1].value;
-                var tel_result=oya.getElementsByTagName("select")[1].value;
-                var tel_text=oya.getElementsByTagName("input")[2].value;
-                var cus_id=oya.parentElement.parentElement.previousElementSibling.getElementsByTagName("td")[10].childNodes[1].id;
+                var id=this.id
+                var apr_result=document.getElementById("apr_result_" + id).value;
+                var tel_day=document.getElementById("tel_day_" + id).value;
+                var tel_tantou=document.getElementById("tel_tantou_" + id).value;
+                var tel_result=document.getElementById("tel_result_" + id).value;
+                var tel_text=document.getElementById("tel_text_" + id).value;
+                var cus_id=document.getElementById("apr_cus_" + id).textContent;
 
                 $.ajax({
                     'url': '{% url "apr:approach_click" %}',
@@ -439,27 +474,46 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    pk="open_" + response.pk;
+                    id=response.pk;
                     var ans = response.ans
-                    var open_list=document.getElementById(pk).parentElement.parentElement.getElementsByTagName("td");
-
                     var sel_list=[
                         ["0","#212529",""],["1","#212529","#e4e4e4"],["2","#212529","#f0ff9c"],["3","#212529","#d1ff7c"],
                         ["4","#212529","#b3fcff"],["5","#fff","#ac1400"],["6","#fff","#007e00"],["7","#fff","#002791"],["8","#fff","#303030"],
-                        ["9","#fff","#5e0083"],["10","#212529","#ffaff8"],["11","#fff","#6d0d00"],["12","#fff","#015001"]
+                        ["9","#fff","#5e0083"],["10","#212529","#ffaff8"],["11","#fff","#6d0d00"],["12","#fff","#616161"]
                     ]
-                    open_list[1].innerHTML="<span style='color:" + sel_list[ans][1] +  ";'>" + response.apr_result + "</span>";
-                    open_list[1].style.backgroundColor=sel_list[ans][2];   
-                    open_list[2].innerText=response.tel_day;
-                    open_list[3].innerText=response.tel_tantou;
-                    open_list[4].innerText=response.tel_text;
-                    // document.getElementById(pk).parentElement.parentElement.nextElementSibling.style.display="none";
-                    // document.getElementById(pk).innerHTML="<i class='bi bi-pencil-square'></i>";
+                    document.getElementById("ans_apr_result_" + id).innerHTML="<span style='color:" + sel_list[ans][1] +  ";'>" + response.apr_result + "</span>";
+                    document.getElementById("ans_apr_result_" + id).style.backgroundColor=sel_list[ans][2];
+                    document.getElementById("ans_tel_day_" + id).innerText=response.tel_day;
+                    document.getElementById("ans_tel_tantou_" + id).innerText=response.tel_tantou;
+                    document.getElementById("ans_tel_text_" + id).innerText=response.tel_text;
 
                     var rc=response.result_count;
                     for (i=0; i<rc.length; i++){
-                        document.getElementById("result_"+i).innerText="（" + rc[i] + "）";
+                        document.getElementById("result_" + i).innerText="（" + rc[i] + "）";
                     };
+                })
+            },false)
+        };
+
+
+        // 別担当へ転送ボタン
+        var item=document.getElementsByName("send_click");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                id=this.id.split("_")[2];
+                tantou_id=document.getElementById("send_tantou_" + id).value;
+                if (tantou_id==""){
+                    window.alert("転送先を指定してください！");
+                    return
+                }
+                $.ajax({
+                    'url': '{% url "apr:approach_send" %}',
+                    'type': 'POST',
+                    'data': {"pk":id,"tantou_id":tantou_id},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.location.reload();
                 })
             },false)
         };
@@ -469,12 +523,12 @@
         var item=document.getElementsByName("approach_clear");
         for (var i=0; i<item.length; i++){
             item[i].addEventListener("click",function(){
-                var oya=this.parentElement.parentElement;
-                oya.getElementsByTagName("select")[0].value=0;
-                oya.getElementsByTagName("input")[0].value="";
-                oya.getElementsByTagName("input")[1].value="";
-                oya.getElementsByTagName("select")[1].value="";
-                oya.getElementsByTagName("input")[2].value="";
+                var id=this.id.split("_")[1];
+                document.getElementById("apr_result_" + id).value=0;
+                document.getElementById("tel_day_" + id).value="";
+                document.getElementById("tel_tantou_" + id).value="";
+                document.getElementById("tel_result_" + id).value="対応";
+                document.getElementById("tel_text_" + id).value="";
             },false)
         };
 
