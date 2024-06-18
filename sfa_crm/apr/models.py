@@ -21,6 +21,7 @@ class Approach(models.Model):
     tantou_mei=models.CharField("担当名",max_length=255,blank=True,null=True)
     tantou_apr_id=models.CharField("連絡担当ID",max_length=255,blank=True,null=True)
     cus_id=models.CharField("顧客ID",max_length=255,blank=True,null=True)
+    cus_url=models.CharField("顧客URL",max_length=255,blank=True,null=True)
     cus_com=models.CharField("顧客_会社",max_length=255,blank=True,null=True)
     cus_busho=models.CharField("顧客_部署",max_length=255,blank=True,null=True)
     cus_sei=models.CharField("顧客_姓",max_length=255,blank=True,null=True)
@@ -41,7 +42,7 @@ class Approach(models.Model):
     
 
 class Approach_list(models.Model):
-    approach_id=models.CharField("アプローチID",max_length=2)
+    approach_id=models.CharField("アプローチID",max_length=2,unique=True)
     title=models.CharField("タイトル",max_length=255)
     day=models.CharField("日付",max_length=255)
     action=models.IntegerField("行動",default=0)

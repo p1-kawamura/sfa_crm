@@ -1342,100 +1342,100 @@ def csv_imp(request):
     #     h+=1
 
 
-    # # Approachへの入力
-    # h=0
-    # for i in csv_list:
-    #     if h!=0:                
-    #         Approach.objects.create(
-    #             approach_id="14",
-    #             mitsu_id=i[0],
-    #             mitsu_num=i[1],
-    #             mitsu_ver=i[2],
-    #             order_kubun=i[3],
-    #             juchu_day=i[4],
-    #             busho_id=i[8],
-    #             busho_name=i[9],
-    #             tantou_id=i[5],
-    #             tantou_apr_id=i[5],
-    #             tantou_sei=i[6],
-    #             tantou_mei=i[7],
-    #             cus_id=i[10],
-    #             cus_com=i[16],
-    #             cus_busho=i[17],
-    #             cus_sei=i[11],
-    #             cus_mei=i[12],
-    #             cus_tel=i[18],
-    #             cus_mob=i[19],
-    #             cus_mail=i[13],
-    #             money=i[20],
-    #             kakou=i[22],
-    #             factory=i[24],
-    #             gara=i[25],
-    #             kigen=i[27]
-    #         )
-    #     h+=1
-
-
-    # Customerへの入力
+    # Approachへの入力
     h=0
     for i in csv_list:
-        if h!=0:
-
-            # 顧客
-            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i[0])
-            res2=requests.get(url2)
-            res2=res2.json()
-
-            tel_search=None
-            if res2["tel"] != None:
-                tel_search=res2["tel"].replace("-","")
-            tel_mob_search=None
-            if res2["mobilePhone"] != None:
-                tel_mob_search=res2["mobilePhone"].replace("-","")
-
-            try:
-                con_last=Customer.objects.get(cus_id=res2["id"]).contact_last
-                if con_last==None or res2["lastEstimatedAt"]>con_last:
-                    contact_last=res2["lastEstimatedAt"]
-                else:
-                    contact_last=con_last
-            except:
-                contact_last=res2["lastEstimatedAt"]
-            
-            try:
-                Customer.objects.update_or_create(
-                cus_id=res2["id"],
-                defaults={
-                    "cus_id":res2["id"],
-                    "cus_url":res2["customerMstPageUrl"],
-                    "cus_touroku":res2["createdAt"],
-                    "com":res2["corporateName"],
-                    "com_busho":res2["departmentName"],
-                    "sei":res2["nameLast"],
-                    "mei":res2["nameFirst"],
-                    "pref":res2["prefecture"],
-                    "tel":res2["tel"],
-                    "tel_search":tel_search,
-                    "tel_mob":res2["mobilePhone"],
-                    "tel_mob_search":tel_mob_search,
-                    "mail":res2["contactEmail"],
-                    "mitsu_all":res2["totalEstimations"],
-                    "juchu_all":res2["totalReceivedOrders"],
-                    "juchu_money":res2["totalReceivedOrdersPrice"],
-                    "mitsu_last":res2["lastEstimatedAt"],
-                    "mitsu_last_busho_id":res2["lastHandledDepartmentId"],
-                    "mitsu_last_busho":res2["lastHandledDepartmentName"],
-                    "mitsu_last_tantou_id":res2["lastHandledId"],
-                    "mitsu_last_tantou":res2["lastHandledName"],
-                    "juchu_last":res2["lastOrderReceivedDate"],
-                    "contact_last":contact_last,
-                    "taimen":res2["isVisited"],
-                    }
-                )
-            except:
-                print(i[0])
-
+        if h!=0:                
+            Approach.objects.create(
+                approach_id="14",
+                mitsu_id=i[0],
+                mitsu_num=i[1],
+                mitsu_ver=i[2],
+                order_kubun=i[3],
+                juchu_day=i[4],
+                busho_id=i[8],
+                busho_name=i[9],
+                tantou_id=i[5],
+                tantou_apr_id=i[5],
+                tantou_sei=i[6],
+                tantou_mei=i[7],
+                cus_id=i[10],
+                cus_com=i[16],
+                cus_busho=i[17],
+                cus_sei=i[11],
+                cus_mei=i[12],
+                cus_tel=i[18],
+                cus_mob=i[19],
+                cus_mail=i[13],
+                money=i[20],
+                kakou=i[22],
+                factory=i[24],
+                gara=i[25],
+                kigen=i[27]
+            )
         h+=1
+
+
+    # # Customerへの入力
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:
+
+    #         # 顧客
+    #         url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i[0])
+    #         res2=requests.get(url2)
+    #         res2=res2.json()
+
+    #         tel_search=None
+    #         if res2["tel"] != None:
+    #             tel_search=res2["tel"].replace("-","")
+    #         tel_mob_search=None
+    #         if res2["mobilePhone"] != None:
+    #             tel_mob_search=res2["mobilePhone"].replace("-","")
+
+    #         try:
+    #             con_last=Customer.objects.get(cus_id=res2["id"]).contact_last
+    #             if con_last==None or res2["lastEstimatedAt"]>con_last:
+    #                 contact_last=res2["lastEstimatedAt"]
+    #             else:
+    #                 contact_last=con_last
+    #         except:
+    #             contact_last=res2["lastEstimatedAt"]
+            
+    #         try:
+    #             Customer.objects.update_or_create(
+    #             cus_id=res2["id"],
+    #             defaults={
+    #                 "cus_id":res2["id"],
+    #                 "cus_url":res2["customerMstPageUrl"],
+    #                 "cus_touroku":res2["createdAt"],
+    #                 "com":res2["corporateName"],
+    #                 "com_busho":res2["departmentName"],
+    #                 "sei":res2["nameLast"],
+    #                 "mei":res2["nameFirst"],
+    #                 "pref":res2["prefecture"],
+    #                 "tel":res2["tel"],
+    #                 "tel_search":tel_search,
+    #                 "tel_mob":res2["mobilePhone"],
+    #                 "tel_mob_search":tel_mob_search,
+    #                 "mail":res2["contactEmail"],
+    #                 "mitsu_all":res2["totalEstimations"],
+    #                 "juchu_all":res2["totalReceivedOrders"],
+    #                 "juchu_money":res2["totalReceivedOrdersPrice"],
+    #                 "mitsu_last":res2["lastEstimatedAt"],
+    #                 "mitsu_last_busho_id":res2["lastHandledDepartmentId"],
+    #                 "mitsu_last_busho":res2["lastHandledDepartmentName"],
+    #                 "mitsu_last_tantou_id":res2["lastHandledId"],
+    #                 "mitsu_last_tantou":res2["lastHandledName"],
+    #                 "juchu_last":res2["lastOrderReceivedDate"],
+    #                 "contact_last":contact_last,
+    #                 "taimen":res2["isVisited"],
+    #                 }
+    #             )
+    #         except:
+    #             print(i[0])
+
+    #     h+=1
 
 
     # # Crm_actionへの入力
@@ -1464,7 +1464,11 @@ def clear_session(request):
     ins=Approach.objects.all()
 
     for i in ins:
-        i.tantou_apr_id=i.tantou_id
+
+        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
+        res2=requests.get(url2)
+        res2=res2.json()
+        i.cus_url=res2["customerMstPageUrl"]
         i.save()
   
     return redirect("sfa:index")

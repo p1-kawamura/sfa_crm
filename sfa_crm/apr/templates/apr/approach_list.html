@@ -45,6 +45,15 @@
                         <div><input class="form-control" type="date" name="day" required></div>
                     </div>
                     <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">アプローチ：</div>
+                        <div>
+                            <select class="form-select" id="act" name="act" style="width: 100px;">
+                                <option value=1>あり</option>
+                                <option value=0>なし</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
                         <div style="margin-left: 80px;"><button type="submit" class="btn btn-primary">取込</button></div>
                         <div style="margin-left: 30px;">
                             {% if ans %}
@@ -63,12 +72,14 @@
                         <th>ID</th>
                         <th>タイトル</th>
                         <th>日付</th>
+                        <th>アプローチ</th>
                     </tr>
                     {% for i in list %}
                     <tr>
                         <td>{{i.approach_id}}</td>
                         <td>{{i.title}}</td>
                         <td>{{i.day}}</td>
+                        <td>{% if i.action == 0 %}なし{% else %}あり{% endif %}</td>   
                     </tr>
                     {% endfor %}
                 </table>
