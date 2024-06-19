@@ -1461,14 +1461,10 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Approach.objects.all()
+    ins=Customer.objects.all()
 
     for i in ins:
-
-        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
-        res2=requests.get(url2)
-        res2=res2.json()
-        i.cus_url=res2["customerMstPageUrl"]
-        i.save()
+        pass
+       
   
     return redirect("sfa:index")

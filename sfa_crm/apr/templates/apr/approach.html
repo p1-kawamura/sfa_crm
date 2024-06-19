@@ -44,7 +44,7 @@
                         </div>
                         <div style="margin-left: 30px;">部署：</div>
                         <div>
-                            <select class="form-select" name="apr_busho" id="apr_busho" style="width: 150px;">
+                            <select class="form-select" name="apr_busho" id="apr_busho" style="width: 240px;">
                                 <option value=""></option>
                                 {% for i in busho_list %}
                                     {% if i.0 == ses.apr_busho %}
@@ -68,9 +68,11 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div style="margin-left: 30px;">都道府県：</div>
+                    </div>
+                    <div class="flex mt-4">
+                        <div>都道府県：</div>
                         <div>
-                            <select class="form-select form-select-sm" id="apr_pref" name="apr_pref" style="width: 100px;">
+                            <select class="form-select" id="apr_pref" name="apr_pref" style="width: 150px;">
                                 {% for i in pref_list %}
                                     {% if i == ses.pref %}
                                     <option value="{{i}}" selected>{{i}}</option>
