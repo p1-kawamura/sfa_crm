@@ -61,9 +61,9 @@
                                 <option value=""></option>
                                 {% for i in tantou_list %}
                                     {% if i.0 == ses.apr_tantou %}
-                                    <option value="{{i.0}}" selected>{{i.1}} {{i.2}}</option>
+                                    <option value="{{i.1}}" selected>{{i.2}} {{i.3}}</option>
                                     {% else %}
-                                    <option value="{{i.0}}">{{i.1}} {{i.2}}</option>
+                                    <option value="{{i.1}}">{{i.2}} {{i.3}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -275,7 +275,7 @@
                                         <select class="form-select form-select-sm" name="send_tantou" id="send_tantou_{{i.pk}}" style="width: 120px;">
                                             <option value=""></option>
                                             {% for i in tantou_list %}
-                                                <option value="{{i.0}}">{{i.1}} {{i.2}}</option>
+                                                <option value="{{i.1}}">{{i.2}} {{i.3}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -362,30 +362,6 @@
                     document.getElementById("apr_tantou").innerHTML=str2;
                 })
         });
-
-
-
-        // 部署選択
-        document.getElementById("apr_busho").addEventListener("change",function(){
-            $.ajax({
-                    'url': '{% url "apr:approach_busho" %}',
-                    'type': 'POST',
-                    'data': {
-                        "approach_id":document.getElementById("apr_id").value,
-                        "busho_id":document.getElementById("apr_busho").value,
-                    },
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    tantou_list=response.tantou_list;
-                    var str="<option value=''></option>";
-                    for (var i of tantou_list){
-                        str=str+"<option value='" + i[0]+ "'>" + i[1] +" "+ i[2] + "</option>"
-                    };
-                    document.getElementById("apr_tantou").innerHTML=str;
-                })
-        });
-        
 
 
         // 検索クリアボタン

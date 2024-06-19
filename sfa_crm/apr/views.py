@@ -57,7 +57,14 @@ def approach_index(request):
     ins=Approach.objects.filter(**fil)
 
     busho_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("busho_id","busho_name").order_by("busho_id").distinct())
-    tantou_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    tantou_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("busho_id","tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    tantou_id_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("tantou_id",flat=True))
+    tantou_member=Member.objects.all()
+    for i in tantou_member:
+        if i.tantou_id not in tantou_id_list:
+            tantou_list.append((i.busho_id,i.tantou_id,i.tantou,""))
+    tantou_list=sorted(tantou_list)
+
     apr_list=Approach_list.objects.filter(action=1)
 
     # アクティブ担当
@@ -88,22 +95,14 @@ def approach_index(request):
 def approach_title(request):
     approach_id=request.POST.get("approach_id")
     busho_list=list(Approach.objects.filter(approach_id=approach_id).values_list("busho_id","busho_name").order_by("busho_id").distinct())
-    tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("busho_id","tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    tantou_id_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id",flat=True))
+    tantou_member=Member.objects.all()
+    for i in tantou_member:
+        if i.tantou_id not in tantou_id_list:
+            tantou_list.append((i.busho_id,i.tantou_id,i.tantou,""))
+    tantou_list=sorted(tantou_list)
     d={"busho_list":busho_list,"tantou_list":tantou_list}
-    return JsonResponse(d)
-
-
-# アプローチリストの部署選択
-def approach_busho(request):
-    approach_id=request.POST.get("approach_id")
-    busho_id=request.POST.get("busho_id")
-    if busho_id != "":
-        tantou_list=list(Approach.objects.filter(approach_id=approach_id,busho_id=busho_id).\
-                         values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
-    else:
-        tantou_list=list(Approach.objects.filter(approach_id=approach_id).\
-                         values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
-    d={"tantou_list":tantou_list}
     return JsonResponse(d)
 
 
