@@ -130,7 +130,6 @@
                         <th>担当部署</th>
                         <th>担当者</th>
                         <th>顧客詳細</th>
-                        <th>顧客ID</th>
                         <th>都道府県</th>
                         <th>会社</th>
                         <th>部署</th>
@@ -191,10 +190,6 @@
                                 <i class="bi bi-person-square"></i>
                                 <span style="display: none;" id="apr_cus_{{i.pk}}">{{i.cus_id}}</span>
                             </button>
-                        </td>
-                        <td>
-                            <a href="{{i.cus_url}}" target="_blank"><span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a>
-                            <span> {{i.cus_id}}</span>
                         </td>
                         <td>{% if i.pref %}{{i.pref}}{% endif %}</td>
                         <td>{{i.cus_com}}</td>
