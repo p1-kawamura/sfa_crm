@@ -217,12 +217,6 @@ def approach_list_add(request):
             res=res["receivedOrder"]
             mitsu_url=res["estimationPageUrl"]
 
-            # 都道府県
-            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10]
-            res2=requests.get(url2)
-            res2=res2.json()
-            pref=res2["prefecture"]
-
             # approach本体             
             Approach.objects.create(
                 approach_id=approach_id,
@@ -246,7 +240,7 @@ def approach_list_add(request):
                 cus_tel=i[18],
                 cus_mob=i[19],
                 cus_mail=i[13],
-                pref=pref,
+                pref=i[30],
                 money=i[20],
                 kakou=i[22],
                 factory=i[24],
