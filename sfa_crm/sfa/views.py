@@ -1338,8 +1338,15 @@ def credit_url(request):
         s_url=s.tinyurl.short(url)
         d={"url":s_url}
         return JsonResponse(d)
-        
-    return render(request,"sfa/credit_url.html")
+    
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    return render(request,"sfa/credit_url.html",{"act_user":act_user})
 
 
 
