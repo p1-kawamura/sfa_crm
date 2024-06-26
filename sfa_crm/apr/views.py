@@ -213,46 +213,44 @@ def approach_list_add(request):
             # Crm_action
             Crm_action.objects.create(cus_id=i[10],day=day,type=8,text=title,approach_id=approach_id)
 
-            
-            # url
-            url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10] + "/receivedOrders/" + i[1] + "/" + i[2]
-            res=requests.get(url)
-            res=res.json()
-            res=res["receivedOrder"]
-            mitsu_url=res["estimationPageUrl"]
+            # Approach 
+            if action==1:
+                # url
+                url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10] + "/receivedOrders/" + i[1] + "/" + i[2]
+                res=requests.get(url)
+                res=res.json()
+                res=res["receivedOrder"]
+                mitsu_url=res["estimationPageUrl"]
 
-            # approach本体             
-            Approach.objects.create(
-                approach_id=approach_id,
-                mitsu_id=i[0],
-                mitsu_num=i[1],
-                mitsu_ver=i[2],
-                mitsu_url=mitsu_url,
-                order_kubun=i[3],
-                juchu_day=i[4],
-                busho_id=i[8],
-                busho_name=i[9],
-                tantou_id=i[5],
-                tantou_apr_id=i[5],
-                tantou_sei=i[6],
-                tantou_mei=i[7],
-                cus_id=i[10],
-                cus_com=i[16],
-                cus_busho=i[17],
-                cus_sei=i[11],
-                cus_mei=i[12],
-                cus_tel=i[18],
-                cus_mob=i[19],
-                cus_mail=i[13],
-                pref=i[30],
-                money=i[20],
-                kakou=i[22],
-                factory=i[24],
-                gara=i[25],
-                kigen=i[27]
-            )
-
-            
+                Approach.objects.create(
+                    approach_id=approach_id,
+                    mitsu_id=i[0],
+                    mitsu_num=i[1],
+                    mitsu_ver=i[2],
+                    mitsu_url=mitsu_url,
+                    order_kubun=i[3],
+                    juchu_day=i[4],
+                    busho_id=i[8],
+                    busho_name=i[9],
+                    tantou_id=i[5],
+                    tantou_apr_id=i[5],
+                    tantou_sei=i[6],
+                    tantou_mei=i[7],
+                    cus_id=i[10],
+                    cus_com=i[16],
+                    cus_busho=i[17],
+                    cus_sei=i[11],
+                    cus_mei=i[12],
+                    cus_tel=i[18],
+                    cus_mob=i[19],
+                    cus_mail=i[13],
+                    pref=i[30],
+                    money=i[20],
+                    kakou=i[22],
+                    factory=i[24],
+                    gara=i[25],
+                    kigen=i[27]
+                )
 
         h+=1
  
