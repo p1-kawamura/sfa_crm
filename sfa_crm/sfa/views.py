@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
-from .models import Sfa_data,Sfa_action,Member,Sfa_group
+from .models import Sfa_data,Sfa_action,Member,Sfa_group,Credit_url
 from crm.models import Customer,Crm_action
 from apr.models import Approach,Approach_list
 import csv
@@ -1316,6 +1316,20 @@ def member_add(request):
 
 # ユニバURL発行
 def credit_url(request):
+    if "search" not in request.session:
+        request.session["search"]={}
+    if "tantou" not in request.session["search"]:
+        request.session["search"]["tantou"]=""
+
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+        tantou="不明"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+        tantou=Member.objects.get(tantou_id=act_id).tantou
+    
+    # URL発行
     if request.method == "POST":
         money=request.POST.get("money")
         meta_list=request.POST.get("meta_list")
@@ -1336,26 +1350,14 @@ def credit_url(request):
 
         s = pyshorteners.Shortener()
         s_url=s.tinyurl.short(url)
+
+        # 履歴
+        meta_data=",".join(meta_list)
+        Credit_url.objects.create(tantou=tantou,meta_data=meta_data,money=money,url=s_url)
+
         d={"url":s_url}
         return JsonResponse(d)
     
-    # アクティブ担当
-    if "search" not in request.session:
-        request.session["search"]={}
-    if "tantou" not in request.session["search"]:
-        request.session["search"]["tantou"]=""
-
-    act_id=request.session["search"]["tantou"]
-    if act_id=="":
-        act_user="担当者が未設定です"
-        tantou="不明"
-    else:
-        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
-        tantou=Member.objects.get(tantou_id=act_id).tantou
-
-    # 履歴
-    
-
     return render(request,"sfa/credit_url.html",{"act_user":act_user})
 
 
