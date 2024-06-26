@@ -60,7 +60,7 @@
                             <select class="form-select" name="apr_tantou" id="apr_tantou" style="width: 150px;">
                                 <option value=""></option>
                                 {% for i in tantou_list %}
-                                    {% if i.0 == ses.apr_tantou %}
+                                    {% if i.1 == ses.apr_tantou %}
                                     <option value="{{i.1}}" selected>{{i.2}} {{i.3}}</option>
                                     {% else %}
                                     <option value="{{i.1}}">{{i.2}} {{i.3}}</option>

@@ -14,6 +14,7 @@ from django.db.models import Sum
 import datetime
 from django.db.models import Q,Max
 from django_pandas.io import read_frame
+import pyshorteners
 
 
 def index_api(request):
@@ -1313,6 +1314,35 @@ def member_add(request):
 
 
 
+# ユニバURL発行
+def credit_url(request):
+    if request.method == "POST":
+        money=request.POST.get("money")
+        meta_list=request.POST.get("meta_list")
+        meta_list=json.loads(meta_list)
+
+        url="https://checkout.univapay.com/forms/674afc52-65e2-4687-b207-3ed7b4ae8b3e"\
+        "?appId=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhcHBfdG9rZW4iLCJpYXQiOjE2NzM0MDM1MjUsIm1lcmNoYW50X2lkIjo"\
+        "iMTFlZDI3NTUtODhiMy1iODcyLWI0ZjAtZmYzMzgwNTZhMmYwIiwic3RvcmVfaWQiOiIxMWVkMjc1Ni0xZTc2LWNhNTItYjQyMC1lMzk5YTlmMW"\
+        "MwOGQiLCJkb21haW5zIjpbInAxLWludGwuY29tIl0sIm1vZGUiOiJsaXZlIiwiY3JlYXRvcl9pZCI6IjExZWQyNzU1LTg4YjMtYjg3Mi1iNGYwL"\
+        "WZmMzM4MDU2YTJmMCIsInZlcnNpb24iOjEsImp0aSI6IjExZWQ5MTU2LTQ2NDktMzBlNy1iMDE5LWE3MThjZmZhYTcxYSJ9.xTUuVDg3HLi5eGD"\
+        "JvEwGw9b7IlXfF3e9hJbkmpx8BvY"\
+        "&cvvAuthorize=true&amount=" + money + "&type=recurring"
+        for i,h in enumerate(meta_list):
+            if i ==0:
+                url+="&%E8%A6%8B%E7%A9%8D%E7%95%AA%E5%8F%B7=" + h
+            else:
+                url+="&%E8%A6%8B%E7%A9%8D%E7%95%AA%E5%8F%B7" + str(i) + "=" + h
+
+        s = pyshorteners.Shortener()
+        s_url=s.tinyurl.short(url)
+        d={"url":s_url}
+        return JsonResponse(d)
+        
+    return render(request,"sfa/credit_url.html")
+
+
+
 
 # 元DB取込
 def csv_imp_page(request):
@@ -1328,52 +1358,52 @@ def csv_imp(request):
     csv_list=list(csv_content)
 
 
-    # # Crm_actionへの入力
-    # h=0
-    # for i in csv_list:
-    #     if h!=0:
-    #         Crm_action.objects.create(
-    #             cus_id=i[0],
-    #             day="2024-06-14",
-    #             type=8,
-    #             text="半年版切れ　2023年12月分",
-    #             approach_id="14"
-    #             )
-    #     h+=1
-
-
-    # Approachへの入力
+    # Crm_actionへの入力
     h=0
     for i in csv_list:
-        if h!=0:                
-            Approach.objects.create(
-                approach_id="14",
-                mitsu_id=i[0],
-                mitsu_num=i[1],
-                mitsu_ver=i[2],
-                order_kubun=i[3],
-                juchu_day=i[4],
-                busho_id=i[8],
-                busho_name=i[9],
-                tantou_id=i[5],
-                tantou_apr_id=i[5],
-                tantou_sei=i[6],
-                tantou_mei=i[7],
-                cus_id=i[10],
-                cus_com=i[16],
-                cus_busho=i[17],
-                cus_sei=i[11],
-                cus_mei=i[12],
-                cus_tel=i[18],
-                cus_mob=i[19],
-                cus_mail=i[13],
-                money=i[20],
-                kakou=i[22],
-                factory=i[24],
-                gara=i[25],
-                kigen=i[27]
-            )
+        if h!=0:
+            Crm_action.objects.create(
+                cus_id=i[0],
+                day="2024-06-24",
+                type=8,
+                text="夏の製作応援キャンペーン　2024年",
+                approach_id="15"
+                )
         h+=1
+
+
+    # # Approachへの入力
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:                
+    #         Approach.objects.create(
+    #             approach_id="14",
+    #             mitsu_id=i[0],
+    #             mitsu_num=i[1],
+    #             mitsu_ver=i[2],
+    #             order_kubun=i[3],
+    #             juchu_day=i[4],
+    #             busho_id=i[8],
+    #             busho_name=i[9],
+    #             tantou_id=i[5],
+    #             tantou_apr_id=i[5],
+    #             tantou_sei=i[6],
+    #             tantou_mei=i[7],
+    #             cus_id=i[10],
+    #             cus_com=i[16],
+    #             cus_busho=i[17],
+    #             cus_sei=i[11],
+    #             cus_mei=i[12],
+    #             cus_tel=i[18],
+    #             cus_mob=i[19],
+    #             cus_mail=i[13],
+    #             money=i[20],
+    #             kakou=i[22],
+    #             factory=i[24],
+    #             gara=i[25],
+    #             kigen=i[27]
+    #         )
+    #     h+=1
 
 
     # # Customerへの入力
@@ -1462,9 +1492,19 @@ def clear_session(request):
     # request.session.clear()
 
     ins=Customer.objects.all()
-
     for i in ins:
-        pass
-       
+        try:
+            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
+            res2=requests.get(url2)
+            res2=res2.json()
+                
+            i.mitsu_last_busho_id=res2["lastHandledDepartmentId"]
+            i.mitsu_last_busho=res2["lastHandledDepartmentName"]
+            i.mitsu_last_tantou_id=res2["lastHandledId"]
+            i.mitsu_last_tantou=res2["lastHandledName"]
+            i.save()
+        except:
+            print(i.cus_id)
+
   
     return redirect("sfa:index")

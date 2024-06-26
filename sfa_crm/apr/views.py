@@ -210,6 +210,10 @@ def approach_list_add(request):
     for i in csv_list:
         if h!=0:
             
+            # Crm_action
+            Crm_action.objects.create(cus_id=i[10],day=day,type=8,text=title,approach_id=approach_id)
+
+            
             # url
             url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10] + "/receivedOrders/" + i[1] + "/" + i[2]
             res=requests.get(url)
@@ -248,8 +252,7 @@ def approach_list_add(request):
                 kigen=i[27]
             )
 
-            # Crm_action
-            Crm_action.objects.create(cus_id=i[10],day=day,type=8,text=title,approach_id=approach_id)
+            
 
         h+=1
  
