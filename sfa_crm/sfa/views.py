@@ -1340,11 +1340,21 @@ def credit_url(request):
         return JsonResponse(d)
     
     # アクティブ担当
+    if "search" not in request.session:
+        request.session["search"]={}
+    if "tantou" not in request.session["search"]:
+        request.session["search"]["tantou"]=""
+
     act_id=request.session["search"]["tantou"]
     if act_id=="":
         act_user="担当者が未設定です"
+        tantou="不明"
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+        tantou=Member.objects.get(tantou_id=act_id).tantou
+
+    # 履歴
+    
 
     return render(request,"sfa/credit_url.html",{"act_user":act_user})
 

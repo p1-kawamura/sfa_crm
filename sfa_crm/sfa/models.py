@@ -100,3 +100,14 @@ class Sfa_group(models.Model):
 
     def __str__(self):
         return self.mitsu_id_child
+    
+
+class Credit_url(models.Model):
+    day=models.DateTimeField("発行日",auto_now_add=True)
+    tantou=models.CharField("担当",max_length=255)
+    meta_data=models.CharField("見積番号",max_length=255)
+    money=models.IntegerField("金額",default=0)
+    url=models.CharField("URL",max_length=255)
+
+    def __str__(self):
+        return self.tantou
