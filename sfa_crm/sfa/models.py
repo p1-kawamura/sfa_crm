@@ -103,7 +103,7 @@ class Sfa_group(models.Model):
     
 
 class Credit_url(models.Model):
-    day=models.DateTimeField("発行日",auto_now_add=True)
+    day=models.CharField("発行日時",max_length=255)
     tantou=models.CharField("担当",max_length=255)
     meta_data=models.CharField("見積番号",max_length=255)
     money=models.IntegerField("金額",default=0)

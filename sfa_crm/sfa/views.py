@@ -1353,7 +1353,8 @@ def credit_url(request):
 
         # 履歴
         meta_data=",".join(meta_list)
-        Credit_url.objects.create(tantou=tantou,meta_data=meta_data,money=money,url=s_url)
+        day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        Credit_url.objects.create(day=day,tantou=tantou,meta_data=meta_data,money=money,url=s_url)
 
         d={"url":s_url}
         return JsonResponse(d)

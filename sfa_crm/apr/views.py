@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Approach,Approach_list
+from .models import Approach,Approach_list,Hangire
 from crm.models import Crm_action,Customer
 from sfa.models import Member
 import requests
@@ -181,14 +181,7 @@ def approach_send(request):
 # アプローチリスト設定_一覧表示
 def approach_list_index(request):
     ins=Approach_list.objects.all()
-
-    # アクティブ担当
-    act_id=request.session["search"]["tantou"]
-    if act_id=="":
-        act_user="担当者が未設定です"
-    else:
-        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
-    return render(request,"apr/approach_list.html",{"list":ins,"act_user":act_user})
+    return render(request,"apr/approach_list.html",{"list":ins})
 
 
 # アプローチリスト設定_追加
@@ -251,12 +244,51 @@ def approach_list_add(request):
                     gara=i[25],
                     kigen=i[27]
                 )
-
         h+=1
- 
-    return redirect("apr:approach_list_index")
+    return render(request,"apr/approach_list.html",{"ans":"yes"})
 
+
+# 版切れリストCSV取込
+def hangire_csv_imp(request):
+    data = io.TextIOWrapper(request.FILES['csv2'].file, encoding="cp932")
+    csv_content = csv.reader(data)
+    csv_list=list(csv_content)
+
+    h=0
+    for i in csv_list:
+        if h!=0:
+            # url
+            url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[13] + "/receivedOrders/" + i[1] + "/" + i[2]
+            res=requests.get(url)
+            res=res.json()
+            res=res["receivedOrder"]
+            mitsu_url=res["estimationPageUrl"]
+
+            Hangire.objects.create(
+                mitsu_id=i[0],
+                mitsu_num=i[1],
+                mitsu_ver=i[2],
+                mitsu_url=mitsu_url,
+                juchu_day=i[3],
+                busho_id=i[14],
+                busho_name=i[15],
+                tantou_id=i[4],
+                tantou_apr_id=i[4],
+                tantou_sei=i[5],
+                tantou_mei=i[6],
+                cus_id=i[13],
+                cus_com=i[10],
+                cus_sei=i[7],
+                cus_mei=i[8],
+                cus_mail=i[9],
+                pref=i[16],
+                money=i[11],
+                kakou=i[12],
+            )
+        h+=1
+    return render(request,"apr/approach_list.html",{"ans2":"yes"})
 
 
 def hangire_index(request):
+    
     return render(request,"apr/hangire.html")
