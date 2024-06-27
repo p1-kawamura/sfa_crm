@@ -238,6 +238,11 @@ def index_api(request):
             i.show=1
             i.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             i.save()
+
+        # 操作者
+        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+        print(sousa_busho,sousa_tantou)
     
     return redirect("sfa:index")
 

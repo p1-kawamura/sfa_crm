@@ -57,8 +57,8 @@ class Hangire(models.Model):
     apr_day=models.CharField("アプローチ日",max_length=255,blank=True,null=True)
     apr_tantou=models.CharField("対応者",max_length=255,blank=True,null=True)
     apr_type=models.IntegerField("アプローチ方法",default=0)
-    tel_result=models.CharField("対応不在",max_length=255,blank=True,null=True)
-    text=models.CharField("備考",max_length=255,blank=True,null=True)
+    apr_tel_result=models.CharField("対応不在",max_length=255,blank=True,null=True)
+    apr_text=models.CharField("備考",max_length=255,blank=True,null=True)
     mitsu_id=models.CharField("見積ID",max_length=255,blank=True,null=True)
     mitsu_url=models.CharField("見積URL",max_length=255,blank=True,null=True)
     mitsu_num=models.CharField("見積番号",max_length=255,blank=True,null=True)
@@ -82,3 +82,4 @@ class Hangire(models.Model):
     def __str__(self):
         return self.cus_id
     
+    #apr_type（アプローチ方法）　1:TEL　2:メール　3:その他

@@ -29,8 +29,6 @@ def approach_index(request):
         request.session["apr_search"]["apr_pref"]=""
     if "apr_result" not in request.session["apr_search"]:
         request.session["apr_search"]["apr_result"]=[]
-    if "apr_ins" not in request.session["apr_search"]:
-        request.session["apr_search"]["apr_ins"]=""
 
     ses=request.session["apr_search"]
  
@@ -290,5 +288,76 @@ def hangire_csv_imp(request):
 
 
 def hangire_index(request):
+    if "han_search" not in request.session:
+        request.session["han_search"]={}
+    if "han_busho" not in request.session["han_search"]:
+        request.session["han_search"]["han_busho"]=""
+    if "han_tantou" not in request.session["apr_search"]:
+        request.session["han_search"]["han_tantou"]=""
+    if "han_pref" not in request.session["han_search"]:
+        request.session["han_search"]["han_pref"]=""
+    if "han_result" not in request.session["han_search"]:
+        request.session["han_search"]["han_result"]=[]
+
+    ses=request.session["han_search"]
+ 
+    # フィルター
+    fil={}
+    if ses["han_busho"] != "":
+        fil["busho_id"]=ses["han_busho"]
+    if ses["han_tantou"] != "":
+        fil["tantou_apr_id"]=ses["han_tantou"]
+    if ses["han_pref"] != "":
+        fil["pref"]=ses["han_pref"]
     
-    return render(request,"apr/hangire.html")
+    # 進捗を含めない個数
+    ins=Hangire.objects.filter(**fil)
+    result_list=[["0","未対応"],["1","不在"],["2","受注"],["3","失注"],["4","不要"]]
+    for i in result_list:
+        i.append(ins.filter(result=i[0]).count())
+
+    # 進捗を含む
+    if len(ses["han_result"])!=0:
+        fil["result__in"]=ses["han_result"]
+    ins=Hangire.objects.filter(**fil)
+
+    busho_list=list(Hangire.objects.all().values_list("busho_id","busho_name").order_by("busho_id").distinct())
+    tantou_list=list(Hangire.objects.all().values_list("busho_id","tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    tantou_id_list=list(Hangire.objects.all().values_list("tantou_id",flat=True))
+    tantou_member=Member.objects.all()
+    for i in tantou_member:
+        if i.tantou_id not in tantou_id_list:
+            tantou_list.append((i.busho_id,i.tantou_id,i.tantou,""))
+    tantou_list=sorted(tantou_list)
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    params={
+        "cus_list":ins,
+        "act_user":act_user,
+        "result_list":result_list,
+        "busho_list":busho_list,
+        "tantou_list":tantou_list,
+        "pref_list":[
+            '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
+            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
+            '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
+            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "ses":ses,
+    }
+
+    return render(request,"apr/hangire.html",params)
+
+
+# 版切れリストの検索
+def hangire_search(request):
+    request.session["han_search"]["han_busho"]=request.POST["han_busho"]
+    request.session["han_search"]["han_tantou"]=request.POST["han_tantou"]
+    request.session["han_search"]["han_pref"]=request.POST["han_pref"]
+    request.session["han_search"]["han_result"]=request.POST.getlist("han_result")
+    return redirect("apr:hangire_index")
