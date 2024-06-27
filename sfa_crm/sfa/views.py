@@ -77,6 +77,11 @@ def index_api(request):
 
     tantou_id=request.session["search"]["tantou"]
     if tantou_id != "":
+        # 操作者
+        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+        print(sousa_busho,sousa_tantou)
+        
         last_api=Member.objects.get(tantou_id=tantou_id).last_api
         url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + tantou_id + "&updatedAtFrom=" + last_api
         res=requests.get(url)
@@ -237,12 +242,7 @@ def index_api(request):
         for i in ins:
             i.show=1
             i.hidden_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            i.save()
-
-        # 操作者
-        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
-        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-        print(sousa_busho,sousa_tantou)
+            i.save() 
     
     return redirect("sfa:index")
 
