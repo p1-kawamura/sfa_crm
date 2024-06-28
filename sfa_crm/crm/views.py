@@ -134,7 +134,7 @@ def kokyaku_api(request):
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
     sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■顧客詳細")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ 顧客詳細")
     
 
     params={
