@@ -129,6 +129,14 @@ def kokyaku_api(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
+    # 操作者
+    tantou_id=request.session["search"]["tantou"]
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    print(sousa_time,sousa_busho,sousa_tantou,"■顧客詳細")
+    
+
     params={
         "res":res,
         "res_det":res_det,
