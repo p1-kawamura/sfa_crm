@@ -81,7 +81,7 @@ def index_api(request):
         sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
         sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-        print(sousa_time,sousa_busho,sousa_tantou,"■API接続")
+        print(sousa_time,sousa_busho,sousa_tantou,"■ API接続")
         
         last_api=Member.objects.get(tantou_id=tantou_id).last_api
         url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + tantou_id + "&updatedAtFrom=" + last_api
@@ -515,7 +515,7 @@ def search(request):
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
     sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■表示ボタン")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ 表示ボタン")
 
     return redirect("sfa:index")
 
@@ -622,7 +622,7 @@ def mitsu_detail_api(request):
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
     sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■モーダル")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ モーダル")
 
     return JsonResponse(d)
 
@@ -1031,7 +1031,7 @@ def show(request):
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
     sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■案件表示設定")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ 案件表示設定")
 
     return render(request,"sfa/show.html",{"list":ins,"mitsu_num":mitsu_num,"com":com,"name":name,"act_user":act_user})
 
@@ -1059,7 +1059,7 @@ def mw_page(request):
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
     sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■MW一覧")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ MW一覧")
 
     return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"ans":ans,"act_user":act_user})
 
@@ -1227,7 +1227,7 @@ def hidden_index(request):
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
     sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■非表示一覧")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ 非表示一覧")
 
     return render(request,"sfa/hidden.html",{"list":ins,"act_user":act_user})
 
