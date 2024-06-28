@@ -129,7 +129,8 @@ def approach_click(request):
     ins=Approach.objects.get(pk=pk)
     ins.result=apr_result
     ins.tel_day=tel_day
-    ins.tel_result=tel_result
+    if tel_day!="":
+        ins.tel_result=tel_result
     ins.tel_tantou=tel_tantou
     ins.tel_text=tel_text
     ins.save()
@@ -205,7 +206,7 @@ def approach_list_add(request):
             Crm_action.objects.create(cus_id=i[10],day=day,type=8,text=title,approach_id=approach_id)
 
             # Approach 
-            if action==1:
+            if action=="1":
                 # url
                 url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10] + "/receivedOrders/" + i[1] + "/" + i[2]
                 res=requests.get(url)
@@ -243,7 +244,8 @@ def approach_list_add(request):
                     kigen=i[27]
                 )
         h+=1
-    return render(request,"apr/approach_list.html",{"ans":"yes"})
+    ins=Approach_list.objects.all()
+    return render(request,"apr/approach_list.html",{"ans":"yes","list":ins})
 
 
 # 版切れリストCSV取込

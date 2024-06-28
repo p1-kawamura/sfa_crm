@@ -81,7 +81,7 @@ def index_api(request):
         sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
         sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-        print(sousa_time,sousa_busho,sousa_tantou)
+        print(sousa_time,sousa_busho,sousa_tantou,"■API接続")
         
         last_api=Member.objects.get(tantou_id=tantou_id).last_api
         url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + tantou_id + "&updatedAtFrom=" + last_api
@@ -510,6 +510,13 @@ def search(request):
     request.session["search"]["show"]=show
     request.session["search"]["page_num"]=1
 
+    # 操作者
+    tantou_id=request.session["search"]["tantou"]
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    print(sousa_time,sousa_busho,sousa_tantou,"■表示ボタン")
+
     return redirect("sfa:index")
 
 
@@ -609,6 +616,14 @@ def mitsu_detail_api(request):
         "parent_me":parent_me,
         "version_list":version_list,
         }
+    
+    # 操作者
+    tantou_id=request.session["search"]["tantou"]
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    print(sousa_time,sousa_busho,sousa_tantou,"■モーダル")
+
     return JsonResponse(d)
 
 
@@ -1011,6 +1026,13 @@ def show(request):
         act_user="担当者が未設定です"
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    # 操作者
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    print(sousa_time,sousa_busho,sousa_tantou,"■案件表示設定")
+
     return render(request,"sfa/show.html",{"list":ins,"mitsu_num":mitsu_num,"com":com,"name":name,"act_user":act_user})
 
 
@@ -1032,6 +1054,13 @@ def mw_page(request):
         act_user="担当者が未設定です"
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    # 操作者
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    print(sousa_time,sousa_busho,sousa_tantou,"■MW一覧")
+
     return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"ans":ans,"act_user":act_user})
 
 
@@ -1193,6 +1222,13 @@ def hidden_index(request):
         act_user="担当者が未設定です"
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    # 操作者
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    print(sousa_time,sousa_busho,sousa_tantou,"■非表示一覧")
+
     return render(request,"sfa/hidden.html",{"list":ins,"act_user":act_user})
 
 
