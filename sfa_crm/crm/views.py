@@ -78,14 +78,8 @@ def kokyaku_api(request):
             dic["status"]=res2[li[2]]["estimationStatus"]
             dic["money"]=res2[li[2]]["totalPrice"]
             dic["cus_id"]=cus_id
-
-            url3="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders/" + res2[li[2]]["estimationNumber"] + "/" + str(res2[li[2]]["estimationVersion"])
-            res3=requests.get(url3)
-            res3=res3.json()
-
-            dic["busho"]=res3["receivedOrder"]["handledDepartmentName"]
-            dic["tantou"]=res3["receivedOrder"]["handledByName"]
-
+            dic["busho"]=res2[li[2]]["handledDepartmentName"]
+            dic["tantou"]=res2[li[2]]["handledByName"]
         else:
             for ac in ins:
                 if ac.act_id==li[2]:

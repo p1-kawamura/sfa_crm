@@ -27,10 +27,10 @@
             <hr>
             <!-- フィルター -->
             <div>
-                <form action="{% url 'apr:hangire_search' %}" method="post" name="form_filter">{% csrf_token %}
+                <form action="{% url 'apr:hangire_search' %}" method="post">{% csrf_token %}
 
                     <div class="flex">
-                        <div style="margin-left: 30px;">部署：</div>
+                        <div>部署：</div>
                         <div>
                             <select class="form-select" name="han_busho" id="han_busho" style="width: 240px;">
                                 <option value=""></option>
@@ -56,9 +56,7 @@
                                 {% endfor %}
                             </select>
                         </div>
-                    </div>
-                    <div class="flex mt-4">
-                        <div>都道府県：</div>
+                        <div style="margin-left: 30px;">都道府県：</div>
                         <div>
                             <select class="form-select" id="han_pref" name="han_pref" style="width: 150px;">
                                 {% for i in pref_list %}
@@ -132,19 +130,31 @@
                         {% if i.result == "0" %}
                         <td id="ans_apr_result_{{i.pk}}"><span style="color: #212529;"></span></td>
                         {% elif i.result == "1" %}
-                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #81bec9;"><span style="color: #212529;">{{result_list.1.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #cbf7ff;"><span style="color: #0060c0;">{{result_list.1.1}}</span></td>
                         {% elif i.result == "2" %}
-                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #ff9c9c;"><span style="color: #212529;">{{result_list.2.1}}</span></td>
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #ffb3b3;"><span style="color: #ce0000;">{{result_list.2.1}}</span></td>
                         {% elif i.result == "3" %}
                         <td id="ans_apr_result_{{i.pk}}" style="background-color: #850000;"><span style="color: #fff;">{{result_list.3.1}}</span></td>
                         {% elif i.result == "4" %}
                         <td id="ans_apr_result_{{i.pk}}" style="background-color: #d1d1d1;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
                         {% endif %}
 
-                        <td id="ans_tel_day_{{i.pk}}">{% if i.tel_day %}{{i.tel_day}}{% endif %}</td>
-                        <td id="ans_tel_tantou_{{i.pk}}">{% if i.tel_tantou %}{{i.tel_tantou}}{% endif %}</td>
-                        <td></td>
-                        <td id="ans_tel_text_{{i.pk}}" class="bikou">{% if i.tel_text %}{{i.tel_text}}{% endif %}</td>
+                        <td id="ans_apr_day_{{i.pk}}">{% if i.apr_day %}{{i.apr_day}}{% endif %}</td>
+                        <td id="ans_apr_tantou_{{i.pk}}">{% if i.apr_tantou %}{{i.apr_tantou}}{% endif %}</td>
+                        <td id="ans_apr_type_{{i.pk}}" style="text-align: center;">
+                            {% if i.apr_type == 1 %}
+                                {% if i.apr_tel_result == "対応" %}
+                                    <span style="color: blue; font-size: 1.5em;"><i class="bi bi-telephone-forward-fill"></i></span>
+                                {% else %}
+                                    <span style="color: rgb(130, 130, 130); font-size: 1.5em;"><i class="bi bi-telephone-x-fill"></i></span>
+                                {% endif %}
+                            {% elif i.apr_type == 2 %}
+                                <span style="color: rgb(204, 173, 0); font-size: 1.5em;"><i class="bi bi-envelope-fill"></i></span>
+                            {% elif i.apr_type == 3 %}
+                                <span style="font-size: 1.2em;">他</span>
+                            {% endif %}
+                        </td>
+                        <td id="ans_apr_text_{{i.pk}}" class="bikou">{% if i.apr_text %}{{i.apr_text}}{% endif %}</td>
                         <td>
                             <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
                         </td>
@@ -165,11 +175,11 @@
                         <td>{{i.kakou}}</td>
                     </tr>
                     <tr style="display: none; background-color: #ffc6c6;">
-                        <td colspan="23">
+                        <td colspan="17">
                             <div class="flex">
-                                <div>進捗：</div>
+                                <div>結果：</div>
                                 <div>
-                                    <select class="form-select form-select-sm" id="apr_result_{{i.pk}}" name="apr_result_shows" style="width: 160px;">
+                                    <select class="form-select form-select-sm" id="apr_result_{{i.pk}}" name="apr_result_shows" style="width: 140px;">
                                         {% for h in result_list %}
                                             {% if h.0 == i.result %}
                                             <option value="{{h.0}}" selected>{{h.1}}</option>
@@ -177,29 +187,44 @@
                                             <option value="{{h.0}}">{{h.1}}</option>
                                             {% endif %}
                                         {% endfor %}
-                                        <option value="13">別担当へ転送</option>
+                                        <option value="5">別担当へ転送</option>
                                     </select>
                                 </div>
                                 <!-- コメント入力 -->
                                 <div class="flex" id="show_A_{{i.pk}}">
-                                    <div style="margin-left: 30px;">架電日：</div>
+                                    <div style="margin-left: 30px;">連絡日：</div>
                                     <div>
-                                        {% if i.tel_day %}
-                                        <input class="form-control form-control-sm" type="date" id="tel_day_{{i.pk}}" style="width: 120px;" value="{{i.tel_day}}">
+                                        {% if i.apr_day %}
+                                        <input class="form-control form-control-sm" type="date" id="apr_day_{{i.pk}}" style="width: 120px;" value="{{i.apr_day}}">
                                         {% else %}
-                                        <input class="form-control form-control-sm" type="date" id="tel_day_{{i.pk}}" style="width: 120px;">
+                                        <input class="form-control form-control-sm" type="date" id="apr_day_{{i.pk}}" style="width: 120px;">
                                         {% endif %}
                                     </div>
-                                    <div style="margin-left: 30px;">架電者：</div>
+                                    <div style="margin-left: 30px;">対応者：</div>
                                     <div>
-                                        {% if i.tel_tantou %}    
-                                        <input class="form-control form-control-sm" type="text" id="tel_tantou_{{i.pk}}" style="width: 70px;" value="{{i.tel_tantou}}">
+                                        {% if i.apr_tantou %}    
+                                        <input class="form-control form-control-sm" type="text" id="apr_tantou_{{i.pk}}" style="width: 70px;" value="{{i.apr_tantou}}">
                                         {% else %}
-                                        <input class="form-control form-control-sm" type="text" id="tel_tantou_{{i.pk}}" style="width: 70px;">
+                                        <input class="form-control form-control-sm" type="text" id="apr_tantou_{{i.pk}}" style="width: 70px;">
                                         {% endif %}
                                     </div>
-                                    <div style="margin-left: 30px;">対応/不在：</div>
+                                    <div style="margin-left: 30px;">方法：</div>
                                     <div>
+                                        <select class="form-select form-select-sm" id="apr_type_{{i.pk}}" name="apr_type_shows" style="width: 100px;">
+                                            {% for h,j in apr_type_list.items %}
+                                                {% if h == i.apr_type %}
+                                                <option value="{{h}}" selected>{{j}}</option>
+                                                {% else %}
+                                                <option value="{{h}}">{{j}}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    {% if i.apr_type == 1 and i.apr_tel_result == "対応" %}
+                                    <div style="margin-left: 5px; display: block;" id="tel_result_show_{{i.pk}}">
+                                    {% else %}
+                                    <div style="margin-left: 5px; display: none;" id="tel_result_show_{{i.pk}}">
+                                    {% endif %}
                                         <select class="form-select form-select-sm" id="tel_result_{{i.pk}}" style="width: 80px;">
                                             {% if i.tel_result == "不在" %}
                                             <option value="対応">対応</option>
@@ -212,10 +237,10 @@
                                     </div>
                                     <div style="margin-left: 30px;">備考：</div>
                                     <div>
-                                        {% if i.tel_text %} 
-                                        <input class="form-control form-control-sm" type="text" id="tel_text_{{i.pk}}" style="width: 350px;" value="{{i.tel_text}}">
+                                        {% if i.apr_text %} 
+                                        <input class="form-control form-control-sm" type="text" id="apr_text_{{i.pk}}" style="width: 300px;" value="{{i.apr_text}}">
                                         {% else %}
-                                        <input class="form-control form-control-sm" type="text" id="tel_text_{{i.pk}}" style="width: 350px;">
+                                        <input class="form-control form-control-sm" type="text" id="apr_text_{{i.pk}}" style="width: 300px;">
                                         {% endif %}
                                     </div>
                                     <div style="margin-left: 30px;">
@@ -345,12 +370,26 @@
         for (var i=0; i<item.length; i++){
             item[i].addEventListener("change",function(){
                 var id=this.id.split("_")[2];
-                if (this.value=="13"){
+                if (this.value=="5"){
                     document.getElementById("show_A_" + id).style.display="none";
                     document.getElementById("show_B_" + id).style.display="";
                 } else {
                     document.getElementById("show_A_" + id).style.display="";
                     document.getElementById("show_B_" + id).style.display="none";
+                };
+            },false)
+        };
+
+
+        // TEL結果表示
+        var item=document.getElementsByName("apr_type_shows");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("change",function(){
+                var id=this.id.split("_")[2];
+                if (this.value=="1"){
+                    document.getElementById("tel_result_show_" + id).style.display="";
+                } else {
+                    document.getElementById("tel_result_show_" + id).style.display="none";
                 };
             },false)
         };
@@ -362,22 +401,24 @@
             item[i].addEventListener("click",function(){
                 var id=this.id
                 var apr_result=document.getElementById("apr_result_" + id).value;
-                var tel_day=document.getElementById("tel_day_" + id).value;
-                var tel_tantou=document.getElementById("tel_tantou_" + id).value;
+                var apr_day=document.getElementById("apr_day_" + id).value;
+                var apr_tantou=document.getElementById("apr_tantou_" + id).value;
+                var apr_type=document.getElementById("apr_type_" + id).value;
                 var tel_result=document.getElementById("tel_result_" + id).value;
-                var tel_text=document.getElementById("tel_text_" + id).value;
+                var apr_text=document.getElementById("apr_text_" + id).value;
                 var cus_id=document.getElementById("apr_cus_" + id).textContent;
 
                 $.ajax({
-                    'url': '{% url "apr:approach_click" %}',
+                    'url': '{% url "apr:hangire_click" %}',
                     'type': 'POST',
                     'data': {
                         "pk":this.id,
                         "apr_result":apr_result,
-                        "tel_day":tel_day,
-                        "tel_tantou":tel_tantou,
+                        "apr_day":apr_day,
+                        "apr_tantou":apr_tantou,
+                        "apr_type":apr_type,
                         "tel_result":tel_result,
-                        "tel_text":tel_text,
+                        "apr_text":apr_text,
                         "cus_id":cus_id
                     },
                     'dataType': 'json'
@@ -386,15 +427,27 @@
                     id=response.pk;
                     var ans = response.ans
                     var sel_list=[
-                        ["0","#212529",""],["1","#212529","#e4e4e4"],["2","#212529","#f0ff9c"],["3","#212529","#d1ff7c"],
-                        ["4","#212529","#b3fcff"],["5","#fff","#ac1400"],["6","#fff","#007e00"],["7","#fff","#002791"],["8","#fff","#303030"],
-                        ["9","#fff","#5e0083"],["10","#212529","#ffaff8"],["11","#fff","#6d0d00"],["12","#fff","#616161"]
+                        ["0","#212529",""],["1","#0060c0","#cbf7ff"],["2","#ce0000","#ffb3b3"],["3","#fff","#850000"],["4","#212529","#d1d1d1"]
                     ]
                     document.getElementById("ans_apr_result_" + id).innerHTML="<span style='color:" + sel_list[ans][1] +  ";'>" + response.apr_result + "</span>";
                     document.getElementById("ans_apr_result_" + id).style.backgroundColor=sel_list[ans][2];
-                    document.getElementById("ans_tel_day_" + id).innerText=response.tel_day;
-                    document.getElementById("ans_tel_tantou_" + id).innerText=response.tel_tantou;
-                    document.getElementById("ans_tel_text_" + id).innerText=response.tel_text;
+                    document.getElementById("ans_apr_day_" + id).innerText=response.apr_day;
+                    document.getElementById("ans_apr_tantou_" + id).innerText=response.apr_tantou;
+                    document.getElementById("ans_apr_text_" + id).innerText=response.apr_text;
+
+                    var type_show = "";
+                    if (response.apr_type==1){
+                        if (response.tel_result=="対応"){
+                            type_show="<span style='color: blue; font-size: 1.5em;''><i class='bi bi-telephone-forward-fill'></i></span>";
+                        } else{
+                            type_show="<span style='color: rgb(130, 130, 130); font-size: 1.5em;''><i class='bi bi-telephone-x-fill'></i></span>";
+                        };
+                    } else if (response.apr_type==2){
+                        type_show="<span style='color: rgb(204, 173, 0); font-size: 1.5em;''><i class='bi bi-envelope-fill'></i></span>"
+                    } else if (response.apr_type==3){
+                        type_show="<span style='font-size: 1.2em;'>他</span>"
+                    };
+                    document.getElementById("ans_apr_type_" + id).innerHTML=type_show;
 
                     var rc=response.result_count;
                     for (i=0; i<rc.length; i++){
@@ -416,7 +469,7 @@
                     return
                 }
                 $.ajax({
-                    'url': '{% url "apr:approach_send" %}',
+                    'url': '{% url "apr:hangire_send" %}',
                     'type': 'POST',
                     'data': {"pk":id,"tantou_id":tantou_id},
                     'dataType': 'json'
@@ -434,10 +487,12 @@
             item[i].addEventListener("click",function(){
                 var id=this.id.split("_")[1];
                 document.getElementById("apr_result_" + id).value=0;
-                document.getElementById("tel_day_" + id).value="";
-                document.getElementById("tel_tantou_" + id).value="";
+                document.getElementById("apr_day_" + id).value="";
+                document.getElementById("apr_tantou_" + id).value="";
+                document.getElementById("apr_type_" + id).value=0;
                 document.getElementById("tel_result_" + id).value="対応";
-                document.getElementById("tel_text_" + id).value="";
+                document.getElementById("apr_text_" + id).value="";
+                document.getElementById("tel_result_show_" + id).style.display="none";
             },false)
         };
 

@@ -138,6 +138,12 @@ def approach_click(request):
     if tel_day != "":
         text=tel_text + "（" + tel_tantou + "）"
         Crm_action.objects.create(cus_id=cus_id, day=tel_day, type=4, text=text, tel_result=tel_result)
+        # 最終コンタクト日
+        if tel_result=="対応":
+            ins=Customer.objects.get(cus_id=cus_id)
+            if tel_day > ins.contact_last:
+                ins.contact_last=tel_day
+                ins.save()
     
     ses=request.session["apr_search"]
     fil={}
@@ -166,7 +172,7 @@ def approach_click(request):
     return JsonResponse(d)
 
 
-# 別担当へ転送
+# アプローチリスト_別担当へ転送
 def approach_send(request):
     pk=request.POST.get("pk")
     tantou_id=request.POST.get("tantou_id")
@@ -289,12 +295,13 @@ def hangire_csv_imp(request):
     return render(request,"apr/approach_list.html",{"ans2":"yes"})
 
 
+# 版切れリスト
 def hangire_index(request):
     if "han_search" not in request.session:
         request.session["han_search"]={}
     if "han_busho" not in request.session["han_search"]:
         request.session["han_search"]["han_busho"]=""
-    if "han_tantou" not in request.session["apr_search"]:
+    if "han_tantou" not in request.session["han_search"]:
         request.session["han_search"]["han_tantou"]=""
     if "han_pref" not in request.session["han_search"]:
         request.session["han_search"]["han_pref"]=""
@@ -314,6 +321,7 @@ def hangire_index(request):
     
     # 進捗を含めない個数
     ins=Hangire.objects.filter(**fil)
+    apr_type_list={0:"",1:"TEL",2:"メール",3:"その他"}
     result_list=[["0","未対応"],["1","不在"],["2","受注"],["3","失注"],["4","不要"]]
     for i in result_list:
         i.append(ins.filter(result=i[0]).count())
@@ -325,6 +333,8 @@ def hangire_index(request):
 
     busho_list=list(Hangire.objects.all().values_list("busho_id","busho_name").order_by("busho_id").distinct())
     tantou_list=list(Hangire.objects.all().values_list("busho_id","tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+    print(tantou_list)
+
     tantou_id_list=list(Hangire.objects.all().values_list("tantou_id",flat=True))
     tantou_member=Member.objects.all()
     for i in tantou_member:
@@ -345,6 +355,7 @@ def hangire_index(request):
         "result_list":result_list,
         "busho_list":busho_list,
         "tantou_list":tantou_list,
+        "apr_type_list":apr_type_list,
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
@@ -363,3 +374,77 @@ def hangire_search(request):
     request.session["han_search"]["han_pref"]=request.POST["han_pref"]
     request.session["han_search"]["han_result"]=request.POST.getlist("han_result")
     return redirect("apr:hangire_index")
+
+
+# 版切れリスト入力画面表示
+def hangire_click(request):
+    pk=request.POST.get("pk")
+    apr_result=request.POST.get("apr_result")
+    apr_day=request.POST.get("apr_day")
+    apr_tantou=request.POST.get("apr_tantou")
+    apr_type=request.POST.get("apr_type")
+    tel_result=request.POST.get("tel_result")
+    apr_text=request.POST.get("apr_text")
+    cus_id=request.POST.get("cus_id")
+    result_list={"0":"", "1":"不在", "2":"受注", "3":"失注", "4":"不要"}
+
+    ins=Hangire.objects.get(pk=pk)
+    ins.result=apr_result
+    ins.apr_day=apr_day
+    ins.apr_type=apr_type
+    if apr_day!="":
+        ins.apr_tel_result=tel_result
+    ins.apr_tantou=apr_tantou
+    ins.apr_text=apr_text
+    ins.save()
+
+    # if apr_day != "":
+    #     text=apr_text + "（" + apr_tantou + "）"
+    #     if apr_type==1 and tel_result=="対応":
+    #         Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=4, text=text, tel_result=tel_result)
+    #     elif apr_type==2:
+    #         Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=2, text=text)
+    #     # 最終コンタクト日
+    #     if (apr_type==1 and tel_result=="対応") or apr_type==2:
+    #         ins=Customer.objects.get(cus_id=cus_id)
+    #         if apr_day > ins.contact_last:
+    #             ins.contact_last=apr_day
+    #             ins.save()
+    
+    ses=request.session["han_search"]
+    fil={}
+    if ses["han_busho"] != "":
+        fil["busho_id"]=ses["han_busho"]
+    if ses["han_tantou"] != "":
+        fil["tantou_id"]=ses["han_tantou"]
+    if ses["han_pref"] != "":
+        fil["pref"]=ses["han_pref"]
+
+    ins=Hangire.objects.filter(**fil)
+    result_count=[]
+    for i in range(5):
+        result_count.append(ins.filter(result=i).count())
+
+    d={
+        "pk":pk,
+        "ans":apr_result,
+        "apr_result":result_list[apr_result],
+        "apr_day":apr_day,
+        "apr_tantou":apr_tantou,
+        "apr_type":apr_type,
+        "tel_result":tel_result,
+        "apr_text":apr_text,
+        "result_count":result_count,
+        }
+    return JsonResponse(d)
+
+
+# 版切れリスト_別担当へ転送
+def hangire_send(request):
+    pk=request.POST.get("pk")
+    tantou_id=request.POST.get("tantou_id")
+    ins=Hangire.objects.get(pk=pk)
+    ins.tantou_apr_id=tantou_id
+    ins.save()
+    d={}
+    return JsonResponse(d)

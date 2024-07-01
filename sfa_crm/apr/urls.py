@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import approach_index,approach_search,approach_click,approach_send,approach_title,approach_list_index,approach_list_add,\
-                    hangire_index,hangire_search,hangire_csv_imp
+                    hangire_index,hangire_search,hangire_click,hangire_send,hangire_csv_imp
 
 
 app_name="apr"
@@ -14,5 +14,7 @@ urlpatterns = [
     path('approach_list_add/', approach_list_add, name="approach_list_add"),
     path('hangire_index/', hangire_index, name="hangire_index"),
     path('hangire_search/', hangire_search, name="hangire_search"),
+    path('hangire_click/', hangire_click, name="hangire_click"),
+    path('hangire_send/', hangire_send, name="hangire_send"),
     path('hangire_csv_imp/', hangire_csv_imp, name="hangire_csv_imp"),
 ]

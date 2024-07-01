@@ -616,13 +616,6 @@ def mitsu_detail_api(request):
         "parent_me":parent_me,
         "version_list":version_list,
         }
-    
-    # 操作者
-    tantou_id=request.session["search"]["tantou"]
-    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
-    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■ モーダル")
 
     return JsonResponse(d)
 
