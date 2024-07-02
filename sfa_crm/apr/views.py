@@ -54,14 +54,44 @@ def approach_index(request):
         fil["result__in"]=ses["apr_result"]
     ins=Approach.objects.filter(**fil)
 
-    busho_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("busho_id","busho_name").order_by("busho_id").distinct())
-    tantou_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("busho_id","tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
-    tantou_id_list=list(Approach.objects.filter(approach_id=ses["apr_id"]).values_list("tantou_id",flat=True))
-    tantou_member=Member.objects.all()
-    for i in tantou_member:
-        if i.tantou_id not in tantou_id_list:
-            tantou_list.append((i.busho_id,i.tantou_id,i.tantou,""))
-    tantou_list=sorted(tantou_list)
+    # 部署設定
+    apr_id=ses["apr_id"]
+    busho_now=list(Member.objects.all().values_list("busho_id","busho").order_by("busho_id").distinct())
+    busho_up=busho_now.copy()
+    busho_list=list(Approach.objects.filter(approach_id=apr_id).values_list("busho_id","busho_name").order_by("busho_id").distinct())
+    for i in busho_list:
+        for h in busho_now:
+            if i[0]==h[0]:
+                break
+        else:
+            busho_up.append((i[0],i[1]))
+
+    # 担当設定
+    busho_id=ses["apr_busho"]
+    tantou_now=list(Member.objects.all().values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+    tantou_up=tantou_now.copy()
+    if busho_id=="":
+        tantou_list=list(Approach.objects.filter(approach_id=apr_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
+    elif busho_id not in ["398","400","401","402"]:
+        tantou_list=list(Approach.objects.filter(approach_id=apr_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=[]
+        for i in tantou_list:
+            tantou_up.append((i[0],i[1] + " " + i[2]))
+    else:
+        tantou_list=list(Approach.objects.filter(approach_id=apr_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
 
     apr_list=Approach_list.objects.filter(action=1)
 
@@ -77,8 +107,10 @@ def approach_index(request):
         "act_user":act_user,
         "result_list":result_list,
         "apr_list":apr_list,
-        "busho_list":busho_list,
-        "tantou_list":tantou_list,
+        "busho_up":busho_up,
+        "tantou_up":tantou_up,
+        "busho_now":busho_now,
+        "tantou_now":tantou_now,
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
@@ -89,18 +121,45 @@ def approach_index(request):
     return render(request,"apr/approach.html",params)
 
 
-# アプローチリストのタイトル選択
-def approach_title(request):
-    approach_id=request.POST.get("approach_id")
-    busho_list=list(Approach.objects.filter(approach_id=approach_id).values_list("busho_id","busho_name").order_by("busho_id").distinct())
-    tantou_list=list(Approach.objects.filter(approach_id=approach_id).values_list("busho_id","tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
-    tantou_id_list=list(Approach.objects.filter(approach_id=approach_id).values_list("tantou_id",flat=True))
-    tantou_member=Member.objects.all()
-    for i in tantou_member:
-        if i.tantou_id not in tantou_id_list:
-            tantou_list.append((i.busho_id,i.tantou_id,i.tantou,""))
-    tantou_list=sorted(tantou_list)
-    d={"busho_list":busho_list,"tantou_list":tantou_list}
+# アプローチリスト部署クリック_上部
+def approach_busho_up(request):
+    apr_id=request.session["apr_search"]["apr_id"]
+    busho_id=request.POST.get("busho_id")
+    if busho_id=="":
+        tantou_up=list(Member.objects.all().values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+        tantou_list=list(Approach.objects.filter(approach_id=apr_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
+    elif busho_id not in ["398","400","401","402"]:
+        tantou_list=list(Approach.objects.filter(approach_id=apr_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=[]
+        for i in tantou_list:
+            tantou_up.append((i[0],i[1] + " " + i[2]))
+    else:
+        tantou_list=list(Approach.objects.filter(approach_id=apr_id,busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
+    d={"tantou_up":tantou_up}
+    return JsonResponse(d)
+
+
+# アプローチリスト部署クリック_下部
+def approach_busho_now(request):
+    busho_id=request.POST.get("busho_id")
+    if busho_id=="":
+        tantou_now=list(Member.objects.all().values_list("tantou_id","tantou"))
+    else:
+        tantou_now=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou"))
+    d={"tantou_now":tantou_now}
     return JsonResponse(d)
 
 
@@ -307,6 +366,16 @@ def hangire_index(request):
         request.session["han_search"]["han_pref"]=""
     if "han_result" not in request.session["han_search"]:
         request.session["han_search"]["han_result"]=[]
+    if "han_day_st" not in request.session["han_search"]:
+        request.session["han_search"]["han_day_st"]=""
+    if "han_day_ed" not in request.session["han_search"]:
+        request.session["han_search"]["han_day_ed"]=""
+    if "page_num" not in request.session["han_search"]:
+        request.session["han_search"]["page_num"]=1
+    if "all_page_num" not in request.session["han_search"]:
+        request.session["han_search"]["all_page_num"]=""
+    if "han_jun" not in request.session["han_search"]:
+        request.session["han_search"]["han_jun"]="0"
 
     ses=request.session["han_search"]
  
@@ -318,6 +387,10 @@ def hangire_index(request):
         fil["tantou_apr_id"]=ses["han_tantou"]
     if ses["han_pref"] != "":
         fil["pref"]=ses["han_pref"]
+    if ses["han_day_st"] != "":
+        fil["juchu_day__gte"]=ses["han_day_st"]
+    if ses["han_day_ed"] != "":
+        fil["juchu_day__lte"]=ses["han_day_ed"]
     
     # 進捗を含めない個数
     ins=Hangire.objects.filter(**fil)
@@ -329,19 +402,68 @@ def hangire_index(request):
     # 進捗を含む
     if len(ses["han_result"])!=0:
         fil["result__in"]=ses["han_result"]
-    ins=Hangire.objects.filter(**fil)
+    
+    # 並び順
+    if ses["han_jun"]=="0":
+        ins=Hangire.objects.filter(**fil).order_by("juchu_day")
+    else:
+        ins=Hangire.objects.filter(**fil).order_by("juchu_day").reverse()
+    
+    result=ins.count()
+    #全ページ数
+    if result == 0:
+        all_num = 1
+    elif result % 100 == 0:
+        all_num = result / 100
+    else:
+        all_num = result // 100 + 1
+    all_num=int(all_num)
+    request.session["han_search"]["all_page_num"]=all_num
+    num=ses["page_num"]
+    if all_num==1:
+        num=1
+        request.session["han_search"]["page_num"]=1
+    ins=ins[(num-1)*100 : num*100]
 
+    # 部署設定
+    busho_now=list(Member.objects.all().values_list("busho_id","busho").order_by("busho_id").distinct())
+    busho_up=busho_now.copy()
     busho_list=list(Hangire.objects.all().values_list("busho_id","busho_name").order_by("busho_id").distinct())
-    tantou_list=list(Hangire.objects.all().values_list("busho_id","tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
-    print(tantou_list)
+    for i in busho_list:
+        for h in busho_now:
+            if i[0]==h[0]:
+                break
+        else:
+            busho_up.append((i[0],i[1]))
 
-    tantou_id_list=list(Hangire.objects.all().values_list("tantou_id",flat=True))
-    tantou_member=Member.objects.all()
-    for i in tantou_member:
-        if i.tantou_id not in tantou_id_list:
-            tantou_list.append((i.busho_id,i.tantou_id,i.tantou,""))
-    tantou_list=sorted(tantou_list)
-
+    # 担当設定
+    busho_id=ses["han_busho"]
+    tantou_now=list(Member.objects.all().values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+    tantou_up=tantou_now.copy()
+    
+    if busho_id=="":
+        tantou_list=list(Hangire.objects.all().values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
+    elif busho_id not in ["398","400","401","402"]:
+        tantou_list=list(Hangire.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=[]
+        for i in tantou_list:
+            tantou_up.append((i[0],i[1] + " " + i[2]))
+    else:
+        tantou_list=list(Hangire.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
+                
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
@@ -353,8 +475,10 @@ def hangire_index(request):
         "cus_list":ins,
         "act_user":act_user,
         "result_list":result_list,
-        "busho_list":busho_list,
-        "tantou_list":tantou_list,
+        "busho_up":busho_up,
+        "tantou_up":tantou_up,
+        "busho_now":busho_now,
+        "tantou_now":tantou_now,
         "apr_type_list":apr_type_list,
         "pref_list":[
             '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
@@ -362,9 +486,52 @@ def hangire_index(request):
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
         "ses":ses,
+        "num":num,
+        "all_num":all_num,
     }
 
     return render(request,"apr/hangire.html",params)
+
+
+# 版切れ部署クリック_上部
+def hangire_busho_up(request):
+    busho_id=request.POST.get("busho_id")
+    if busho_id=="":
+        tantou_up=list(Member.objects.all().values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+        tantou_list=list(Hangire.objects.all().values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
+    elif busho_id not in ["398","400","401","402"]:
+        tantou_list=list(Hangire.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=[]
+        for i in tantou_list:
+            tantou_up.append((i[0],i[1] + " " + i[2]))
+    else:
+        tantou_list=list(Hangire.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou_sei","tantou_mei").order_by("tantou_id").distinct())
+        tantou_up=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou").order_by("tantou_id").distinct())
+        for i in tantou_list:
+            for h in tantou_up:
+                if i[0]==h[0]:
+                    break
+            else:
+                tantou_up.append((i[0],i[1] + " " + i[2]))
+    d={"tantou_up":tantou_up}
+    return JsonResponse(d)
+
+
+# 版切れ部署クリック_下部
+def hangire_busho_now(request):
+    busho_id=request.POST.get("busho_id")
+    if busho_id=="":
+        tantou_now=list(Member.objects.all().values_list("tantou_id","tantou"))
+    else:
+        tantou_now=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou"))
+    d={"tantou_now":tantou_now}
+    return JsonResponse(d)
 
 
 # 版切れリストの検索
@@ -372,7 +539,11 @@ def hangire_search(request):
     request.session["han_search"]["han_busho"]=request.POST["han_busho"]
     request.session["han_search"]["han_tantou"]=request.POST["han_tantou"]
     request.session["han_search"]["han_pref"]=request.POST["han_pref"]
+    request.session["han_search"]["han_day_st"]=request.POST["han_day_st"]
+    request.session["han_search"]["han_day_ed"]=request.POST["han_day_ed"]
     request.session["han_search"]["han_result"]=request.POST.getlist("han_result")
+    request.session["han_search"]["han_jun"]=request.POST["han_jun"]
+    request.session["han_search"]["page_num"]=1
     return redirect("apr:hangire_index")
 
 
@@ -398,18 +569,18 @@ def hangire_click(request):
     ins.apr_text=apr_text
     ins.save()
 
-    # if apr_day != "":
-    #     text=apr_text + "（" + apr_tantou + "）"
-    #     if apr_type==1 and tel_result=="対応":
-    #         Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=4, text=text, tel_result=tel_result)
-    #     elif apr_type==2:
-    #         Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=2, text=text)
-    #     # 最終コンタクト日
-    #     if (apr_type==1 and tel_result=="対応") or apr_type==2:
-    #         ins=Customer.objects.get(cus_id=cus_id)
-    #         if apr_day > ins.contact_last:
-    #             ins.contact_last=apr_day
-    #             ins.save()
+    if apr_day != "":
+        text=apr_text + "（" + apr_tantou + "）"
+        if apr_type=="1":
+            Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=4, text=text, tel_result=tel_result)
+        elif apr_type=="2":
+            Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=2, text=text)
+        # 最終コンタクト日
+        if (apr_type=="1" and tel_result=="対応") or apr_type=="2":
+            ins=Customer.objects.get(cus_id=cus_id)
+            if apr_day > ins.contact_last:
+                ins.contact_last=apr_day
+                ins.save()
     
     ses=request.session["han_search"]
     fil={}
@@ -448,3 +619,29 @@ def hangire_send(request):
     ins.save()
     d={}
     return JsonResponse(d)
+
+
+def han_list_page_prev(request):
+    num=request.session["han_search"]["page_num"]
+    if num-1 > 0:
+        request.session["han_search"]["page_num"] = num - 1
+    return redirect("apr:hangire_index")
+
+
+def han_list_page_first(request):
+    request.session["han_search"]["page_num"] = 1
+    return redirect("apr:hangire_index")
+
+
+def han_list_page_next(request):
+    num=request.session["han_search"]["page_num"]
+    all_num=request.session["han_search"]["all_page_num"]
+    if num+1 <= all_num:
+        request.session["han_search"]["page_num"] = num + 1
+    return redirect("apr:hangire_index")
+
+
+def han_list_page_last(request):
+    all_num=request.session["han_search"]["all_page_num"]
+    request.session["han_search"]["page_num"]=all_num
+    return redirect("apr:hangire_index")

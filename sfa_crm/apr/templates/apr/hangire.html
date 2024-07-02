@@ -34,7 +34,7 @@
                         <div>
                             <select class="form-select" name="han_busho" id="han_busho" style="width: 240px;">
                                 <option value=""></option>
-                                {% for i in busho_list %}
+                                {% for i in busho_up %}
                                     {% if i.0 == ses.han_busho %}
                                     <option value="{{i.0}}" selected>{{i.1}}</option>
                                     {% else %}
@@ -47,11 +47,11 @@
                         <div>
                             <select class="form-select" name="han_tantou" id="han_tantou" style="width: 150px;">
                                 <option value=""></option>
-                                {% for i in tantou_list %}
-                                    {% if i.1 == ses.han_tantou %}
-                                    <option value="{{i.1}}" selected>{{i.2}} {{i.3}}</option>
+                                {% for i in tantou_up %}
+                                    {% if i.0 == ses.han_tantou %}
+                                    <option value="{{i.0}}" selected>{{i.1}}</option>
                                     {% else %}
-                                    <option value="{{i.1}}">{{i.2}} {{i.3}}</option>
+                                    <option value="{{i.0}}">{{i.1}}</option>
                                     {% endif %}
                                 {% endfor %}
                             </select>
@@ -60,7 +60,7 @@
                         <div>
                             <select class="form-select" id="han_pref" name="han_pref" style="width: 150px;">
                                 {% for i in pref_list %}
-                                    {% if i == ses.pref %}
+                                    {% if i == ses.han_pref %}
                                     <option value="{{i}}" selected>{{i}}</option>
                                     {% else %}
                                     <option value="{{i}}">{{i}}</option>
@@ -68,6 +68,10 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div style="margin-left: 30px;">受注日：</div>
+                        <div><input class="form-control" type="date" id="han_day_st" name="han_day_st" style="width: 140px;" value="{{ses.han_day_st}}"></div>
+                        <div style="margin: 0px 10px;">～</div>
+                        <div><input class="form-control" type="date" id="han_day_ed" name="han_day_ed" style="width: 140px;" value="{{ses.han_day_ed}}"></div>
                     </div>
                     <div class="flex mt-4">
                         <div>結果：</div>
@@ -88,7 +92,19 @@
                         </div>
                     </div>
                     <div class="flex mt-4">
+                        <div>受注日：</div>
                         <div>
+                            <select class="form-select form-select-sm" name="han_jun" style="width: 80px;">
+                                {% if ses.han_jun == "0" %}
+                                <option value="0" selected>昇順</option>
+                                <option value="1">降順</option>
+                                {% else %}
+                                <option value="0">昇順</option>
+                                <option value="1" selected>降順</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 30px;">
                             <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> 検索</button>
                         </div>
                         <div style="margin-left: 30px;">
@@ -252,12 +268,21 @@
                                 </div>
                                 <!-- 他拠点へ転送 -->
                                 <div class="flex" id="show_B_{{i.pk}}" style="display: none;">
+                                    <div style="margin-left: 30px;">部署：</div>
+                                    <div>
+                                        <select class="form-select form-select-sm" name="send_busho" id="send_busho_{{i.pk}}" style="width: 120px;">
+                                            <option value=""></option>
+                                            {% for i in busho_now %}
+                                                <option value="{{i.0}}">{{i.1}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                                     <div style="margin-left: 30px;">担当者：</div>
                                     <div>
                                         <select class="form-select form-select-sm" name="send_tantou" id="send_tantou_{{i.pk}}" style="width: 120px;">
                                             <option value=""></option>
-                                            {% for i in tantou_list %}
-                                                <option value="{{i.1}}">{{i.2}} {{i.3}}</option>
+                                            {% for i in tantou_now %}
+                                                <option value="{{i.0}}">{{i.1}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -274,6 +299,18 @@
 
             </div>
 
+            <!-- ページネーション -->
+            <div style="margin: 0 auto;">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination mt-4">
+                    <li class="page-item"><a class="page-link" href="{% url 'apr:han_list_page_first' %}">最初へ</a></li>
+                    <li class="page-item"><a class="page-link" href="{% url 'apr:han_list_page_prev' %}">前へ</a></li>
+                    <li class="page-item"><a class="page-link" pointer-events: none;>{{num}}/{{all_num}}</a></li>               
+                    <li class="page-item"><a class="page-link" href="{% url 'apr:han_list_page_next' %}">次へ</a></li>
+                    <li class="page-item"><a class="page-link" href="{% url 'apr:han_list_page_last' %}">最後へ</a></li> 
+                    </ul>
+                </nav>
+            </div>
         </div>
 
     </div>
@@ -317,12 +354,56 @@
   
 
 
+        // 部署選択_上部
+        document.getElementById("han_busho").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "apr:hangire_busho_up" %}',
+                    'type': 'POST',
+                    'data': {"busho_id":this.value},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    var tantou_list=response.tantou_up
+                    var str="<option value=''></option>"
+                    for (var i=0; i<tantou_list.length; i++){
+                        str=str + "<option value='" + tantou_list[i][0] + "'>" + tantou_list[i][1] + "</option>"
+                    };
+                    document.getElementById("han_tantou").innerHTML=str;
+                })
+        });
+
+
+        // 部署選択_下部
+        var item=document.getElementsByName("send_busho");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("change",function(){
+                var id=this.id.split("_")[2];
+                $.ajax({
+                    'url': '{% url "apr:hangire_busho_now" %}',
+                    'type': 'POST',
+                    'data': {"busho_id":this.value},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    tantou_list=response.tantou_now;
+                    var str=""
+                    for (var i=0; i<tantou_list.length; i++){
+                        str=str + "<option value='" + tantou_list[i][0] + "'>" + tantou_list[i][1] + "</option>"
+                    };
+                    document.getElementById("send_tantou_" + id).innerHTML=str;
+                })
+            },false)
+        };
+        
+
         // 検索クリアボタン
         document.getElementById("form_clear").addEventListener("click",function(e){
             e.preventDefault();
             document.getElementById("han_busho").value="";
             document.getElementById("han_tantou").value="";
             document.getElementById("han_pref").value="";
+            document.getElementById("han_day_st").value="";
+            document.getElementById("han_day_ed").value="";
 
             var rs=document.getElementsByName("han_result");
             for (var i=0; i<rs.length; i++){
