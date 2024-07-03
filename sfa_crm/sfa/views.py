@@ -1400,7 +1400,13 @@ def credit_url(request):
 # 管理画面
 def kanri_index(request):
     ins=Credit_url.objects.all().order_by("day").reverse()[:50]
-    return render(request,"sfa/kanri.html",{"list":ins})
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"sfa/kanri.html",{"list":ins,"act_user":act_user})
 
 
 
