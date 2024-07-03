@@ -1397,12 +1397,17 @@ def credit_url(request):
     return render(request,"sfa/credit_url.html",{"act_user":act_user})
 
 
+# 管理画面
+def kanri_index(request):
+    ins=Credit_url.objects.all().order_by("day").reverse()[:50]
+    return render(request,"sfa/kanri.html",{"list":ins})
+
+
 
 
 # 元DB取込
 def csv_imp_page(request):
     return render(request,"sfa/csv_imp.html")
-
 
 
 # CSVデータを取り込む用
