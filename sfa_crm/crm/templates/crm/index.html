@@ -254,7 +254,11 @@
                                     {% elif i.type == 3 %} <!-- メルマガ -->
                                         <span style="color: #ff02f2; font-weight: bold;"><i class="bi bi-envelope-heart-fill"></i></span>
                                     {% elif i.type == 4 %} <!-- TEL -->
-                                        <span style="color: green; font-weight: bold;"><i class="bi bi-telephone-forward-fill"></i></span>
+                                        {% if i.tel_result == "対応" %}
+                                        <span style="color: blue; font-weight: bold;"><i class="bi bi-telephone-forward-fill"></i></span>
+                                        {% else %}
+                                        <span style="color: gray; font-weight: bold;"><i class="bi bi-telephone-x-fill"></i></span>
+                                        {% endif %}
                                     {% elif i.type == 5 %} <!-- 外商 -->
                                         <span style="color: #00c2b8; font-weight: bold;"><i class="bi bi-people-fill"></i></span>
                                     {% elif i.type == 6 %} <!-- アラート -->
@@ -569,7 +573,11 @@
                     var icon = "";
                     for (var i of detail){
                         if (i.type == 1) {
-                            icon="<span style='color: green; font-weight: bold;'><i class='bi bi-telephone-forward-fill'></i></span>";
+                            if (i.tel_result == "対応"){
+                                icon="<span style='color: blue; font-weight: bold;'><i class='bi bi-telephone-forward-fill'></i></span>";
+                            } else {
+                                icon="<span style='color: gray; font-weight: bold;'><i class='bi bi-telephone-x-fill'></i></span>";
+                            };
                         } else if (i.type == 2) {
                             icon="<span style='color: #ff9900; font-weight: bold;'><i class='bi bi-envelope-fill'></i></span>"
                         } else if (i.type == 3) {

@@ -195,7 +195,10 @@ def approach_click(request):
     ins.save()
 
     if tel_day != "":
-        text=tel_text + "（" + tel_tantou + "）"
+        if tel_tantou !="":
+            text=tel_text + "（" + tel_tantou + "）"
+        else:
+            text=tel_text
         Crm_action.objects.create(cus_id=cus_id, day=tel_day, type=4, text=text, tel_result=tel_result)
         # 最終コンタクト日
         if tel_result=="対応":
@@ -394,7 +397,7 @@ def hangire_index(request):
     
     # 進捗を含めない個数
     ins=Hangire.objects.filter(**fil)
-    apr_type_list={0:"",1:"TEL",2:"メール",3:"その他"}
+    apr_type_list={0:"",1:"TEL",2:"メール"}
     result_list=[["0","未対応"],["1","不在"],["2","受注"],["3","失注"],["4","不要"]]
     for i in result_list:
         i.append(ins.filter(result=i[0]).count())
@@ -570,11 +573,16 @@ def hangire_click(request):
     ins.save()
 
     if apr_day != "":
-        text=apr_text + "（" + apr_tantou + "）"
+        if apr_tantou !="":
+            text=apr_text + "（" + apr_tantou + "）"
+        else:
+            text=apr_text
+
         if apr_type=="1":
             Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=4, text=text, tel_result=tel_result)
         elif apr_type=="2":
             Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=2, text=text)
+            
         # 最終コンタクト日
         if (apr_type=="1" and tel_result=="対応") or apr_type=="2":
             ins=Customer.objects.get(cus_id=cus_id)
