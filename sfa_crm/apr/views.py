@@ -574,9 +574,9 @@ def hangire_click(request):
 
     if apr_day != "":
         if apr_tantou !="":
-            text=apr_text + "（" + apr_tantou + "）"
+            text="【版切れ対応】" + apr_text + "（" + apr_tantou + "）"
         else:
-            text=apr_text
+            text="【版切れ対応】" + apr_text
 
         if apr_type=="1":
             Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=4, text=text, tel_result=tel_result)
