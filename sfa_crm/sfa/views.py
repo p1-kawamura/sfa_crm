@@ -1430,10 +1430,9 @@ def csv_imp(request):
         if h!=0:
             Crm_action.objects.create(
                 cus_id=i[0],
-                day="2024-06-24",
-                type=8,
-                text="夏の製作応援キャンペーン　2024年",
-                approach_id="15"
+                day=i[1],
+                type=1,
+                text=i[2],
                 )
         h+=1
 
@@ -1557,20 +1556,10 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Customer.objects.all()
+    ins=Crm_action.objects.filter(type=1,text__startswith="【版切れリスト】")
     for i in ins:
-        try:
-            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
-            res2=requests.get(url2)
-            res2=res2.json()
-                
-            i.mitsu_last_busho_id=res2["lastHandledDepartmentId"]
-            i.mitsu_last_busho=res2["lastHandledDepartmentName"]
-            i.mitsu_last_tantou_id=res2["lastHandledId"]
-            i.mitsu_last_tantou=res2["lastHandledName"]
-            i.save()
-        except:
-            print(i.cus_id)
-
+        memo=i.text.replace("【版切れリスト】","【版切れリスト】　")
+        i.text=memo
+        i.save()
   
     return redirect("sfa:index")
