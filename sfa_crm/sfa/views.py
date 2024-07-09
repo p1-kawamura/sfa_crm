@@ -1399,6 +1399,10 @@ def credit_url(request):
 
 # 管理画面
 def kanri_index(request):
+    if "search" not in request.session:
+        request.session["search"]={}
+    if "tantou" not in request.session["search"]:
+        request.session["search"]["tantou"]=""
     ins=Credit_url.objects.all().order_by("day").reverse()[:50]
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
