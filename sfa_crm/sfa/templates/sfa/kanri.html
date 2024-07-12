@@ -36,6 +36,7 @@
                 <table class="table table-bordered">
                     <tbody>
                         <tr>
+                            <th>ID</th>
                             <th>発行日時</th>
                             <th>担当</th>
                             <th>見積番号</th>
@@ -44,6 +45,7 @@
                         </tr>
                         {% for i in list %}
                         <tr>
+                            <td>{{i.id}}</td>
                             <td>{{i.day}}</td>
                             <td>{{i.tantou}}</td>
                             <td>{{i.meta_data}}</td>
