@@ -628,12 +628,12 @@
         // API接続
         document.getElementById("api_reload").addEventListener("click",function(e){
             e.preventDefault();
-            document.getElementById("api_reload").disabled=true;
             var tantou=document.getElementById("tantou").value;
             if (tantou == ""){
                 window.alert("担当者を選択し「表示」を押して確定してください！");
                 return
-            }
+            };
+            document.getElementById("api_reload").disabled=true;
             window.location.href="{% url 'sfa:index_api' %}";
         });
 

@@ -145,6 +145,7 @@
 			};
 			document.getElementById("url").innerHTML="";
 			document.getElementById("url").style.display="none";
+			document.getElementById("btn").disabled=false;
 		})
 
 
@@ -173,7 +174,7 @@
 			if (j==0){
 				window.alert("見積番号とバージョンを入力してください！");
 				return
-			}
+			};
 			var ver = document.getElementsByName("ver");
 			for (i=1; i<=5; i++){
 				if (document.getElementById("ver_" + i).value != ""){
@@ -183,6 +184,7 @@
 					};
 				};
 			};
+			document.getElementById("btn").disabled=true;
 			var meta_list=[];
 			for (i=1; i<=5; i++){
 				var est_num = document.getElementById("est_" + i).value;
