@@ -502,6 +502,7 @@
             item[i].addEventListener("click",function(){
                 id=this.id.split("_")[2];
                 tantou_id=document.getElementById("send_tantou_" + id).value;
+                busho_id=document.getElementById("send_busho_" + id).value;
                 if (tantou_id==""){
                     window.alert("転送先を指定してください！");
                     return
@@ -509,7 +510,7 @@
                 $.ajax({
                     'url': '{% url "apr:approach_send" %}',
                     'type': 'POST',
-                    'data': {"pk":id,"tantou_id":tantou_id},
+                    'data': {"pk":id,"busho_id":busho_id,"tantou_id":tantou_id},
                     'dataType': 'json'
                 })
                 .done(function(response){

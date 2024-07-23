@@ -36,7 +36,7 @@ def approach_index(request):
     fil={}
     fil["approach_id"]=ses["apr_id"]
     if ses["apr_busho"] != "":
-        fil["busho_id"]=ses["apr_busho"]
+        fil["busho_apr_id"]=ses["apr_busho"]
     if ses["apr_tantou"] != "":
         fil["tantou_apr_id"]=ses["apr_tantou"]
     if ses["apr_pref"] != "":
@@ -238,8 +238,10 @@ def approach_click(request):
 def approach_send(request):
     pk=request.POST.get("pk")
     tantou_id=request.POST.get("tantou_id")
+    busho_id=request.POST.get("busho_id")
     ins=Approach.objects.get(pk=pk)
     ins.tantou_apr_id=tantou_id
+    ins.busho_apr_id=busho_id
     ins.save()
     d={}
     return JsonResponse(d)
@@ -291,6 +293,7 @@ def approach_list_add(request):
                     order_kubun=i[3],
                     juchu_day=i[4],
                     busho_id=i[8],
+                    busho_apr_id=i[8],
                     busho_name=i[9],
                     tantou_id=i[5],
                     tantou_apr_id=i[5],
@@ -339,6 +342,7 @@ def hangire_csv_imp(request):
                 mitsu_url=mitsu_url,
                 juchu_day=i[3],
                 busho_id=i[14],
+                busho_apr_id=i[14],
                 busho_name=i[15],
                 tantou_id=i[4],
                 tantou_apr_id=i[4],
@@ -385,7 +389,7 @@ def hangire_index(request):
     # フィルター
     fil={}
     if ses["han_busho"] != "":
-        fil["busho_id"]=ses["han_busho"]
+        fil["busho_apr_id"]=ses["han_busho"]
     if ses["han_tantou"] != "":
         fil["tantou_apr_id"]=ses["han_tantou"]
     if ses["han_pref"] != "":
@@ -395,10 +399,11 @@ def hangire_index(request):
     if ses["han_day_ed"] != "":
         fil["juchu_day__lte"]=ses["han_day_ed"]
     
+
     # 進捗を含めない個数
     ins=Hangire.objects.filter(**fil)
     apr_type_list={0:"",1:"TEL",2:"メール"}
-    result_list=[["0","未対応"],["1","不在"],["2","受注"],["3","失注"],["4","不要"]]
+    result_list=[["0","未対応"],["1","不在"],["2","受注"],["3","失注"],["4","不要"],["5","検討中"]]
     for i in result_list:
         i.append(ins.filter(result=i[0]).count())
 
@@ -560,7 +565,7 @@ def hangire_click(request):
     tel_result=request.POST.get("tel_result")
     apr_text=request.POST.get("apr_text")
     cus_id=request.POST.get("cus_id")
-    result_list={"0":"", "1":"不在", "2":"受注", "3":"失注", "4":"不要"}
+    result_list={"0":"", "1":"不在", "2":"受注", "3":"失注", "4":"不要","5":"検討中"}
 
     ins=Hangire.objects.get(pk=pk)
     ins.result=apr_result
@@ -601,7 +606,7 @@ def hangire_click(request):
 
     ins=Hangire.objects.filter(**fil)
     result_count=[]
-    for i in range(5):
+    for i in range(6):
         result_count.append(ins.filter(result=i).count())
 
     d={
@@ -622,8 +627,10 @@ def hangire_click(request):
 def hangire_send(request):
     pk=request.POST.get("pk")
     tantou_id=request.POST.get("tantou_id")
+    busho_id=request.POST.get("busho_id")
     ins=Hangire.objects.get(pk=pk)
     ins.tantou_apr_id=tantou_id
+    ins.busho_apr_id=busho_id
     ins.save()
     d={}
     return JsonResponse(d)

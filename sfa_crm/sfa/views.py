@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member,Sfa_group,Credit_url
 from crm.models import Customer,Crm_action
-from apr.models import Approach,Approach_list
+from apr.models import Approach,Approach_list,Hangire
 import csv
 import io
 import json
@@ -1560,10 +1560,9 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Crm_action.objects.filter(type=1,text__startswith="【版切れリスト】")
+    ins=Approach.objects.all()
     for i in ins:
-        memo=i.text.replace("【版切れリスト】","【版切れリスト】　")
-        i.text=memo
+        i.busho_apr_id=i.busho_id
         i.save()
   
     return redirect("sfa:index")

@@ -153,6 +153,8 @@
                         <td id="ans_apr_result_{{i.pk}}" style="background-color: #850000;"><span style="color: #fff;">{{result_list.3.1}}</span></td>
                         {% elif i.result == "4" %}
                         <td id="ans_apr_result_{{i.pk}}" style="background-color: #d1d1d1;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
+                        {% elif i.result == "5" %}
+                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #e6ffd1;"><span style="color: #3b6e00;">{{result_list.4.1}}</span></td>
                         {% endif %}
 
                         <td id="ans_apr_day_{{i.pk}}">{% if i.apr_day %}{{i.apr_day}}{% endif %}</td>
@@ -203,7 +205,7 @@
                                             <option value="{{h.0}}">{{h.1}}</option>
                                             {% endif %}
                                         {% endfor %}
-                                        <option value="5">別担当へ転送</option>
+                                        <option value="6">別担当へ転送</option>
                                     </select>
                                 </div>
                                 <!-- コメント入力 -->
@@ -451,7 +453,7 @@
         for (var i=0; i<item.length; i++){
             item[i].addEventListener("change",function(){
                 var id=this.id.split("_")[2];
-                if (this.value=="5"){
+                if (this.value=="6"){
                     document.getElementById("show_A_" + id).style.display="none";
                     document.getElementById("show_B_" + id).style.display="";
                 } else {
@@ -508,7 +510,7 @@
                     id=response.pk;
                     var ans = response.ans
                     var sel_list=[
-                        ["0","#212529",""],["1","#0060c0","#cbf7ff"],["2","#ce0000","#ffb3b3"],["3","#fff","#850000"],["4","#212529","#d1d1d1"]
+                        ["0","#212529",""],["1","#0060c0","#cbf7ff"],["2","#ce0000","#ffb3b3"],["3","#fff","#850000"],["4","#212529","#d1d1d1"],["5","#3b6e00","#e6ffd1"]
                     ]
                     document.getElementById("ans_apr_result_" + id).innerHTML="<span style='color:" + sel_list[ans][1] +  ";'>" + response.apr_result + "</span>";
                     document.getElementById("ans_apr_result_" + id).style.backgroundColor=sel_list[ans][2];
@@ -545,6 +547,7 @@
             item[i].addEventListener("click",function(){
                 id=this.id.split("_")[2];
                 tantou_id=document.getElementById("send_tantou_" + id).value;
+                busho_id=document.getElementById("send_busho_" + id).value;
                 if (tantou_id==""){
                     window.alert("転送先を指定してください！");
                     return
@@ -552,7 +555,7 @@
                 $.ajax({
                     'url': '{% url "apr:hangire_send" %}',
                     'type': 'POST',
-                    'data': {"pk":id,"tantou_id":tantou_id},
+                    'data': {"pk":id,"busho_id":busho_id,"tantou_id":tantou_id},
                     'dataType': 'json'
                 })
                 .done(function(response){
