@@ -166,7 +166,7 @@
                         <div>
                             <select class="form-select" id="busho" style="width: 150px;">
                                 {% for key,value in busho_list.items %}
-                                    {% if key == busho_id %}
+                                    {% if key == grip_busho_id %}
                                     <option value="{{key}}" selected>{{value}}</option>
                                     {% else %}
                                     <option value="{{key}}">{{value}}</option>
@@ -177,7 +177,7 @@
                         <div style="margin-left: 20px;">
                             <select class="form-select" id="tantou" style="width: 150px;">
                                 {% for i in tantou_list %}
-                                    {% if i.tantou_id == tantou_id %}
+                                    {% if i.tantou_id == grip_tantou_id %}
                                     <option value="{{i.tantou_id}}" selected>{{i.tantou}}</option>
                                     {% else %}
                                     <option value="{{i.tantou_id}}">{{i.tantou}}</option>

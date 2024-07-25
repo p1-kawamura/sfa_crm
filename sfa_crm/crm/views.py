@@ -110,11 +110,11 @@ def kokyaku_api(request):
     # グリップ顧客
     grip=Customer.objects.filter(cus_id=cus_id).count()
     if grip > 0:
-        busho_id=Customer.objects.get(cus_id=cus_id).grip_busho_id
-        tantou_id=Customer.objects.get(cus_id=cus_id).grip_tantou_id
+        grip_busho_id=Customer.objects.get(cus_id=cus_id).grip_busho_id
+        grip_tantou_id=Customer.objects.get(cus_id=cus_id).grip_tantou_id
     else:
-        busho_id=""
-        tantou_id=""
+        grip_busho_id=""
+        grip_tantou_id=""
         
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -129,17 +129,16 @@ def kokyaku_api(request):
     sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
     sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
     print(sousa_time,sousa_busho,sousa_tantou,"■ 顧客詳細")
-    
 
     params={
         "res":res,
         "res_det":res_det,
         "alert":dic,
         "grip":grip,
-        "busho_id":busho_id,
-        "tantou_id":tantou_id,
+        "grip_busho_id":grip_busho_id,
+        "grip_tantou_id":grip_tantou_id,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
-        "tantou_list":Member.objects.filter(busho_id=busho_id),
+        "tantou_list":Member.objects.filter(busho_id=grip_busho_id),
         "act_user":act_user,
         "crm_sort":request.session["crm_sort"],
     }
