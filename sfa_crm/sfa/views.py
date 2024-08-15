@@ -1610,9 +1610,23 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Approach.objects.all()
+    ins=Sfa_group.objects.all().values_list("mitsu_id_parent",flat=True).order_by("mitsu_id_parent").distinct()
     for i in ins:
-        i.busho_apr_id=i.busho_id
-        i.save()
+        oya=Sfa_data.objects.get(mitsu_id=i)
+        ins2=Sfa_group.objects.filter(mitsu_id_parent=i)
+        for h in ins2:
+            ko=Sfa_data.objects.get(mitsu_id=h.mitsu_id_child)
+            ko.bikou=oya.bikou
+            ko.tel_last_day=oya.tel_last_day
+            ko.s_tel=oya.s_tel
+            ko.s_tel_result=oya.s_tel_result
+            ko.mail_last_day=oya.mail_last_day
+            ko.s_mail=oya.s_mail
+            ko.s_mail_result=oya.s_mail_result
+            ko.s_memo1=oya.s_memo1
+            ko.s_memo2=oya.s_memo2
+            ko.save()
+
+
   
     return redirect("sfa:index")
