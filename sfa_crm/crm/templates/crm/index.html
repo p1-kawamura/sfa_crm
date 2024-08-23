@@ -96,7 +96,7 @@
                             <th>携帯番号</th>
                             <td>{% if res.mobilePhone %}{{res.mobilePhone}}{% endif %}</td>
                             <th>最終見積部署</th>
-                            <td>{% if res.lastHandledDepartmentName %}{{res.lastHandledDepartmentName}}{% endif %}</td>
+                            <td nowrap>{% if res.lastHandledDepartmentName %}{{res.lastHandledDepartmentName}}{% endif %}</td>
                         </tr>
                         <tr>
                             <th>FAX番号</th>
@@ -105,7 +105,7 @@
                             <td>{% if res.lastHandledName %}{{res.lastHandledName}}{% endif %}</td>
                         </tr>
                         <tr>
-                            <th>メールアドレス</th>
+                            <th nowrap>メールアドレス</th>
                             <td>{% if res.contactEmail %}{{res.contactEmail}}{% endif %}</td>
                             <th>対面あり</th>
                             <td>
@@ -153,7 +153,7 @@
                                     {% endif %}
                                 {% endif %}
                             </td>
-                            <th>プレミアムポイント</th>
+                            <th nowrap>プレミアムポイント</th>
                             <td>{% if res.premiumPoint %}{{res.premiumPoint}}{% endif %}</td>
                         </tr>
                     </table>
