@@ -1098,12 +1098,6 @@ def mw_page(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
-    # 操作者
-    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
-    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    print(sousa_time,sousa_busho,sousa_tantou,"■ MW一覧")
-
     return render(request,"sfa/mw_csv.html",{"busho":busho,"list":ins,"member":member,"ans":ans,"act_user":act_user})
 
 

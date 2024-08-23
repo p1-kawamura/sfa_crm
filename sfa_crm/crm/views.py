@@ -126,8 +126,12 @@ def kokyaku_api(request):
     # 操作者
     tantou_id=request.session["search"]["tantou"]
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
-    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    try:
+        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
     print(sousa_time,sousa_busho,sousa_tantou,"■ 顧客詳細")
 
     params={
@@ -524,8 +528,12 @@ def cus_list_index(request):
     # 操作者
     tantou_id=request.session["search"]["tantou"]
     sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
-    sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    try:
+        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
     print(sousa_time,sousa_busho,sousa_tantou,"■ 顧客検索")
 
     params={
