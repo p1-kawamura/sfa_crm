@@ -275,9 +275,10 @@
                         <i class="bi bi-eye-slash"></i>
                         {% endif %}
                     </div>
-                    <div style="width: 50px;">{{i.s_make_day}}</div>
+                    <div style="width: 50px; cursor: pointer;" title="{{i.make_day}}">{{i.s_make_day}}</div>
                     <div style="width: 100px;">
-                        <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
+                        <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a>
+                        <span id="{{i.mitsu_num}}" name="mitsu_fil" class="mitsu_over">{{i.mitsu_num}}-{{i.mitsu_ver}}</span>
                     </div>
                     <div style="width: 45px;">
                         {% if i.order_kubun == "新規" %}
@@ -1162,6 +1163,18 @@
             document.getElementById("alert").checked=true;
             document.form_filter.submit();
         })
+
+
+        // 見積番号の絞り込み
+        var item=document.getElementsByName("mitsu_fil");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                var mitsu_num=this.id;
+                document.getElementById("s_mitsu").value=mitsu_num;
+                document.form_filter.submit();
+            },false)
+        };
+
 
     </script>
 
