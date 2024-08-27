@@ -58,3 +58,12 @@ class Customer(models.Model):
     
     # mw（メールワイズ） 0:無し　1：作成
     # royal（ロイヤル） 0:いいえ　1：はい
+
+
+
+class Cus_group(models.Model):
+    cus_id_parent=models.CharField("親ID",max_length=10)
+    cus_id_child=models.CharField("子ID",max_length=10)
+
+    def __str__(self):
+        return self.cus_id_parent
