@@ -1617,5 +1617,7 @@ def clear_session(request):
         i.address_1=res["address1"]
         i.address_2=res["address2"]
         i.save()
+
+    print("完了しました！")
   
     return redirect("sfa:index")
