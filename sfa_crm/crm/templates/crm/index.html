@@ -289,20 +289,16 @@
 
                 <div>
                     <div>グループ候補の顧客： {{group_list | length}}件</div>
-                    <div class="inlineframe" style="height: 200px; width: 700px; border: 1px solid #ced4da; font-size: 0.9em;">
+                    <div class="inlineframe2" style="height: 200px; width: 700px; border: 1px solid #ced4da; font-size: 0.9em;">
                         {% for i in group_list %}
                             {% if i.type %}
-                            <div class="flex" style="color: blue;">
+                            <div class="flex" style="color: blue; width: 1000px;">
                             {% else %}
-                            <div class="flex">
+                            <div class="flex" style="width: 1000px;">
                             {% endif %}
                                 <div style="width: 20px; font-weight: bold;">{% if i.type %}G{% endif %}</div>
                                 <div style="width: 80px;">{{i.id}}</div>
-                                <div>
-                                    {% if i.com %}{{i.com}}{% endif %}　
-                                    {% if i.busho %}{{i.busho}}{% endif %}　
-                                    {% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}
-                                </div>
+                                <div>{{i.cus_str}}</div>
                             </div>
                         {% endfor %}
                     </div>

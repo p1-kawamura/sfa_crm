@@ -85,12 +85,39 @@ def kokyaku_api(request):
             g_dic={}
             ins=Customer.objects.get(cus_id=i)
             g_dic["id"]=ins.cus_id
-            g_dic["com"]=ins.com
-            g_dic["busho"]=ins.com_busho
-            g_dic["sei"]=ins.sei
-            g_dic["mei"]=ins.mei
+
+            cus_str=""
+            if ins.com != None and ins.com != "":
+                cus_str += ins.com + "　"
+            if ins.com_busho != None and ins.com_busho != "":
+                cus_str += ins.com_busho + "　"
+
+            cus_name=""
+            if ins.sei != None and ins.sei != "":
+                cus_name += ins.sei
+            if ins.mei != None and ins.mei != "":
+                cus_name += ins.mei
+            if cus_name !="":
+                cus_str += cus_name + "　"
+
+            cus_adr=""
+            if ins.pref != None and ins.pref != "":
+                cus_adr += ins.pref
+            if ins.city != None and ins.city != "":
+                cus_adr += ins.city
+            if ins.address_1 != None and ins.address_1 != "":
+                cus_adr += ins.address_1
+            if ins.address_2 != None and ins.address_2 != "":
+                cus_adr += ins.address_2
+            if cus_adr != "":
+                cus_adr="（" + cus_adr + "）"
+
+            cus_str += cus_adr
+            g_dic["cus_str"]=cus_str
+
             if Cus_group.objects.filter(cus_id_parent=i).count()>0 or Cus_group.objects.filter(cus_id_child=i).count()>0:
                 g_dic["type"]="1"
+                
             group_list.append(g_dic)
 
 
@@ -409,32 +436,18 @@ def group_index(request):
     cus_list=[]
     if len(ins_list)>0:
         for i in ins_list:
+            ins=Customer.objects.get(cus_id=i)
             dic={}
-            url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i)
-            res=requests.get(url)
-            res=res.json()
-            dic["cus_id"]=str(res["id"])
-            dic["cus_url"]=res["customerMstPageUrl"]
-            dic["com"]=res["corporateName"]
-            dic["busho"]=res["departmentName"]
-
-            na=""
-            if res["nameLast"]!=None:
-                na=res["nameLast"]
-            if res["nameFirst"]!=None:
-                na+=res["nameFirst"]
-            dic["name"]=na
-
-            ad=""
-            if res["prefecture"]!=None:
-                ad+=res["prefecture"]
-            if res["city"]!=None:
-                ad+=res["city"]
-            if res["address1"]!=None:
-                ad+=res["address1"]
-            if res["address2"]!=None:
-                ad+=res["address2"]
-            dic["adress"]=ad
+            dic["cus_id"]=str(i)
+            dic["cus_url"]=ins.cus_url
+            dic["com"]=ins.com
+            dic["busho"]=ins.com_busho
+            dic["sei"]=ins.sei
+            dic["mei"]=ins.mei
+            dic["pref"]=ins.pref
+            dic["city"]=ins.city
+            dic["address_1"]=ins.address_1
+            dic["address_2"]=ins.address_2
 
             if Cus_group.objects.filter(cus_id_parent=i).count()>0:
                 dic["kubun"]="parent"

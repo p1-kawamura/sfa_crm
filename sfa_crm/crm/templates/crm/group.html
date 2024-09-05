@@ -46,11 +46,17 @@
                         </div>
                         <div style="margin-top: 20px;" id="cus_id">顧客ID：{{ins_self.cus_id}}</div>
                         <div>会社：{% if ins_self.com %}{{ins_self.com}}{% endif %}</div>
-                        <div>部署：{% if ins_self.busho %}{{ins_self.busho}}{% endif %}</div>
+                        <div>部署：{% if ins_self.com_busho %}{{ins_self.com_busho}}{% endif %}</div>
                         <div>氏名：{% if ins_self.sei %}{{ins_self.sei}}{% endif %}{% if ins_self.mei %}{{ins_self.mei}}{% endif %}</div>
                         <div>電話番号：{% if ins_self.tel %}{{ins_self.tel}}{% endif %}</div>
                         <div>携帯番号：{% if ins_self.tel_mob %}{{ins_self.tel_mob}}{% endif %}</div>
                         <div>メールアドレス：{% if ins_self.mail %}{{ins_self.mail}}{% endif %}</div>
+                        <div>住所：
+                            {% if ins_self.pref %}{{ins_self.pref}}{% endif %}
+                            {% if ins_self.city %}{{ins_self.city}}{% endif %}
+                            {% if ins_self.address_1 %}{{ins_self.address_1}}{% endif %}
+                            {% if ins_self.address_2 %}{{ins_self.address_2}}{% endif %}
+                        </div>
                     </div>
                     <div>
                         <!-- 親表示 -->
@@ -195,8 +201,13 @@
                         </td>
                         <td>{% if i.com %}{{i.com}}{% endif %}</td>
                         <td>{% if i.busho %}{{i.busho}}{% endif %}</td>
-                        <td>{{i.name}}</td>
-                        <td>{{i.adress}}</td>
+                        <td>{% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}</td>
+                        <td>
+                            {% if i.pref %}{{i.pref}}{% endif %}
+                            {% if i.city %}{{i.city}}{% endif %}
+                            {% if i.address_1 %}{{i.address_1}}{% endif %}
+                            {% if i.address_2 %}{{i.address_2}}{% endif %}
+                        </td>
                         <td>
                             {% if i.cus_id != cus_id %}
                             <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" id="{{i.cus_id}}" name="crm_list">
