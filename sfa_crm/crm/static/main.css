@@ -106,6 +106,16 @@ hr {
 .hover2:hover {
     background-color: rgb(255, 255, 194);
 }
+.group_table_center td{
+    vertical-align:middle;
+}
+.group_over:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+.group_sum td {
+    text-align: center;
+}
 
 /* SFA */
 .sfa_main{

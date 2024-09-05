@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action,Customer
+from .models import Crm_action,Customer,Cus_group
 from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
 from apr.models import Approach,Approach_list
 import requests
@@ -11,85 +11,152 @@ import csv
 import io
 from django.http import HttpResponse
 import urllib.parse
-from django.db.models import Q
-from django.db.models import Max
+from django.db.models import Sum,Max
 
 
 
 def index(request):
     if "cus_id" not in request.session:
         request.session["cus_id"]=[]
+    if "crm_act_type" not in request.session:
+        request.session["crm_act_type"]="0"
     return render(request,"crm/index.html")
 
 
 def kokyaku_api(request):
     cus_id=request.session["cus_id"]
+    crm_act_type=request.session["crm_act_type"]
 
     url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
     res=requests.get(url)
     res=res.json()
 
-    url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
-    res2=requests.get(url2)
-    res2=res2.json()
-    res2=res2["receivedOrders"]
-
     # 最終コンタクト日
     res["mitsu_last"]=Customer.objects.get(cus_id=cus_id).contact_last
 
-    # 見積とコメント 一覧順の計算
-    est_list=[]
-    i=0
-    for est in res2:
-        li=[]
-        li.append(est["firstEstimationDate"])
-        li.append("est")
-        li.append(i)
-        est_list.append(li)
-        i+=1
-
-    ins=Crm_action.objects.filter(cus_id=cus_id)
-    if ins.count()==0:
-        last_list=sorted(est_list)
+    # グループ_自分の状態
+    if Cus_group.objects.filter(cus_id_parent=cus_id).count()>0:
+        kubun="parent"
+        p_id=cus_id
+    elif Cus_group.objects.filter(cus_id_child=cus_id).count()>0:
+        kubun="child"
+        p_id=Cus_group.objects.get(cus_id_child=cus_id).cus_id_parent
     else:
-        act_list=[]
-        for ac in ins:
-            li=[]
-            li.append(ac.day)
-            li.append("act")
-            li.append(ac.act_id)
-            act_list.append(li)
+        kubun="self"
 
-        list_all=[]
-        for est in est_list:
-            list_all.append(est)
-        for act in act_list:
-            list_all.append(act)
-        last_list=sorted(list_all)
+    # 親、子それぞれ
+    ins_parent=""
+    ins_child=""
+    c_list=[]
+    if kubun != "self":
+        ins_parent=Customer.objects.get(cus_id=p_id)
+        c_list=list(Cus_group.objects.filter(cus_id_parent=p_id).values_list("cus_id_child",flat=True))
+        ins_child=Customer.objects.filter(cus_id__in=c_list)
 
-    #最終成型
+    # グループ全体のメンバー
+    if kubun == "self":
+        a_list=[cus_id]
+    else:
+        a_list=set([cus_id,p_id] + c_list)
+    
+    # グループ_候補
+    g_com=Customer.objects.get(cus_id=cus_id).com
+    g_mail=Customer.objects.get(cus_id=cus_id).mail
+    g_tel=Customer.objects.get(cus_id=cus_id).tel_search
+    g_mob=Customer.objects.get(cus_id=cus_id).tel_mob_search
+
+    ins_com=[]
+    ins_mail=[]
+    ins_tel=[]
+    ins_mob=[]
+    if g_com != None and g_com != "":
+        ins_com=list(Customer.objects.filter(com__contains=g_com).values_list("cus_id",flat=True))
+    if g_mail != None and g_mail != "":
+        ins_mail=list(Customer.objects.filter(mail=g_mail).values_list("cus_id",flat=True))
+    if g_tel != None and g_tel != "":
+        ins_tel=list(Customer.objects.filter(tel_search=g_tel).values_list("cus_id",flat=True))
+    if g_mob != None and g_mob != "":
+        ins_mob=list(Customer.objects.filter(tel_mob_search=g_mob).values_list("cus_id",flat=True))
+
+    ins_list=list(set(ins_tel + ins_mob + ins_mail + ins_com))
+    group_list=[]
+    for i in ins_list:
+        if i != cus_id:
+            g_dic={}
+            ins=Customer.objects.get(cus_id=i)
+            g_dic["id"]=ins.cus_id
+            g_dic["com"]=ins.com
+            g_dic["busho"]=ins.com_busho
+            g_dic["sei"]=ins.sei
+            g_dic["mei"]=ins.mei
+            if Cus_group.objects.filter(cus_id_parent=i).count()>0 or Cus_group.objects.filter(cus_id_child=i).count()>0:
+                g_dic["type"]="1"
+            group_list.append(g_dic)
+
+
+    # 見積とコメント 一覧順の計算
+    if crm_act_type=="0":
+        c_list=[cus_id]
+    else:
+        if kubun=="parent":
+            c_list.append(cus_id)
+        elif kubun=="child":
+            c_list.append(p_id)
+
     res_det=[]
-    for li in last_list:
-        dic={}
-        if li[1]=="est":
+    for i in c_list:
+        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i) + "/receivedOrders"
+        res2=requests.get(url2)
+        res2=res2.json()
+        res2=res2["receivedOrders"]
+        # 見積
+        for h in res2:
+            dic={}
             dic["kubun"]="est"
-            dic["day"]=res2[li[2]]["firstEstimationDate"]
-            dic["est_num"]=res2[li[2]]["estimationNumber"] + "-" + str(res2[li[2]]["estimationVersion"])
-            dic["status"]=res2[li[2]]["estimationStatus"]
-            dic["money"]=res2[li[2]]["totalPrice"]
-            dic["cus_id"]=cus_id
-            dic["busho"]=res2[li[2]]["handledDepartmentName"]
-            dic["tantou"]=res2[li[2]]["handledByName"]
-        else:
-            for ac in ins:
-                if ac.act_id==li[2]:
-                    dic["kubun"]="act"
-                    dic["day"]=ac.day
-                    dic["type"]=ac.type
-                    dic["tel_result"]=ac.tel_result
-                    dic["text"]=ac.text
-                    dic["act_id"]=ac.act_id
-        res_det.append(dic)
+            dic["day"]=h["firstEstimationDate"]
+            dic["est_num"]=h["estimationNumber"] + "-" + str(h["estimationVersion"])
+            dic["status"]=h["estimationStatus"]
+            dic["money"]=h["totalPrice"]
+            dic["cus_id"]=i
+            dic["busho"]=h["handledDepartmentName"]
+            dic["tantou"]=h["handledByName"]
+            res_det.append(dic)
+        # コメント
+        ins=Crm_action.objects.filter(cus_id=i)
+        for h in ins:
+            dic={}
+            dic["kubun"]="act"
+            dic["day"]=h.day
+            dic["type"]=h.type
+            dic["tel_result"]=h.tel_result
+            dic["text"]=h.text
+            dic["act_id"]=h.act_id
+            res_det.append(dic)
+
+    # 金額、件数など
+    juchu_money=Customer.objects.filter(cus_id__in=a_list).aggregate(Sum("juchu_money"))["juchu_money__sum"]
+    juchu_all=Customer.objects.filter(cus_id__in=a_list).aggregate(Sum("juchu_all"))["juchu_all__sum"]
+    mitsu_all=Customer.objects.filter(cus_id__in=a_list).aggregate(Sum("mitsu_all"))["mitsu_all__sum"]
+    try:
+        mitsu_last=Customer.objects.filter(cus_id__in=a_list).aggregate(Max("mitsu_last"))["mitsu_last__max"]
+    except:
+        mitsu_last=""
+    try:
+        juchu_last=Customer.objects.filter(cus_id__in=a_list).aggregate(Max("juchu_last"))["juchu_last__max"]
+    except:
+        juchu_last=""
+    try:
+        contact_last=Customer.objects.filter(cus_id__in=a_list).aggregate(Max("contact_last"))["contact_last__max"]
+    except:
+        contact_last=""
+
+    cus_data={}
+    cus_data["juchu_money"]=juchu_money
+    cus_data["juchu_all"]=juchu_all
+    cus_data["mitsu_all"]=mitsu_all
+    cus_data["mitsu_last"]=mitsu_last
+    cus_data["juchu_last"]=juchu_last
+    cus_data["contact_last"]=contact_last
 
     # 最終成型_並び替え
     if request.session["crm_sort"]=="0":
@@ -115,7 +182,7 @@ def kokyaku_api(request):
     else:
         grip_busho_id=""
         grip_tantou_id=""
-        
+
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
@@ -145,13 +212,33 @@ def kokyaku_api(request):
         "tantou_list":Member.objects.filter(busho_id=grip_busho_id),
         "act_user":act_user,
         "crm_sort":request.session["crm_sort"],
+        "crm_act_type":crm_act_type,
+        "cus_id":cus_id,
+        "kubun":kubun,
+        "ins_parent":ins_parent,
+        "ins_child":ins_child,
+        "group_list":group_list,
+        "cus_data":cus_data,
     }
     return render(request,"crm/index.html",params)
 
 
+# 時系列表示順
 def crm_sort(request):
     sort=request.POST.get("crm_sort")
+    cus_id=request.POST.get("cus_id")
     request.session["crm_sort"]=sort
+    request.session["cus_id"]=cus_id
+    d={}
+    return JsonResponse(d)
+
+
+# 時系列表示タイプ
+def crm_group_act(request):
+    self_group=request.POST.get("self_group").replace("self_group_","")
+    cus_id=request.POST.get("cus_id")
+    request.session["crm_act_type"]=self_group
+    request.session["cus_id"]=cus_id
     d={}
     return JsonResponse(d)
 
@@ -265,6 +352,191 @@ def crm_bikou(request):
     requests.put(url,data=data)
     d={}
     return JsonResponse(d)
+
+
+# グループ編集ページ
+def group_index(request):
+
+    post_kubun=request.POST.get("post_kubun")
+    cus_id=request.POST.get("cus_id")
+
+    if post_kubun == "A": #顧客詳細から飛んできた
+        com=Customer.objects.get(cus_id=cus_id).com
+        mail=Customer.objects.get(cus_id=cus_id).mail
+        tel=Customer.objects.get(cus_id=cus_id).tel_search
+        mob=Customer.objects.get(cus_id=cus_id).tel_mob_search
+
+        ins_com=[]
+        ins_mail=[]
+        ins_tel=[]
+        ins_mob=[]
+        if com != None and com != "":
+            ins_com=list(Customer.objects.filter(com__contains=com).values_list("cus_id",flat=True))
+        if mail != None and mail != "":
+            ins_mail=list(Customer.objects.filter(mail=mail).values_list("cus_id",flat=True))
+        if tel != None and tel != "":
+            ins_tel=list(Customer.objects.filter(tel_search=tel).values_list("cus_id",flat=True))
+        if mob != None and mob != "":
+            ins_mob=list(Customer.objects.filter(tel_mob_search=mob).values_list("cus_id",flat=True))
+
+        ins_list=list(set(ins_tel + ins_mob + ins_mail + ins_com))
+        com=""; mail=""; tel=""
+
+    else: #顧客設定の検索ボタンから
+        com=request.POST.get("group_com")
+        tel=request.POST.get("group_tel")
+        mail=request.POST.get("group_mail")
+        fil={}
+        if com != "":
+            fil["com__contains"]=com
+        if mail != "":
+            fil["mail"]=mail
+        if tel != "":
+            tel=tel.strip().replace("-","")
+            ins_tel=list(Customer.objects.filter(tel_search=tel).values_list("cus_id",flat=True))
+            ins_mob=list(Customer.objects.filter(tel_mob_search=tel).values_list("cus_id",flat=True))
+            list_tel_mob=set(ins_tel + ins_mob)
+            fil["cus_id__in"]=list_tel_mob
+
+        if len(fil)>0:
+            ins_list=list(Customer.objects.filter(**fil).values_list("cus_id",flat=True)) 
+        else:
+            ins_list=[]
+
+    # 候補リスト
+    ins_list=list(map(int,ins_list))
+    ins_list.sort()
+    cus_list=[]
+    if len(ins_list)>0:
+        for i in ins_list:
+            dic={}
+            url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i)
+            res=requests.get(url)
+            res=res.json()
+            dic["cus_id"]=str(res["id"])
+            dic["cus_url"]=res["customerMstPageUrl"]
+            dic["com"]=res["corporateName"]
+            dic["busho"]=res["departmentName"]
+
+            na=""
+            if res["nameLast"]!=None:
+                na=res["nameLast"]
+            if res["nameFirst"]!=None:
+                na+=res["nameFirst"]
+            dic["name"]=na
+
+            ad=""
+            if res["prefecture"]!=None:
+                ad+=res["prefecture"]
+            if res["city"]!=None:
+                ad+=res["city"]
+            if res["address1"]!=None:
+                ad+=res["address1"]
+            if res["address2"]!=None:
+                ad+=res["address2"]
+            dic["adress"]=ad
+
+            if Cus_group.objects.filter(cus_id_parent=i).count()>0:
+                dic["kubun"]="parent"
+            elif Cus_group.objects.filter(cus_id_child=i).count()>0:
+                dic["kubun"]="child"
+            else:
+                dic["kubun"]="self"
+
+            cus_list.append(dic)
+
+    # 自分の状態
+    if Cus_group.objects.filter(cus_id_parent=cus_id).count()>0:
+        kubun="parent"
+        p_id=cus_id
+    elif Cus_group.objects.filter(cus_id_child=cus_id).count()>0:
+        kubun="child"
+        p_id=Cus_group.objects.get(cus_id_child=cus_id).cus_id_parent
+    else:
+        kubun="self"
+
+    ins_self=Customer.objects.get(cus_id=cus_id)
+    ins_parent=""
+    ins_child=""
+    ins_child_count=0
+    if kubun != "self":
+        ins_parent=Customer.objects.get(cus_id=p_id)
+        c_list=list(Cus_group.objects.filter(cus_id_parent=p_id).values_list("cus_id_child",flat=True))
+        ins_child=Customer.objects.filter(cus_id__in=c_list)
+        ins_child_count=ins_child.count()
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    params={
+        "cus_list":cus_list,
+        "cus_id":cus_id,
+        "com":com,
+        "mail":mail,
+        "tel":tel,
+        "kubun":kubun,
+        "ins_self":ins_self,
+        "ins_parent":ins_parent,
+        "ins_child":ins_child,
+        "ins_child_count":ins_child_count,
+        "act_user":act_user,
+    }
+    return render(request,"crm/group.html",params)
+
+
+# グループ_削除
+def group_del_all(request):
+    parent_id=request.POST.get("parent_id").replace("顧客ID：","")
+    ins=Cus_group.objects.filter(cus_id_parent=parent_id)
+    for i in ins:
+        i.delete()
+    d={}
+    return JsonResponse(d)
+
+
+# グループ_子設定_追加
+def group_add_child(request):
+    parent_id=request.POST.get("parent_id").replace("顧客ID：","")
+    chi_add_list=request.POST.get("chi_list")
+    chi_add_list=json.loads(chi_add_list)
+    for i in chi_add_list:
+        chi_id=i.replace("check_","")
+        Cus_group.objects.create(cus_id_parent=parent_id,cus_id_child=chi_id)
+    d={}
+    return JsonResponse(d)
+
+
+# グループ_子設定_解除
+def group_del_child(request):
+    child_id=request.POST.get("child_id").replace("child_del_","")
+    Cus_group.objects.get(cus_id_child=child_id).delete()
+    d={}
+    return JsonResponse(d)
+
+
+# グループ_親設定_追加
+def group_add_parent(request):
+    parent_id=request.POST.get("parent_id").replace("radio_","")
+    try:
+        parent_id=Cus_group.objects.get(cus_id_child=parent_id).cus_id_parent
+    except:
+        parent_id=parent_id
+    self_id=request.POST.get("self_id").replace("顧客ID：","")
+    Cus_group.objects.create(cus_id_parent=parent_id,cus_id_child=self_id)
+    d={}
+    return JsonResponse(d)
+
+
+# グループ_顧客詳細に戻る
+def group_cus_submit(request):
+    cus_id=request.POST.get("cus_id")
+    request.session["cus_id"]=cus_id
+    request.session["crm_act_type"]="0"
+    return redirect("crm:kokyaku_api")
 
 
 # メールワイズ_表示ページ

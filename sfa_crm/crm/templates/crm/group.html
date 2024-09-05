@@ -1,0 +1,378 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="icon" href="{% static 't-shirt_3.gif' %}">
+    <title>顧客グループ設定</title>
+</head>
+<body>
+
+    <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1150px">
+            {% include "sfa/menu.html" with act_user=act_user %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1340px;">
+            <hr>
+            <div class="block_title">顧客グループ設定</div>
+            <hr>
+            
+             <div>
+                <div class="flex2">
+                    <div style="width: 500px;">
+                        <div>
+                            <form action="{% url 'crm:group_cus_submit' %}" method="post">{% csrf_token %}
+                                <input type="text" name="cus_id" value="{{ins_self.cus_id}}" style="display: none;">
+                                <button class="btn btn-success" type="submit">顧客詳細に戻る</button>
+                            </form>
+                        </div>
+                        <div style="font-size: 1.2em; margin-top: 15px;">
+                            {% if kubun == "parent" %}
+                            ■グループ設定：<span style="font-weight: bold; color: red;">親</span>
+                            {% elif kubun == "child" %}
+                            ■グループ設定：<span style="font-weight: bold; color: blue;">子</span>
+                            {% else %}
+                            ■グループ設定：なし
+                            {% endif %}
+                        </div>
+                        <div style="margin-top: 20px;" id="cus_id">顧客ID：{{ins_self.cus_id}}</div>
+                        <div>会社：{% if ins_self.com %}{{ins_self.com}}{% endif %}</div>
+                        <div>部署：{% if ins_self.busho %}{{ins_self.busho}}{% endif %}</div>
+                        <div>氏名：{% if ins_self.sei %}{{ins_self.sei}}{% endif %}{% if ins_self.mei %}{{ins_self.mei}}{% endif %}</div>
+                        <div>電話番号：{% if ins_self.tel %}{{ins_self.tel}}{% endif %}</div>
+                        <div>携帯番号：{% if ins_self.tel_mob %}{{ins_self.tel_mob}}{% endif %}</div>
+                        <div>メールアドレス：{% if ins_self.mail %}{{ins_self.mail}}{% endif %}</div>
+                    </div>
+                    <div>
+                        <!-- 親表示 -->
+                        {% if kubun == "parent" %}
+                        <div class="flex" style="font-weight: bold; color: red; font-size: 1.2em;">
+                        {% else %}
+                        <div class="flex" style="color: red; font-size: 1.2em;">
+                        {% endif %}
+                            <div>
+                                {% if kubun == "parent" %}
+                                    <button class="btn btn-outline-danger btn-sm" type="button" id="group_del_parent">グループ削除</button>
+                                {% else %}
+                                    <button id="group_del_parent" type="button" style="display: none;"></button>
+                                {% endif %}
+                            </div>
+                            <div class="group_over" id="{{ins_parent}}" name="crm_list" style="margin-left: 10px;">
+                                {% if ins_parent.com %}{{ins_parent.com}}{% endif %}
+                                {% if ins_parent.com_busho %}　{{ins_parent.com_busho}}{% endif %}
+                                {% if ins_parent.sei %}　{{ins_parent.sei}}{% endif %}
+                                {% if ins_parent.mei %}{{ins_parent.mei}}{% endif %}
+                            </div>
+                        </div>
+
+                        <!-- 子表示 -->
+                        <div style="margin-top: 20px; margin-left: 70px;">
+                            {% for i in ins_child %}
+                                {% if i.cus_id == cus_id %}
+                                <div class="flex" style="margin-top: 10px; font-weight: bold; color: blue;">
+                                {% else %}
+                                <div class="flex" style="margin-top: 10px;">
+                                {% endif %}
+                                    <div>
+                                        <i class="bi bi-arrow-return-right"></i>
+                                        {% if kubun == "parent" and ins_child_count > 1 %}
+                                            <button class="btn btn-outline-dark btn-sm" type="button" id="child_del_{{i.cus_id}}" name="group_del_child">解除</button>
+                                        {% elif kubun == "child" %}
+                                            {% if i.cus_id == cus_id %}
+                                            <button class="btn btn-outline-primary btn-sm" type="button" id="child_del_{{i.cus_id}}" name="group_del_child">解除</button>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div class="group_over" id="{{i.cus_id}}" name="crm_list" style="margin-left: 10px;">
+                                        {% if i.com %}{{i.com}}{% endif %}
+                                        {% if i.com_busho %}　{{i.com_busho}}{% endif %}
+                                        {% if i.sei %}　{{i.sei}}{% endif %}
+                                        {% if i.mei %}{{i.mei}}{% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            <hr>
+
+                <!-- フィルター -->
+                <div>
+                    <form action="{% url 'crm:group_index' %}" method="post" name="form_filter">{% csrf_token %}
+    
+                        <div style="margin-top: 50px; width: 1340px;">
+                            <div class="flex" style="margin-top: 50px;">
+                                <div class="flex">
+                                    <div style="display: none;"><input type="text" name="post_kubun" value="B"></div>
+                                    <div style="display: none;"><input type="text" name="cus_id" value="{{cus_id}}"></div>
+                                    <div>会社名：</div>
+                                    <div><input class="form-control form-control-sm" type="text" name="group_com" style="width: 150px;" value="{{com}}"></div>
+                                    <div style="margin-left: 20px;">電話番号：</div>
+                                    <div><input class="form-control form-control-sm" type="text" name="group_tel" style="width: 150px;" value="{{tel}}"></div>
+                                    <div style="margin-left: 20px;">メールアドレス：</div>
+                                    <div><input class="form-control form-control-sm" type="text" name="group_mail" style="width: 250px;" value="{{mail}}"></div>
+                                    <div style="margin-left: 20px;"><button class="btn btn-secondary btn-sm" type="submit" id="btn_group_search">検索</button></div>
+                                </div>
+                            </div>
+                            
+                            {% if kubun == "parent" %}
+                            <div style="margin-top: 30px;">
+                                <button class="btn btn-outline-primary" type="button" id="btn_p_to_c">子を設定する</button>
+                                <button class="btn btn-outline-primary" type="button" id="btn_s_to_p" style="display: none;">親を設定する</button>
+                            </div>
+                            {% elif kubun == "child" %}
+                            <div style="margin-top: 30px;">
+                                <button class="btn btn-outline-primary" type="button" id="btn_p_to_c" style="display: none;">子を設定する</button>
+                                <button class="btn btn-outline-primary" type="button" id="btn_s_to_p" style="display: none;">親を設定する</button>
+                            </div>
+                            {% elif kubun == "self" %}
+                            <div style="margin-top: 30px;">
+                                <button class="btn btn-outline-primary" type="button" id="btn_p_to_c" style="display: none;">子を設定する</button>
+                                <button class="btn btn-outline-primary" type="button" id="btn_s_to_p">親を設定する</button>
+                            </div>
+                            {% endif %}
+                            
+                        </div>
+    
+                    </form>
+                </div>
+             </div>
+
+            <!-- 顧客一覧 -->
+            <div style="margin-top: 15px; width: 1340px;">
+                <table class="table table-bordered group_table_center" style="font-size: 0.9em;">
+                    <tr>
+                        <th style="width: 30px;"></th>
+                        <th colspan="2">区分</th>
+                        <th style="width: 100px;">ID</th>
+                        <th>会社</th>
+                        <th>部署</th>
+                        <th>氏名</th>
+                        <th>住所</th>
+                        <th style="width: 40px;"></th>
+                    </tr>
+                    {% for i in cus_list %}
+                    <tr>
+                        <td>
+                            {% if kubun == "parent" %}
+                                {% if i.kubun == "self" %}
+                                <input class="form-check-input" type="checkbox" id="check_{{i.cus_id}}" name="check_choise">
+                                {% endif %}
+                            {% elif kubun == "self" %}
+                                {% if i.cus_id != cus_id %}
+                                    <input class="form-check-input" type="radio" id="radio_{{i.cus_id}}" name="radio_choise">
+                                {% endif %}
+                            {% endif %}
+                        </td>
+
+                        {% if i.cus_id == cus_id %}
+                        <td style="background-color: green; color: #fff; width: 30px;">自</td>
+                        {% else %}
+                        <td style="width: 30px;"></td>
+                        {% endif %}
+
+                        {% if i.kubun == "parent" %}
+                        <td style="background-color: red; color: #fff; width: 30px;">親</td>
+                        {% elif i.kubun == "child" %}
+                        <td style="background-color: blue; color: #fff; width: 30px;">子</td>
+                        {% else %}
+                        <td style="width: 30px;"></td>
+                        {% endif %}
+
+                        <td>
+                            <a href="{{i.cus_url}}" target="_blank"><span style="color: #008bc2; font-weight: bold;">
+                                <i class="bi bi-box-arrow-up-right"></i></span></a>
+                                <span id="grip_cus_id"> {{i.cus_id}}</span>
+                        </td>
+                        <td>{% if i.com %}{{i.com}}{% endif %}</td>
+                        <td>{% if i.busho %}{{i.busho}}{% endif %}</td>
+                        <td>{{i.name}}</td>
+                        <td>{{i.adress}}</td>
+                        <td>
+                            {% if i.cus_id != cus_id %}
+                            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" id="{{i.cus_id}}" name="crm_list">
+                                <i class="bi bi-person-square"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+      
+
+    <!-- 各種Ajax -->
+    <script>
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i <cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+  
+        var csrftoken = getCookie('csrftoken');
+  
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+  
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+  
+
+
+        // 顧客詳細ボタン
+        var item=document.getElementsByName("crm_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                $.ajax({
+                    'url': '{% url "sfa:kokyaku_detail_api" %}',
+                    'type': 'POST',
+                    'data': {"cus_id":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.open("{% url 'crm:kokyaku_api' %}", '_blank');
+                })
+            },false)
+        };
+
+        
+        // 親状態_グループ削除
+        document.getElementById("group_del_parent").addEventListener("click",function(){
+            var ans =confirm("本当にこのグループを削除しますか？");
+                if (ans == false){
+                    return
+                };
+            $.ajax({
+                    'url': '{% url "crm:group_del_all" %}',
+                    'type': 'POST',
+                    'data': {
+                        "parent_id":document.getElementById("cus_id").innerText
+                    },
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+                window.alert("グループを削除しました！");
+            })
+        });
+
+
+        // 親状態_子を設定
+        document.getElementById("btn_p_to_c").addEventListener("click",function(){
+            var item=document.getElementsByName("check_choise");
+            var chi_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked){
+                    chi_list.push(item[i].id);
+                };
+            };
+            if (chi_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            };
+            chi_list=JSON.stringify(chi_list);
+            $.ajax({
+                    'url': '{% url "crm:group_add_child" %}',
+                    'type': 'POST',
+                    'data': {
+                        "chi_list":chi_list,
+                        "parent_id":document.getElementById("cus_id").innerText
+                    },
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+                window.alert("子設定を追加しました！");
+            })
+        });
+
+
+        // 子を解除
+        var item=document.getElementsByName("group_del_child");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                var ans =confirm("本当にグループから解除しますか？");
+                if (ans == false){
+                    return
+                };
+                $.ajax({
+                    'url': '{% url "crm:group_del_child" %}',
+                    'type': 'POST',
+                    'data': {"child_id":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.location.reload();
+                    window.alert("グループから解除しました！");
+                })
+            },false)
+        };
+
+
+        // なし状態_親を設定
+        document.getElementById("btn_s_to_p").addEventListener("click",function(){
+            var item=document.getElementsByName("radio_choise");
+            var flag = false;
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked){
+                    var parent_id = item[i].id;
+                    flag = true;
+                };
+            };
+            if (flag == false){
+                window.alert("対象がチェックされていません！");
+                return
+            };
+            $.ajax({
+                    'url': '{% url "crm:group_add_parent" %}',
+                    'type': 'POST',
+                    'data': {
+                        "parent_id":parent_id,
+                        "self_id":document.getElementById("cus_id").innerText
+                    },
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+                window.alert("親を設定しました！");
+            })
+        });
+
+    </script>
+
+</body>
+</html>

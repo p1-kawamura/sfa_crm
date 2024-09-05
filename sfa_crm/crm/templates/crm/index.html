@@ -38,6 +38,7 @@
             <div id="alert_check" style="display: none;">※Javascriptのエラー回避のため</div>
             {% endif %}
 
+            <!-- 上段 -->
             <div class="flex2" style="margin-top: 30px;">
 
                 <!-- 顧客詳細 -->
@@ -76,8 +77,8 @@
                         <tr>
                             <th rowspan="2">住所</th>
                             <td rowspan="2">
-                                {% if res.prefecture %}{{res.prefecture}}{% endif %}{% if res.city %}{{res.city}}{% endif %}<br>
-                                {% if res.address1 %}{{res.address1}}{% endif %}{% if res.address2 %} {{res.address2}}{% endif %}
+                                {% if res.prefecture %}{{res.prefecture}}{% endif %}{% if res.city %}{{res.city}}{% endif %}
+                                {% if res.address1 %}{{res.address1}}{% endif %}<br>{% if res.address2 %} {{res.address2}}{% endif %}
                                 
                             </td>
                             <th>最終見積日</th>
@@ -209,37 +210,135 @@
             </div>
             <hr>
 
-            <!-- グループ機能
-             <div>
-                <div class="flex2" style="width: 1300px;">
-                    ■ グループ化
-                    <div>
-    
-                    </div>
-                    <div>
-    
-                    </div>
-                </div>
+            <!-- 中段 （グループ状態 / 候補） -->
+            <div class="flex3" style="margin-top: 20px;">
                 <div>
-
+                    <div>
+                        {% if kubun == "parent" %}
+                        ■グループ設定：親設定
+                        {% elif kubun == "child" %}
+                        ■グループ設定：子設定
+                        {% else %}
+                        ■グループ設定：なし
+                        {% endif %}
+                    </div>
+                    
+                    <!-- 親表示 -->
+                    {% if kubun == "parent" %}
+                    <div style="margin-top: 20px; font-weight: bold; background-color: yellow;">
+                    {% else %}
+                    <div class="group_over" id="{{ins_parent}}" name="crm_list" style="margin-top: 20px;">
+                    {% endif %}
+                        {% if ins_parent.com %}{{ins_parent.com}}{% endif %}
+                        {% if ins_parent.com_busho %}　{{ins_parent.com_busho}}{% endif %}
+                        {% if ins_parent.sei %}　{{ins_parent.sei}}{% endif %}
+                        {% if ins_parent.mei %}{{ins_parent.mei}}{% endif %}
+                    </div>
+                    
+                    <!-- 子表示 -->
+                    <div style="margin-top: 10px; margin-left: 40px; font-size: 0.9em;">
+                        {% for i in ins_child %}
+                            {% if i.cus_id == cus_id %}
+                            <div style="margin-top: 10px; font-weight: bold; background-color: yellow;">
+                            {% else %}
+                            <div class="group_over" id="{{i.cus_id}}" name="crm_list" style="margin-top: 10px;">
+                            {% endif %}
+                                <i class="bi bi-arrow-return-right"></i>
+                                {% if i.com %}{{i.com}}{% endif %}
+                                {% if i.com_busho %}　{{i.com_busho}}{% endif %}
+                                {% if i.sei %}　{{i.sei}}{% endif %}
+                                {% if i.mei %}{{i.mei}}{% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if kubun != "self" %}
+                    <div style="margin-top: 50px; font-size: 0.9em; width: 500px;">
+                        <div>【グループ総計】</div>
+                        <table class="table table-bordered group_sum" style="margin-top: 5px;">
+                            <tr>
+                                <td>見積総数</td>
+                                <td>受注総数</td>
+                                <td>受注総金額</td>
+                            </tr>
+                            <tr>
+                                <td>{{cus_data.mitsu_all}}件</td>
+                                <td>{{cus_data.juchu_all}}件</td>
+                                <td>{{cus_data.juchu_money | intcomma}}円</td>
+                            </tr>
+                            <tr>
+                                <td>最終見積日</td>
+                                <td>最終受注日</td>
+                                <td>最終コンタクト日</td>
+                            </tr>
+                            <tr>
+                                <td>{{cus_data.mitsu_last}}</td>
+                                <td>{{cus_data.juchu_last}}</td>
+                                <td>{{cus_data.contact_last}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    {% endif %}
+                    <div style="margin-top: 30px;">
+                        <form action="{% url 'crm:group_index' %}" method="post">{% csrf_token %}
+                            <input type="text" value="A" name="post_kubun" style="display: none;">
+                            <input type="text" value="{{res.id}}" name="cus_id" style="display: none;">
+                            <button class="btn btn-secondary" type="submit">グループを編集する</button>
+                        </form>
+                    </div>
                 </div>
-             </div>
-            
 
-            <hr> -->
+                <div>
+                    <div>グループ候補の顧客： {{group_list | length}}件</div>
+                    <div class="inlineframe" style="height: 200px; width: 700px; border: 1px solid #ced4da; font-size: 0.9em;">
+                        {% for i in group_list %}
+                            {% if i.type %}
+                            <div class="flex" style="color: blue;">
+                            {% else %}
+                            <div class="flex">
+                            {% endif %}
+                                <div style="width: 20px; font-weight: bold;">{% if i.type %}G{% endif %}</div>
+                                <div style="width: 80px;">{{i.id}}</div>
+                                <div>
+                                    {% if i.com %}{{i.com}}{% endif %}　
+                                    {% if i.busho %}{{i.busho}}{% endif %}　
+                                    {% if i.sei %}{{i.sei}}{% endif %}{% if i.mei %}{{i.mei}}{% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <hr>
+
+            <!-- 下段　-->
             <div class="flex2" style="width: 1300px;">
                 <!-- 履歴一覧 -->
                 <div>
-                    <div style="width: 75px;">
-                        <select class="form-select form-select-sm" id="left_sort">
-                            {% if crm_sort == "0" %}
-                            <option value="0" selected>昇順</option>
-                            <option value="1">降順</option>
+                    <div class="flex">
+                        <div style="width: 75px;">
+                            <select class="form-select form-select-sm" id="left_sort">
+                                {% if crm_sort == "0" %}
+                                <option value="0" selected>昇順</option>
+                                <option value="1">降順</option>
+                                {% else %}
+                                <option value="0">昇順</option>
+                                <option value="1" selected>降順</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 50px;">
+                            {% if crm_act_type == "0" %}
+                            <input type="radio" name="self_group" id="self_group_0" checked> 単体表示
+                                {% if kubun != "self" %}
+                                <input type="radio" name="self_group" id="self_group_1" style="margin-left: 20px;"> グループ表示
+                                {% endif %}
                             {% else %}
-                            <option value="0">昇順</option>
-                            <option value="1" selected>降順</option>
+                            <input type="radio" name="self_group" id="self_group_0"> 単体表示
+                                {% if kubun != "self" %}
+                                <input type="radio" name="self_group" id="self_group_1" style="margin-left: 20px;" checked> グループ表示
+                                {% endif %}
                             {% endif %}
-                        </select>
+                        </div>
                     </div>
                     <div class="inlineframe" style="height: 1500px; width: 600px; border: 1px solid #ced4da;">
                         {% for i in res_det %}
@@ -549,13 +648,36 @@
             $.ajax({
                     'url': '{% url "crm:crm_sort" %}',
                     'type': 'POST',
-                    'data': {"crm_sort":document.getElementById("left_sort").value},
+                    'data': {
+                        "crm_sort":document.getElementById("left_sort").value,
+                        "cus_id":document.getElementById("grip_cus_id").innerText
+                    },
                     'dataType': 'json'
             })
             .done(function(response){
                 window.location.reload();
             })
         });
+
+
+        // リスト表示タイプ
+        var item=document.getElementsByName("self_group");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                $.ajax({
+                    'url': '{% url "crm:crm_group_act" %}',
+                    'type': 'POST',
+                    'data': {
+                        "self_group":this.id,
+                        "cus_id":document.getElementById("grip_cus_id").innerText
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.location.reload();
+                })
+            },false)
+        };
 
 
         // リストクリック（見積）
@@ -729,6 +851,25 @@
             })
 
         },false);
+
+
+        // グループ_顧客詳細ボタン
+        var item=document.getElementsByName("crm_list");
+        for (var i=0; i<item.length; i++){
+            item[i].addEventListener("click",function(){
+                $.ajax({
+                    'url': '{% url "sfa:kokyaku_detail_api" %}',
+                    'type': 'POST',
+                    'data': {"cus_id":this.id},
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    window.open("{% url 'crm:kokyaku_api' %}", '_blank');
+                })
+            },false)
+        };
+
+
 
     </script>
     

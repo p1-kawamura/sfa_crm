@@ -10,9 +10,8 @@ import requests
 from datetime import date
 from django.http import HttpResponse
 import urllib.parse
-from django.db.models import Sum
 import datetime
-from django.db.models import Q,Max
+from django.db.models import Q,Sum,Max
 from django_pandas.io import read_frame
 import pyshorteners
 
@@ -213,6 +212,9 @@ def index_api(request):
                 "sei":res2["nameLast"],
                 "mei":res2["nameFirst"],
                 "pref":res2["prefecture"],
+                "city":res2["city"],
+                "address_1":res2["address1"],
+                "address_2":res2["address2"],
                 "tel":res2["tel"],
                 "tel_search":tel_search,
                 "tel_mob":res2["mobilePhone"],
@@ -1002,6 +1004,7 @@ def modal_group_click(request):
 def kokyaku_detail_api(request):
     cus_id=request.POST.get("cus_id")
     request.session["cus_id"]=cus_id
+    request.session["crm_act_type"]="0"
     d={}
     return JsonResponse(d)
 
@@ -1604,22 +1607,9 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Sfa_group.objects.all().values_list("mitsu_id_parent",flat=True).order_by("mitsu_id_parent").distinct()
+    ins=Approach.objects.filter(approach_id__in=["17","18"])
     for i in ins:
-        oya=Sfa_data.objects.get(mitsu_id=i)
-        ins2=Sfa_group.objects.filter(mitsu_id_parent=i)
-        for h in ins2:
-            ko=Sfa_data.objects.get(mitsu_id=h.mitsu_id_child)
-            ko.bikou=oya.bikou
-            ko.tel_last_day=oya.tel_last_day
-            ko.s_tel=oya.s_tel
-            ko.s_tel_result=oya.s_tel_result
-            ko.mail_last_day=oya.mail_last_day
-            ko.s_mail=oya.s_mail
-            ko.s_mail_result=oya.s_mail_result
-            ko.s_memo1=oya.s_memo1
-            ko.s_memo2=oya.s_memo2
-            ko.save()
+        i.delete()
 
 
   
