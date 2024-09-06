@@ -21,7 +21,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1340px;">
+        <div style="margin: 0 auto; width: 1370px;">
             <hr>
             <div class="block_title">顧客検索</div>
             <hr>
@@ -156,6 +156,13 @@
                             <input class="form-check-input" type="checkbox" id="taimen" name="taimen">対面あり
                             {% endif %}
                         </div>
+                        <div class="form-check" style="margin-left: 30px;">
+                            {% if ses.group %}
+                            <input class="form-check-input" type="checkbox" id="group" name="group" checked>グループ設定
+                            {% else %}
+                            <input class="form-check-input" type="checkbox" id="taimen" name="group">グループ設定
+                            {% endif %}
+                        </div>
                         <div style="margin-left: 30px;">アプローチリスト：</div>
                         <div>
                             <select class="form-select form-select-sm" id="apr_list" name="apr_list" style="width: 350px;">
@@ -216,6 +223,13 @@
                     <div style="width: 30px;">
                         {% if i.taimen %}
                         <span style="color: #ff3502; font-size: 1.2em;" title="対面あり"><i class="bi bi-shop"></i></span>
+                        {% endif %}
+                    </div>
+                    <div style="width: 30px;">
+                        {% if i.cus_id in li_parent %}
+                        <span style="color: red; font-size: 1.2em;" title="グループ：親設定"><i class="bi bi-google"></i></span>
+                        {% elif i.cus_id in li_child %}
+                        <span style="color: blue; font-size: 1.2em;" title="グループ：子設定"><i class="bi bi-google"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 70px;">{% if i.pref%}{{i.pref}}{% endif %}</div>

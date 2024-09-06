@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import index,kokyaku_api,crm_sort,crm_group_act,alert_check,list_click_est,list_click_act,list_add,list_del,grip_add,crm_bikou, \
                     mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_busho,cus_list_search,cus_list_page_prev,cus_list_page_first,\
-                    cus_list_page_next,cus_list_page_last,group_index,group_add_child,group_del_child,group_add_parent,group_del_all,group_cus_submit
+                    cus_list_page_next,cus_list_page_last,group_index,group_add_child,group_del_child,group_add_parent,group_del_all,group_cus_submit, \
+                    cus_ranking_index,cus_ranking_search
                     
 
 app_name="crm"
@@ -35,4 +36,6 @@ urlpatterns = [
     path('group_del_child/', group_del_child, name="group_del_child"),
     path('group_add_parent/', group_add_parent, name="group_add_parent"),
     path('group_cus_submit/', group_cus_submit, name="group_cus_submit"),
+    path('cus_ranking_index/', cus_ranking_index, name="cus_ranking_index"),
+    path('cus_ranking_search/', cus_ranking_search, name="cus_ranking_search"),
 ]

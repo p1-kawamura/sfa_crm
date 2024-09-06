@@ -12,6 +12,7 @@ import io
 from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum,Max
+from django_pandas.io import read_frame
 
 
 
@@ -117,7 +118,7 @@ def kokyaku_api(request):
 
             if Cus_group.objects.filter(cus_id_parent=i).count()>0 or Cus_group.objects.filter(cus_id_child=i).count()>0:
                 g_dic["type"]="1"
-                
+
             group_list.append(g_dic)
 
 
@@ -638,7 +639,7 @@ def mw_download(request):
     return response
 
 
-# 顧客管理一覧
+# 顧客検索一覧
 def cus_list_index(request):
     if "cus_search" not in request.session:
         request.session["cus_search"]={}
@@ -694,6 +695,8 @@ def cus_list_index(request):
         request.session["cus_search"]["royal"]=[]
     if "taimen" not in request.session["cus_search"]:
         request.session["cus_search"]["taimen"]=[]
+    if "group" not in request.session["cus_search"]:
+        request.session["cus_search"]["group"]=[]
     if "page_num" not in request.session["cus_search"]:
         request.session["cus_search"]["page_num"]=1
     if "all_page_num" not in request.session["cus_search"]:
@@ -768,8 +771,15 @@ def cus_list_index(request):
         ins_apr=list(Crm_action.objects.filter(type=8,approach_id=ses["apr_list"]).values_list("cus_id",flat=True))
         fil["cus_id__in"]=ins_apr
 
+    li_parent=list(Cus_group.objects.all().values_list("cus_id_parent",flat=True).order_by("cus_id_parent").distinct())
+    li_child=list(Cus_group.objects.all().values_list("cus_id_child",flat=True))
+    if len(ses["group"]) > 0:
+        li_group=li_parent + li_child
+        fil["cus_id__in"]=li_group
+
     items=Customer.objects.filter(**fil).order_by("cus_touroku").reverse()
     result=items.count()
+
     #全ページ数
     if result == 0:
         all_num = 1
@@ -837,8 +847,10 @@ def cus_list_index(request):
         "all_num":all_num,
         "act_user":act_user,
         "result":result,
+        "li_parent":li_parent,
+        "li_child":li_child,
     }
-    
+
     return render(request,"crm/cus_list.html",params)
 
 
@@ -883,6 +895,7 @@ def cus_list_search(request):
     request.session["cus_search"]["grip"]=request.POST.getlist("grip")
     request.session["cus_search"]["royal"]=request.POST.getlist("royal")
     request.session["cus_search"]["taimen"]=request.POST.getlist("taimen")
+    request.session["cus_search"]["group"]=request.POST.getlist("group")
     request.session["cus_search"]["apr_list"]=request.POST["apr_list"]
     request.session["cus_search"]["page_num"]=1
 
@@ -914,3 +927,100 @@ def cus_list_page_last(request):
     request.session["cus_search"]["page_num"]=all_num
     return redirect("crm:cus_list_index")
 
+
+# 顧客ランキング
+def cus_ranking_index(request):
+    if "cus_ranking" not in request.session:
+        request.session["cus_ranking"]={}
+    if "pref" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["pref"]=""
+    if "cus_touroku_st" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["cus_touroku_st"]=""
+    if "cus_touroku_ed" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["cus_touroku_ed"]=""
+    if "last_mitsu_st" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["last_mitsu_st"]=""
+    if "last_mitsu_ed" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["last_mitsu_ed"]=""
+    if "last_juchu_st" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["last_juchu_st"]=""
+    if "last_juchu_ed" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["last_juchu_ed"]=""
+    if "type" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["type"]="juchu_money"
+
+    ses=request.session["cus_ranking"]
+    
+    # フィルター
+    fil={}
+    if ses["pref"] != "":
+        fil["pref"]=ses["pref"]
+    if ses["cus_touroku_st"] != "":
+        fil["cus_touroku__gte"]=ses["cus_touroku_st"]
+    if ses["cus_touroku_ed"] != "":
+        fil["cus_touroku__lte"]=ses["cus_touroku_ed"]
+    if ses["last_mitsu_st"] != "":
+        fil["mitsu_last__gte"]=ses["last_mitsu_st"]
+    if ses["last_mitsu_ed"] != "":
+        fil["mitsu_last__lte"]=ses["last_mitsu_ed"]
+    if ses["last_juchu_st"] != "":
+        fil["juchu_last__gte"]=ses["last_juchu_st"]
+    if ses["last_juchu_ed"] != "":
+        fil["juchu_last__lte"]=ses["last_juchu_ed"]
+    
+    ins=Customer.objects.filter(**fil)
+
+    # pandasで作り替え
+    df=read_frame(ins)
+    df=df.set_index("cus_id")
+
+    parent_list=Cus_group.objects.all().values_list("cus_id_parent",flat=True).order_by("cus_id_parent").distinct()
+    total_list=[]
+    for i in parent_list:
+        child_list=list(Cus_group.objects.filter(cus_id_parent=i).values_list("cus_id_child",flat=True))
+        # df から子を削除
+        for h in child_list:
+            pass
+
+        # グループ全体で集計
+        all_list=child_list + [i] 
+        juchu_money=Customer.objects.filter(cus_id__in=all_list).aggregate(Sum("juchu_money"))["juchu_money__sum"]
+        juchu_all=Customer.objects.filter(cus_id__in=all_list).aggregate(Sum("juchu_all"))["juchu_all__sum"]
+        mitsu_all=Customer.objects.filter(cus_id__in=all_list).aggregate(Sum("mitsu_all"))["mitsu_all__sum"]
+        li=[i,juchu_money,juchu_all,mitsu_all]
+        total_list.append(li)
+
+    print(total_list)
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    params={
+        "ses":ses,
+        "pref_list":[
+            '','北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
+            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
+            '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
+            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "type":{"juchu_money":"受注金額","juchu_all":"受注件数","mitsu_all":"見積件数"},
+        "act_user":act_user,
+    }
+
+    return render(request,"crm/ranking.html",params)
+
+
+# 顧客ランキングの条件
+def cus_ranking_search(request):
+    request.session["cus_ranking"]["pref"]=request.POST["pref"]
+    request.session["cus_ranking"]["cus_touroku_st"]=request.POST["cus_touroku_st"]
+    request.session["cus_ranking"]["cus_touroku_ed"]=request.POST["cus_touroku_ed"]
+    request.session["cus_ranking"]["last_mitsu_st"]=request.POST["last_mitsu_st"]
+    request.session["cus_ranking"]["last_mitsu_ed"]=request.POST["last_mitsu_ed"]
+    request.session["cus_ranking"]["last_juchu_st"]=request.POST["last_juchu_st"]
+    request.session["cus_ranking"]["last_juchu_ed"]=request.POST["last_juchu_ed"]
+    request.session["cus_ranking"]["type"]=request.POST["type"]
+    return redirect("crm:cus_ranking_index")
