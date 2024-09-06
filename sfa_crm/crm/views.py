@@ -934,18 +934,14 @@ def cus_ranking_index(request):
         request.session["cus_ranking"]={}
     if "pref" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["pref"]=""
-    if "cus_touroku_st" not in request.session["cus_ranking"]:
-        request.session["cus_ranking"]["cus_touroku_st"]=""
-    if "cus_touroku_ed" not in request.session["cus_ranking"]:
-        request.session["cus_ranking"]["cus_touroku_ed"]=""
-    if "last_mitsu_st" not in request.session["cus_ranking"]:
-        request.session["cus_ranking"]["last_mitsu_st"]=""
-    if "last_mitsu_ed" not in request.session["cus_ranking"]:
-        request.session["cus_ranking"]["last_mitsu_ed"]=""
-    if "last_juchu_st" not in request.session["cus_ranking"]:
-        request.session["cus_ranking"]["last_juchu_st"]=""
-    if "last_juchu_ed" not in request.session["cus_ranking"]:
-        request.session["cus_ranking"]["last_juchu_ed"]=""
+    if "mitsu_st" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["mitsu_st"]=""
+    if "mitsu_ed" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["mitsu_ed"]=""
+    if "juchu_st" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["juchu_st"]=""
+    if "juchu_ed" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["juchu_ed"]=""
     if "type" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["type"]="juchu_money"
 
@@ -955,42 +951,27 @@ def cus_ranking_index(request):
     fil={}
     if ses["pref"] != "":
         fil["pref"]=ses["pref"]
-    if ses["cus_touroku_st"] != "":
-        fil["cus_touroku__gte"]=ses["cus_touroku_st"]
-    if ses["cus_touroku_ed"] != "":
-        fil["cus_touroku__lte"]=ses["cus_touroku_ed"]
-    if ses["last_mitsu_st"] != "":
-        fil["mitsu_last__gte"]=ses["last_mitsu_st"]
-    if ses["last_mitsu_ed"] != "":
-        fil["mitsu_last__lte"]=ses["last_mitsu_ed"]
-    if ses["last_juchu_st"] != "":
-        fil["juchu_last__gte"]=ses["last_juchu_st"]
-    if ses["last_juchu_ed"] != "":
-        fil["juchu_last__lte"]=ses["last_juchu_ed"]
+    if ses["mitsu_st"] != "":
+        fil["mitsu_day__gte"]=ses["mitsu_st"]
+    if ses["mitsu_ed"] != "":
+        fil["mitsu_day__lte"]=ses["mitsu_ed"]
+    if ses["juchu_st"] != "":
+        fil["juchu_day__gte"]=ses["juchu_st"]
+    if ses["juchu_ed"] != "":
+        fil["juchu_day__lte"]=ses["juchu_ed"]
     
-    ins=Customer.objects.filter(**fil)
+    ins=Sfa_data.objects.filter(**fil)
 
     # pandasで作り替え
     df=read_frame(ins)
-    df=df.set_index("cus_id")
+    
 
     parent_list=Cus_group.objects.all().values_list("cus_id_parent",flat=True).order_by("cus_id_parent").distinct()
     total_list=[]
     for i in parent_list:
         child_list=list(Cus_group.objects.filter(cus_id_parent=i).values_list("cus_id_child",flat=True))
-        # df から子を削除
-        for h in child_list:
-            pass
+ 
 
-        # グループ全体で集計
-        all_list=child_list + [i] 
-        juchu_money=Customer.objects.filter(cus_id__in=all_list).aggregate(Sum("juchu_money"))["juchu_money__sum"]
-        juchu_all=Customer.objects.filter(cus_id__in=all_list).aggregate(Sum("juchu_all"))["juchu_all__sum"]
-        mitsu_all=Customer.objects.filter(cus_id__in=all_list).aggregate(Sum("mitsu_all"))["mitsu_all__sum"]
-        li=[i,juchu_money,juchu_all,mitsu_all]
-        total_list.append(li)
-
-    print(total_list)
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -1016,11 +997,9 @@ def cus_ranking_index(request):
 # 顧客ランキングの条件
 def cus_ranking_search(request):
     request.session["cus_ranking"]["pref"]=request.POST["pref"]
-    request.session["cus_ranking"]["cus_touroku_st"]=request.POST["cus_touroku_st"]
-    request.session["cus_ranking"]["cus_touroku_ed"]=request.POST["cus_touroku_ed"]
-    request.session["cus_ranking"]["last_mitsu_st"]=request.POST["last_mitsu_st"]
-    request.session["cus_ranking"]["last_mitsu_ed"]=request.POST["last_mitsu_ed"]
-    request.session["cus_ranking"]["last_juchu_st"]=request.POST["last_juchu_st"]
-    request.session["cus_ranking"]["last_juchu_ed"]=request.POST["last_juchu_ed"]
+    request.session["cus_ranking"]["mitsu_st"]=request.POST["mitsu_st"]
+    request.session["cus_ranking"]["mitsu_ed"]=request.POST["mitsu_ed"]
+    request.session["cus_ranking"]["juchu_st"]=request.POST["juchu_st"]
+    request.session["cus_ranking"]["juchu_ed"]=request.POST["juchu_ed"]
     request.session["cus_ranking"]["type"]=request.POST["type"]
     return redirect("crm:cus_ranking_index")
