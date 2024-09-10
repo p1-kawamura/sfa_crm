@@ -21,9 +21,9 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1340px;">
+        <div style="margin: 0 auto; width: 1215px;">
             <hr>
-            <div class="block_title">顧客ランキング</div>
+            <div class="block_title">顧客ランキング（案件管理データ）</div>
             <hr>
             <!-- フィルター -->
             <div>
@@ -86,55 +86,45 @@
             <!-- 顧客一覧 -->
             <div style="margin-top: 15px;">
 
-                {% for i in cus_list %}
+                {% for i in rank_list %}
 
                 <div class="flex sfa_main" style="background-color: #FFF;">
 
+                    <div style="width: 80px;">
+                        {% if i.rank == 1 %}
+                        <span style="color: gold; font-size: 1.2em;"><i class="bi bi-trophy-fill"></i></span>
+                        {% elif i.rank == 2 %}
+                        <span style="color: silver; font-size: 1.2em;"><i class="bi bi-trophy-fill"></i></span>
+                        {% elif i.rank == 3 %}
+                        <span style="color: #b87333; font-size: 1.2em;"><i class="bi bi-trophy-fill"></i></span>
+                        {% endif %}
+                        第{{i.rank}}位
+                    </div>
                     <div style="width: 90px;">
                         <a href="{{i.cus_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}
                     </div>
                     <div style="width: 30px;">
-                        {% if i.grip_tantou_id != "" %}
-                            {% for h in member_list %}
-                                {% if i.grip_tantou_id == h.tantou_id %}
-                                <span style="color: green; font-size: 1.2em; cursor: pointer;" title="{{h.busho}}：{{h.tantou}}"><i class="bi bi-flag-fill"></i></span>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                    <div style="width: 30px;">
-                        {% if i.royal == 1 %}
-                        <span style="color: #ff9900; font-size: 1.2em;" title="ロイヤルカスタマー"><i class="bi bi-trophy-fill"></i></span>
-                        {% endif %}
-                    </div>
-                    <div style="width: 30px;">
-                        {% if i.taimen %}
-                        <span style="color: #ff3502; font-size: 1.2em;" title="対面あり"><i class="bi bi-shop"></i></span>
+                        {% if i.cus_id in parent_list %}
+                        <span style="color: red; font-size: 1.2em;" title="グループ：親設定"><i class="bi bi-google"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 70px;">{% if i.pref%}{{i.pref}}{% endif %}</div>
                     <div style="width: 220px;">{% if i.com %}{{i.com | truncatechars:14}}{% endif %}</div>
                     <div style="width: 120px;">{% if i.sei %}{{i.sei}}{% endif %} {% if i.mei %}{{i.mei}}{% endif %}</div>
-                    <div style="width: 80px;">
-                        {% if i.juchu_all >= 50 %}
-                            <span style="color: #ff3737;"><i class="bi bi-bar-chart-line-fill"></i></span>
-                        {% elif i.juchu_all >= 20 %}
-                            <span style="color: #4245ff;"><i class="bi bi-bar-chart-line-fill"></i></span>
-                        {% else %}
-                            <span style="color: #dadada;"><i class="bi bi-bar-chart-line-fill"></i></span>
-                        {% endif %}
-                         {{i.juchu_all}}回</div>
-                    <div style="width: 120px;">{{i.juchu_money | intcomma}}円</div>
-                    <div style="width: 140px;" class="flex">
-                        <div class="order_use">受</div>
-                        <div style="margin-left: 7px;">{% if i.juchu_last %}{{i.juchu_last}}{% endif %}</div>
+                    <div style="width: 100px;" class="flex">
+                        <div class="order_use">見</div>
+                        <div style="margin-left: 7px;">{{i.mitsu_count}}回</div>
                     </div>
-                    <div style="width: 140px;" class="flex">
-                        <div class="order_use">接</div>
-                        <div style="margin-left: 7px;">{% if i.contact_last %}{{i.contact_last}}{% endif %}</div>
+                    <div style="width: 100px;" class="flex">
+                        <div class="order_use">受</div>
+                        <div style="margin-left: 7px;">{{i.juchu_count}}回</div>
+                    </div>
+                    <div style="width: 150px;" class="flex">
+                        <div class="order_use">金</div>
+                        <div style="margin-left: 7px;">{{i.juchu_money | intcomma}}円</div>
                     </div>
                     <div style="width: 190px; font-size: 0.9em;">
-                        {% if i.mitsu_last_tantou %}<i class="bi bi-person-circle"></i> {{i.mitsu_last_busho}}：{{i.mitsu_last_tantou}}{% endif %}
+                        {% if i.tantou %}<i class="bi bi-person-circle"></i> {{i.busho}}：{{i.tantou}}{% endif %}
                     </div>
                     <div style="width: 45px;" id="{{i.cus_id}}" name="crm_list">
                         {% if i.cus_id != None %}
@@ -143,30 +133,23 @@
                         </button>
                         {% endif %}
                     </div>
-                    <div>
-                        {% if i.mw == 0 %}
-                        <input class="form-check-input" type="checkbox" id="{{i.cus_id}}" name="mw_list">
-                        {% else %}
-                        <input class="form-check-input" type="checkbox" id="{{i.cus_id}}" name="mw_list" checked disabled>
-                        {% endif %}
-                    </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- ページネーション
+        <!-- ページネーション -->
         <div style="margin: 0 auto;">
             <nav aria-label="Page navigation example">
                 <ul class="pagination mt-4">
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_first' %}">最初へ</a></li>
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_prev' %}">前へ</a></li>
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_ranking_page_first' %}">最初へ</a></li>
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_ranking_page_prev' %}">前へ</a></li>
                 <li class="page-item"><a class="page-link" pointer-events: none;>{{num}}/{{all_num}}</a></li>               
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_next' %}">次へ</a></li>
-                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_list_page_last' %}">最後へ</a></li> 
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_ranking_page_next' %}">次へ</a></li>
+                <li class="page-item"><a class="page-link" href="{% url 'crm:cus_ranking_page_last' %}">最後へ</a></li> 
                 </ul>
             </nav>
-        </div> -->
+        </div>
 
     </div>
 

@@ -45,12 +45,12 @@
                 <div style="width: 700px;">
                     <table class="table table-bordered">
                         <tr>
-                            <th>顧客ID</th>
-                            <td>
+                            <th style="width: 110px;">顧客ID</th>
+                            <td style="width: 270px;">
                                 <a href="{{res.customerMstPageUrl}}" target="_blank"><span style="color: #008bc2; font-weight: bold;"><i class="bi bi-box-arrow-up-right"></i></span></a>
                                 <span id="grip_cus_id"> {{res.id}}</span>
                             </td>
-                            <th>顧客登録日</th>
+                            <th style="width: 150px;">顧客登録日</th>
                             <td>{{res.createdAt}}</td>
                         </tr>
                         <tr>
@@ -98,7 +98,7 @@
                             <th>携帯番号</th>
                             <td>{% if res.mobilePhone %}{{res.mobilePhone}}{% endif %}</td>
                             <th>最終見積部署</th>
-                            <td nowrap>{% if res.lastHandledDepartmentName %}{{res.lastHandledDepartmentName}}{% endif %}</td>
+                            <td>{% if res.lastHandledDepartmentName %}{{res.lastHandledDepartmentName}}{% endif %}</td>
                         </tr>
                         <tr>
                             <th>FAX番号</th>
@@ -107,7 +107,7 @@
                             <td>{% if res.lastHandledName %}{{res.lastHandledName}}{% endif %}</td>
                         </tr>
                         <tr>
-                            <th nowrap>メールアドレス</th>
+                            <th>メールアドレス</th>
                             <td>{% if res.contactEmail %}{{res.contactEmail}}{% endif %}</td>
                             <th>対面あり</th>
                             <td>
@@ -155,7 +155,7 @@
                                     {% endif %}
                                 {% endif %}
                             </td>
-                            <th nowrap>プレミアムポイント</th>
+                            <th>プレミアムポイント</th>
                             <td>{% if res.premiumPoint %}{{res.premiumPoint}}{% endif %}</td>
                         </tr>
                     </table>

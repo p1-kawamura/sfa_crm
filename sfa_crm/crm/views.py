@@ -944,6 +944,10 @@ def cus_ranking_index(request):
         request.session["cus_ranking"]["juchu_ed"]=""
     if "type" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["type"]="juchu_money"
+    if "page_num" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["page_num"]=1
+    if "all_page_num" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["all_page_num"]=""
 
     ses=request.session["cus_ranking"]
     
@@ -964,13 +968,92 @@ def cus_ranking_index(request):
 
     # pandasで作り替え
     df=read_frame(ins)
-    
+    df_all=df.drop_duplicates("cus_id")[["cus_id","mitsu_id"]] #全顧客
+    df_all=df_all.set_index("cus_id")
 
-    parent_list=Cus_group.objects.all().values_list("cus_id_parent",flat=True).order_by("cus_id_parent").distinct()
-    total_list=[]
+    df_mitsu=df.drop_duplicates(["cus_id","mitsu_num"])
+    df_mitsu=df_mitsu[["cus_id","mitsu_num"]].groupby("cus_id").count() #見積数
+    df_mitsu.columns=["mitsu_count"]
+
+    df_juchu=df.dropna(subset=["juchu_day"])
+    df_juchu_count=df_juchu[["cus_id","money"]].groupby("cus_id").count() #受注数
+    df_juchu_count.columns=["juchu_count"]
+    df_juchu_money=df_juchu[["cus_id","money"]].groupby("cus_id").sum() #受注金額
+    df_juchu_money.columns=["juchu_money"]
+
+    df_all=df_all.join([df_mitsu,df_juchu_count,df_juchu_money])
+    df_all=df_all.fillna(0)
+    df_all=df_all.drop("mitsu_id",axis=1)
+
+
+    # グループ集計（案件管理 Sfa_data にない顧客IDもグループ化の中に存在する）
+    parent_list=list(Cus_group.objects.all().values_list("cus_id_parent",flat=True).order_by("cus_id_parent").distinct())
     for i in parent_list:
         child_list=list(Cus_group.objects.filter(cus_id_parent=i).values_list("cus_id_child",flat=True))
- 
+        # 存在の確認
+        if i not in df_all.index:
+            for h in child_list:
+                if h in df_all.index:
+                    df_all.loc[i]=[0,0,0]
+                    break
+        # 集計
+        for h in child_list:
+            if h in df_all.index:
+                df_all.loc[i,"mitsu_count"] += df_all.loc[h,"mitsu_count"]
+                df_all.loc[i,"juchu_count"] += df_all.loc[h,"juchu_count"]
+                df_all.loc[i,"juchu_money"] += df_all.loc[h,"juchu_money"]
+                df_all=df_all.drop(h,axis=0)
+
+    # 並び替え
+    sort_type=ses["type"]
+    if sort_type=="mitsu_count":
+        df_all.sort_values(by="mitsu_count",ascending=False, inplace=True)
+    elif sort_type=="juchu_count":
+        df_all.sort_values(by="juchu_count",ascending=False, inplace=True)
+    else:
+        df_all.sort_values(by="juchu_money",ascending=False, inplace=True)
+
+    df_all=df_all.reset_index()
+    df_all.index+=1
+
+
+    # ページネーション
+    result=len(df_all)
+    if result == 0:
+        all_num = 1
+    elif result % 100 == 0:
+        all_num = result / 100
+    else:
+        all_num = result // 100 + 1
+    all_num=int(all_num)
+    request.session["cus_ranking"]["all_page_num"]=all_num
+    num=ses["page_num"]
+    if all_num==1:
+        num=1
+        request.session["cus_ranking"]["page_num"]=1
+
+    df_all=df_all.iloc[(num-1)*100 : num*100]
+
+
+    # データフレームから直接リスト作成
+    rank_list=[]
+    df_list=df_all.to_dict(orient="index")
+    for i,h in df_list.items():
+        ins=Customer.objects.get(cus_id=h["cus_id"])
+        dic={}
+        dic["rank"]=i
+        dic["cus_id"]=h["cus_id"]
+        dic["cus_url"]=ins.cus_url
+        dic["pref"]=ins.pref
+        dic["com"]=ins.com
+        dic["sei"]=ins.sei
+        dic["mei"]=ins.mei
+        dic["mitsu_count"]=int(h["mitsu_count"])
+        dic["juchu_count"]=int(h["juchu_count"])
+        dic["juchu_money"]=int(h["juchu_money"])
+        dic["busho"]=ins.mitsu_last_busho
+        dic["tantou"]=ins.mitsu_last_tantou
+        rank_list.append(dic)
 
 
     # アクティブ担当
@@ -987,8 +1070,12 @@ def cus_ranking_index(request):
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
-        "type":{"juchu_money":"受注金額","juchu_all":"受注件数","mitsu_all":"見積件数"},
+        "type":{"juchu_money":"受注金額","juchu_count":"受注件数","mitsu_count":"見積件数"},
+        "rank_list":rank_list,
+        "parent_list":parent_list,
         "act_user":act_user,
+        "num":num,
+        "all_num":all_num,
     }
 
     return render(request,"crm/ranking.html",params)
@@ -1002,4 +1089,31 @@ def cus_ranking_search(request):
     request.session["cus_ranking"]["juchu_st"]=request.POST["juchu_st"]
     request.session["cus_ranking"]["juchu_ed"]=request.POST["juchu_ed"]
     request.session["cus_ranking"]["type"]=request.POST["type"]
+    request.session["cus_ranking"]["page_num"]=1
+    return redirect("crm:cus_ranking_index")
+
+
+def cus_ranking_page_prev(request):
+    num=request.session["cus_ranking"]["page_num"]
+    if num-1 > 0:
+        request.session["cus_ranking"]["page_num"] = num - 1
+    return redirect("crm:cus_ranking_index")
+
+
+def cus_ranking_page_first(request):
+    request.session["cus_ranking"]["page_num"] = 1
+    return redirect("crm:cus_ranking_index")
+
+
+def cus_ranking_page_next(request):
+    num=request.session["cus_ranking"]["page_num"]
+    all_num=request.session["cus_ranking"]["all_page_num"]
+    if num+1 <= all_num:
+        request.session["cus_ranking"]["page_num"] = num + 1
+    return redirect("crm:cus_ranking_index")
+
+
+def cus_ranking_page_last(request):
+    all_num=request.session["cus_ranking"]["all_page_num"]
+    request.session["cus_ranking"]["page_num"]=all_num
     return redirect("crm:cus_ranking_index")

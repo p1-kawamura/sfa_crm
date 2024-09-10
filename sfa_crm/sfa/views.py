@@ -1450,7 +1450,7 @@ def kanri_index(request):
         request.session["search"]={}
     if "tantou" not in request.session["search"]:
         request.session["search"]["tantou"]=""
-    ins=Credit_url.objects.all().order_by("day").reverse()[:300]
+    ins=Credit_url.objects.all().order_by("day").reverse()[:100]
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
