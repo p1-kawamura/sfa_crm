@@ -163,7 +163,7 @@
                         <td id="ans_apr_day_{{i.pk}}">{% if i.apr_day %}{{i.apr_day}}{% endif %}</td>
                         <td id="ans_apr_tantou_{{i.pk}}">{% if i.apr_tantou %}{{i.apr_tantou}}{% endif %}</td>
                         <td id="ans_apr_type_{{i.pk}}" style="text-align: center;">
-                            {% if i.apr_type == 1 %}
+                            {% if i.apr_type == 4 %}
                                 {% if i.apr_tel_result == "対応" %}
                                     <span style="color: blue; font-size: 1.5em;"><i class="bi bi-telephone-forward-fill"></i></span>
                                 {% else %}
@@ -172,7 +172,7 @@
                             {% elif i.apr_type == 2 %}
                                 <span style="color: rgb(204, 173, 0); font-size: 1.5em;"><i class="bi bi-envelope-fill"></i></span>
                             {% elif i.apr_type == 3 %}
-                                <span style="font-size: 1.2em;">他</span>
+                                <span style='color: #646565; font-size: 1.2em;'><i class='bi bi-clipboard-fill'></i></span>
                             {% endif %}
                         </td>
                         <td id="ans_apr_text_{{i.pk}}" class="bikou">{% if i.apr_text %}{{i.apr_text}}{% endif %}</td>
