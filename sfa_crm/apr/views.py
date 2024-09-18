@@ -385,7 +385,7 @@ def hangire_index(request):
     if "han_jun" not in request.session["han_search"]:
         request.session["han_search"]["han_jun"]="0"
     if "han_modal_jun" not in request.session["han_search"]:
-        request.session["han_search"]["han_modal_jun"]="0"
+        request.session["han_search"]["han_modal_jun"]="1"
 
     ses=request.session["han_search"]
  
