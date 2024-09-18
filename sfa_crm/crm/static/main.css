@@ -43,6 +43,14 @@ hr {
     overflow-y:scroll;
     overflow-x:scroll;
 }
+.inlineframe3 {
+    margin-top: 7px;
+    padding: 5px;
+    background-color:#FFFFFF;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    border: 1px solid #ced4da;
+}
 .main0 {
     padding: 10px 10px;
     margin-top: 10px;

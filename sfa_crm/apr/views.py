@@ -12,6 +12,7 @@ from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Q
 from django.db.models import Max
+from datetime import date
 
 
 
@@ -383,6 +384,8 @@ def hangire_index(request):
         request.session["han_search"]["all_page_num"]=""
     if "han_jun" not in request.session["han_search"]:
         request.session["han_search"]["han_jun"]="0"
+    if "han_modal_jun" not in request.session["han_search"]:
+        request.session["han_search"]["han_modal_jun"]="0"
 
     ses=request.session["han_search"]
  
@@ -402,7 +405,7 @@ def hangire_index(request):
 
     # 進捗を含めない個数
     ins=Hangire.objects.filter(**fil)
-    apr_type_list={0:"",1:"TEL",2:"メール"}
+    apr_type_list={0:"",4:"TEL",2:"メール",1:"メモ"}
     result_list=[["0","未対応"],["1","不在"],["2","受注"],["3","失注"],["4","不要"],["5","検討中"]]
     for i in result_list:
         i.append(ins.filter(result=i[0]).count())
@@ -471,6 +474,9 @@ def hangire_index(request):
                     break
             else:
                 tantou_up.append((i[0],i[1] + " " + i[2]))
+
+    # その他必要情報
+    modal_sort=request.session["han_search"]["han_modal_jun"]
                 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -496,6 +502,7 @@ def hangire_index(request):
         "ses":ses,
         "num":num,
         "all_num":all_num,
+        "modal_sort":modal_sort,
     }
 
     return render(request,"apr/hangire.html",params)
@@ -531,17 +538,6 @@ def hangire_busho_up(request):
     return JsonResponse(d)
 
 
-# 版切れ部署クリック_下部
-def hangire_busho_now(request):
-    busho_id=request.POST.get("busho_id")
-    if busho_id=="":
-        tantou_now=list(Member.objects.all().values_list("tantou_id","tantou"))
-    else:
-        tantou_now=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou"))
-    d={"tantou_now":tantou_now}
-    return JsonResponse(d)
-
-
 # 版切れリストの検索
 def hangire_search(request):
     request.session["han_search"]["han_busho"]=request.POST["han_busho"]
@@ -555,76 +551,166 @@ def hangire_search(request):
     return redirect("apr:hangire_index")
 
 
-# 版切れリスト入力画面表示
-def hangire_click(request):
-    pk=request.POST.get("pk")
-    apr_result=request.POST.get("apr_result")
-    apr_day=request.POST.get("apr_day")
-    apr_tantou=request.POST.get("apr_tantou")
-    apr_type=request.POST.get("apr_type")
+# 版切れモーダル_TOP
+def hangire_modal_show_top(request):
+    pk=request.POST.get("pk").replace("open_","")
+    result=list(Hangire.objects.filter(pk=pk).values())
+    d={"result":result}        
+    return JsonResponse(d)
+
+
+# 版切れモーダル_BOT
+def hangire_modal_show_bot(request):
+    pk=request.POST.get("pk").replace("open_","")
+    cus_id=Hangire.objects.get(pk=pk).cus_id
+    res_det=[]
+    url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
+    res2=requests.get(url2)
+    res2=res2.json()
+    res2=res2["receivedOrders"]
+    # 見積
+    for h in res2:
+        dic={}
+        dic["kubun"]="est"
+        dic["day"]=h["firstEstimationDate"]
+        dic["est_num"]=h["estimationNumber"] + "-" + str(h["estimationVersion"])
+        dic["status"]=h["estimationStatus"]
+        dic["money"]=h["totalPrice"]
+        dic["cus_id"]=cus_id
+        dic["busho"]=h["handledDepartmentName"]
+        dic["tantou"]=h["handledByName"]
+        res_det.append(dic)
+    # コメント
+    ins=Crm_action.objects.filter(cus_id=cus_id)
+    for h in ins:
+        dic={}
+        dic["kubun"]="act"
+        dic["day"]=h.day
+        dic["type"]=h.type
+        dic["tel_result"]=h.tel_result
+        dic["text"]=h.text
+        dic["act_id"]=h.act_id
+        res_det.append(dic)
+    # 並び替え
+    if request.session["han_search"]["han_modal_jun"]=="0":
+        res_det=sorted(res_det,key=lambda x: x["day"])
+    else:
+        res_det=sorted(res_det,key=lambda x: x["day"], reverse=True)
+
+    d={"cus_act":res_det}
+    return JsonResponse(d)
+
+
+# 版切れモーダル_表示順
+def hangire_modal_sort(request):
+    jun=request.POST.get("jun")
+    request.session["han_search"]["han_modal_jun"]=jun
+    d={}
+    return JsonResponse(d)
+
+
+# 版切れモーダル_リストクリック
+def hangire_modal_list_click(request):
+    act_id=request.POST.get("act_id")
+    ins=Crm_action.objects.get(act_id=act_id)
+    res={"type":ins.type,"tel":ins.tel_result,"day":ins.day,"text":ins.text}
+    d={"res":res}
+    return JsonResponse(d)
+
+
+# 版切れモーダル_決定ボタン
+def hangire_modal_btn(request):
+    pk=request.POST.get("pk").replace("open_","")
+    act_id=request.POST.get("act_id")
+    result=request.POST.get("result")
+    tantou=request.POST.get("tantou")
+    day=request.POST.get("day")
+    type=request.POST.get("type")
     tel_result=request.POST.get("tel_result")
-    apr_text=request.POST.get("apr_text")
-    cus_id=request.POST.get("cus_id")
-    result_list={"0":"", "1":"不在", "2":"受注", "3":"失注", "4":"不要","5":"検討中"}
+    text=request.POST.get("text")
+    cus_id=Hangire.objects.get(pk=pk).cus_id
 
-    ins=Hangire.objects.get(pk=pk)
-    ins.result=apr_result
-    ins.apr_day=apr_day
-    ins.apr_type=apr_type
-    if apr_day!="":
-        ins.apr_tel_result=tel_result
-    ins.apr_tantou=apr_tantou
-    ins.apr_text=apr_text
-    ins.save()
+    # 最終コンタクト日
+    if type=="2" or (type=="4" and tel_result=="対応"):
+        try:
+            cus=Customer.objects.get(cus_id=cus_id)
+            contact=cus.contact_last
+            if contact==None or contact<day:
+                cus.contact_last = day
+                cus.save()
+        except:
+            pass
 
-    if apr_day != "":
-        if apr_tantou !="":
-            text="【版切れ対応】　" + apr_text + "（" + apr_tantou + "）"
+    # Crm_actionへ
+    text2="【版切れ対応】　" + text + "（" + tantou + "）"
+        
+    if act_id=="" or act_id==None:
+        if type=="4":
+            Crm_action.objects.create(cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text2)
         else:
-            text="【版切れ対応】　" + apr_text
+            Crm_action.objects.create(cus_id=cus_id,day=day,type=type,text=text2)
 
-        if apr_type=="1":
-            Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=4, text=text, tel_result=tel_result)
-        elif apr_type=="2":
-            Crm_action.objects.create(cus_id=cus_id, day=apr_day, type=2, text=text)
-            
-        # 最終コンタクト日
-        if (apr_type=="1" and tel_result=="対応") or apr_type=="2":
-            ins=Customer.objects.get(cus_id=cus_id)
-            if apr_day > ins.contact_last:
-                ins.contact_last=apr_day
-                ins.save()
-    
-    ses=request.session["han_search"]
-    fil={}
-    if ses["han_busho"] != "":
-        fil["busho_id"]=ses["han_busho"]
-    if ses["han_tantou"] != "":
-        fil["tantou_id"]=ses["han_tantou"]
-    if ses["han_pref"] != "":
-        fil["pref"]=ses["han_pref"]
+        # Hangireへ
+        ins=Hangire.objects.get(pk=pk)
+        ins.result=result
+        ins.apr_day=day
+        ins.apr_tantou=tantou
+        ins.apr_type=type
+        ins.apr_tel_result=tel_result
+        ins.apr_text=text
+        ins.save()
 
-    ins=Hangire.objects.filter(**fil)
-    result_count=[]
-    for i in range(6):
-        result_count.append(ins.filter(result=i).count())
+    else:
+        ins=Crm_action.objects.get(act_id=act_id)
+        ins.day=day
+        ins.type=type
+        ins.text=text
+        if type=="4":
+            ins.tel_result=tel_result
+        else:
+            ins.tel_result=""
+        ins.save()
 
-    d={
-        "pk":pk,
-        "ans":apr_result,
-        "apr_result":result_list[apr_result],
-        "apr_day":apr_day,
-        "apr_tantou":apr_tantou,
-        "apr_type":apr_type,
-        "tel_result":tel_result,
-        "apr_text":apr_text,
-        "result_count":result_count,
-        }
+    d={}
+    return JsonResponse(d)
+
+
+# 版切れモーダル_削除ボタン
+def hangire_modal_del(request):
+    act_id=request.POST.get("act_id")
+    Crm_action.objects.get(act_id=act_id).delete()
+    d={}
+    return JsonResponse(d)
+
+
+# 版切れモーダル_最終結果を削除
+def hangire_modal_result_del(request):
+    pk=request.POST.get("pk").replace("open_","")
+    ins=Hangire.objects.get(pk=pk)
+    ins.result=0
+    ins.apr_day=None
+    ins.apr_tantou=None
+    ins.apr_type=0
+    ins.apr_tel_result=None
+    ins.apr_text=None
+    ins.save()
+    d={}
+    return JsonResponse(d)
+
+
+# 版切れモーダル_転送先部署クリック
+def hangire_busho_now(request):
+    busho_id=request.POST.get("busho_id")
+    if busho_id=="":
+        tantou_now=list(Member.objects.all().values_list("tantou_id","tantou"))
+    else:
+        tantou_now=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou"))
+    d={"tantou_now":tantou_now}
     return JsonResponse(d)
 
 
 # 版切れリスト_別担当へ転送
-def hangire_send(request):
+def hangire_modal_send(request):
     pk=request.POST.get("pk")
     tantou_id=request.POST.get("tantou_id")
     busho_id=request.POST.get("busho_id")
@@ -660,3 +746,4 @@ def han_list_page_last(request):
     all_num=request.session["han_search"]["all_page_num"]
     request.session["han_search"]["page_num"]=all_num
     return redirect("apr:hangire_index")
+

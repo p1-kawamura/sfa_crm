@@ -84,4 +84,4 @@ class Hangire(models.Model):
     def __str__(self):
         return self.cus_id
     
-    #apr_type（アプローチ方法）　1:TEL　2:メール　3:その他
+    #apr_type（アプローチ方法）　1:メモ　2:メール　4:TEL

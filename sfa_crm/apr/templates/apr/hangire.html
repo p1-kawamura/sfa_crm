@@ -141,7 +141,10 @@
                     </tr>
                     {% for i in cus_list %}
                     <tr class="hover2">
-                        <td><span style="font-size: 1.2em; cursor: pointer;" name="open_list" id="open_{{i.pk}}"><i class="bi bi-pencil-square"></i></span></td>
+                        <td><span style="font-size: 1.2em; cursor: pointer;" name="open_modal" id="open_{{i.pk}}" data-bs-toggle="modal" data-bs-target="#modal_apr">
+                                <i class="bi bi-pencil-square"></i>
+                            </span>
+                        </td>
 
                         {% if i.result == "0" %}
                         <td id="ans_apr_result_{{i.pk}}"><span style="color: #212529;"></span></td>
@@ -192,113 +195,152 @@
                         <td style="text-align: right;">{{i.money | intcomma}}</td>
                         <td>{{i.kakou}}</td>
                     </tr>
-                    <tr style="display: none; background-color: #ffc6c6;">
-                        <td colspan="17">
+                    {% endfor %}
+                </table>
+            </div>
+
+            <!-- モーダル -->
+            <div class="modal fade" id="modal_apr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <!-- HEADER -->
+                        <div class="modal-header">
+                            <div id="exampleModalLabel"></div>
                             <div class="flex">
-                                <div>結果：</div>
-                                <div>
-                                    <select class="form-select form-select-sm" id="apr_result_{{i.pk}}" name="apr_result_shows" style="width: 140px;">
-                                        {% for h in result_list %}
-                                            {% if h.0 == i.result %}
-                                            <option value="{{h.0}}" selected>{{h.1}}</option>
-                                            {% else %}
-                                            <option value="{{h.0}}">{{h.1}}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                        <option value="6">別担当へ転送</option>
-                                    </select>
-                                </div>
-                                <!-- コメント入力 -->
-                                <div class="flex" id="show_A_{{i.pk}}">
-                                    <div style="margin-left: 30px;">連絡日：</div>
+                                <div id="modal_pk" style="display: none;"></div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close"></button>
+                        </div>
+                        <!-- BODY -->
+                        <div class="modal-body">
+                            <div class="flex2">
+                                <div id="modal_left"></div>
+                                <div style="margin-left: 25px;">
+                                    <!-- TOP -->
                                     <div>
-                                        {% if i.apr_day %}
-                                        <input class="form-control form-control-sm" type="date" id="apr_day_{{i.pk}}" style="width: 120px;" value="{{i.apr_day}}">
-                                        {% else %}
-                                        <input class="form-control form-control-sm" type="date" id="apr_day_{{i.pk}}" style="width: 120px;">
-                                        {% endif %}
+                                        <div class="flex3" style="align-items: center;">
+                                            <div>■ 最終結果</div>
+                                            <div style="font-size: 0.9em;">
+                                                <button class="btn btn-outline-danger btn-sm" id="modal_result_del">結果をクリア</button>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top: 5px; font-size: 0.9em;">
+                                            <table class="table table-bordered">
+                                                <tr>
+                                                    <th style="width: 100px;" nowrap>結果</th>
+                                                    <th style="width: 95px;" nowrap>日付</th>
+                                                    <th style="width: 80px;" nowrap>担当者</th>
+                                                    <th style="width: 50px;" nowrap>種類</th>
+                                                    <th nowrap>備考</th>
+                                                </tr>
+                                                <tr>
+                                                    <td id="modal_top_result" style="text-align: center;" nowrap></td>
+                                                    <td id="modal_top_day" nowrap></td>
+                                                    <td id="modal_top_tantou" nowrap></td>
+                                                    <td id="modal_top_type" style="text-align: center;"></td>
+                                                    <td id="modal_top_bikou"></td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                     </div>
-                                    <div style="margin-left: 30px;">対応者：</div>
-                                    <div>
-                                        {% if i.apr_tantou %}    
-                                        <input class="form-control form-control-sm" type="text" id="apr_tantou_{{i.pk}}" style="width: 70px;" value="{{i.apr_tantou}}">
-                                        {% else %}
-                                        <input class="form-control form-control-sm" type="text" id="apr_tantou_{{i.pk}}" style="width: 70px;">
-                                        {% endif %}
-                                    </div>
-                                    <div style="margin-left: 30px;">方法：</div>
-                                    <div>
-                                        <select class="form-select form-select-sm" id="apr_type_{{i.pk}}" name="apr_type_shows" style="width: 100px;">
-                                            {% for h,j in apr_type_list.items %}
-                                                {% if h == i.apr_type %}
-                                                <option value="{{h}}" selected>{{j}}</option>
+                                    <hr>
+                                    <!-- BOT -->
+                                    <div style="margin-top: 20px;">
+                                        <div class="flex" id="modal_show_A">
+                                            <div>■ 結果：</div>
+                                            <div>
+                                                <select class="form-select form-select-sm" id="modal_apr_result">
+                                                    {% for i in result_list %}
+                                                    <option value={{i.0}}>{{i.1}}</option>
+                                                    {% endfor %}
+                                                    <option value="tran">他拠点へ転送</option>
+                                                </select>
+                                            </div>
+                                            <div class="flex" id="modal_tantou_block" style="margin-left: 30px;">
+                                                <div>担当：</div>
+                                                <div><input class="form-control form-control-sm" type="text" id="modal_apr_tantou" style="width: 80px;"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 通常入力 -->
+                                        <div id="modal_show_B">
+                                            <div class="flex mt-3">
+                                                <div>種類：</div>
+                                                <div>
+                                                    <select class="form-select form-select-sm" id="modal_apr_type">
+                                                        {% for i,h in apr_type_list.items %}
+                                                        <option value="{{i}}">{{h}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div id="modal_tel_hyouji" style="display: none;">
+                                                    <select class="form-select form-select-sm" id="modal_apr_tel">
+                                                        <option value="対応">対応</option>
+                                                        <option value="不在">不在</option>
+                                                    </select>
+                                                </div>
+                                                <div style="margin-left: 20px;">日付：</div>
+                                                <div><input class="form-control form-control-sm" type="date" id="modal_apr_day" style="width: 120px;"></div>
+                                                <div style="margin-left: 20px;"><button class="btn btn-outline-dark btn-sm" id="modal_btn_apr_new">新規</button></div>
+                                                <div style="margin-left: 20px;"><button class="btn btn-outline-danger btn-sm" id="modal_btn_apr_del">削除</button></div>
+                                                <div id="modal_act_id" style="display: none;"></div>
+                                            </div>
+                                            <div class="flex">
+                                                <div style="margin-top: 10px; width: 620px;"><textarea class="form-control" rows="2" id="modal_apr_text"></textarea></div>
+                                                <div style="margin-left: 20px;"><button class="btn btn-primary btn-sm" id="modal_btn_apr_ok">決定</button></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 他拠点へ転送 -->
+                                        <div class="flex mt-3 mb-5" id="modal_show_C" style="display: none;">
+                                            <div>部署：</div>
+                                            <div>
+                                                <select class="form-select form-select-sm" id="modal_send_busho" style="width: 120px;">
+                                                    <option value="0"></option>
+                                                    {% for i in busho_now %}
+                                                        <option value="{{i.0}}">{{i.1}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div style="margin-left: 30px;">担当者：</div>
+                                            <div>
+                                                <select class="form-select form-select-sm" id="modal_send_tantou" style="width: 120px;">
+                                                    <option value="0"></option>
+                                                    {% for i in tantou_now %}
+                                                        <option value="{{i.0}}">{{i.1}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div style="margin-left: 30px;">
+                                                <button type="button" class="btn btn-secondary btn-sm" id="modal_send_click">転送</button>                                    
+                                            </div>
+                                        </div>
+
+                                        <!-- 履歴一覧 -->
+                                        <div style="width: 75px; margin-top: 10px;">
+                                            <select class="form-select form-select-sm" id="modal_sort">
+                                                {% if modal_sort == "0" %}
+                                                <option value="0" selected>昇順</option>
+                                                <option value="1">降順</option>
                                                 {% else %}
-                                                <option value="{{h}}">{{j}}</option>
+                                                <option value="0">昇順</option>
+                                                <option value="1" selected>降順</option>
                                                 {% endif %}
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    {% if i.apr_type == 1 and i.apr_tel_result == "対応" %}
-                                    <div style="margin-left: 5px; display: block;" id="tel_result_show_{{i.pk}}">
-                                    {% else %}
-                                    <div style="margin-left: 5px; display: none;" id="tel_result_show_{{i.pk}}">
-                                    {% endif %}
-                                        <select class="form-select form-select-sm" id="tel_result_{{i.pk}}" style="width: 80px;">
-                                            {% if i.tel_result == "不在" %}
-                                            <option value="対応">対応</option>
-                                            <option value="不在" selected>不在</option>
-                                            {% else %}
-                                            <option value="対応" selected>対応</option>
-                                            <option value="不在">不在</option>
-                                            {% endif %}
-                                        </select>
-                                    </div>
-                                    <div style="margin-left: 30px;">備考：</div>
-                                    <div>
-                                        {% if i.apr_text %} 
-                                        <input class="form-control form-control-sm" type="text" id="apr_text_{{i.pk}}" style="width: 300px;" value="{{i.apr_text}}">
-                                        {% else %}
-                                        <input class="form-control form-control-sm" type="text" id="apr_text_{{i.pk}}" style="width: 300px;">
-                                        {% endif %}
-                                    </div>
-                                    <div style="margin-left: 30px;">
-                                        <button type="button" class="btn btn-secondary btn-sm" name="approach_click" id="{{i.pk}}">決定</button>                                    
-                                    </div>
-                                    <div style="margin-left: 20px;">
-                                        <button type="button" class="btn btn-outline-dark btn-sm" name="approach_clear" id="clear_{{i.pk}}">クリア</button>                                    
-                                    </div>
-                                </div>
-                                <!-- 他拠点へ転送 -->
-                                <div class="flex" id="show_B_{{i.pk}}" style="display: none;">
-                                    <div style="margin-left: 30px;">部署：</div>
-                                    <div>
-                                        <select class="form-select form-select-sm" name="send_busho" id="send_busho_{{i.pk}}" style="width: 120px;">
-                                            <option value=""></option>
-                                            {% for i in busho_now %}
-                                                <option value="{{i.0}}">{{i.1}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div style="margin-left: 30px;">担当者：</div>
-                                    <div>
-                                        <select class="form-select form-select-sm" name="send_tantou" id="send_tantou_{{i.pk}}" style="width: 120px;">
-                                            <option value=""></option>
-                                            {% for i in tantou_now %}
-                                                <option value="{{i.0}}">{{i.1}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div style="margin-left: 30px;">
-                                        <button type="button" class="btn btn-secondary btn-sm" name="send_click" id="send_click_{{i.pk}}">転送</button>                                    
+                                            </select>
+                                        </div>
+                                        <div class="inlineframe3" id="modal_crm_action" style="height: 300px; width: 700px;"></div>
                                     </div>
                                 </div>
                             </div>
-                        </td>
-
-                    </tr>
-                    {% endfor %}
-                </table>
-
+                        </div>
+                        <!-- footer -->
+                        <div class="modal-footer">
+                            <div style="text-align: right;">
+                                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- ページネーション -->
@@ -356,48 +398,6 @@
   
 
 
-        // 部署選択_上部
-        document.getElementById("han_busho").addEventListener("change",function(){
-            $.ajax({
-                    'url': '{% url "apr:hangire_busho_up" %}',
-                    'type': 'POST',
-                    'data': {"busho_id":this.value},
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    var tantou_list=response.tantou_up
-                    var str="<option value=''></option>"
-                    for (var i=0; i<tantou_list.length; i++){
-                        str=str + "<option value='" + tantou_list[i][0] + "'>" + tantou_list[i][1] + "</option>"
-                    };
-                    document.getElementById("han_tantou").innerHTML=str;
-                })
-        });
-
-
-        // 部署選択_下部
-        var item=document.getElementsByName("send_busho");
-        for (var i=0; i<item.length; i++){
-            item[i].addEventListener("change",function(){
-                var id=this.id.split("_")[2];
-                $.ajax({
-                    'url': '{% url "apr:hangire_busho_now" %}',
-                    'type': 'POST',
-                    'data': {"busho_id":this.value},
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    tantou_list=response.tantou_now;
-                    var str=""
-                    for (var i=0; i<tantou_list.length; i++){
-                        str=str + "<option value='" + tantou_list[i][0] + "'>" + tantou_list[i][1] + "</option>"
-                    };
-                    document.getElementById("send_tantou_" + id).innerHTML=str;
-                })
-            },false)
-        };
-        
-
         // 検索クリアボタン
         document.getElementById("form_clear").addEventListener("click",function(e){
             e.preventDefault();
@@ -411,6 +411,25 @@
             for (var i=0; i<rs.length; i++){
                 rs[i].checked=false;
             };
+        });
+
+
+        // 部署選択_上部
+        document.getElementById("han_busho").addEventListener("change",function(){
+            $.ajax({
+                'url': '{% url "apr:hangire_busho_up" %}',
+                'type': 'POST',
+                'data': {"busho_id":this.value},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                var tantou_list=response.tantou_up
+                var str="<option value=''></option>"
+                for (var i=0; i<tantou_list.length; i++){
+                    str=str + "<option value='" + tantou_list[i][0] + "'>" + tantou_list[i][1] + "</option>"
+                };
+                document.getElementById("han_tantou").innerHTML=str;
+            })
         });
 
 
@@ -431,158 +450,382 @@
         };
 
 
-        // 入力表示ボタン
-        var item=document.getElementsByName("open_list");
-        for (var i=0; i<item.length; i++){
-            item[i].addEventListener("click",function(){
+        // 詳細モーダル表示
+        $("#modal_apr").on("show.bs.modal", function (event) {
+            var item=document.getElementsByName("open_modal");
+            for (var i=0; i<item.length; i++){
+                item[i].addEventListener("click",function(){
+                    modal_show_top(this.id);
+                    modal_show_bot(this.id);
+                    modal_clear();
+                },false)
+            };
+        });
 
-                var oya=this.parentElement.parentElement.nextElementSibling;
-                if (oya.style.display=="none"){
-                    oya.style.display="";
-                    this.innerHTML="<i class='bi bi-caret-up-square-fill'></i>";
-                } else {
-                    oya.style.display="none";
-                    this.innerHTML="<i class='bi bi-pencil-square'></i>";
+
+        // モーダル上部_ajax
+        function modal_show_top(pk){
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_show_top" %}',
+                'type': 'POST',
+                'data': {"pk":pk},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                result=response.result[0];
+                document.getElementById("modal_pk").innerText=result.id;
+                dic={
+                    0:["未対応","#212529","#fff"],
+                    1:["不在","#0060c0","#cbf7ff"],
+                    2:["受注","#ce0000","#ffb3b3"],
+                    3:["失注","#fff","#850000"],
+                    4:["不要","#212529","#d1d1d1"],
+                    5:["検討中","#3b6e00","#e6ffd1"]
                 };
-            },false)
-        };
+                document.getElementById("modal_top_result").innerText=dic[result.result][0];
+                document.getElementById("modal_top_result").style.color=dic[result.result][1];
+                document.getElementById("modal_top_result").style.backgroundColor=dic[result.result][2];
+                document.getElementById("modal_top_day").innerText=result.apr_day;
+                document.getElementById("modal_top_tantou").innerText=result.apr_tantou;
 
-
-        // 進捗セレクト表示切替
-        var item=document.getElementsByName("apr_result_shows");
-        for (var i=0; i<item.length; i++){
-            item[i].addEventListener("change",function(){
-                var id=this.id.split("_")[2];
-                if (this.value=="6"){
-                    document.getElementById("show_A_" + id).style.display="none";
-                    document.getElementById("show_B_" + id).style.display="";
-                } else {
-                    document.getElementById("show_A_" + id).style.display="";
-                    document.getElementById("show_B_" + id).style.display="none";
+                str=""
+                if (result.apr_type == 1){
+                    if (result.apr_tel_result == "対応"){
+                        str="<span style='color: blue; font-size: 1.2em;'><i class='bi bi-telephone-forward-fill'></i></span>"
+                    } else {
+                        str="<span style='color: gray; font-size: 1.2em;'><i class='bi bi-telephone-x-fill'></i></span>"
+                    };
+                } else if (result.apr_type == 2){
+                    str="<span style='color: rgb(204, 173, 0); font-size: 1.2em;'><i class='bi bi-envelope-fill'></i></span>"
+                } else if (result.apr_type == 3){
+                    str="<span style='color: #646565; font-size: 1.2em;'><i class='bi bi-clipboard-fill'></i></span>"
                 };
-            },false)
-        };
+                
+                document.getElementById("modal_top_type").innerHTML=str;
+                document.getElementById("modal_top_bikou").innerText=result.apr_text;
+            })
+        }
 
 
-        // TEL結果表示
-        var item=document.getElementsByName("apr_type_shows");
-        for (var i=0; i<item.length; i++){
-            item[i].addEventListener("change",function(){
-                var id=this.id.split("_")[2];
-                if (this.value=="1"){
-                    document.getElementById("tel_result_show_" + id).style.display="";
-                } else {
-                    document.getElementById("tel_result_show_" + id).style.display="none";
-                };
-            },false)
-        };
-
-
-        // コメント決定ボタン
-        var item=document.getElementsByName("approach_click");
-        for (var i=0; i<item.length; i++){
-            item[i].addEventListener("click",function(){
-                var id=this.id
-                var apr_result=document.getElementById("apr_result_" + id).value;
-                var apr_day=document.getElementById("apr_day_" + id).value;
-                var apr_tantou=document.getElementById("apr_tantou_" + id).value;
-                var apr_type=document.getElementById("apr_type_" + id).value;
-                var tel_result=document.getElementById("tel_result_" + id).value;
-                var apr_text=document.getElementById("apr_text_" + id).value;
-                var cus_id=document.getElementById("apr_cus_" + id).textContent;
-
-                $.ajax({
-                    'url': '{% url "apr:hangire_click" %}',
-                    'type': 'POST',
-                    'data': {
-                        "pk":this.id,
-                        "apr_result":apr_result,
-                        "apr_day":apr_day,
-                        "apr_tantou":apr_tantou,
-                        "apr_type":apr_type,
-                        "tel_result":tel_result,
-                        "apr_text":apr_text,
-                        "cus_id":cus_id
-                    },
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    id=response.pk;
-                    var ans = response.ans
-                    var sel_list=[
-                        ["0","#212529",""],["1","#0060c0","#cbf7ff"],["2","#ce0000","#ffb3b3"],["3","#fff","#850000"],["4","#212529","#d1d1d1"],["5","#3b6e00","#e6ffd1"]
-                    ]
-                    document.getElementById("ans_apr_result_" + id).innerHTML="<span style='color:" + sel_list[ans][1] +  ";'>" + response.apr_result + "</span>";
-                    document.getElementById("ans_apr_result_" + id).style.backgroundColor=sel_list[ans][2];
-                    document.getElementById("ans_apr_day_" + id).innerText=response.apr_day;
-                    document.getElementById("ans_apr_tantou_" + id).innerText=response.apr_tantou;
-                    document.getElementById("ans_apr_text_" + id).innerText=response.apr_text;
-
-                    var type_show = "";
-                    if (response.apr_type==1){
-                        if (response.tel_result=="対応"){
-                            type_show="<span style='color: blue; font-size: 1.5em;''><i class='bi bi-telephone-forward-fill'></i></span>";
-                        } else{
-                            type_show="<span style='color: rgb(130, 130, 130); font-size: 1.5em;''><i class='bi bi-telephone-x-fill'></i></span>";
+        // モーダル下部_ajax
+        function modal_show_bot(pk){
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_show_bot" %}',
+                'type': 'POST',
+                'data': {"pk":pk},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                cus_act=response.cus_act;
+                var str = "";
+                var last_str = "";
+                for (var i of cus_act){
+                    if (i.kubun == "est"){
+                        str="<div class='flex'>" +
+                            "<div>" + i.day + "</div>" + 
+                            "<div style='margin-left: 10px;'>" + i.est_num + "</div>" +
+                            "<div style='margin-left: 10px;'>" + i.status + "</div>" +
+                            "<div style='margin-left: 10px;'>" + i.money.toLocaleString() + "円</div>" +
+                            "<div style='font-size: 0.9em;''>（" + i.busho + "：" + i.tantou + "）</div>" +
+                            "</div>";
+                    } else {
+                        var icon = "";
+                        var text = "";
+                        // アイコン
+                        if (i.type == 1){
+                            icon="<span style='color: #646565; font-weight: bold;'><i class='bi bi-clipboard-fill'></i></span>";
+                        } else if (i.type == 2){
+                            icon="<span style='color: #ff9900; font-weight: bold;'><i class='bi bi-envelope-fill'></i></span>";
+                        } else if (i.type == 3){
+                            icon="<span style='color: #ff02f2; font-weight: bold;'><i class='bi bi-envelope-heart-fill'></i></span>";
+                        } else if (i.type == 4){
+                            if (i.tel_result == "対応"){
+                                icon="<span style='color: blue; font-weight: bold;'><i class='bi bi-telephone-forward-fill'></i></span>";
+                            } else{
+                                icon="<span style='color: gray; font-weight: bold;'><i class='bi bi-telephone-x-fill'></i></span>";
+                            };
+                        } else if (i.type == 5){
+                            icon="<span style='color: #00c2b8; font-weight: bold;'><i class='bi bi-people-fill'></i></span>";
+                        } else if (i.type == 6){
+                            icon="<span style='color: red; font-weight: bold;'><i class='bi bi-bell-fill'></i></span>";
+                        } else if (i.type == 7){
+                            icon="<span style='color: #ff3502; font-weight: bold;'><i class='bi bi-shop'></i></span>";
+                        } else if (i.type == 8){
+                            icon="<span style='color: #b37400; font-weight: bold;'><i class='bi bi-stack'></i></span>";
                         };
-                    } else if (response.apr_type==2){
-                        type_show="<span style='color: rgb(204, 173, 0); font-size: 1.5em;''><i class='bi bi-envelope-fill'></i></span>"
-                    } else if (response.apr_type==3){
-                        type_show="<span style='font-size: 1.2em;'>他</span>"
+                        // テキスト
+                        if (i.type == 4){
+                            text="【" + i.tel_result + "】 " + i.text;
+                        } else {
+                            text=i.text;
+                        };
+                        str="<div class='flex'>" +
+                            "<div>" + i.day + "</div>" +
+                            "<div style='margin-left: 10px;'>" + icon + "</div>" +
+                            "<div style='margin-left: 10px;'>" + text + "</div>" +
+                            "</div>";
                     };
-                    document.getElementById("ans_apr_type_" + id).innerHTML=type_show;
-
-                    var rc=response.result_count;
-                    for (i=0; i<rc.length; i++){
-                        document.getElementById("result_" + i).innerText="（" + rc[i] + "）";
+                    
+                    // カード形式
+                    if (i.kubun == "est"){
+                        str = "<div class='main0 main1' style='width:100%; cursor:auto'>" + str + "</div>";
+                    } else {
+                        if (i.type == 3){
+                            str = "<div class='main0 main2' style='width:100%; cursor:auto''>" + str + "</div>";
+                        } else if (i.type == 8){
+                            str = "<div class='main0 main3' style='width:100%; cursor:auto''>" + str + "</div>";
+                        } else {
+                            str = "<div class='main0 main_all' style='width:100%;' name='act_list' id='" + i.act_id + "'>" + str + "</div>";
+                        };
                     };
-                })
-            },false)
+
+                    last_str = last_str + str;
+                };
+                document.getElementById("modal_crm_action").innerHTML=last_str;
+                modal_list_click()
+            })
+        }
+        
+
+        // モーダルの表示順
+        var mo_sort = document.getElementById("modal_sort");
+        mo_sort.addEventListener("change",function(){
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_sort" %}',
+                'type': 'POST',
+                'data': {"jun":mo_sort.value},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                var pk=document.getElementById("modal_pk").innerText;
+                modal_show_bot(pk);
+            })
+        })
+
+
+        // モーダル_TELの場合
+        var mo_type = document.getElementById("modal_apr_type");
+        mo_type.addEventListener("change",function(){
+            if (mo_type.value == 4){
+                document.getElementById("modal_tel_hyouji").style.display="";
+            } else {
+                document.getElementById("modal_tel_hyouji").style.display="none";
+            };
+        });
+
+
+        // モーダル_クリア
+        function modal_clear(){
+            var now = new Date()
+            document.getElementById("modal_act_id").innerText="";
+            document.getElementById("modal_apr_result").value="0";
+            document.getElementById("modal_apr_type").value="";
+            document.getElementById("modal_apr_tantou").value="";
+            document.getElementById("modal_apr_day").value=now.toLocaleDateString('sv-SE');
+            document.getElementById("modal_apr_text").value="";
+            document.getElementById("modal_apr_tel").value="対応";
+            document.getElementById("modal_tel_hyouji").style.display="none";
+            document.getElementById("modal_show_A").style.visibility="visible";
+        }
+
+        // モーダル_新規
+        document.getElementById("modal_btn_apr_new").addEventListener("click",function(){
+            modal_clear()
+        });
+
+
+        // モーダル_リストクリック
+        function modal_list_click(){
+            var item=document.getElementsByName("act_list");
+            for (var i=0; i<item.length; i++){
+                item[i].addEventListener("click",function(){
+                    document.getElementById("modal_act_id").innerText=this.id;
+                    $.ajax({
+                        'url': '{% url "apr:hangire_modal_list_click" %}',
+                        'type': 'POST',
+                        'data': {"act_id":this.id},
+                        'dataType': 'json'
+                    })
+                    .done(function(response){
+                        res=response.res;
+                        if (res.type == 4){
+                            document.getElementById("modal_tel_hyouji").style.display="block";
+                        } else {
+                            document.getElementById("modal_tel_hyouji").style.display="none";
+                        };
+                        document.getElementById("modal_apr_result").value="";
+                        document.getElementById("modal_apr_type").value=res.type;
+                        document.getElementById("modal_apr_tel").value=res.tel;
+                        document.getElementById("modal_apr_day").value=res.day;
+                        document.getElementById("modal_apr_text").value=res.text;
+                        document.getElementById("modal_show_A").style.visibility="hidden";
+                        document.getElementById("modal_show_B").style.display="";
+                        document.getElementById("modal_show_C").style.display="none";
+                        document.getElementById("modal_tantou_block").style.display="";
+                    })
+                },false)
+            };
+        }
+
+
+        // モーダル_決定
+        document.getElementById("modal_btn_apr_ok").addEventListener("click",function(e){
+            pk = document.getElementById("modal_pk").innerText;
+            var type = document.getElementById("modal_apr_type").value;
+            var day = document.getElementById("modal_apr_day").value;
+            var act_id = document.getElementById("modal_act_id").innerText;
+            var tantou = document.getElementById("modal_apr_tantou").value;
+
+            if (type==0){
+                window.alert("種類を選択してください！");
+                return
+            } else if (day==""){
+                window.alert("日付を入力してください！");
+                return
+            } else if (act_id == "" && tantou == ""){
+                window.alert("担当者を入力してください！");
+                return
+            };
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_btn" %}',
+                'type': 'POST',
+                'data': {
+                    "pk":pk,
+                    "act_id":act_id,
+                    "result":document.getElementById("modal_apr_result").value,
+                    "tantou":tantou,
+                    "day":day,
+                    "type":type,
+                    "tel_result":document.getElementById("modal_apr_tel").value,
+                    "text":document.getElementById("modal_apr_text").value
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                modal_show_top(pk);
+                modal_show_bot(pk);
+                modal_clear();
+            })
+        });
+
+
+        // モーダル_削除
+        document.getElementById("modal_btn_apr_del").addEventListener("click",function(e){
+            var act_id = document.getElementById("modal_act_id").innerText;
+            if (act_id==""){
+                window.alert("削除対象を選択してください！");
+                return
+            };
+            
+            var ans =confirm("本当に削除しますか？");
+            if (ans == false){
+                return
+            };
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_del" %}',
+                'type': 'POST',
+                'data': {"act_id":act_id},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                var pk=document.getElementById("modal_pk").innerText;
+                modal_show_bot(pk);
+                modal_clear();
+            })
+        });
+
+
+        // モーダル_結果削除
+        document.getElementById("modal_result_del").addEventListener("click",function(){
+            pk=document.getElementById("modal_pk").innerText;
+            var ans =confirm("本当に削除しますか？");
+            if (ans == false){
+                return
+            };
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_result_del" %}',
+                'type': 'POST',
+                'data': {"pk":pk},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                modal_show_top(pk);
+            })
+        });
+
+
+        // モーダル_結果のオプション変更
+        document.getElementById("modal_apr_result").addEventListener("change",function(){
+            if(document.getElementById("modal_apr_result").value == "tran"){
+                document.getElementById("modal_show_B").style.display="none";
+                document.getElementById("modal_show_C").style.display="";
+                document.getElementById("modal_tantou_block").style.display="none";
+            } else {
+                document.getElementById("modal_show_B").style.display="";
+                document.getElementById("modal_show_C").style.display="none";
+                document.getElementById("modal_tantou_block").style.display="";
+            };
+        });
+
+
+        // モーダル_転送部署_選択
+        var busho=document.getElementById("modal_send_busho");
+        busho.addEventListener("change",function(){
+            $.ajax({
+                'url': '{% url "apr:hangire_busho_now" %}',
+                'type': 'POST',
+                'data': {"busho_id":this.value},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                tantou_list=response.tantou_now;
+                var str=""
+                for (var i=0; i<tantou_list.length; i++){
+                    str=str + "<option value='" + tantou_list[i][0] + "'>" + tantou_list[i][1] + "</option>"
+                };
+                document.getElementById("modal_send_tantou").innerHTML=str;
+            })
+        })
+
+
+        // モーダル_他へ転送
+        document.getElementById("modal_send_click").addEventListener("click",function(){
+            var busho_id = document.getElementById("modal_send_busho").value;
+            var tantou_id = document.getElementById("modal_send_tantou").value;
+            if (busho_id == "0"){
+                window.alert("転送先の部署を選択してください！");
+                return
+            };
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_send" %}',
+                'type': 'POST',
+                'data': {
+                    "pk":document.getElementById("modal_pk").innerText,
+                    "busho_id":busho_id,
+                    "tantou_id":tantou_id
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // モーダル終了
+        btns=document.getElementsByName("modal_btn_close");
+        for (var i=0;i<btns.length;i++){
+            btns[i].addEventListener("click",function(){
+                window.location.reload();
+            })
         };
-
-
-        // 別担当へ転送ボタン
-        var item=document.getElementsByName("send_click");
-        for (var i=0; i<item.length; i++){
-            item[i].addEventListener("click",function(){
-                id=this.id.split("_")[2];
-                tantou_id=document.getElementById("send_tantou_" + id).value;
-                busho_id=document.getElementById("send_busho_" + id).value;
-                if (tantou_id==""){
-                    window.alert("転送先を指定してください！");
-                    return
-                }
-                $.ajax({
-                    'url': '{% url "apr:hangire_send" %}',
-                    'type': 'POST',
-                    'data': {"pk":id,"busho_id":busho_id,"tantou_id":tantou_id},
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    window.location.reload();
-                })
-            },false)
-        };
-
-
-        // コメントクリアボタン
-        var item=document.getElementsByName("approach_clear");
-        for (var i=0; i<item.length; i++){
-            item[i].addEventListener("click",function(){
-                var id=this.id.split("_")[1];
-                document.getElementById("apr_result_" + id).value=0;
-                document.getElementById("apr_day_" + id).value="";
-                document.getElementById("apr_tantou_" + id).value="";
-                document.getElementById("apr_type_" + id).value=0;
-                document.getElementById("tel_result_" + id).value="対応";
-                document.getElementById("apr_text_" + id).value="";
-                document.getElementById("tel_result_show_" + id).style.display="none";
-            },false)
-        };
-
 
 
     </script>
+
+    <!-- モーダル用 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
 
 </body>
 </html>

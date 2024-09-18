@@ -1481,9 +1481,9 @@ def csv_imp(request):
         if h!=0:
             Crm_action.objects.create(
                 cus_id=i[0],
-                day=i[1],
+                day="2024-09-11",
                 type=1,
-                text=i[2],
+                text=i[1],
                 )
         h+=1
 
@@ -1607,15 +1607,9 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Customer.objects.all()
+    ins=Hangire.objects.filter(apr_type = 1)
     for i in ins:
-        url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i.cus_id)
-        res=requests.get(url)
-        res=res.json()
-
-        i.city=res["city"]
-        i.address_1=res["address1"]
-        i.address_2=res["address2"]
+        i.apr_type=4
         i.save()
 
     print("完了しました！")

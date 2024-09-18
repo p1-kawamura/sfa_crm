@@ -14,7 +14,7 @@ class Crm_action(models.Model):
         return self.cus_id
     
     # type（種類） 1:メモ　 2：メール　  3：メルマガ　4：TEL
-    #             5：外商　6：アラート　７：来店     8：アプローチリストID
+    #             5：外商　6：アラート　７：来店     8：アプローチリスト
 
     # approach_id（アプローチID）　0:通常コメント（アプローチリスト以外）
 
