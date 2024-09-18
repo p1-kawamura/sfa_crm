@@ -208,6 +208,8 @@
                             <div id="exampleModalLabel"></div>
                             <div class="flex">
                                 <div id="modal_pk" style="display: none;"></div>
+                                <div id="modal_cus_com" style="margin-left: 30px; font-size: 1.2em; font-weight: bold;"></div>
+                                <div id="modal_cus_name" style="margin-left: 30px; font-size: 1.2em; font-weight: bold;"></div>
                             </div>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close"></button>
                         </div>
@@ -482,6 +484,8 @@
                     4:["不要","#212529","#d1d1d1"],
                     5:["検討中","#3b6e00","#e6ffd1"]
                 };
+                document.getElementById("modal_cus_com").innerText=result.cus_com;
+                document.getElementById("modal_cus_name").innerText=result.cus_sei + result.cus_mei;
                 document.getElementById("modal_top_result").innerText=dic[result.result][0];
                 document.getElementById("modal_top_result").style.color=dic[result.result][1];
                 document.getElementById("modal_top_result").style.backgroundColor=dic[result.result][2];
