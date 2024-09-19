@@ -276,6 +276,60 @@ def approach_list_add(request):
             # Crm_action
             Crm_action.objects.create(cus_id=i[10],day=day,type=8,text=title,approach_id=approach_id)
 
+            #Customer
+            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10]
+            res2=requests.get(url2)
+            res2=res2.json()
+
+            tel_search=None
+            if res2["tel"] != None:
+                tel_search=res2["tel"].replace("-","")
+            tel_mob_search=None
+            if res2["mobilePhone"] != None:
+                tel_mob_search=res2["mobilePhone"].replace("-","")
+
+            try:
+                con_last=Customer.objects.get(cus_id=i["customerId"]).contact_last
+                if con_last==None or res2["lastEstimatedAt"]>con_last:
+                    contact_last=res2["lastEstimatedAt"]
+                else:
+                    contact_last=con_last
+            except:
+                contact_last=res2["lastEstimatedAt"]
+                
+            Customer.objects.update_or_create(
+            cus_id=res2["id"],
+            defaults={
+                "cus_id":res2["id"],
+                "cus_url":res2["customerMstPageUrl"],
+                "cus_touroku":res2["createdAt"],
+                "com":res2["corporateName"],
+                "com_busho":res2["departmentName"],
+                "sei":res2["nameLast"],
+                "mei":res2["nameFirst"],
+                "pref":res2["prefecture"],
+                "city":res2["city"],
+                "address_1":res2["address1"],
+                "address_2":res2["address2"],
+                "tel":res2["tel"],
+                "tel_search":tel_search,
+                "tel_mob":res2["mobilePhone"],
+                "tel_mob_search":tel_mob_search,
+                "mail":res2["contactEmail"],
+                "mitsu_all":res2["totalEstimations"],
+                "juchu_all":res2["totalReceivedOrders"],
+                "juchu_money":res2["totalReceivedOrdersPrice"],
+                "mitsu_last":res2["lastEstimatedAt"],
+                "mitsu_last_busho_id":res2["lastHandledDepartmentId"],
+                "mitsu_last_busho":res2["lastHandledDepartmentName"],
+                "mitsu_last_tantou_id":res2["lastHandledId"],
+                "mitsu_last_tantou":res2["lastHandledName"],
+                "juchu_last":res2["lastOrderReceivedDate"],
+                "contact_last":contact_last,
+                "taimen":res2["isVisited"],
+                }
+            )
+
             # Approach 
             if action=="1":
                 # url
@@ -329,12 +383,66 @@ def hangire_csv_imp(request):
     h=0
     for i in csv_list:
         if h!=0:
-            # url
+            # 見積
             url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[13] + "/receivedOrders/" + i[1] + "/" + i[2]
             res=requests.get(url)
             res=res.json()
             res=res["receivedOrder"]
             mitsu_url=res["estimationPageUrl"]
+
+            #Customer
+            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[13]
+            res2=requests.get(url2)
+            res2=res2.json()
+
+            tel_search=None
+            if res2["tel"] != None:
+                tel_search=res2["tel"].replace("-","")
+            tel_mob_search=None
+            if res2["mobilePhone"] != None:
+                tel_mob_search=res2["mobilePhone"].replace("-","")
+
+            try:
+                con_last=Customer.objects.get(cus_id=i["customerId"]).contact_last
+                if con_last==None or res2["lastEstimatedAt"]>con_last:
+                    contact_last=res2["lastEstimatedAt"]
+                else:
+                    contact_last=con_last
+            except:
+                contact_last=res2["lastEstimatedAt"]
+                
+            Customer.objects.update_or_create(
+            cus_id=res2["id"],
+            defaults={
+                "cus_id":res2["id"],
+                "cus_url":res2["customerMstPageUrl"],
+                "cus_touroku":res2["createdAt"],
+                "com":res2["corporateName"],
+                "com_busho":res2["departmentName"],
+                "sei":res2["nameLast"],
+                "mei":res2["nameFirst"],
+                "pref":res2["prefecture"],
+                "city":res2["city"],
+                "address_1":res2["address1"],
+                "address_2":res2["address2"],
+                "tel":res2["tel"],
+                "tel_search":tel_search,
+                "tel_mob":res2["mobilePhone"],
+                "tel_mob_search":tel_mob_search,
+                "mail":res2["contactEmail"],
+                "mitsu_all":res2["totalEstimations"],
+                "juchu_all":res2["totalReceivedOrders"],
+                "juchu_money":res2["totalReceivedOrdersPrice"],
+                "mitsu_last":res2["lastEstimatedAt"],
+                "mitsu_last_busho_id":res2["lastHandledDepartmentId"],
+                "mitsu_last_busho":res2["lastHandledDepartmentName"],
+                "mitsu_last_tantou_id":res2["lastHandledId"],
+                "mitsu_last_tantou":res2["lastHandledName"],
+                "juchu_last":res2["lastOrderReceivedDate"],
+                "contact_last":contact_last,
+                "taimen":res2["isVisited"],
+                }
+            )
 
             Hangire.objects.create(
                 mitsu_id=i[0],
@@ -350,9 +458,14 @@ def hangire_csv_imp(request):
                 tantou_sei=i[5],
                 tantou_mei=i[6],
                 cus_id=i[13],
+                cus_url=res2["customerMstPageUrl"],
                 cus_com=i[10],
                 cus_sei=i[7],
                 cus_mei=i[8],
+                cus_tel=res2["tel"],
+                cus_tel_search=tel_search,
+                cus_mob=res2["mobilePhone"],
+                cus_mob_search=tel_mob_search,
                 cus_mail=i[9],
                 pref=i[16],
                 money=i[11],
@@ -372,6 +485,16 @@ def hangire_index(request):
         request.session["han_search"]["han_tantou"]=""
     if "han_pref" not in request.session["han_search"]:
         request.session["han_search"]["han_pref"]=""
+    if "han_com" not in request.session["han_search"]:
+        request.session["han_search"]["han_com"]=""
+    if "han_cus_sei" not in request.session["han_search"]:
+        request.session["han_search"]["han_cus_sei"]=""
+    if "han_cus_mei" not in request.session["han_search"]:
+        request.session["han_search"]["han_cus_mei"]=""
+    if "han_tel" not in request.session["han_search"]:
+        request.session["han_search"]["han_tel"]=""
+    if "han_mail" not in request.session["han_search"]:
+        request.session["han_search"]["han_mail"]=""
     if "han_result" not in request.session["han_search"]:
         request.session["han_search"]["han_result"]=[]
     if "han_day_st" not in request.session["han_search"]:
@@ -397,10 +520,25 @@ def hangire_index(request):
         fil["tantou_apr_id"]=ses["han_tantou"]
     if ses["han_pref"] != "":
         fil["pref"]=ses["han_pref"]
+    if ses["han_com"] != "":
+        fil["cus_com__contains"]=ses["han_com"].strip()
+    if ses["han_sei"] != "":
+        fil["cus_sei__contains"]=ses["han_sei"].strip()
+    if ses["han_mei"] != "":
+        fil["cus_mei__contains"]=ses["han_mei"].strip()
+    if ses["han_mail"] != "":
+        fil["cus_mail"]=ses["han_mail"]
     if ses["han_day_st"] != "":
         fil["juchu_day__gte"]=ses["han_day_st"]
     if ses["han_day_ed"] != "":
         fil["juchu_day__lte"]=ses["han_day_ed"]
+
+    if ses["han_tel"] != "":
+        tel=ses["han_tel"].strip().replace("-","")
+        ins_tel=list(Hangire.objects.filter(cus_tel_search=tel).values_list("cus_id",flat=True))
+        ins_mob=list(Hangire.objects.filter(cus_mob_search=tel).values_list("cus_id",flat=True))
+        list_tel_mob=set(ins_tel + ins_mob)
+        fil["cus_id__in"]=list_tel_mob
     
 
     # 進捗を含めない個数
@@ -543,6 +681,11 @@ def hangire_search(request):
     request.session["han_search"]["han_busho"]=request.POST["han_busho"]
     request.session["han_search"]["han_tantou"]=request.POST["han_tantou"]
     request.session["han_search"]["han_pref"]=request.POST["han_pref"]
+    request.session["han_search"]["han_com"]=request.POST["han_com"]
+    request.session["han_search"]["han_sei"]=request.POST["han_sei"]
+    request.session["han_search"]["han_mei"]=request.POST["han_mei"]
+    request.session["han_search"]["han_tel"]=request.POST["han_tel"]
+    request.session["han_search"]["han_mail"]=request.POST["han_mail"]
     request.session["han_search"]["han_day_st"]=request.POST["han_day_st"]
     request.session["han_search"]["han_day_ed"]=request.POST["han_day_ed"]
     request.session["han_search"]["han_result"]=request.POST.getlist("han_result")

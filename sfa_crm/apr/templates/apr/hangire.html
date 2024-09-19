@@ -58,7 +58,7 @@
                         </div>
                         <div style="margin-left: 30px;">都道府県：</div>
                         <div>
-                            <select class="form-select" id="han_pref" name="han_pref" style="width: 150px;">
+                            <select class="form-select form-select-sm" id="han_pref" name="han_pref" style="width: 110px;">
                                 {% for i in pref_list %}
                                     {% if i == ses.han_pref %}
                                     <option value="{{i}}" selected>{{i}}</option>
@@ -69,9 +69,21 @@
                             </select>
                         </div>
                         <div style="margin-left: 30px;">受注日：</div>
-                        <div><input class="form-control" type="date" id="han_day_st" name="han_day_st" style="width: 140px;" value="{{ses.han_day_st}}"></div>
+                        <div><input class="form-control form-select-sm" type="date" id="han_day_st" name="han_day_st" style="width: 140px;" value="{{ses.han_day_st}}"></div>
                         <div style="margin: 0px 10px;">～</div>
-                        <div><input class="form-control" type="date" id="han_day_ed" name="han_day_ed" style="width: 140px;" value="{{ses.han_day_ed}}"></div>
+                        <div><input class="form-control form-select-sm" type="date" id="han_day_ed" name="han_day_ed" style="width: 140px;" value="{{ses.han_day_ed}}"></div>
+                    </div>
+                    <div class="flex mt-4">
+                        <div>会社名：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="han_com" name="han_com" style="width: 200px;" value="{{ses.han_com}}"></div>
+                        <div style="margin-left: 30px;">姓：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="han_sei" name="han_sei" style="width: 80px;" value="{{ses.han_sei}}"></div>
+                        <div style="margin-left: 30px;">名：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="han_mei" name="han_mei" style="width: 80px;" value="{{ses.han_mei}}"></div>
+                        <div style="margin-left: 30px;">電話番号 / 携帯番号：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="han_tel" name="han_tel" style="width: 140px;" value="{{ses.han_tel}}"></div>
+                        <div style="margin-left: 30px;">メールアドレス：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="han_mail" name="han_mail" style="width: 300px;" value="{{ses.han_mail}}"></div>
                     </div>
                     <div class="flex mt-4">
                         <div>結果：</div>
@@ -131,13 +143,14 @@
                         <th>受注日</th>
                         <th>担当部署</th>
                         <th>担当者</th>
-                        <th>顧客詳細</th>
+                        <th>顧客ID</th>
                         <th>都道府県</th>
                         <th>会社</th>
                         <th>氏名</th>
                         <th>メールアドレス</th>
                         <th>合計金額</th>
                         <th>加工方法</th>
+                        <th>顧客詳細</th>
                     </tr>
                     {% for i in cus_list %}
                     <tr class="hover2">
@@ -177,16 +190,15 @@
                         </td>
                         <td id="ans_apr_text_{{i.pk}}" class="bikou">{% if i.apr_text %}{{i.apr_text}}{% endif %}</td>
                         <td>
-                            <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
+                            <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;">
+                                <i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
                         </td>
                         <td>{{i.juchu_day}}</td>
                         <td>{{i.busho_name}}</td>
                         <td>{{i.tantou_sei}}{{i.tantou_mei}}</td>
-                        <td style="text-align: center;">
-                            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" name="crm_list">
-                                <i class="bi bi-person-square"></i>
-                                <span style="display: none;" id="apr_cus_{{i.pk}}">{{i.cus_id}}</span>
-                            </button>
+                        <td>
+                            <a href="{{i.cus_url}}" target="_blank"><span style="color: #ee827c;">
+                                <i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}
                         </td>
                         <td>{% if i.pref %}{{i.pref}}{% endif %}</td>
                         <td>{{i.cus_com}}</td>
@@ -194,6 +206,12 @@
                         <td>{{i.cus_mail}}</td>
                         <td style="text-align: right;">{{i.money | intcomma}}</td>
                         <td>{{i.kakou}}</td>
+                        <td style="text-align: center;">
+                            <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" name="crm_list">
+                                <i class="bi bi-person-square"></i>
+                                <span style="display: none;" id="apr_cus_{{i.pk}}">{{i.cus_id}}</span>
+                            </button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -408,6 +426,11 @@
             document.getElementById("han_pref").value="";
             document.getElementById("han_day_st").value="";
             document.getElementById("han_day_ed").value="";
+            document.getElementById("han_com").value="";
+            document.getElementById("han_sei").value="";
+            document.getElementById("han_mei").value="";
+            document.getElementById("han_tel").value="";
+            document.getElementById("han_mail").value="";
 
             var rs=document.getElementsByName("han_result");
             for (var i=0; i<rs.length; i++){

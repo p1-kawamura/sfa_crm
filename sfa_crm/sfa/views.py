@@ -1475,19 +1475,6 @@ def csv_imp(request):
     csv_list=list(csv_content)
 
 
-    # Crm_actionへの入力
-    h=0
-    for i in csv_list:
-        if h!=0:
-            Crm_action.objects.create(
-                cus_id=i[0],
-                day="2024-09-11",
-                type=1,
-                text=i[1],
-                )
-        h+=1
-
-
     # # Approachへの入力
     # h=0
     # for i in csv_list:
@@ -1560,6 +1547,9 @@ def csv_imp(request):
     #                 "sei":res2["nameLast"],
     #                 "mei":res2["nameFirst"],
     #                 "pref":res2["prefecture"],
+    #                 "city":res2["city"],
+    #                 "address_1":res2["address1"],
+    #                 "address_2":res2["address2"],
     #                 "tel":res2["tel"],
     #                 "tel_search":tel_search,
     #                 "tel_mob":res2["mobilePhone"],
@@ -1583,6 +1573,7 @@ def csv_imp(request):
 
     #     h+=1
 
+ 
 
     # # Crm_actionへの入力
     # h=0
@@ -1590,10 +1581,10 @@ def csv_imp(request):
     #     if h!=0:
     #         Crm_action.objects.create(
     #             cus_id=i[0],
-    #             day="2024-05-28",
+    #             day="2024-09-19",
     #             type=8,
-    #             text=i[1],
-    #             approach_id="12"
+    #             text="2024年 学割キャンペーン",
+    #             approach_id="19"
     #             )
     #     h+=1
         
@@ -1607,11 +1598,16 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Hangire.objects.filter(apr_type = 1)
+    ins=Hangire.objects.all()
     for i in ins:
-        i.apr_type=4
-        i.save()
+        #Customer
+        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
+        res2=requests.get(url2)
+        res2=res2.json()
 
+        i.cus_url=res2["customerMstPageUrl"]
+        i.save()
+            
     print("完了しました！")
   
     return redirect("sfa:index")
