@@ -522,10 +522,10 @@ def hangire_index(request):
         fil["pref"]=ses["han_pref"]
     if ses["han_com"] != "":
         fil["cus_com__contains"]=ses["han_com"].strip()
-    if ses["han_sei"] != "":
-        fil["cus_sei__contains"]=ses["han_sei"].strip()
-    if ses["han_mei"] != "":
-        fil["cus_mei__contains"]=ses["han_mei"].strip()
+    if ses["han_cus_sei"] != "":
+        fil["cus_sei__contains"]=ses["han_cus_sei"].strip()
+    if ses["han_cus_mei"] != "":
+        fil["cus_mei__contains"]=ses["han_cus_mei"].strip()
     if ses["han_mail"] != "":
         fil["cus_mail"]=ses["han_mail"]
     if ses["han_day_st"] != "":
