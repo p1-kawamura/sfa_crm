@@ -487,10 +487,10 @@ def hangire_index(request):
         request.session["han_search"]["han_pref"]=""
     if "han_com" not in request.session["han_search"]:
         request.session["han_search"]["han_com"]=""
-    if "han_cus_sei" not in request.session["han_search"]:
-        request.session["han_search"]["han_cus_sei"]=""
-    if "han_cus_mei" not in request.session["han_search"]:
-        request.session["han_search"]["han_cus_mei"]=""
+    if "han_sei" not in request.session["han_search"]:
+        request.session["han_search"]["han_sei"]=""
+    if "han_mei" not in request.session["han_search"]:
+        request.session["han_search"]["han_mei"]=""
     if "han_tel" not in request.session["han_search"]:
         request.session["han_search"]["han_tel"]=""
     if "han_mail" not in request.session["han_search"]:
@@ -522,10 +522,10 @@ def hangire_index(request):
         fil["pref"]=ses["han_pref"]
     if ses["han_com"] != "":
         fil["cus_com__contains"]=ses["han_com"].strip()
-    if ses["han_cus_sei"] != "":
-        fil["cus_sei__contains"]=ses["han_cus_sei"].strip()
-    if ses["han_cus_mei"] != "":
-        fil["cus_mei__contains"]=ses["han_cus_mei"].strip()
+    if ses["han_sei"] != "":
+        fil["cus_sei__contains"]=ses["han_sei"].strip()
+    if ses["han_mei"] != "":
+        fil["cus_mei__contains"]=ses["han_mei"].strip()
     if ses["han_mail"] != "":
         fil["cus_mail"]=ses["han_mail"]
     if ses["han_day_st"] != "":
