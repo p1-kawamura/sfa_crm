@@ -1475,6 +1475,17 @@ def csv_imp(request):
     csv_list=list(csv_content)
 
 
+    # Crm_actionへの入力
+    h=0
+    for i in csv_list:
+        if h!=0:
+            ins=Hangire.objects.get(mitsu_id=i[0])
+            ins.order_kubun=i[1]
+            ins.save()
+        h+=1
+
+
+
     # # Approachへの入力
     # h=0
     # for i in csv_list:
