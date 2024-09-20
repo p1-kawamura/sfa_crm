@@ -450,6 +450,7 @@ def hangire_csv_imp(request):
                 mitsu_ver=i[2],
                 mitsu_url=mitsu_url,
                 juchu_day=i[3],
+                order_kubun=i[17],
                 busho_id=i[14],
                 busho_apr_id=i[14],
                 busho_name=i[15],
