@@ -253,7 +253,7 @@
                                                 <tr>
                                                     <th style="width: 100px;" nowrap>結果</th>
                                                     <th style="width: 95px;" nowrap>日付</th>
-                                                    <th style="width: 80px;" nowrap>担当者</th>
+                                                    <th style="width: 70px;" nowrap>担当者</th>
                                                     <th style="width: 50px;" nowrap>種類</th>
                                                     <th nowrap>備考</th>
                                                 </tr>
@@ -277,11 +277,11 @@
                                                     {% for i in result_list %}
                                                     <option value={{i.0}}>{{i.1}}</option>
                                                     {% endfor %}
-                                                    <option value="tran">他拠点へ転送</option>
+                                                    <option value="tran">他の担当者へ転送</option>
                                                 </select>
                                             </div>
                                             <div class="flex" id="modal_tantou_block" style="margin-left: 30px;">
-                                                <div>担当：</div>
+                                                <div>記入者：</div>
                                                 <div><input class="form-control form-control-sm" type="text" id="modal_apr_tantou" style="width: 80px;"></div>
                                             </div>
                                         </div>
