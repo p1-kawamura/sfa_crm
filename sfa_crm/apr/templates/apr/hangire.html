@@ -139,18 +139,18 @@
                         <th>対応者</th>
                         <th>方法</th>
                         <th class="th1">備考</th>
-                        <th>見積番号</th>
                         <th>受注日</th>
-                        <!-- <th>担当部署</th>
-                        <th>担当者</th> -->
-                        <th>顧客ID</th>
+                        <th>見積</th>
+                        <th>顧客</th>
                         <th>都道府県</th>
                         <th>会社</th>
                         <th>氏名</th>
+                        <th>加工方法</th>
                         <th>メールアドレス</th>
                         <th>合計金額</th>
-                        <th>加工方法</th>
                         <th>顧客詳細</th>
+                        <th>担当部署</th>
+                        <th>担当者</th>
                     </tr>
                     {% for i in cus_list %}
                     <tr class="hover2">
@@ -189,29 +189,29 @@
                             {% endif %}
                         </td>
                         <td class="bikou">{% if i.apr_text %}{{i.apr_text}}{% endif %}</td>
-                        <td>
-                            <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;">
-                                <i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
-                        </td>
                         <td>{{i.juchu_day}}</td>
-                        <!-- <td>{{i.busho_name}}</td>
-                        <td>{{i.tantou_sei}}{{i.tantou_mei}}</td> -->
-                        <td>
-                            <a href="{{i.cus_url}}" target="_blank"><span style="color: #ee827c;">
-                                <i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}
+                        <td style="text-align: center;">
+                            <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b; font-size: 1.2em;">
+                                <i class="bi bi-box-arrow-up-right"></i></span></a>
+                        </td>
+                        <td style="text-align: center;">
+                            <a href="{{i.cus_url}}" target="_blank"><span style="color: #ee827c; font-size: 1.2em;">
+                                <i class="bi bi-box-arrow-up-right"></i></span></a>
                         </td>
                         <td>{% if i.pref %}{{i.pref}}{% endif %}</td>
-                        <td>{{i.cus_com}}</td>
+                        <td>{{i.cus_com | truncatechars:14}}</td>
                         <td>{{i.cus_sei}}{{i.cus_mei}}</td>
+                        <td>{{i.kakou}}</td>
                         <td>{{i.cus_mail}}</td>
                         <td style="text-align: right;">{{i.money | intcomma}}</td>
-                        <td>{{i.kakou}}</td>
                         <td style="text-align: center;">
                             <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" name="crm_list">
                                 <i class="bi bi-person-square"></i>
                                 <span style="display: none;" id="apr_cus_{{i.pk}}">{{i.cus_id}}</span>
                             </button>
                         </td>
+                        <td>{{i.busho_name}}</td>
+                        <td>{{i.tantou_sei}}{{i.tantou_mei}}</td>
                     </tr>
                     {% endfor %}
                 </table>

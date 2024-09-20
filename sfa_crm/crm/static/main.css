@@ -109,14 +109,14 @@ hr {
     table-layout: fixed;
 }
 .table_approach .th1{
-    width: 350px;
+    width: 300px;
 }
 .table_approach td{
     vertical-align:middle;
 }
 .table_approach .bikou{
     white-space: normal;
-    width: 350px;
+    width: 300px;
 }
 .hover2:hover {
     background-color: rgb(255, 255, 194);
