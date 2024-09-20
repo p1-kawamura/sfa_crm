@@ -135,14 +135,14 @@
                     <tr>
                         <th></th>
                         <th>結果</th>
-                        <th>連絡日</th>
+                        <th>入力日</th>
                         <th>対応者</th>
                         <th>方法</th>
                         <th class="th1">備考</th>
                         <th>見積番号</th>
                         <th>受注日</th>
-                        <th>担当部署</th>
-                        <th>担当者</th>
+                        <!-- <th>担当部署</th>
+                        <th>担当者</th> -->
                         <th>顧客ID</th>
                         <th>都道府県</th>
                         <th>会社</th>
@@ -160,22 +160,22 @@
                         </td>
 
                         {% if i.result == "0" %}
-                        <td id="ans_apr_result_{{i.pk}}"><span style="color: #212529;"></span></td>
+                        <td><span style="color: #212529;"></span></td>
                         {% elif i.result == "1" %}
-                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #cbf7ff; text-align: center;"><span style="color: #0060c0;">{{result_list.1.1}}</span></td>
+                        <td style="background-color: #cbf7ff; text-align: center;"><span style="color: #0060c0;">{{result_list.1.1}}</span></td>
                         {% elif i.result == "2" %}
-                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #ffb3b3; text-align: center;"><span style="color: #ce0000;">{{result_list.2.1}}</span></td>
+                        <td style="background-color: #ffb3b3; text-align: center;"><span style="color: #ce0000;">{{result_list.2.1}}</span></td>
                         {% elif i.result == "3" %}
-                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #850000; text-align: center;"><span style="color: #fff;">{{result_list.3.1}}</span></td>
+                        <td style="background-color: #850000; text-align: center;"><span style="color: #fff;">{{result_list.3.1}}</span></td>
                         {% elif i.result == "4" %}
-                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #d1d1d1; text-align: center;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
+                        <td style="background-color: #d1d1d1; text-align: center;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
                         {% elif i.result == "5" %}
-                        <td id="ans_apr_result_{{i.pk}}" style="background-color: #e6ffd1; text-align: center;"><span style="color: #3b6e00;">{{result_list.5.1}}</span></td>
+                        <td style="background-color: #e6ffd1; text-align: center;"><span style="color: #3b6e00;">{{result_list.5.1}}</span></td>
                         {% endif %}
 
-                        <td id="ans_apr_day_{{i.pk}}">{% if i.apr_day %}{{i.apr_day}}{% endif %}</td>
-                        <td id="ans_apr_tantou_{{i.pk}}">{% if i.apr_tantou %}{{i.apr_tantou}}{% endif %}</td>
-                        <td id="ans_apr_type_{{i.pk}}" style="text-align: center;">
+                        <td>{% if i.apr_day %}{{i.apr_day}}{% endif %}</td>
+                        <td>{% if i.apr_tantou %}{{i.apr_tantou}}{% endif %}</td>
+                        <td style="text-align: center;">
                             {% if i.apr_type == 4 %}
                                 {% if i.apr_tel_result == "対応" %}
                                     <span style="color: blue; font-size: 1.5em;"><i class="bi bi-telephone-forward-fill"></i></span>
@@ -185,17 +185,17 @@
                             {% elif i.apr_type == 2 %}
                                 <span style="color: rgb(204, 173, 0); font-size: 1.5em;"><i class="bi bi-envelope-fill"></i></span>
                             {% elif i.apr_type == 1 %}
-                                <span style='color: #646565; font-size: 1.2em;'><i class='bi bi-clipboard-fill'></i></span>
+                                <span style='color: #b22222; font-size: 1.2em;'><i class='bi bi-clipboard-fill'></i></span>
                             {% endif %}
                         </td>
-                        <td id="ans_apr_text_{{i.pk}}" class="bikou">{% if i.apr_text %}{{i.apr_text}}{% endif %}</td>
+                        <td class="bikou">{% if i.apr_text %}{{i.apr_text}}{% endif %}</td>
                         <td>
                             <a href="{{i.mitsu_url}}" target="_blank"><span style="color: #008b8b;">
                                 <i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}-{{i.mitsu_ver}}
                         </td>
                         <td>{{i.juchu_day}}</td>
-                        <td>{{i.busho_name}}</td>
-                        <td>{{i.tantou_sei}}{{i.tantou_mei}}</td>
+                        <!-- <td>{{i.busho_name}}</td>
+                        <td>{{i.tantou_sei}}{{i.tantou_mei}}</td> -->
                         <td>
                             <a href="{{i.cus_url}}" target="_blank"><span style="color: #ee827c;">
                                 <i class="bi bi-box-arrow-up-right"></i></span></a> {{i.mitsu_num}}
