@@ -146,6 +146,7 @@
                         <th>会社</th>
                         <th>氏名</th>
                         <th>加工方法</th>
+                        <th>電話 / 携帯</th>
                         <th>メールアドレス</th>
                         <th>注文区分</th>
                         <th>合計金額</th>
@@ -203,6 +204,7 @@
                         <td>{{i.cus_com | truncatechars:14}}</td>
                         <td>{{i.cus_sei}}{{i.cus_mei}}</td>
                         <td>{{i.kakou}}</td>
+                        <td>{% if i.cus_tel %}{{i.cus_tel}}{% elif i.cus_mob %}{{i.cus_mob}}{% endif %}</td>
                         <td>{{i.cus_mail}}</td>
                         <td>{{i.order_kubun}}</td>
                         <td style="text-align: right;">{{i.money | intcomma}}</td>
