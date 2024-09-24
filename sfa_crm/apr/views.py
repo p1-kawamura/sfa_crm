@@ -510,6 +510,8 @@ def hangire_index(request):
         request.session["han_search"]["han_jun"]="0"
     if "han_modal_jun" not in request.session["han_search"]:
         request.session["han_search"]["han_modal_jun"]="1"
+    if "han_pk" not in request.session["han_search"]:
+        request.session["han_search"]["han_pk"]="0"
 
     ses=request.session["han_search"]
  
@@ -616,6 +618,7 @@ def hangire_index(request):
 
     # その他必要情報
     modal_sort=request.session["han_search"]["han_modal_jun"]
+    pk=request.session["han_search"]["han_pk"]
                 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -642,6 +645,7 @@ def hangire_index(request):
         "num":num,
         "all_num":all_num,
         "modal_sort":modal_sort,
+        "pk":int(pk),
     }
 
     return render(request,"apr/hangire.html",params)
@@ -698,6 +702,7 @@ def hangire_search(request):
 # 版切れモーダル_TOP
 def hangire_modal_show_top(request):
     pk=request.POST.get("pk").replace("open_","")
+    request.session["han_search"]["han_pk"]=pk
     result=list(Hangire.objects.filter(pk=pk).values())
     d={"result":result}        
     return JsonResponse(d)
@@ -862,6 +867,13 @@ def hangire_modal_send(request):
     ins.tantou_apr_id=tantou_id
     ins.busho_apr_id=busho_id
     ins.save()
+    d={}
+    return JsonResponse(d)
+
+
+# 版切れリスト_前回モーダル分カラークリア
+def hangire_color_clear(request):
+    request.session["han_search"]["han_pk"]="0"
     d={}
     return JsonResponse(d)
 

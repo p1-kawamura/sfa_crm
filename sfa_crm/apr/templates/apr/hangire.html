@@ -155,12 +155,24 @@
                         <th>担当者</th>
                     </tr>
                     {% for i in cus_list %}
+
+                    {% if i.pk == pk %}
+                    <tr class="hover2" style="background-color: #e0ffc2;">
+                        <td>
+                            <span style="font-size: 1.2em; cursor: pointer;" id="clear_color" onclick="clear_color()">
+                                <i class='bi bi-caret-up-square-fill'></i>
+                            </span>
+                        </td>
+                    {% else %}
                     <tr class="hover2">
-                        <td><span style="font-size: 1.2em; cursor: pointer;" name="open_modal" id="open_{{i.pk}}" data-bs-toggle="modal" data-bs-target="#modal_apr">
+                        <td>
+                            <span style="font-size: 1.2em; cursor: pointer;" name="open_modal" id="open_{{i.pk}}" data-bs-toggle="modal" data-bs-target="#modal_apr">
                                 <i class="bi bi-pencil-square"></i>
                             </span>
                         </td>
-
+                    {% endif %}
+                        
+                    
                         {% if i.result == "0" %}
                         <td><span style="color: #212529;"></span></td>
                         {% elif i.result == "1" %}
@@ -484,6 +496,15 @@
             var item=document.getElementsByName("open_modal");
             for (var i=0; i<item.length; i++){
                 item[i].addEventListener("click",function(){
+                    var clear_color=document.getElementById("clear_color");
+                    try{
+                        clear_color.parentElement.parentElement.style.backgroundColor="#fff";
+                        clear_color.innerHTML="<i class='bi bi-pencil-square'></i>";
+                    } catch(e){
+                        ;
+                    };
+                    this.parentElement.parentElement.style.backgroundColor="#e0ffc2";
+                    this.innerHTML="<i class='bi bi-caret-up-square-fill'></i>"
                     modal_show_top(this.id);
                     modal_show_bot(this.id);
                     modal_clear();
@@ -847,6 +868,20 @@
         btns=document.getElementsByName("modal_btn_close");
         for (var i=0;i<btns.length;i++){
             btns[i].addEventListener("click",function(){
+                window.location.reload();
+            })
+        };
+        
+
+        // 前回モーダルの色をクリア
+        function clear_color(){
+            $.ajax({
+                'url': '{% url "apr:hangire_color_clear" %}',
+                'type': 'POST',
+                'data': {},
+                'dataType': 'json'
+            })
+            .done(function(response){
                 window.location.reload();
             })
         };
