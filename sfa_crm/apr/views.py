@@ -506,8 +506,10 @@ def hangire_index(request):
         request.session["han_search"]["page_num"]=1
     if "all_page_num" not in request.session["han_search"]:
         request.session["han_search"]["all_page_num"]=""
-    if "han_jun" not in request.session["han_search"]:
-        request.session["han_search"]["han_jun"]="0"
+    if "sort_name" not in request.session["han_search"]:
+        request.session["han_search"]["sort_name"]="juchu_day"
+    if "sort_jun" not in request.session["han_search"]:
+        request.session["han_search"]["sort_jun"]="0"  
     if "han_modal_jun" not in request.session["han_search"]:
         request.session["han_search"]["han_modal_jun"]="1"
     if "han_pk" not in request.session["han_search"]:
@@ -556,10 +558,11 @@ def hangire_index(request):
         fil["result__in"]=ses["han_result"]
     
     # 並び順
-    if ses["han_jun"]=="0":
-        ins=Hangire.objects.filter(**fil).order_by("juchu_day")
+    if ses["sort_jun"]=="0":
+        ins=Hangire.objects.filter(**fil).order_by(ses["sort_name"])
     else:
-        ins=Hangire.objects.filter(**fil).order_by("juchu_day").reverse()
+        ins=Hangire.objects.filter(**fil).order_by(ses["sort_name"]).reverse()
+    
     
     result=ins.count()
     #全ページ数
@@ -624,12 +627,15 @@ def hangire_index(request):
     act_id=request.session["search"]["tantou"]
     if act_id=="":
         act_user="担当者が未設定です"
+        modal_user=""
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+        modal_user=Member.objects.get(tantou_id=act_id).tantou.split(" ")[0]
 
     params={
         "cus_list":ins,
         "act_user":act_user,
+        "modal_user":modal_user,
         "result_list":result_list,
         "busho_up":busho_up,
         "tantou_up":tantou_up,
@@ -641,6 +647,7 @@ def hangire_index(request):
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "sort_list":{"juchu_day":"受注日","money":"金額"},
         "ses":ses,
         "num":num,
         "all_num":all_num,
@@ -694,7 +701,8 @@ def hangire_search(request):
     request.session["han_search"]["han_day_st"]=request.POST["han_day_st"]
     request.session["han_search"]["han_day_ed"]=request.POST["han_day_ed"]
     request.session["han_search"]["han_result"]=request.POST.getlist("han_result")
-    request.session["han_search"]["han_jun"]=request.POST["han_jun"]
+    request.session["han_search"]["sort_name"]=request.POST["sort_name"]
+    request.session["han_search"]["sort_jun"]=request.POST["sort_jun"]
     request.session["han_search"]["page_num"]=1
     return redirect("apr:hangire_index")
 
@@ -769,7 +777,7 @@ def hangire_modal_list_click(request):
 
 # 版切れモーダル_決定ボタン
 def hangire_modal_btn(request):
-    pk=request.POST.get("pk").replace("open_","")
+    pk=request.POST.get("pk")
     act_id=request.POST.get("act_id")
     result=request.POST.get("result")
     tantou=request.POST.get("tantou")
@@ -834,7 +842,7 @@ def hangire_modal_del(request):
 
 # 版切れモーダル_最終結果を削除
 def hangire_modal_result_del(request):
-    pk=request.POST.get("pk").replace("open_","")
+    pk=request.POST.get("pk")
     ins=Hangire.objects.get(pk=pk)
     ins.result=0
     ins.apr_day=None
@@ -843,6 +851,29 @@ def hangire_modal_result_del(request):
     ins.apr_tel_result=None
     ins.apr_text=None
     ins.save()
+    d={}
+    return JsonResponse(d)
+
+
+# 版切れモーダル_結果を「受注」に変更
+def hangire_modal_result_juchu(request):
+    pk=request.POST.get("pk")
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        modal_user=""
+    else:
+        modal_user=Member.objects.get(tantou_id=act_id).tantou.split(" ")[0]
+    # Hangire
+    ins=Hangire.objects.get(pk=pk)
+    ins.result=2
+    ins.apr_day=date.today()
+    ins.apr_tantou=modal_user
+    ins.apr_type=1
+    ins.apr_text="受注確認"
+    ins.save()
+    # Crm_action
+    cus_id=Hangire.objects.get(pk=pk).cus_id
+    Crm_action.objects.create(cus_id=cus_id,day=date.today(),type=1,text="受注確認（" + modal_user + "）")
     d={}
     return JsonResponse(d)
 

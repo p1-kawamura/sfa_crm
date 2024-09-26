@@ -104,19 +104,30 @@
                         </div>
                     </div>
                     <div class="flex mt-4">
-                        <div>受注日：</div>
+                        <div><i class="bi bi-arrow-down-up"></i> <b>並び替え：</b></div>
                         <div>
-                            <select class="form-select form-select-sm" name="han_jun" style="width: 80px;">
-                                {% if ses.han_jun == "0" %}
+                            <select class="form-select form-select-sm" name="sort_name" style="width: 120px;">
+                                {% for key,value in sort_list.items %}
+                                    {% if key == ses.sort_name %}
+                                    <option value="{{key}}" selected>{{value}}</option>
+                                    {% else %}
+                                    <option value="{{key}}">{{value}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 10px;">
+                            <select class="form-select form-select-sm" name="sort_jun" style="width: 80px;">
+                                {% if ses.sort_jun == "0" %}
                                 <option value="0" selected>昇順</option>
-                                <option value="1">降順</option>
+                                <option value="l">降順</option>
                                 {% else %}
                                 <option value="0">昇順</option>
-                                <option value="1" selected>降順</option>
+                                <option value="l" selected>降順</option>
                                 {% endif %}
                             </select>
                         </div>
-                        <div style="margin-left: 30px;">
+                        <div style="margin-left: 40px;">
                             <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> 検索</button>
                         </div>
                         <div style="margin-left: 30px;">
@@ -146,10 +157,10 @@
                         <th>会社</th>
                         <th>氏名</th>
                         <th>加工方法</th>
-                        <th>電話 / 携帯</th>
-                        <th>メールアドレス</th>
                         <th>注文区分</th>
                         <th>合計金額</th>
+                        <th>電話 / 携帯</th>
+                        <th>メールアドレス</th>
                         <th>顧客詳細</th>
                         <th>担当部署</th>
                         <th>担当者</th>
@@ -216,10 +227,10 @@
                         <td>{{i.cus_com | truncatechars:14}}</td>
                         <td>{{i.cus_sei}}{{i.cus_mei}}</td>
                         <td>{{i.kakou}}</td>
-                        <td>{% if i.cus_tel %}{{i.cus_tel}}{% elif i.cus_mob %}{{i.cus_mob}}{% endif %}</td>
-                        <td>{{i.cus_mail}}</td>
                         <td>{{i.order_kubun}}</td>
                         <td style="text-align: right;">{{i.money | intcomma}}</td>
+                        <td>{% if i.cus_tel %}{{i.cus_tel}}{% elif i.cus_mob %}{{i.cus_mob}}{% endif %}</td>
+                        <td>{{i.cus_mail}}</td>
                         <td style="text-align: center;">
                             <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;" name="crm_list">
                                 <i class="bi bi-person-square"></i>
@@ -242,6 +253,7 @@
                             <div id="exampleModalLabel"></div>
                             <div class="flex">
                                 <div id="modal_pk" style="display: none;"></div>
+                                <div id="modal_user" style="display: none;">{{modal_user}}</div>
                                 <div id="modal_cus_com" style="margin-left: 30px; font-size: 1.2em; font-weight: bold;"></div>
                                 <div id="modal_cus_name" style="margin-left: 30px; font-size: 1.2em; font-weight: bold;"></div>
                             </div>
@@ -255,7 +267,7 @@
                                     <!-- TOP -->
                                     <div>
                                         <div class="flex3" style="align-items: center;">
-                                            <div>■ 最終結果</div>
+                                            <div><button class="btn btn-danger btn-sm" id="modal_result_juchu">受注にする</button></div>
                                             <div style="font-size: 0.9em;">
                                                 <button class="btn btn-outline-danger btn-sm" id="modal_result_del">結果をクリア</button>
                                             </div>
@@ -263,7 +275,7 @@
                                         <div style="margin-top: 5px; font-size: 0.9em;">
                                             <table class="table table-bordered">
                                                 <tr>
-                                                    <th style="width: 100px;" nowrap>結果</th>
+                                                    <th style="width: 100px;" nowrap>最終結果</th>
                                                     <th style="width: 95px;" nowrap>日付</th>
                                                     <th style="width: 70px;" nowrap>記入者</th>
                                                     <th style="width: 50px;" nowrap>種類</th>
@@ -672,7 +684,7 @@
             document.getElementById("modal_act_id").innerText="";
             document.getElementById("modal_apr_result").value="0";
             document.getElementById("modal_apr_type").value="";
-            document.getElementById("modal_apr_tantou").value="";
+            document.getElementById("modal_apr_tantou").value=document.getElementById("modal_user").innerText;
             document.getElementById("modal_apr_day").value=now.toLocaleDateString('sv-SE');
             document.getElementById("modal_apr_text").value="";
             document.getElementById("modal_apr_tel").value="対応";
@@ -856,6 +868,20 @@
                     "busho_id":busho_id,
                     "tantou_id":tantou_id
                 },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // モーダル_結果を受注にする
+        document.getElementById("modal_result_juchu").addEventListener("click",function(){
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_result_juchu" %}',
+                'type': 'POST',
+                'data': {"pk":document.getElementById("modal_pk").innerText},                
                 'dataType': 'json'
             })
             .done(function(response){
