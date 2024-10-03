@@ -100,7 +100,7 @@ def approach_list_add(request):
                 }
             )
 
-            # Hangire
+            # Hangire（2024.10.03 アプローチリストを版切れに統合）
             Hangire.objects.create(
                 mitsu_id=i[0],
                 mitsu_num=i[1],
