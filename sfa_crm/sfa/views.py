@@ -1609,25 +1609,22 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Hangire.objects.all()
+    ins=Hangire.objects.filter(approach_id__in=["14","16","17","18"])
+    print(ins.count())
+    
     for i in ins:
-        
-        if i.result=="1":
-            i.result="2"
 
-        elif i.result=="2":
-            i.result="6"
+        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
+        res2=requests.get(url2)
+        res2=res2.json()
 
-        elif i.result=="3":
-            i.result="4"
-
-        elif i.result=="4":
-            i.result="1"
-
-        elif i.result=="5":
-            i.result="3"
-
+        cus_url=res2["customerMstPageUrl"]
+        i.cus_url=cus_url
         i.save()
+
+        
+
+        
             
     print("完了しました！")
   
