@@ -234,7 +234,7 @@
                         {% elif i.result == "5" %}
                         <td style="background-color: #b7ffff; text-align: center; font-size: 0.9em;"><span style="color: #0000a0;">案件化</span></td>
                         {% elif i.result == "6" %}
-                        <td style="background-color: #ffff80; text-align: center; font-size: 0.9em;"><span style="color: #800000;">受注</span></td>
+                        <td style="background-color: #ffff80; text-align: center; font-size: 0.9em;"><span style="color: #ff0000;">受注</span></td>
                         {% elif i.result == "7" %}
                         <td style="background-color: #ffdddd; text-align: center; font-size: 0.9em;"><span style="color: #000;">その他</span></td>
                         {% endif %}
@@ -635,7 +635,7 @@
                     3:["検討します","#005b00","#dcffbf"],
                     4:["失注/予定なし","#000","#e2e2e2"],
                     5:["案件化","#0000a0","#b7ffff"],
-                    6:["受注","#800000","#ffff80"],
+                    6:["受注","#ff0000","#ffff80"],
                     7:["その他","#000","#ffdddd"]
                 };
                 document.getElementById("modal_cus_com").innerText=result.cus_com;
