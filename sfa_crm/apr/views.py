@@ -657,7 +657,7 @@ def hangire_modal_result_juchu(request):
         modal_user=Member.objects.get(tantou_id=act_id).tantou.split(" ")[0]
     # Hangire
     ins=Hangire.objects.get(pk=pk)
-    ins.result=2
+    ins.result=6
     ins.apr_day=date.today()
     ins.apr_tantou=modal_user
     ins.apr_type=1
