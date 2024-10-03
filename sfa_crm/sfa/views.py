@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member,Sfa_group,Credit_url
 from crm.models import Customer,Crm_action
-from apr.models import Approach,Approach_list,Hangire
+from apr.models import Approach_list,Hangire
 import csv
 import io
 import json
@@ -1486,39 +1486,6 @@ def csv_imp(request):
 
 
 
-    # # Approachへの入力
-    # h=0
-    # for i in csv_list:
-    #     if h!=0:                
-    #         Approach.objects.create(
-    #             approach_id="14",
-    #             mitsu_id=i[0],
-    #             mitsu_num=i[1],
-    #             mitsu_ver=i[2],
-    #             order_kubun=i[3],
-    #             juchu_day=i[4],
-    #             busho_id=i[8],
-    #             busho_name=i[9],
-    #             tantou_id=i[5],
-    #             tantou_apr_id=i[5],
-    #             tantou_sei=i[6],
-    #             tantou_mei=i[7],
-    #             cus_id=i[10],
-    #             cus_com=i[16],
-    #             cus_busho=i[17],
-    #             cus_sei=i[11],
-    #             cus_mei=i[12],
-    #             cus_tel=i[18],
-    #             cus_mob=i[19],
-    #             cus_mail=i[13],
-    #             money=i[20],
-    #             kakou=i[22],
-    #             factory=i[24],
-    #             gara=i[25],
-    #             kigen=i[27]
-    #         )
-    #     h+=1
-
 
     # # Customerへの入力
     # h=0
@@ -1611,7 +1578,7 @@ def clear_session(request):
 
     ins=Hangire.objects.filter(approach_id__in=["14","16","17","18"])
     print(ins.count())
-    
+
     for i in ins:
 
         url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id

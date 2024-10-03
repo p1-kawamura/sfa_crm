@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from .models import Crm_action,Customer,Cus_group
 from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
-from apr.models import Approach,Approach_list
+from apr.models import Approach_list
 import requests
 from django.http import JsonResponse
 from datetime import date

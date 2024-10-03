@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Approach,Approach_list,Hangire
+from .models import Approach_list,Hangire
 from crm.models import Crm_action,Customer
 from sfa.models import Member
 import requests
