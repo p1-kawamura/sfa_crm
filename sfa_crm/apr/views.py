@@ -39,6 +39,13 @@ def approach_list_add(request):
             # Crm_action
             Crm_action.objects.create(cus_id=i[10],day=day,type=8,text=title,approach_id=approach_id)
 
+            # 見積
+            url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10] + "/receivedOrders/" + i[1] + "/" + i[2]
+            res=requests.get(url)
+            res=res.json()
+            res=res["receivedOrder"]
+            mitsu_url=res["estimationPageUrl"]
+
             #Customer
             url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[10]
             res2=requests.get(url2)
@@ -94,8 +101,38 @@ def approach_list_add(request):
             )
 
             # Hangire
+            Hangire.objects.create(
+                mitsu_id=i[0],
+                mitsu_num=i[1],
+                mitsu_ver=i[2],
+                mitsu_url=mitsu_url,
+                juchu_day=i[4],
+                order_kubun=i[3],
+                busho_id=i[8],
+                busho_apr_id=i[8],
+                busho_name=i[9],
+                tantou_id=i[5],
+                tantou_apr_id=i[5],
+                tantou_sei=i[6],
+                tantou_mei=i[7],
+                cus_id=i[10],
+                cus_url=res2["customerMstPageUrl"],
+                cus_com=i[15],
+                cus_sei=i[11],
+                cus_mei=i[12],
+                cus_tel=res2["tel"],
+                cus_tel_search=tel_search,
+                cus_mob=res2["mobilePhone"],
+                cus_mob_search=tel_mob_search,
+                cus_mail=i[13],
+                pref=i[14],
+                money=i[18],
+                kakou=i[19],
+                yobi_1=i[20],
+                yobi_2=i[21],
+                yobi_3=i[22],
+            )
 
-            
         h+=1
     ins=Approach_list.objects.all()
     return render(request,"apr/approach_list.html",{"ans":"yes","list":ins})
