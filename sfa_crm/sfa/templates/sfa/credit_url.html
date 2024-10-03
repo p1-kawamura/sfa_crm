@@ -193,7 +193,7 @@
 			document.getElementById("btn").disabled=true;
 			var meta_list=[];
 			for (i=1; i<=5; i++){
-				var est_num = document.getElementById("est_" + i).value;
+				var est_num = document.getElementById("est_" + i).value.trim();
 				var ver_num = document.getElementById("ver_" + i).value;
 				if (est_num != ""){
 					meta_list.push(est_num + "-" + ver_num)

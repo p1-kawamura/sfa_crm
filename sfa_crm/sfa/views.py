@@ -1611,12 +1611,22 @@ def clear_session(request):
 
     ins=Hangire.objects.all()
     for i in ins:
-        #Customer
-        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
-        res2=requests.get(url2)
-        res2=res2.json()
+        
+        if i.result=="1":
+            i.result="2"
 
-        i.cus_url=res2["customerMstPageUrl"]
+        elif i.result=="2":
+            i.result="6"
+
+        elif i.result=="3":
+            i.result="4"
+
+        elif i.result=="4":
+            i.result="1"
+
+        elif i.result=="5":
+            i.result="3"
+
         i.save()
             
     print("完了しました！")

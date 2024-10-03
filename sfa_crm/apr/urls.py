@@ -2,7 +2,8 @@ from django.urls import path
 from .views import approach_index,approach_search,approach_click,approach_send,approach_busho_up,approach_busho_now,approach_list_index,approach_list_add,\
                     hangire_index,hangire_search,hangire_modal_send,hangire_csv_imp,hangire_busho_up,hangire_busho_now,hangire_modal_show_top,\
                     hangire_modal_show_bot,hangire_modal_sort,hangire_modal_list_click,hangire_modal_btn,hangire_modal_del,hangire_modal_result_del,\
-                    hangire_modal_result_juchu,hangire_color_clear,han_list_page_prev,han_list_page_first,han_list_page_next,han_list_page_last
+                    hangire_modal_result_juchu,hangire_color_clear,choice_id,\
+                    han_list_page_prev,han_list_page_first,han_list_page_next,han_list_page_last
 
 
 app_name="apr"
@@ -30,6 +31,7 @@ urlpatterns = [
     path('hangire_csv_imp/', hangire_csv_imp, name="hangire_csv_imp"),
     path('hangire_busho_up/', hangire_busho_up, name="hangire_busho_up"),
     path('hangire_busho_now/', hangire_busho_now, name="hangire_busho_now"),
+    path('choice_id/', choice_id, name="choice_id"),
     path('han_list_page_prev/', han_list_page_prev, name="han_list_page_prev"),
     path('han_list_page_first/', han_list_page_first, name="han_list_page_first"),
     path('han_list_page_next/', han_list_page_next, name="han_list_page_next"),

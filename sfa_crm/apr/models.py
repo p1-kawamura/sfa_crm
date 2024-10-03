@@ -87,6 +87,9 @@ class Hangire(models.Model):
     pref=models.CharField("都道府県",max_length=255,blank=True,null=True)
     money=models.IntegerField("金額",blank=True,null=True)
     kakou=models.CharField("加工方法",max_length=255,blank=True,null=True)
+    yobi_1=models.CharField("予備1",max_length=255,blank=True,null=True)
+    yobi_2=models.CharField("予備2",max_length=255,blank=True,null=True)
+    yobi_3=models.CharField("予備3",max_length=255,blank=True,null=True)
 
     def __str__(self):
         return self.cus_id

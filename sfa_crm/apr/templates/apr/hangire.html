@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="icon" href="{% static 't-shirt_3.gif' %}">
-    <title>版切れリスト</title>
+    <title>版切れ / アプローチ</title>
 </head>
 <body>
 
@@ -23,13 +23,44 @@
 
         <div style="margin: 0 auto; width: 1340px;">
             <hr>
-            <div class="block_title">版切れリスト</div>
+            <div class="block_title">版切れリスト / アプローチリスト</div>
             <hr>
             <!-- フィルター -->
-            <div>
+            <div class="flex">
+                <div style="font-size: 1.2em;">
+                    {% if ses.han_or_apr == "han" %}
+                    <input class="form-check-input" type="radio" id="choice_hangire" name="shurui" checked> 版切れリスト
+                    {% else %}
+                    <input class="form-check-input" type="radio" id="choice_hangire" name="shurui"> 版切れリスト
+                    {% endif %}
+                </div>
+                <div style="font-size: 1.2em; margin-left: 50px;">
+                    {% if ses.han_or_apr == "apr" %}
+                    <input class="form-check-input" type="radio" id="choice_approach" name="shurui" checked> アプローチリスト
+                    {% else %}
+                    <input class="form-check-input" type="radio" id="choice_approach" name="shurui"> アプローチリスト
+                    {% endif %}
+                </div>
+                {% if ses.han_or_apr == "apr" %}
+                <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px;">
+                {% else %}
+                <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px; display: none;">
+                {% endif %}
+                    <select class="form-select" id="choice_approach_id" style="width: 500px;">
+                        <option value=""></option>
+                        {% for i in apr_list %}
+                            {% if i.approach_id == ses.approach_id %}
+                            <option value="{{i.approach_id}}" selected>{{i.title}}</option>
+                            {% else %}
+                            <option value="{{i.approach_id}}">{{i.title}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 50px;">
                 <form action="{% url 'apr:hangire_search' %}" method="post">{% csrf_token %}
-
-                    <div class="flex">
+                    <div class="flex mt-4">
                         <div>部署：</div>
                         <div>
                             <select class="form-select" name="han_busho" id="han_busho" style="width: 240px;">
@@ -89,16 +120,19 @@
                         <div>結果：</div>
                         <div style="margin-left: -20px;" class="flex">
                             {% for i in result_list %}
-                                {% if i.0 in ses.han_result %}
-                                <div class="flex" style="margin-left: 20px;">
-                                    <div><input class="form-check-input" type="checkbox" name="han_result" value="{{i.0}}" checked> {{i.1}}</div>
-                                    <div id="result_{{i.0}}">（{{i.2}}）</div>
-                                </div>
-                                {% else %}
-                                <div class="flex" style="margin-left: 20px;">
-                                    <div><input class="form-check-input" type="checkbox" name="han_result" value="{{i.0}}"> {{i.1}}</div>
-                                    <div id="result_{{i.0}}">（{{i.2}}）</div>
-                                </div>
+                                {% if i.0 != "tran" %}
+                                    {% if i.0 in ses.han_result %}
+                                    <div class="flex" style="margin-left: 20px;">
+                                        
+                                        <div><input class="form-check-input" type="checkbox" name="han_result" value="{{i.0}}" checked> {{i.1}}</div>
+                                        <div id="result_{{i.0}}">（{{i.2}}）</div>
+                                    </div>
+                                    {% else %}
+                                    <div class="flex" style="margin-left: 20px;">
+                                        <div><input class="form-check-input" type="checkbox" name="han_result" value="{{i.0}}"> {{i.1}}</div>
+                                        <div id="result_{{i.0}}">（{{i.2}}）</div>
+                                    </div>
+                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
                         </div>
@@ -157,6 +191,9 @@
                         <th>会社</th>
                         <th>氏名</th>
                         <th>加工方法</th>
+                        <th>他①</th>
+                        <th>他②</th>
+                        <th>他③</th>
                         <th>注文区分</th>
                         <th>合計金額</th>
                         <th>電話 / 携帯</th>
@@ -185,17 +222,21 @@
                         
                     
                         {% if i.result == "0" %}
-                        <td><span style="color: #212529;"></span></td>
+                        <td></td>
                         {% elif i.result == "1" %}
-                        <td style="background-color: #cbf7ff; text-align: center;"><span style="color: #0060c0;">{{result_list.1.1}}</span></td>
+                        <td style="background-color: #959595; text-align: center; font-size: 0.9em;"><span style="color: #000;">アプローチしない</span></td>
                         {% elif i.result == "2" %}
-                        <td style="background-color: #ffb3b3; text-align: center;"><span style="color: #ce0000;">{{result_list.2.1}}</span></td>
+                        <td style="background-color: #eedfff; text-align: center; font-size: 0.9em;"><span style="color: #800080;">不在</span></td>
                         {% elif i.result == "3" %}
-                        <td style="background-color: #850000; text-align: center;"><span style="color: #fff;">{{result_list.3.1}}</span></td>
+                        <td style="background-color: #dcffbf; text-align: center; font-size: 0.9em;"><span style="color: #005b00;">検討します</span></td>
                         {% elif i.result == "4" %}
-                        <td style="background-color: #d1d1d1; text-align: center;"><span style="color: #212529;">{{result_list.4.1}}</span></td>
+                        <td style="background-color: #e2e2e2; text-align: center; font-size: 0.9em;"><span style="color: #000;">失注/予定なし</span></td>
                         {% elif i.result == "5" %}
-                        <td style="background-color: #e6ffd1; text-align: center;"><span style="color: #3b6e00;">{{result_list.5.1}}</span></td>
+                        <td style="background-color: #b7ffff; text-align: center; font-size: 0.9em;"><span style="color: #0000a0;">案件化</span></td>
+                        {% elif i.result == "6" %}
+                        <td style="background-color: #ffff80; text-align: center; font-size: 0.9em;"><span style="color: #800000;">受注</span></td>
+                        {% elif i.result == "7" %}
+                        <td style="background-color: #ffdddd; text-align: center; font-size: 0.9em;"><span style="color: #000;">その他</span></td>
                         {% endif %}
 
                         <td>{% if i.apr_day %}{{i.apr_day}}{% endif %}</td>
@@ -227,6 +268,9 @@
                         <td>{{i.cus_com | truncatechars:14}}</td>
                         <td>{{i.cus_sei}}{{i.cus_mei}}</td>
                         <td>{{i.kakou}}</td>
+                        <td>{% if i.yobi_1 %}{{i.yobi_1}}{% endif %}</td>
+                        <td>{% if i.yobi_2 %}{{i.yobi_2}}{% endif %}</td>
+                        <td>{% if i.yobi_3 %}{{i.yobi_3}}{% endif %}</td>
                         <td>{{i.order_kubun}}</td>
                         <td style="text-align: right;">{{i.money | intcomma}}</td>
                         <td>{% if i.cus_tel %}{{i.cus_tel}}{% elif i.cus_mob %}{{i.cus_mob}}{% endif %}</td>
@@ -301,7 +345,6 @@
                                                     {% for i in result_list %}
                                                     <option value={{i.0}}>{{i.1}}</option>
                                                     {% endfor %}
-                                                    <option value="tran">他の担当者へ転送</option>
                                                 </select>
                                             </div>
                                             <div class="flex" id="modal_tantou_block" style="margin-left: 30px;">
@@ -445,6 +488,55 @@
         });
   
 
+        // 版切れリスト選択
+        document.getElementById("choice_hangire").addEventListener("click",function(){
+            document.getElementById("choice_approach_select").style.display="none";
+            $.ajax({
+                'url': '{% url "apr:choice_id" %}',
+                'type': 'POST',
+                'data': {"han_or_apr":"han"},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // アプローチリスト選択
+        document.getElementById("choice_approach").addEventListener("click",function(){
+            document.getElementById("choice_approach_select").style.display="";
+            $.ajax({
+                'url': '{% url "apr:choice_id" %}',
+                'type': 'POST',
+                'data': {
+                    "han_or_apr":"apr",
+                    "approach_id":document.getElementById("choice_approach_id").value
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // アプローチリスト内容決定
+        document.getElementById("choice_approach_id").addEventListener("change",function(){
+            $.ajax({
+                'url': '{% url "apr:choice_id" %}',
+                'type': 'POST',
+                'data': {
+                    "han_or_apr":"apr",
+                    "approach_id":document.getElementById("choice_approach_id").value
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
 
         // 検索クリアボタン
         document.getElementById("form_clear").addEventListener("click",function(e){
@@ -537,12 +629,14 @@
                 result=response.result[0];
                 document.getElementById("modal_pk").innerText=result.id;
                 dic={
-                    0:["未対応","#212529","#fff"],
-                    1:["不在","#0060c0","#cbf7ff"],
-                    2:["受注","#ce0000","#ffb3b3"],
-                    3:["失注","#fff","#850000"],
-                    4:["不要","#212529","#d1d1d1"],
-                    5:["検討中","#3b6e00","#e6ffd1"]
+                    0:["未対応","#000","#fff"],
+                    1:["アプローチしない","#000","#959595"],
+                    2:["不在","#800080","#eedfff"],
+                    3:["検討します","#005b00","#dcffbf"],
+                    4:["失注/予定なし","#000","#e2e2e2"],
+                    5:["案件化","#0000a0","#b7ffff"],
+                    6:["受注","#800000","#ffff80"],
+                    7:["その他","#000","#ffdddd"]
                 };
                 document.getElementById("modal_cus_com").innerText=result.cus_com;
                 document.getElementById("modal_cus_name").innerText=result.cus_sei + result.cus_mei;
