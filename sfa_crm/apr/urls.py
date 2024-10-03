@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import approach_index,approach_search,approach_click,approach_send,approach_busho_up,approach_busho_now,approach_list_index,approach_list_add,\
+from .views import approach_list_index,approach_list_add,\
                     hangire_index,hangire_search,hangire_modal_send,hangire_csv_imp,hangire_busho_up,hangire_busho_now,hangire_modal_show_top,\
                     hangire_modal_show_bot,hangire_modal_sort,hangire_modal_list_click,hangire_modal_btn,hangire_modal_del,hangire_modal_result_del,\
                     hangire_modal_result_juchu,hangire_color_clear,choice_id,\
@@ -8,12 +8,6 @@ from .views import approach_index,approach_search,approach_click,approach_send,a
 
 app_name="apr"
 urlpatterns = [
-    path('approach_index/', approach_index, name="approach_index"),
-    path('approach_search/', approach_search, name="approach_search"),
-    path('approach_click/', approach_click, name="approach_click"),
-    path('approach_send/', approach_send, name="approach_send"),
-    path('approach_busho_up/', approach_busho_up, name="approach_busho_up"),
-    path('approach_busho_now/', approach_busho_now, name="approach_busho_now"),
     path('approach_list_index/', approach_list_index, name="approach_list_index"),
     path('approach_list_add/', approach_list_add, name="approach_list_add"),
     path('hangire_index/', hangire_index, name="hangire_index"),
