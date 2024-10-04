@@ -833,6 +833,7 @@
             var day = document.getElementById("modal_apr_day").value;
             var act_id = document.getElementById("modal_act_id").innerText;
             var tantou = document.getElementById("modal_apr_tantou").value;
+            var result = document.getElementById("modal_apr_result").value;
 
             if (type==0){
                 window.alert("種類を選択してください！");
@@ -842,6 +843,9 @@
                 return
             } else if (act_id == "" && tantou == ""){
                 window.alert("記入者を入力してください！");
+                return
+            } else if (result == "0"){
+                window.alert("結果は「未対応」以外を選択してください！");
                 return
             };
             $.ajax({
