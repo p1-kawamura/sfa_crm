@@ -158,8 +158,8 @@
         // URL発行
         document.getElementById("btn").addEventListener("click",function(){
 			var money=document.getElementById("money").value;
-			if (money < 1){
-				window.alert("金額が正しくありません！");
+			if (money < 100){
+				window.alert("金額は100円以上で設定してください！");
 				return
 			};
 			var est = document.getElementsByName("est");

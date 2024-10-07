@@ -3,7 +3,8 @@ from .views import approach_list_index,approach_list_add,\
                     hangire_index,hangire_search,hangire_modal_send,hangire_csv_imp,hangire_busho_up,hangire_busho_now,hangire_modal_show_top,\
                     hangire_modal_show_bot,hangire_modal_sort,hangire_modal_list_click,hangire_modal_btn,hangire_modal_del,hangire_modal_result_del,\
                     hangire_modal_result_juchu,hangire_color_clear,choice_id,\
-                    han_list_page_prev,han_list_page_first,han_list_page_next,han_list_page_last
+                    han_list_page_prev,han_list_page_first,han_list_page_next,han_list_page_last,\
+                    shukei_index,shukei_click
 
 
 app_name="apr"
@@ -30,4 +31,6 @@ urlpatterns = [
     path('han_list_page_first/', han_list_page_first, name="han_list_page_first"),
     path('han_list_page_next/', han_list_page_next, name="han_list_page_next"),
     path('han_list_page_last/', han_list_page_last, name="han_list_page_last"),
+    path('shukei_index/', shukei_index, name="shukei_index"),
+    path('shukei_click/', shukei_click, name="shukei_click"),
 ]

@@ -8,6 +8,8 @@ from datetime import date
 import csv
 import io
 from datetime import date
+from django_pandas.io import read_frame
+import pandas as pd
 
 
 
@@ -727,3 +729,59 @@ def han_list_page_last(request):
     request.session["han_search"]["page_num"]=all_num
     return redirect("apr:hangire_index")
 
+
+# 集計ページ
+def shukei_index(request):
+    if "han_apr_shukei" not in request.session:
+        request.session["han_apr_shukei"]={}
+    if "shukei_id" not in request.session["han_apr_shukei"]:
+        request.session["han_apr_shukei"]["shukei_id"]="0"
+    if "shukei_month" not in request.session["han_apr_shukei"]:
+        request.session["han_apr_shukei"]["shukei_month"]=""
+
+    ses=request.session["han_apr_shukei"]
+    fil={}
+    fil["approach_id"]=ses["shukei_id"]
+    if ses["shukei_month"] != "":
+        fil["juchu_day__gte"]=ses["shukei_month"] + "-01"
+        fil["juchu_day__lte"]=ses["shukei_month"] + "-31"
+        
+    ins=Hangire.objects.filter(**fil)
+    df=read_frame(ins) 
+    df["tantou"]=df["tantou_sei"] + df["tantou_mei"]
+    df_all=df[["tantou","juchu_day"]].groupby("tantou").count()
+    df2=df.pivot_table(index="tantou",columns="result",values="juchu_day",aggfunc="count",fill_value=0)
+    df_last=pd.merge(df_all,df2,on="tantou")
+    last_list=df_last.to_dict(orient='index')
+    print(last_list)
+
+
+    # その他
+    apr_list=Approach_list.objects.filter(action=1)
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+    params={
+        "apr_list":apr_list,
+        "last_list":last_list,
+        "ses":ses,
+        "act_user":act_user,
+    }
+    return render(request,"apr/shukei.html",params)
+
+
+# 集計ボタン
+def shukei_click(request):
+    sh_type=request.POST["shurui"]
+    if sh_type=="han":
+        request.session["han_apr_shukei"]["shukei_id"]="0"
+    else:
+        request.session["han_apr_shukei"]["shukei_id"]=request.POST["choice_approach_id"]
+
+    request.session["han_apr_shukei"]["shukei_month"]=request.POST["shukei_month"]
+    return redirect("apr:shukei_index")
