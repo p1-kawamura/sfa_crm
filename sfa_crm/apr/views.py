@@ -749,12 +749,45 @@ def shukei_index(request):
     ins=Hangire.objects.filter(**fil)
     df=read_frame(ins) 
     df["tantou"]=df["tantou_sei"] + df["tantou_mei"]
-    df_all=df[["tantou","juchu_day"]].groupby("tantou").count()
-    df2=df.pivot_table(index="tantou",columns="result",values="juchu_day",aggfunc="count",fill_value=0)
-    df_last=pd.merge(df_all,df2,on="tantou")
-    last_list=df_last.to_dict(orient='index')
-    print(last_list)
+    df_team=df[["busho_id","tantou_id","tantou"]]
+    df_team=df_team[df_team["busho_id"].isin(["398","400","401","402"])]
+    df_team=df_team.drop_duplicates()
 
+    # 個人
+    df_team=df_team.set_index("tantou")
+    
+    df_all=df[["tantou","juchu_day"]].groupby("tantou").count()
+    df_detail=df.pivot_table(index=["tantou"],columns="result",values="juchu_day",aggfunc="count",fill_value=0)
+
+    df_last=pd.merge(df_team,df_all,on="tantou")
+    df_last=pd.merge(df_last,df_detail,on="tantou")
+    for i in range(8):
+        try:
+            df_last[str(i)+"_p"]=df_last[str(i)] / df_last["juchu_day"] * 100
+        except:
+            df_last[str(i)+"_p"]=0
+
+    df_last["sumi"]=df_last["juchu_day"] - df_last["0"]
+    df_last["sumi_p"]=df_last["sumi"] / df_last["juchu_day"] * 100
+
+    df_last["tantou_id"]=df_last["tantou_id"].astype(int)
+    df_last=df_last.sort_values(["busho_id","tantou_id"])
+
+    last_list=df_last.to_dict(orient='index')
+
+    # チーム
+    df_last2=df_last.reset_index()
+    df_last2=df_last2.drop(["tantou","tantou_id"],axis=1)
+    df_last2=df_last2.groupby("busho_id").sum()
+    for i in range(8):
+        try:
+            df_last2[str(i)+"_p"]=df_last2[str(i)] / df_last2["juchu_day"] * 100
+        except:
+            df_last2[str(i)+"_p"]=0
+    df_last2["sumi"]=df_last2["juchu_day"] - df_last2["0"]
+    df_last2["sumi_p"]=df_last2["sumi"] / df_last2["juchu_day"] * 100
+
+    last_list2=df_last2.to_dict(orient='index')
 
     # その他
     apr_list=Approach_list.objects.filter(action=1)
@@ -769,6 +802,7 @@ def shukei_index(request):
     params={
         "apr_list":apr_list,
         "last_list":last_list,
+        "last_list2":last_list2,
         "ses":ses,
         "act_user":act_user,
     }

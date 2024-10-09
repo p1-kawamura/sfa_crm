@@ -26,36 +26,41 @@
             <div class="block_title">版切れリスト / アプローチリスト</div>
             <hr>
             <!-- フィルター -->
-            <div class="flex">
-                <div style="font-size: 1.2em;">
-                    {% if ses.han_or_apr == "han" %}
-                    <input class="form-check-input" type="radio" id="choice_hangire" name="shurui" checked> 版切れリスト
-                    {% else %}
-                    <input class="form-check-input" type="radio" id="choice_hangire" name="shurui"> 版切れリスト
-                    {% endif %}
-                </div>
-                <div style="font-size: 1.2em; margin-left: 50px;">
+            <div class="flex3">
+                <div class="flex">
+                    <div style="font-size: 1.2em;">
+                        {% if ses.han_or_apr == "han" %}
+                        <input class="form-check-input" type="radio" id="choice_hangire" name="shurui" checked> 版切れリスト
+                        {% else %}
+                        <input class="form-check-input" type="radio" id="choice_hangire" name="shurui"> 版切れリスト
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 1.2em; margin-left: 50px;">
+                        {% if ses.han_or_apr == "apr" %}
+                        <input class="form-check-input" type="radio" id="choice_approach" name="shurui" checked> アプローチリスト
+                        {% else %}
+                        <input class="form-check-input" type="radio" id="choice_approach" name="shurui"> アプローチリスト
+                        {% endif %}
+                    </div>
                     {% if ses.han_or_apr == "apr" %}
-                    <input class="form-check-input" type="radio" id="choice_approach" name="shurui" checked> アプローチリスト
+                    <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px;">
                     {% else %}
-                    <input class="form-check-input" type="radio" id="choice_approach" name="shurui"> アプローチリスト
+                    <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px; display: none;">
                     {% endif %}
+                        <select class="form-select" id="choice_approach_id" style="width: 500px;">
+                            <option value=""></option>
+                            {% for i in apr_list %}
+                                {% if i.approach_id == ses.approach_id %}
+                                <option value="{{i.approach_id}}" selected>{{i.title}}</option>
+                                {% else %}
+                                <option value="{{i.approach_id}}">{{i.title}}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
-                {% if ses.han_or_apr == "apr" %}
-                <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px;">
-                {% else %}
-                <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px; display: none;">
-                {% endif %}
-                    <select class="form-select" id="choice_approach_id" style="width: 500px;">
-                        <option value=""></option>
-                        {% for i in apr_list %}
-                            {% if i.approach_id == ses.approach_id %}
-                            <option value="{{i.approach_id}}" selected>{{i.title}}</option>
-                            {% else %}
-                            <option value="{{i.approach_id}}">{{i.title}}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
+                <div>
+                    <a href="{% url 'apr:shukei_index' %}"><button class="btn btn-primary"><img src="{% static 'ryouma.gif' %}"> 集計リスト</button></a>
                 </div>
             </div>
             <div style="margin-top: 50px;">

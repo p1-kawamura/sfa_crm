@@ -21,7 +21,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1340px;">
+        <div style="margin: 0 auto; width: 1150px;">
             <hr>
             <div class="block_title">版切れリスト / アプローチリスト　集計一覧</div>
             <hr>
@@ -60,10 +60,10 @@
                             </select>
                         </div>
                     </div>
-                    <div class="flex mt-4">
+                    <div class="flex mt-5">
                         <div>受注月：</div>
                         <div>
-                            <input class="form-control form-select-sm" type="month" name="shukei_month" style="width: 140px;" value="{{ses.shukei_month}}">
+                            <input class="form-control" type="month" name="shukei_month" style="width: 140px;" value="{{ses.shukei_month}}">
                         </div>
                         <div style="margin-left: 40px;">
                             <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> 検索</button>
@@ -73,35 +73,103 @@
             </div>
             <hr>
             <!-- 結果一覧 -->
-            <div style="margin-top: 15px; width: 1000px;">
-                <table class="table table-bordered" style="font-size: 0.9em;">
-                    <tr>
-                        <th>担当者</th>
-                        <th>総数</th>
-                        <th>未対応</th>
-                        <th>アプローチしない</th>
-                        <th>不在</th>
-                        <th>検討します</th>
-                        <th>失注/予定なし</th>
-                        <th>案件化</th>
-                        <th>受注</th>
-                        <th>その他</th>
-                    </tr>
-                    {% for i,h in last_list.items %}
+            <div style="margin-top: 15px; width: 1050px;">
+                <table class="table table-bordered sticky_table">
+                    <thead>
+                        <tr>
+                            <th style="background-color: #fff; text-align: center; vertical-align: middle;">担当者</th>
+                            <th style="background-color: #fff; color: #ff0000; text-align: center; vertical-align: middle;">進捗</th>
+                            <th style="background-color: #fff; text-align: center; vertical-align: middle;">未対応</th>
+                            <th style="background-color: #959595; text-align: center;">アプローチ<br>しない</th>
+                            <th style="background-color: #eedfff; color: #800080; text-align: center; vertical-align: middle;">不在</th>
+                            <th style="background-color: #dcffbf; color: #005b00; text-align: center; vertical-align: middle;">検討します</th>
+                            <th style="background-color: #e2e2e2; text-align: center; ">失注 /<br>予定なし</th>
+                            <th style="background-color: #b7ffff; color: #0000a0; text-align: center;">架電により<br>案件化</th>
+                            <th style="background-color: #ffff80; color: #ff0000; text-align: center; vertical-align: middle;">受注</th>
+                            <th style="background-color: #ffdddd; text-align: center; vertical-align: middle;">その他</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s,t in last_list2.items %}
+                            <!-- チーム集計 -->
+                            {% if s == "398" %}
+                            <tr style="background-color: #d6f5ff;">
+                                <td style="font-size: 1.2em; font-weight: bold;">東京チーム</td>
+                            {% elif s == "400" %}
+                            <tr style="background-color: #ffcedd;">
+                                <td style="font-size: 1.2em; font-weight: bold;">大阪チーム</td>
+                            {% elif s == "401" %}
+                            <tr style="background-color: #d7ffc9;">
+                                <td style="font-size: 1.2em; font-weight: bold;">高松チーム</td>
+                            {% elif s == "402" %}
+                            <tr style="background-color: #ffe4c0;">
+                                <td style="font-size: 1.2em; font-weight: bold;">福岡チーム</td>
+                            {% endif %}
 
-                    <tr class="hover2">
-                        <td>{{i}}</td>
-                        <td>{{h.juchu_day}}</td>
-                        <td>{{h.0}}</td>
-                        <td>{{h.1}}</td>
-                        <td>{{h.2}}</td>
-                        <td>{{h.3}}</td>
-                        <td>{{h.4}}</td>
-                        <td>{{h.5}}</td>
-                        <td>{{h.6}}</td>
-                        <td>{{h.7}}</td>
-                    </tr>
-                    {% endfor %}
+                                <td style="text-align: right; width: 100px; border-right: double 3px #CCC;">{{t.sumi}} / {{t.juchu_day}}
+                                    <br><span style="font-size: 0.9em; color: #ff0000;">{{t.sumi_p | floatformat}}%</span></td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.0 %}{{t.0}}<br><span style="font-size: 0.9em; color: #808080;">{{t.0_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.1 %}{{t.1}}<br><span style="font-size: 0.9em; color: #808080;">{{t.1_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.2 %}{{t.2}}<br><span style="font-size: 0.9em; color: #808080;">{{t.2_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.3 %}{{t.3}}<br><span style="font-size: 0.9em; color: #808080;">{{t.3_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.4 %}{{t.4}}<br><span style="font-size: 0.9em; color: #808080;">{{t.4_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.5 %}{{t.5}}<br><span style="font-size: 0.9em; color: #808080;">{{t.5_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.6 %}{{t.6}}<br><span style="font-size: 0.9em; color: #808080;">{{t.6_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right; width: 100px;">
+                                    {% if t.7 %}{{t.7}}<br><span style="font-size: 0.9em; color: #808080;">{{t.7_p | floatformat}}%{% endif %}</span>
+                                </td>
+                            </tr>
+                            <!-- 個人集計 -->
+                            {% for i,h in last_list.items %}
+                                {% if h.busho_id == s %}
+                                <tr class="hover2">
+                                    <td>{{i}}</td>
+                                    <td style="text-align: right; width: 100px; border-right: double 3px #CCC;">{{h.sumi}} / {{h.juchu_day}}
+                                        <br><span style="font-size: 0.9em; color: #ff0000;">{{h.sumi_p | floatformat}}%</span></td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.0 %}{{h.0}}<br><span style="font-size: 0.9em; color: #808080;">{{h.0_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.1 %}{{h.1}}<br><span style="font-size: 0.9em; color: #808080;">{{h.1_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.2 %}{{h.2}}<br><span style="font-size: 0.9em; color: #808080;">{{h.2_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.3 %}{{h.3}}<br><span style="font-size: 0.9em; color: #808080;">{{h.3_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.4 %}{{h.4}}<br><span style="font-size: 0.9em; color: #808080;">{{h.4_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.5 %}{{h.5}}<br><span style="font-size: 0.9em; color: #808080;">{{h.5_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.6 %}{{h.6}}<br><span style="font-size: 0.9em; color: #808080;">{{h.6_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right; width: 100px;">
+                                        {% if h.7 %}{{h.7}}<br><span style="font-size: 0.9em; color: #808080;">{{h.7_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
             
