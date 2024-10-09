@@ -767,7 +767,10 @@ def shukei_index(request):
         except:
             df_last[str(i)+"_p"]=0
 
-    df_last["sumi"]=df_last["juchu_day"] - df_last["0"]
+    try:
+        df_last["sumi"]=df_last["juchu_day"] - df_last["0"]
+    except:
+        df_last["sumi"]=df_last["juchu_day"]
     df_last["sumi_p"]=df_last["sumi"] / df_last["juchu_day"] * 100
 
     df_last["tantou_id"]=df_last["tantou_id"].astype(int)
@@ -784,7 +787,11 @@ def shukei_index(request):
             df_last2[str(i)+"_p"]=df_last2[str(i)] / df_last2["juchu_day"] * 100
         except:
             df_last2[str(i)+"_p"]=0
-    df_last2["sumi"]=df_last2["juchu_day"] - df_last2["0"]
+
+    try:
+        df_last2["sumi"]=df_last2["juchu_day"] - df_last2["0"]
+    except:
+        df_last2["sumi"]=df_last2["juchu_day"]
     df_last2["sumi_p"]=df_last2["sumi"] / df_last2["juchu_day"] * 100
 
     last_list2=df_last2.to_dict(orient='index')
