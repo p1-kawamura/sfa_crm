@@ -111,12 +111,14 @@ def approach_list_add(request):
                 juchu_day=i[4],
                 order_kubun=i[3],
                 busho_id=i[8],
-                busho_apr_id=i[8],
                 busho_name=i[9],
+                busho_apr_id=i[8],
+                busho_apr_name=i[9],
                 tantou_id=i[5],
-                tantou_apr_id=i[5],
                 tantou_sei=i[6],
                 tantou_mei=i[7],
+                tantou_apr_id=i[5],
+                tantou_apr_name=i[6] + " " + i[7],
                 cus_id=i[10],
                 cus_url=res2["customerMstPageUrl"],
                 cus_com=i[15],
@@ -218,12 +220,14 @@ def hangire_csv_imp(request):
                 juchu_day=i[3],
                 order_kubun=i[17],
                 busho_id=i[14],
-                busho_apr_id=i[14],
                 busho_name=i[15],
+                busho_apr_id=i[14],
+                busho_apr_name=i[15],
                 tantou_id=i[4],
-                tantou_apr_id=i[4],
                 tantou_sei=i[5],
                 tantou_mei=i[6],
+                tantou_apr_id=i[4],
+                tantou_apr_name=i[5] + " " + i[6],
                 cus_id=i[13],
                 cus_url=res2["customerMstPageUrl"],
                 cus_com=i[10],
@@ -687,11 +691,16 @@ def hangire_busho_now(request):
 # 版切れリスト_別担当へ転送
 def hangire_modal_send(request):
     pk=request.POST.get("pk")
-    tantou_id=request.POST.get("tantou_id")
     busho_id=request.POST.get("busho_id")
+    busho_name=request.POST.get("busho_name")
+    tantou_id=request.POST.get("tantou_id")
+    tantou_name=request.POST.get("tantou_name")
+
     ins=Hangire.objects.get(pk=pk)
-    ins.tantou_apr_id=tantou_id
     ins.busho_apr_id=busho_id
+    ins.busho_apr_name=busho_name
+    ins.tantou_apr_id=tantou_id
+    ins.tantou_apr_name=tantou_name
     ins.save()
     d={}
     return JsonResponse(d)
@@ -748,19 +757,18 @@ def shukei_index(request):
         
     ins=Hangire.objects.filter(**fil)
     df=read_frame(ins) 
-    df["tantou"]=df["tantou_sei"] + df["tantou_mei"]
-    df_team=df[["busho_id","tantou_id","tantou"]]
-    df_team=df_team[df_team["busho_id"].isin(["398","400","401","402"])]
+    df_team=df[["busho_apr_id","tantou_apr_id","tantou_apr_name"]]
+    df_team=df_team[df_team["busho_apr_id"].isin(["398","400","401","402"])]
     df_team=df_team.drop_duplicates()
 
     # 個人
-    df_team=df_team.set_index("tantou")
+    df_team=df_team.set_index("tantou_apr_name")
     
-    df_all=df[["tantou","juchu_day"]].groupby("tantou").count()
-    df_detail=df.pivot_table(index=["tantou"],columns="result",values="juchu_day",aggfunc="count",fill_value=0)
+    df_all=df[["tantou_apr_name","juchu_day"]].groupby("tantou_apr_name").count()
+    df_detail=df.pivot_table(index=["tantou_apr_name"],columns="result",values="juchu_day",aggfunc="count",fill_value=0)
 
-    df_last=pd.merge(df_team,df_all,on="tantou")
-    df_last=pd.merge(df_last,df_detail,on="tantou")
+    df_last=pd.merge(df_team,df_all,on="tantou_apr_name")
+    df_last=pd.merge(df_last,df_detail,on="tantou_apr_name")
     for i in range(8):
         try:
             df_last[str(i)+"_p"]=df_last[str(i)] / df_last["juchu_day"] * 100
@@ -773,15 +781,15 @@ def shukei_index(request):
         df_last["sumi"]=df_last["juchu_day"]
     df_last["sumi_p"]=df_last["sumi"] / df_last["juchu_day"] * 100
 
-    df_last["tantou_id"]=df_last["tantou_id"].astype(int)
-    df_last=df_last.sort_values(["busho_id","tantou_id"])
+    df_last["tantou_apr_id"]=df_last["tantou_apr_id"].astype(int)
+    df_last=df_last.sort_values(["busho_apr_id","tantou_apr_id"])
 
     last_list=df_last.to_dict(orient='index')
 
     # チーム
     df_last2=df_last.reset_index()
-    df_last2=df_last2.drop(["tantou","tantou_id"],axis=1)
-    df_last2=df_last2.groupby("busho_id").sum()
+    df_last2=df_last2.drop(["tantou_apr_name","tantou_apr_id"],axis=1)
+    df_last2=df_last2.groupby("busho_apr_id").sum()
     for i in range(8):
         try:
             df_last2[str(i)+"_p"]=df_last2[str(i)] / df_last2["juchu_day"] * 100

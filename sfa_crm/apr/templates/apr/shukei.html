@@ -135,7 +135,7 @@
                             </tr>
                             <!-- 個人集計 -->
                             {% for i,h in last_list.items %}
-                                {% if h.busho_id == s %}
+                                {% if h.busho_apr_id == s %}
                                 <tr class="hover2">
                                     <td>{{i}}</td>
                                     <td style="text-align: right; width: 100px; border-right: double 3px #CCC;">{{h.sumi}} / {{h.juchu_day}}

@@ -206,6 +206,8 @@
                         <th>顧客詳細</th>
                         <th>担当部署</th>
                         <th>担当者</th>
+                        <th>見積部署</th>
+                        <th>見積担当者</th>
                     </tr>
                     {% for i in cus_list %}
 
@@ -286,8 +288,10 @@
                                 <span style="display: none;" id="apr_cus_{{i.pk}}">{{i.cus_id}}</span>
                             </button>
                         </td>
+                        <td>{{i.busho_apr_name}}</td>
+                        <td>{{i.tantou_apr_name}}</td>
                         <td>{{i.busho_name}}</td>
-                        <td>{{i.tantou_sei}}{{i.tantou_mei}}</td>
+                        <td>{{i.tantou_sei}} {{i.tantou_mei}}</td>
                     </tr>
                     {% endfor %}
                 </table>
@@ -957,9 +961,9 @@
 
         // モーダル_他へ転送
         document.getElementById("modal_send_click").addEventListener("click",function(){
-            var busho_id = document.getElementById("modal_send_busho").value;
-            var tantou_id = document.getElementById("modal_send_tantou").value;
-            if (busho_id == "0"){
+            var busho = document.getElementById("modal_send_busho");
+            var tantou = document.getElementById("modal_send_tantou");
+            if (busho.value == "0"){
                 window.alert("転送先の部署を選択してください！");
                 return
             };
@@ -968,8 +972,10 @@
                 'type': 'POST',
                 'data': {
                     "pk":document.getElementById("modal_pk").innerText,
-                    "busho_id":busho_id,
-                    "tantou_id":tantou_id
+                    "busho_id":busho.value,
+                    "busho_name":busho.options[busho.selectedIndex].textContent,
+                    "tantou_id":tantou.value,
+                    "tantou_name":tantou.options[tantou.selectedIndex].textContent,
                 },
                 'dataType': 'json'
             })

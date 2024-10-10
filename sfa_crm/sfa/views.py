@@ -1576,22 +1576,20 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Hangire.objects.filter(approach_id__in=["14","16","17","18"])
-    print(ins.count())
-
+    ins=Hangire.objects.all()
+    team={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
     for i in ins:
+        if i.busho_apr_id in team:
+            i.busho_apr_name=team[i.busho_apr_id]
+            try:
+                i.tantou_apr_name=Member.objects.get(tantou_id=i.tantou_apr_id).tantou
+            except:
+                i.tantou_apr_name=i.tantou_sei + " " + i.tantou_mei
+        else:
+            i.busho_apr_name=i.busho_name
+            i.tantou_apr_name=i.tantou_sei + " " + i.tantou_mei
 
-        url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i.cus_id
-        res2=requests.get(url2)
-        res2=res2.json()
-
-        cus_url=res2["customerMstPageUrl"]
-        i.cus_url=cus_url
         i.save()
-
-        
-
-        
             
     print("完了しました！")
   
