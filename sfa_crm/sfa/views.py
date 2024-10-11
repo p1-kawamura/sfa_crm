@@ -1576,19 +1576,9 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Hangire.objects.all()
-    team={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    ins=Crm_action.objects.filter(approach_id="22")
     for i in ins:
-        if i.busho_apr_id in team:
-            i.busho_apr_name=team[i.busho_apr_id]
-            try:
-                i.tantou_apr_name=Member.objects.get(tantou_id=i.tantou_apr_id).tantou
-            except:
-                i.tantou_apr_name=i.tantou_sei + " " + i.tantou_mei
-        else:
-            i.busho_apr_name=i.busho_name
-            i.tantou_apr_name=i.tantou_sei + " " + i.tantou_mei
-
+        i.text="半年版切れ　2024年4～5月分"
         i.save()
             
     print("完了しました！")
