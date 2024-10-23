@@ -33,7 +33,9 @@
             </div>
             <div class="flex" style="margin-top: 20px;">
                 <div><a href="{% url 'crm:cus_tougou' %}"><button class="btn btn-outline-dark" id="cus_tougou_api">顧客統合API</button></a></div>
-                <div style="margin-left: 20px; color: red;">{% if ans == "yes" %}統合処理が完了しました{% endif %}</div>
+                {% if ans == "yes" %}
+                    <div id="cus_tougou_ans" style="margin-left: 20px; color: red;">完了しました</div>
+                {% endif %}
             </div>
 
             <div style="margin-top: 50px;">
