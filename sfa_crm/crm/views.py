@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action,Customer,Cus_group
+from .models import Crm_action,Customer,Cus_group,Cus_tougou
 from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
 from apr.models import Approach_list
 import requests
@@ -1117,3 +1117,42 @@ def cus_ranking_page_last(request):
     all_num=request.session["cus_ranking"]["all_page_num"]
     request.session["cus_ranking"]["page_num"]=all_num
     return redirect("crm:cus_ranking_index")
+
+
+def cus_tougou(request):
+    api_date=Cus_tougou.objects.get(name="last").last_api
+
+    url="https://core-sys.p1-intl.co.jp/p1web/v1/customerIdentification?createdAtFrom=" + api_date
+    res=requests.get(url)
+    res=res.json()
+    res=res["relations"]
+
+    for i in reversed(res):
+        old_id=i["mergedFromId"]
+        new_id=i["mergedToId"]
+        # Customer
+        if Customer.objects.filter(cus_id=old_id).count()>0:
+            Customer.objects.get(cus_id=old_id).delete()
+        # Crm_action
+        ins=Crm_action.objects.filter(cus_id=old_id)
+        if ins.count()>0:
+            for h in ins:
+                h.cus_id=new_id
+                h.save()
+        # Cus_group
+        ins=Cus_group.objects.filter(cus_id_parent=old_id)
+        if ins.count()>0:
+            for h in ins:
+                h.cus_id_parent=new_id
+                h.save()
+        ins=Cus_group.objects.filter(cus_id_child=old_id)
+        if ins.count()>0:
+            for h in ins:
+                h.cus_id_child=new_id
+                h.save()
+        
+    # API取得日時
+    ins=Cus_tougou.objects.get(name="last")
+    ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ins.save()
+    return render(request,"sfa/kanri.html",{"ans":"yes"})

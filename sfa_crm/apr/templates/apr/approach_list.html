@@ -86,14 +86,14 @@
             <div class="mt-5">
                 <table class="table table-bordered">
                     <tr>
-                        <th>ID</th>
+                        <th style="text-align: center;">ID</th>
                         <th>タイトル</th>
                         <th>日付</th>
                         <th>アプローチ</th>
                     </tr>
-                    {% for i in list %}
+                    {% for i in list reversed %}
                     <tr>
-                        <td>{{i.approach_id}}</td>
+                        <td style="text-align: center;">{{i.approach_id}}</td>
                         <td>{{i.title}}</td>
                         <td>{{i.day}}</td>
                         <td>{% if i.action == 0 %}なし{% else %}あり{% endif %}</td>   

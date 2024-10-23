@@ -31,6 +31,11 @@
             <div style="margin-top: 20px;">
                 <a href="{% url 'apr:approach_list_index' %}"><button class="btn btn-outline-dark">版切れリスト取込、アプローチリスト設定、一覧確認</button></a>
             </div>
+            <div class="flex" style="margin-top: 20px;">
+                <div><a href="{% url 'crm:cus_tougou' %}"><button class="btn btn-outline-dark" id="cus_tougou_api">顧客統合API</button></a></div>
+                <div style="margin-left: 20px; color: red;">{% if ans == "yes" %}統合処理が完了しました{% endif %}</div>
+            </div>
+
             <div style="margin-top: 50px;">
                 <h5>■ クレジットURL発行履歴</h5>
                 <table class="table table-bordered">

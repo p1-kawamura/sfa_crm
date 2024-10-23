@@ -70,3 +70,14 @@ class Cus_group(models.Model):
 
     def __str__(self):
         return self.cus_id_parent
+    
+
+
+class Cus_tougou(models.Model):
+    name=models.CharField("固定名",max_length=255,blank=True,null=True)
+    last_api=models.CharField("最終API接続",max_length=255,blank=True,null=True)
+
+    def __str__(self):
+        return self.last_api
+    
+    # 固定名：lastでlast_apiを上書きしていく
