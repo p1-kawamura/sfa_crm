@@ -757,7 +757,19 @@ def shukei_index(request):
         fil["juchu_day__lte"]=ses["shukei_month"] + "-31"
         
     ins=Hangire.objects.filter(**fil)
-    df=read_frame(ins) 
+
+    # アプローチの場合は部署名を変更（版切れはデータ量が多いのでそのまま）
+    if ses["shukei_id"]=="0":
+        df=read_frame(ins)
+    else:
+        list_ch=[]
+        for i in ins:
+            change_busho_id=i.busho_apr_id
+            if Member.objects.filter(tantou_id=i.tantou_apr_id).count() > 0:
+                change_busho_id=Member.objects.get(tantou_id=i.tantou_apr_id).busho_id
+            list_ch.append([change_busho_id,i.tantou_apr_id,i.tantou_apr_name,i.juchu_day,i.result])
+        df=pd.DataFrame(list_ch,columns=["busho_apr_id","tantou_apr_id","tantou_apr_name","juchu_day","result"])
+
     df_team=df[["busho_apr_id","tantou_apr_id","tantou_apr_name"]]
     df_team=df_team[df_team["busho_apr_id"].isin(["398","400","401","402"])]
     df_team=df_team.drop_duplicates()
