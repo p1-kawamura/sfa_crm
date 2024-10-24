@@ -408,7 +408,11 @@ def hangire_index(request):
     apr_list=Approach_list.objects.filter(action=1)
                 
     # アクティブ担当
-    act_id=request.session["search"]["tantou"]
+    try:
+        act_id=request.session["search"]["tantou"]
+    except:
+        act_id=""
+        
     if act_id=="":
         act_user="担当者が未設定です"
         modal_user=""
