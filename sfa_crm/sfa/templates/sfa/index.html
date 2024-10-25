@@ -769,10 +769,11 @@
                                 id_group_now.innerHTML = "<span style='color: red; font-weight: bold;'>同期中</span>";
                             };
                         };
-                        
+
+                        var now = new Date();
                         document.getElementById("modal_bot_type").value="";
                         document.getElementById("modal_bot_tel").value="";
-                        document.getElementById("modal_bot_day").value="";
+                        document.getElementById("modal_bot_day").value=now.toLocaleDateString('sv-SE');
                         document.getElementById("modal_bot_text").value="";
                         document.getElementById("act_id").value="";
                         document.getElementById("modal_tel_hyouji").style.display="none";
@@ -885,8 +886,9 @@
                             "<div style='width: 50px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
                             "</div>";
                     };
+                    var now = new Date();
                     document.getElementById("modal_sfa_action").innerHTML=str;
-                    document.getElementById("modal_bot_day").value="";
+                    document.getElementById("modal_bot_day").value=now.toLocaleDateString('sv-SE');
                     document.getElementById("modal_bot_type").value="";
                     document.getElementById("modal_tel_hyouji").style.display="none";
                     document.getElementById("modal_bot_text").value="";
@@ -927,9 +929,10 @@
         
         // モーダル_BOT_リセット
         document.getElementById("modal_btn_bot_new").addEventListener("click",function(e){
+            var now = new Date();
             document.getElementById("modal_bot_type").value="";
             document.getElementById("modal_bot_tel").value="";
-            document.getElementById("modal_bot_day").value="";
+            document.getElementById("modal_bot_day").value=now.toLocaleDateString('sv-SE');
             document.getElementById("modal_bot_text").value="";
             document.getElementById("act_id").value="";
             document.getElementById("modal_tel_hyouji").style.display="none";
@@ -987,8 +990,9 @@
                             "<div style='width: 50px'>" + i.tel_result + "</div><div>" + i.text + "</div>" +
                             "</div>";
                     };
+                    var now = new Date();
                     document.getElementById("modal_sfa_action").innerHTML=str;
-                    document.getElementById("modal_bot_day").value="";
+                    document.getElementById("modal_bot_day").value=now.toLocaleDateString('sv-SE');
                     document.getElementById("modal_bot_type").value="";
                     document.getElementById("modal_tel_hyouji").style.display="none";
                     document.getElementById("modal_bot_text").value="";
