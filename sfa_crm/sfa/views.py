@@ -596,7 +596,11 @@ def mitsu_detail_api(request):
         parent_me="no"
 
     today=str(date.today())
-    alert=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=4,alert_check=0,day__lte=today)
+    if parent_id=="":
+        alert=Sfa_action.objects.filter(mitsu_id=mitsu_id,type=4,alert_check=0,day__lte=today)
+    else:
+        alert=Sfa_action.objects.filter(mitsu_id=parent_id,type=4,alert_check=0,day__lte=today)
+        
     if alert.count()==0:
         res3=0
         text=""
