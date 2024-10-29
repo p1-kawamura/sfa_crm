@@ -364,17 +364,11 @@ def index(request):
     
     ins=Sfa_data.objects.filter(**fil)
 
-    # アラートの場合
+
+    # アラート
     today=str(date.today())
     cnt=list(Sfa_action.objects.filter(type=4,alert_check=0,day__lte=today).values_list("mitsu_id",flat=True).order_by("mitsu_id").distinct())
-    chi_list=[]
-    for i in cnt:
-        try:
-            parent_ins=list(Sfa_group.objects.filter(mitsu_id_parent=i).values_list("mitsu_id_child",flat=True))
-            for h in parent_ins:
-                chi_list.append(h)
-        except:
-            pass
+    chi_list=list(Sfa_group.objects.filter(mitsu_id_parent__in=cnt).values_list("mitsu_id_child",flat=True))
     cnt += chi_list
     alert_list=list(Sfa_data.objects.filter(**fil, mitsu_id__in=cnt).values_list("mitsu_id",flat=True))
     alert_all=Sfa_data.objects.filter(tantou_id=ses["tantou"],show=0,mitsu_id__in=alert_list).count()
