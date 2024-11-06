@@ -1186,6 +1186,7 @@ def mw_download_auto(request):
     # 案件
     csv_sfa=[]
     ins=Sfa_data.objects.filter(~Q(mw=0))
+
     for i in ins:
         ins=Sfa_data.objects.get(mitsu_id=i)
         if ins.mw==1:
@@ -1237,7 +1238,10 @@ def mw_download_auto(request):
     response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
     writer = csv.writer(response)
     for line in csv_all:
-        writer.writerow(line)
+        try:
+            writer.writerow(line)
+        except:
+            print(line)
     return response
 
 
