@@ -932,8 +932,10 @@ def cus_list_page_last(request):
 def cus_ranking_index(request):
     if "cus_ranking" not in request.session:
         request.session["cus_ranking"]={}
-    if "pref" not in request.session["cus_ranking"]:
-        request.session["cus_ranking"]["pref"]=""
+    if "busho" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["busho"]=""
+    if "tantou" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["tantou"]=""
     if "mitsu_st" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["mitsu_st"]=""
     if "mitsu_ed" not in request.session["cus_ranking"]:
@@ -942,6 +944,10 @@ def cus_ranking_index(request):
         request.session["cus_ranking"]["juchu_st"]=""
     if "juchu_ed" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["juchu_ed"]=""
+    if "money_st" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["money_st"]=""
+    if "money_ed" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["money_ed"]=""
     if "type" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["type"]="juchu_money"
     if "page_num" not in request.session["cus_ranking"]:
@@ -963,7 +969,17 @@ def cus_ranking_index(request):
         fil["juchu_day__gte"]=ses["juchu_st"]
     if ses["juchu_ed"] != "":
         fil["juchu_day__lte"]=ses["juchu_ed"]
-    
+
+    if ses["busho"] != "":
+        busho_list=list(Sfa_data.objects.filter(
+            busho_id=ses["busho"],status__in=["受注","発送完了","終了","サンクス"],order_kubun__in=["新規","追加","追加新柄"]).values_list("cus_id",flat=True))
+        fil["cus_id__in"]=busho_list
+
+    if ses["tantou"] != "":
+        busho_list=list(Sfa_data.objects.filter(
+            tantou_id=ses["tantou"],status__in=["受注","発送完了","終了","サンクス"],order_kubun__in=["新規","追加","追加新柄"]).values_list("cus_id",flat=True))
+        fil["cus_id__in"]=busho_list
+  
     ins=Sfa_data.objects.filter(**fil)
 
     # pandasで作り替え
@@ -1004,6 +1020,13 @@ def cus_ranking_index(request):
                 df_all.loc[i,"juchu_money"] += df_all.loc[h,"juchu_money"]
                 df_all=df_all.drop(h,axis=0)
 
+    # 金額検索
+    if ses["money_st"] != "":
+        df_all=df_all[df_all["juchu_money"] >= int(ses["money_st"])]
+    if ses["money_ed"] != "":
+        df_all=df_all[df_all["juchu_money"] <= int(ses["money_ed"])]
+
+
     # 並び替え
     sort_type=ses["type"]
     if sort_type=="mitsu_count":
@@ -1015,6 +1038,7 @@ def cus_ranking_index(request):
 
     df_all=df_all.reset_index()
     df_all.index+=1
+    list_count=len(df_all)
 
 
     # ページネーション
@@ -1056,6 +1080,9 @@ def cus_ranking_index(request):
         rank_list.append(dic)
 
 
+    #部署、担当
+    tantou_list=Member.objects.filter(busho_id=ses["busho"])
+
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
@@ -1070,9 +1097,12 @@ def cus_ranking_index(request):
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
+        "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
+        "tantou_list":tantou_list,
         "type":{"juchu_money":"受注金額","juchu_count":"受注件数","mitsu_count":"見積件数"},
         "rank_list":rank_list,
         "parent_list":parent_list,
+        "list_count":list_count,
         "act_user":act_user,
         "num":num,
         "all_num":all_num,
@@ -1083,11 +1113,15 @@ def cus_ranking_index(request):
 
 # 顧客ランキングの条件
 def cus_ranking_search(request):
+    request.session["cus_ranking"]["busho"]=request.POST["busho"]
+    request.session["cus_ranking"]["tantou"]=request.POST["tantou"]
     request.session["cus_ranking"]["pref"]=request.POST["pref"]
     request.session["cus_ranking"]["mitsu_st"]=request.POST["mitsu_st"]
     request.session["cus_ranking"]["mitsu_ed"]=request.POST["mitsu_ed"]
     request.session["cus_ranking"]["juchu_st"]=request.POST["juchu_st"]
     request.session["cus_ranking"]["juchu_ed"]=request.POST["juchu_ed"]
+    request.session["cus_ranking"]["money_st"]=request.POST["money_st"]
+    request.session["cus_ranking"]["money_ed"]=request.POST["money_ed"]
     request.session["cus_ranking"]["type"]=request.POST["type"]
     request.session["cus_ranking"]["page_num"]=1
     return redirect("crm:cus_ranking_index")
@@ -1119,6 +1153,7 @@ def cus_ranking_page_last(request):
     return redirect("crm:cus_ranking_index")
 
 
+# 顧客統合
 def cus_tougou(request):
     api_date=Cus_tougou.objects.get(name="last").last_api
 
