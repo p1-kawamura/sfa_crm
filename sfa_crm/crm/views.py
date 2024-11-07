@@ -936,6 +936,8 @@ def cus_ranking_index(request):
         request.session["cus_ranking"]["busho"]=""
     if "tantou" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["tantou"]=""
+    if "pref" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["pref"]=""
     if "mitsu_st" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["mitsu_st"]=""
     if "mitsu_ed" not in request.session["cus_ranking"]:
