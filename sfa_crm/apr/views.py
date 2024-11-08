@@ -759,8 +759,11 @@ def shukei_index(request):
     if ses["shukei_month"] != "":
         fil["juchu_day__gte"]=ses["shukei_month"] + "-01"
         fil["juchu_day__lte"]=ses["shukei_month"] + "-31"
-        
-    ins=Hangire.objects.filter(**fil)
+    
+    # 除外する担当
+    del_list=["812","811","810","809","54","53","51","394"]
+    
+    ins=Hangire.objects.filter(**fil).exclude(tantou_id__in=del_list)
 
     # アプローチの場合は部署名を変更（版切れはデータ量が多いのでそのまま）
     if ses["shukei_id"]=="0":
