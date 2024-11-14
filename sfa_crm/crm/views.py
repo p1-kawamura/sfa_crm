@@ -1086,11 +1086,14 @@ def cus_ranking_index(request):
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
 
     # アクティブ担当
-    act_id=request.session["search"]["tantou"]
-    if act_id=="":
+    try:
+        act_id=request.session["search"]["tantou"]
+        if act_id=="":
+            act_user="担当者が未設定です"
+        else:
+            act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    except:
         act_user="担当者が未設定です"
-    else:
-        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
     params={
         "ses":ses,

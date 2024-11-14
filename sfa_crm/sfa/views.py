@@ -1584,9 +1584,16 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Crm_action.objects.filter(approach_id="22")
+    ins=Hangire.objects.filter(approach_id="26")
     for i in ins:
-        i.text="半年版切れ　2024年4～5月分"
+        ken=i.yobi_1 + "件"
+        i.yobi_1=ken
+
+        num=int(i.yobi_2)
+        num='{:,}'.format(num)
+        en=str(num)+"円"
+        i.yobi_2=en
+
         i.save()
             
     print("完了しました！")
