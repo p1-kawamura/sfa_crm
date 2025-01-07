@@ -661,6 +661,9 @@ def cus_list_index(request):
         request.session["cus_search"]["busho"]=""
     if "tantou" not in request.session["cus_search"]:
         request.session["cus_search"]["tantou"]=""
+    if "grip_tantou" not in request.session["cus_search"]:
+        request.session["cus_search"]["grip_tantou"]=""
+
     if "cus_touroku_st" not in request.session["cus_search"]:
         request.session["cus_search"]["cus_touroku_st"]=""
     if "cus_touroku_ed" not in request.session["cus_search"]:
@@ -724,6 +727,8 @@ def cus_list_index(request):
         fil["mitsu_last_busho_id"]=ses["busho"]
     if ses["tantou"] != "":
         fil["mitsu_last_tantou_id"]=ses["tantou"]
+    if ses["grip_tantou"] != "":
+        fil["grip_tantou_id"]=ses["grip_tantou"]
 
     if ses["cus_touroku_st"] != "":
         fil["cus_touroku__gte"]=ses["cus_touroku_st"]
@@ -878,6 +883,7 @@ def cus_list_search(request):
     request.session["cus_search"]["cus_mail"]=request.POST["cus_mail"]
     request.session["cus_search"]["busho"]=request.POST["busho"]
     request.session["cus_search"]["tantou"]=request.POST["tantou"]
+    request.session["cus_search"]["grip_tantou"]=request.POST["grip_tantou"]
     request.session["cus_search"]["cus_touroku_st"]=request.POST["cus_touroku_st"]
     request.session["cus_search"]["cus_touroku_ed"]=request.POST["cus_touroku_ed"]
     request.session["cus_search"]["last_mitsu_st"]=request.POST["last_mitsu_st"]

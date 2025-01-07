@@ -303,8 +303,22 @@
                         {% if i.s_use_youto %}<div class="order_use">{{i.s_use_youto}}</div>{% endif %}            
                     </div>
                     <div style="width: 70px;">{% if i.pref %}{{i.pref}}{% endif %}</div>
-                    <div style="width: 210px;">{% if i.com %}{{i.com | truncatechars:14}}{% endif %}</div>
-                    <div style="width: 90px;">{{i.s_cus_name | truncatechars:6}}</div>
+                    <div style="width: 210px;">
+                        {% if i.com %}
+                            {% if i.cus_id in grip_list %}
+                                <span style="color: red; font-weight: bold;">{{i.com | truncatechars:14}}</span>
+                            {% else %}
+                                {{i.com | truncatechars:14}}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <div style="width: 90px;">
+                        {% if i.cus_id in grip_list %}
+                            <span style="color: red; font-weight: bold;">{{i.s_cus_name | truncatechars:6}}</span>
+                        {% else %}
+                            {{i.s_cus_name | truncatechars:6}}
+                        {% endif %}
+                    </div>
                     <div style="width: 40px;"><div class="order_use">{{i.s_status}}</div></div>
                     <div style="width: 90px;">{{i.money | intcomma}}円</div>
                     <div style="width: 90px;">{% if i.s_nouki %}{{i.s_nouki}}{% endif %}</div>

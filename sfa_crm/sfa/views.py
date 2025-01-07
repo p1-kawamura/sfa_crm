@@ -432,6 +432,8 @@ def index(request):
 
 
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
+    grip_list=list(Customer.objects.filter(grip_tantou_id__gt=0).values_list("cus_id",flat=True))
+
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -446,6 +448,7 @@ def index(request):
         "st_count_list":st_count_list,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
+        "grip_list":grip_list,
         "chumon_kubun":["","新規","追加","追加新柄","刷り直し","返金"],
         "keiro_list":["","Web","WEB → 来店","Fax","Tel","Tel → 来店","来店","外商","法人問合せ","即日プリント","アンバサダー","イベント"],
         "kakudo_list":["","A","B","C"],
