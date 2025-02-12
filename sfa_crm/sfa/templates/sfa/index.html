@@ -831,7 +831,11 @@
                     'dataType': 'json'
                 })
                 .done(function(response){
-                    window.alert("変更しました！");
+                    if (response.result == "ok"){
+                        window.alert("変更しました！");
+                    } else {
+                        window.alert("環境依存文字が含まれているため、保存できません！");
+                    };
                 })
         });
 

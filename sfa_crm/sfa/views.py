@@ -636,44 +636,49 @@ def modal_top(request):
     kakudo_day=request.POST.get("kakudo_day")
     status=request.POST.get("status")
     bikou=request.POST.get("bikou")
- 
-    ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
-    ins.kakudo=kakudo
-    ins.kakudo_day=kakudo_day
-    ins.status=status
-    ins.bikou=bikou
-    d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
-    ins.s_status=d[status]
-    if status in ["終了","キャンセル","失注","サンクス"] and ins.last_status==None:
-        ins.last_status=datetime.datetime.now().strftime("%Y-%m-%d")
-    else:
-        ins.last_status=None
-    ins.save()
-
-    # 同期区分の設定
-    if Sfa_group.objects.filter(mitsu_id_parent=mitsu_id).count()>0:
-        douki="parent"
-        parent_id=mitsu_id
-    elif Sfa_group.objects.filter(mitsu_id_child=mitsu_id).count()>0:
-        douki="child"
-        parent_id=Sfa_group.objects.get(mitsu_id_child=mitsu_id).mitsu_id_parent
-    else:
-        douki="self"
-        parent_id=mitsu_id
-
-    li=[]
-    li.append(parent_id)
-    if douki=="parent" or douki=="child":
-        ins=Sfa_group.objects.filter(mitsu_id_parent=parent_id)
-        for i in ins:
-            li.append(i.mitsu_id_child)
-
-    for i in li:
-        ins=Sfa_data.objects.get(mitsu_id=i)
+    d={}
+    try:
+        ins=Sfa_data.objects.get(mitsu_id=mitsu_id)
+        ins.kakudo=kakudo
+        ins.kakudo_day=kakudo_day
+        ins.status=status
         ins.bikou=bikou
+        d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
+        ins.s_status=d[status]
+        if status in ["終了","キャンセル","失注","サンクス"] and ins.last_status==None:
+            ins.last_status=datetime.datetime.now().strftime("%Y-%m-%d")
+        else:
+            ins.last_status=None
         ins.save()
 
-    d={}
+        # 同期区分の設定
+        if Sfa_group.objects.filter(mitsu_id_parent=mitsu_id).count()>0:
+            douki="parent"
+            parent_id=mitsu_id
+        elif Sfa_group.objects.filter(mitsu_id_child=mitsu_id).count()>0:
+            douki="child"
+            parent_id=Sfa_group.objects.get(mitsu_id_child=mitsu_id).mitsu_id_parent
+        else:
+            douki="self"
+            parent_id=mitsu_id
+
+        li=[]
+        li.append(parent_id)
+        if douki=="parent" or douki=="child":
+            ins=Sfa_group.objects.filter(mitsu_id_parent=parent_id)
+            for i in ins:
+                li.append(i.mitsu_id_child)
+
+        for i in li:
+            ins=Sfa_data.objects.get(mitsu_id=i)
+            ins.bikou=bikou
+            ins.save()
+
+        d["result"]="ok"
+        
+    except:
+        d["result"]="no"
+
     return JsonResponse(d)
 
 
