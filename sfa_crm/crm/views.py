@@ -1071,7 +1071,6 @@ def cus_ranking_index(request):
     rank_list=[]
     df_list=df_all.to_dict(orient="index")
     for i,h in df_list.items():
-        print(h["cus_id"])
         ins=Customer.objects.get(cus_id=h["cus_id"])
         dic={}
         dic["rank"]=i
@@ -1168,7 +1167,7 @@ def cus_ranking_page_last(request):
 # 顧客統合
 def cus_tougou(request):
     api_date=Cus_tougou.objects.get(name="last").last_api
-    
+
     url="https://core-sys.p1-intl.co.jp/p1web/v1/customerIdentification?createdAtFrom=" + api_date
     res=requests.get(url)
     res=res.json()
