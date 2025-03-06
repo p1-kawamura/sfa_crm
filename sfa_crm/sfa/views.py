@@ -692,110 +692,114 @@ def modal_bot(request):
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
 
-
-    # 最終コンタクト日
-    if type=="2" or (type=="1" and tel_result=="対応") or type=="5":
-        try:
-            cus=Customer.objects.get(cus_id=cus_id)
-            contact=cus.contact_last
-            if contact==None or contact<day:
-                cus.contact_last = day
-                cus.save()
-            # 来店
-            if type=="5":
-                Crm_action.objects.create(cus_id=cus_id,day=day,type=7,text=text)
-        except:
-            pass
-
-    # 同期区分の設定
-    if Sfa_group.objects.filter(mitsu_id_parent=mitsu_id).count()>0:
-        douki="parent"
-        parent_id=mitsu_id
-    elif Sfa_group.objects.filter(mitsu_id_child=mitsu_id).count()>0:
-        douki="child"
-        parent_id=Sfa_group.objects.get(mitsu_id_child=mitsu_id).mitsu_id_parent
-    else:
-        douki="self"
-        parent_id=mitsu_id
-
-    li=[]
-    li.append(parent_id)
-    if douki=="parent" or douki=="child":
-        ins=Sfa_group.objects.filter(mitsu_id_parent=parent_id)
-        for i in ins:
-            li.append(i.mitsu_id_child)
-
-    # sfa_action
-    if act_id =="":
-        if type=="1":
-            Sfa_action.objects.create(mitsu_id=parent_id,cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text)
+    try:
+        # 同期区分の設定
+        if Sfa_group.objects.filter(mitsu_id_parent=mitsu_id).count()>0:
+            douki="parent"
+            parent_id=mitsu_id
+        elif Sfa_group.objects.filter(mitsu_id_child=mitsu_id).count()>0:
+            douki="child"
+            parent_id=Sfa_group.objects.get(mitsu_id_child=mitsu_id).mitsu_id_parent
         else:
-            Sfa_action.objects.create(mitsu_id=parent_id,cus_id=cus_id,day=day,type=type,text=text)
-    else:
-        ins=Sfa_action.objects.get(act_id=act_id)
-        ins.type=type
-        ins.day=day
-        if type=="1":
-            ins.tel_result=tel_result
-        ins.text=text
-        ins.save()
+            douki="self"
+            parent_id=mitsu_id
 
-    # 最終TEL
-    tel_count=Sfa_action.objects.filter(mitsu_id=parent_id,type=1).count() 
-    if tel_count > 0:
-        act_tel=Sfa_action.objects.filter(mitsu_id=parent_id,type=1).latest("day")
-        for i in li:
-            ins=Sfa_data.objects.get(mitsu_id=i)
-            ins.tel_last_day=act_tel.day
-            ins.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
-            if act_tel.tel_result=="対応":
-                ins.s_tel_result=1
+        li=[]
+        li.append(parent_id)
+        if douki=="parent" or douki=="child":
+            ins=Sfa_group.objects.filter(mitsu_id_parent=parent_id)
+            for i in ins:
+                li.append(i.mitsu_id_child)
+
+        # sfa_action
+        if act_id =="":
+            if type=="1":
+                Sfa_action.objects.create(mitsu_id=parent_id,cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text)
             else:
-                ins.s_tel_result=2
-            ins.save()
-    else:
-        for i in li:
-            ins=Sfa_data.objects.get(mitsu_id=i)
-            ins.tel_last_day=None
-            ins.s_tel=None
-            ins.s_tel_result=0
-            ins.save()
-
-    # 最終メール
-    mail_count=Sfa_action.objects.filter(mitsu_id=parent_id,type=2).count()
-    if mail_count > 0:
-        act_mail=Sfa_action.objects.filter(mitsu_id=parent_id,type=2).latest("day")
-        for i in li:
-            ins=Sfa_data.objects.get(mitsu_id=i)
-            ins.mail_last_day=act_mail.day
-            ins.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
-            ins.s_mail_result=1
-            ins.save()
-    else:
-        for i in li:
-            ins=Sfa_data.objects.get(mitsu_id=i)
-            ins.mail_last_day=None
-            ins.s_mail=None
-            ins.s_mail_result=0
+                Sfa_action.objects.create(mitsu_id=parent_id,cus_id=cus_id,day=day,type=type,text=text)
+        else:
+            ins=Sfa_action.objects.get(act_id=act_id)
+            ins.type=type
+            ins.day=day
+            if type=="1":
+                ins.tel_result=tel_result
+            ins.text=text
             ins.save()
 
-    # コメント
-    memo=Sfa_action.objects.filter(mitsu_id=parent_id).order_by("day")
-    memo1=""
-    memo2=""
-    shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート",5:"来店"}
-    if memo.count()>0:
-        for i in memo:
-            if i.text!="":
-                memo1+=i.text + "、"
-            memo2+=i.day + " " + shurui[i.type] + " " + i.tel_result + " " + i.text + "\n"
-    for i in li:
-        ins=Sfa_data.objects.get(mitsu_id=i)
-        ins.s_memo1=memo1[:-1]
-        ins.s_memo2=memo2
-        ins.save()
+        # 最終コンタクト日
+        if type=="2" or (type=="1" and tel_result=="対応") or type=="5":
+            try:
+                cus=Customer.objects.get(cus_id=cus_id)
+                contact=cus.contact_last
+                if contact==None or contact<day:
+                    cus.contact_last = day
+                    cus.save()
+                # 来店
+                if type=="5":
+                    Crm_action.objects.create(cus_id=cus_id,day=day,type=7,text=text)
+            except:
+                pass
 
-    res=list(Sfa_action.objects.filter(mitsu_id=parent_id).order_by("day").values())
+        # 最終TEL
+        tel_count=Sfa_action.objects.filter(mitsu_id=parent_id,type=1).count() 
+        if tel_count > 0:
+            act_tel=Sfa_action.objects.filter(mitsu_id=parent_id,type=1).latest("day")
+            for i in li:
+                ins=Sfa_data.objects.get(mitsu_id=i)
+                ins.tel_last_day=act_tel.day
+                ins.s_tel=act_tel.day[5:].replace("-","/") + " (" + str(tel_count) + ")"
+                if act_tel.tel_result=="対応":
+                    ins.s_tel_result=1
+                else:
+                    ins.s_tel_result=2
+                ins.save()
+        else:
+            for i in li:
+                ins=Sfa_data.objects.get(mitsu_id=i)
+                ins.tel_last_day=None
+                ins.s_tel=None
+                ins.s_tel_result=0
+                ins.save()
+
+        # 最終メール
+        mail_count=Sfa_action.objects.filter(mitsu_id=parent_id,type=2).count()
+        if mail_count > 0:
+            act_mail=Sfa_action.objects.filter(mitsu_id=parent_id,type=2).latest("day")
+            for i in li:
+                ins=Sfa_data.objects.get(mitsu_id=i)
+                ins.mail_last_day=act_mail.day
+                ins.s_mail=act_mail.day[5:].replace("-","/") + " (" + str(mail_count) + ")"
+                ins.s_mail_result=1
+                ins.save()
+        else:
+            for i in li:
+                ins=Sfa_data.objects.get(mitsu_id=i)
+                ins.mail_last_day=None
+                ins.s_mail=None
+                ins.s_mail_result=0
+                ins.save()
+
+        # コメント
+        memo=Sfa_action.objects.filter(mitsu_id=parent_id).order_by("day")
+        memo1=""
+        memo2=""
+        shurui={1:"TEL",2:"メール",3:"メモ",4:"アラート",5:"来店"}
+        if memo.count()>0:
+            for i in memo:
+                if i.text!="":
+                    memo1+=i.text + "、"
+                memo2+=i.day + " " + shurui[i.type] + " " + i.tel_result + " " + i.text + "\n"
+        for i in li:
+            ins=Sfa_data.objects.get(mitsu_id=i)
+            ins.s_memo1=memo1[:-1]
+            ins.s_memo2=memo2
+            ins.save()
+
+        res=list(Sfa_action.objects.filter(mitsu_id=parent_id).order_by("day").values())
+
+    except:
+        res="error"
+
     d={"res":res}
     return JsonResponse(d)
 

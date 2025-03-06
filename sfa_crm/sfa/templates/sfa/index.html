@@ -865,22 +865,25 @@
                 return
             };
             $.ajax({
-                    'url': '{% url "sfa:modal_bot" %}',
-                    'type': 'POST',
-                    'data': {
-                        "act_id":act_id,
-                        "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
-                        "parent_id":document.getElementById("modal_parent_id").innerText,
-                        "cus_id":document.getElementById("modal_cus_id").innerText,
-                        "day":document.getElementById("modal_bot_day").value,
-                        "type":document.getElementById("modal_bot_type").value,
-                        "tel_result":document.getElementById("modal_bot_tel").value,
-                        "text":document.getElementById("modal_bot_text").value
-                    },
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    res=response.res;
+                'url': '{% url "sfa:modal_bot" %}',
+                'type': 'POST',
+                'data': {
+                    "act_id":act_id,
+                    "mitsu_id":document.getElementById("modal_mitsu_id").innerText,
+                    "parent_id":document.getElementById("modal_parent_id").innerText,
+                    "cus_id":document.getElementById("modal_cus_id").innerText,
+                    "day":document.getElementById("modal_bot_day").value,
+                    "type":document.getElementById("modal_bot_type").value,
+                    "tel_result":document.getElementById("modal_bot_tel").value,
+                    "text":document.getElementById("modal_bot_text").value
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                res=response.res;
+                if (res=="error"){
+                    window.alert("環境依存文字など、不正な文字が含まれています！")
+                } else {
                     var str = "";
                     var icon = "";
                     for (var i of res){
@@ -912,7 +915,8 @@
                     document.getElementById("modal_bot_text").value="";
                     document.getElementById("act_id").value="";
                     modal_bot_click();
-                })
+                };
+            })
         });
 
 
