@@ -1596,18 +1596,12 @@ def csv_imp(request):
 def clear_session(request):
     # request.session.clear()
 
-    ins=Hangire.objects.filter(approach_id="26")
-    for i in ins:
-        ken=i.yobi_1 + "件"
-        i.yobi_1=ken
+    url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + "833" + "&updatedAtFrom=" + "2025-01-01 00:00:00"
+    res=requests.get(url)
+    res=res.json()
+    res=res["estimations"]
 
-        num=int(i.yobi_2)
-        num='{:,}'.format(num)
-        en=str(num)+"円"
-        i.yobi_2=en
-
-        i.save()
-            
-    print("完了しました！")
+    for i in res:
+        print(i["number"],i["version"])
   
     return redirect("sfa:index")
