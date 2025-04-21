@@ -591,48 +591,54 @@ def hangire_modal_btn(request):
     text=request.POST.get("text")
     cus_id=Hangire.objects.get(pk=pk).cus_id
 
-    # 最終コンタクト日
-    if type=="2" or (type=="4" and tel_result=="対応"):
-        try:
-            cus=Customer.objects.get(cus_id=cus_id)
-            contact=cus.contact_last
-            if contact==None or contact<day:
-                cus.contact_last = day
-                cus.save()
-        except:
-            pass
-
-    # Crm_actionへ
-    text2=text + "（" + tantou + "）"
-        
-    if act_id=="" or act_id==None:
-        if type=="4":
-            Crm_action.objects.create(cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text2)
-        else:
-            Crm_action.objects.create(cus_id=cus_id,day=day,type=type,text=text2)
-
-        # Hangireへ
-        ins=Hangire.objects.get(pk=pk)
-        ins.result=result
-        ins.apr_day=day
-        ins.apr_tantou=tantou
-        ins.apr_type=type
-        ins.apr_tel_result=tel_result
-        ins.apr_text=text
-        ins.save()
-
-    else:
-        ins=Crm_action.objects.get(act_id=act_id)
-        ins.day=day
-        ins.type=type
-        ins.text=text
-        if type=="4":
-            ins.tel_result=tel_result
-        else:
-            ins.tel_result=""
-        ins.save()
-
     d={}
+    try:
+        # Crm_actionへ
+        text2=text + "（" + tantou + "）"
+            
+        if act_id=="" or act_id==None:
+            if type=="4":
+                Crm_action.objects.create(cus_id=cus_id,day=day,type=type,tel_result=tel_result,text=text2)
+            else:
+                Crm_action.objects.create(cus_id=cus_id,day=day,type=type,text=text2)
+
+            # Hangireへ
+            ins=Hangire.objects.get(pk=pk)
+            ins.result=result
+            ins.apr_day=day
+            ins.apr_tantou=tantou
+            ins.apr_type=type
+            ins.apr_tel_result=tel_result
+            ins.apr_text=text
+            ins.save()
+
+        else:
+            ins=Crm_action.objects.get(act_id=act_id)
+            ins.day=day
+            ins.type=type
+            ins.text=text
+            if type=="4":
+                ins.tel_result=tel_result
+            else:
+                ins.tel_result=""
+            ins.save()
+
+        # 最終コンタクト日
+        if type=="2" or (type=="4" and tel_result=="対応"):
+            try:
+                cus=Customer.objects.get(cus_id=cus_id)
+                contact=cus.contact_last
+                if contact==None or contact<day:
+                    cus.contact_last = day
+                    cus.save()
+            except:
+                pass
+
+        d["result"]="ok"
+
+    except:
+        d["result"]="no"
+    
     return JsonResponse(d)
 
 

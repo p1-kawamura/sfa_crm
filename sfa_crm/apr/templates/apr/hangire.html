@@ -875,9 +875,13 @@
                 'dataType': 'json'
             })
             .done(function(response){
-                modal_show_top(pk);
-                modal_show_bot(pk);
-                modal_clear();
+                if (response.result == "ok"){
+                    modal_show_top(pk);
+                    modal_show_bot(pk);
+                    modal_clear();
+                } else {
+                    window.alert("環境依存文字が含まれているため、保存できません！");
+                };
             })
         });
 
