@@ -834,11 +834,14 @@ def shukei_index(request):
     apr_list=Approach_list.objects.filter(action=1)
 
     # アクティブ担当
-    act_id=request.session["search"]["tantou"]
-    if act_id=="":
-        act_user="担当者が未設定です"
-    else:
-        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    try:
+        act_id=request.session["search"]["tantou"]
+        if act_id=="":
+            act_user="担当者が未設定です"
+        else:
+            act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    except:
+        pass
 
     params={
         "apr_list":apr_list,
