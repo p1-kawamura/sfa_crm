@@ -297,7 +297,7 @@ def hangire_index(request):
     if ses["han_or_apr"] == "han":
         fil["approach_id"]="0"
         approach_id="0"
-    else:    
+    elif ses["han_or_apr"] == "apr":    
         fil["approach_id"]=ses["approach_id"]
         approach_id=ses["approach_id"]
 
