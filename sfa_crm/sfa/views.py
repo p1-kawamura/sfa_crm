@@ -241,6 +241,7 @@ def index_api(request):
                 url3="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"]) + "/receivedOrders/" + str(i["number"]) + "/" + str(i["version"])
                 res3=requests.get(url3)
                 res3=res3.json()
+                res3=res3["receivedOrder"]
 
                 Hangire.objects.create(
                     approach_id="N",
@@ -255,8 +256,8 @@ def index_api(request):
                     busho_apr_id=i["handledDepartmentId"],
                     busho_apr_name=res3["handledDepartmentName"],
                     tantou_id=i["handledById"],
-                    tantou_sei=res3["handledByName"].split(" ")[0],
-                    tantou_mei=res3["handledByName"].split(" ")[1],
+                    tantou_sei=res3["handledByName"],
+                    tantou_mei="",
                     tantou_apr_id=i["handledById"],
                     tantou_apr_name=res3["handledByName"],
                     cus_id=i["customerId"],
