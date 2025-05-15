@@ -111,7 +111,11 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div style="margin-left: 30px;">受注日：</div>
+                        {% if ses.han_or_apr == "nou" %}
+                            <div style="margin-left: 30px;">発送完了日：</div>
+                        {% else %}
+                            <div style="margin-left: 30px;">受注日：</div>
+                        {% endif %}
                         <div><input class="form-control form-select-sm" type="date" id="han_day_st" name="han_day_st" style="width: 140px;" value="{{ses.han_day_st}}"></div>
                         <div style="margin: 0px 10px;">～</div>
                         <div><input class="form-control form-select-sm" type="date" id="han_day_ed" name="han_day_ed" style="width: 140px;" value="{{ses.han_day_ed}}"></div>
@@ -196,7 +200,11 @@
                         <th>記入者</th>
                         <th>種類</th>
                         <th class="th1">備考</th>
-                        <th>受注日</th>
+                        {% if ses.han_or_apr == "nou" %}
+                            <th>発送完了日 </th>
+                        {% else %}
+                            <th>受注日</th>
+                        {% endif %}
                         <th>見積</th>
                         <th>顧客</th>
                         <th>都道府県</th>

@@ -409,6 +409,12 @@ def hangire_index(request):
     modal_sort=request.session["han_search"]["han_modal_jun"]
     pk=request.session["han_search"]["han_pk"]
     apr_list=Approach_list.objects.filter(action=1)
+
+    if ses["han_or_apr"] == "nou": 
+        sort_list={"juchu_day":"発送完了日","money":"金額"}
+    else:
+        sort_list={"juchu_day":"受注日","money":"金額"}
+    
                 
     # アクティブ担当
     try:
@@ -439,7 +445,7 @@ def hangire_index(request):
             '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
             '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
             '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
-        "sort_list":{"juchu_day":"受注日","money":"金額"},
+        "sort_list":sort_list,
         "ses":ses,
         "num":num,
         "all_num":all_num,
