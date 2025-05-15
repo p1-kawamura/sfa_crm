@@ -279,9 +279,9 @@
                                 <i class="bi bi-box-arrow-up-right"></i></span></a>
                         </td>
                         <td>{% if i.pref %}{{i.pref}}{% endif %}</td>
-                        <td>{{i.cus_com | truncatechars:14}}</td>
-                        <td>{{i.cus_sei}}{{i.cus_mei}}</td>
-                        <td>{{i.kakou}}</td>
+                        <td>{% if i.cus_com %}{{i.cus_com | truncatechars:14}}{% endif %}</td>
+                        <td>{% if i.cus_sei %}{{i.cus_sei}}{% endif %}{% if i.cus_mei %}{{i.cus_mei}}{% endif %}</td>
+                        <td>{% if i.kakou %}{{i.kakou}}{% endif %}</td>
                         <td>{% if i.yobi_1 %}{{i.yobi_1}}{% endif %}</td>
                         <td>{% if i.yobi_2 %}{{i.yobi_2}}{% endif %}</td>
                         <td>{% if i.yobi_3 %}{{i.yobi_3}}{% endif %}</td>
