@@ -234,6 +234,45 @@ def index_api(request):
                 }
             )
 
+            # ------------------------
+            # 納品フォロー
+            # ------------------------
+            if (i["shippedDate"] != None) and (i["orderType"] in ["新規","追加","追加新柄"]) and (Hangire.objects.filter(approach_id="N",mitsu_id=i["id"]).count()==0):
+                url3="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"]) + "/receivedOrders/" + str(i["number"]) + "/" + str(i["version"])
+                res3=requests.get(url3)
+                res3=res3.json()
+
+                Hangire.objects.create(
+                    approach_id="N",
+                    mitsu_id=i["id"],
+                    mitsu_url=i["estimationPageUrl"],
+                    mitsu_num=i["number"],
+                    mitsu_ver=i["version"],
+                    juchu_day=i["shippedDate"], #出荷日を取得
+                    order_kubun=i["orderType"],
+                    busho_id=i["handledDepartmentId"],
+                    busho_name=res3["handledDepartmentName"],
+                    busho_apr_id=i["handledDepartmentId"],
+                    busho_apr_name=res3["handledDepartmentName"],
+                    tantou_id=i["handledById"],
+                    tantou_sei=res3["handledByName"].split(" ")[0],
+                    tantou_mei=res3["handledByName"].split(" ")[1],
+                    tantou_apr_id=i["handledById"],
+                    tantou_apr_name=res3["handledByName"],
+                    cus_id=i["customerId"],
+                    cus_url=res2["customerMstPageUrl"],
+                    cus_com=i["ordererCorporateName"],
+                    cus_sei=i["ordererNameLast"],
+                    cus_mei=i["ordererNameFirst"],
+                    cus_tel=res2["tel"],
+                    cus_tel_search=tel_search,
+                    cus_mob=res2["mobilePhone"],
+                    cus_mob_search=tel_mob_search,
+                    cus_mail=i["ordererEmailMain"],
+                    pref=i["ordererPrefecture"],
+                    money=i["totalPrice"],
+                )
+
         # API取得日時
         ins=Member.objects.get(tantou_id=tantou_id)
         ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
