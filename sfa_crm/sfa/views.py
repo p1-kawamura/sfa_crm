@@ -272,6 +272,7 @@ def index_api(request):
                     cus_mail=i["ordererEmailMain"],
                     pref=i["ordererPrefecture"],
                     money=i["totalPrice"],
+                    kakou="",
                 )
 
         # API取得日時

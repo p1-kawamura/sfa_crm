@@ -300,6 +300,9 @@ def hangire_index(request):
     elif ses["han_or_apr"] == "apr":    
         fil["approach_id"]=ses["approach_id"]
         approach_id=ses["approach_id"]
+    elif ses["han_or_apr"] == "nou":    
+        fil["approach_id"]="N"
+        approach_id="N"
 
     if ses["han_busho"] != "":
         fil["busho_apr_id"]=ses["han_busho"]
