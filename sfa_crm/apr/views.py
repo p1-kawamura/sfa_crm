@@ -867,7 +867,7 @@ def shukei_click(request):
     sh_type=request.POST["shurui"]
     if sh_type=="han":
         request.session["han_apr_shukei"]["shukei_id"]="0"
-    else:
+    elif sh_type=="apr":
         request.session["han_apr_shukei"]["shukei_id"]=request.POST["choice_approach_id"]
 
     request.session["han_apr_shukei"]["shukei_month"]=request.POST["shukei_month"]
