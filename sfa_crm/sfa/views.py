@@ -237,7 +237,10 @@ def index_api(request):
             # ------------------------
             # 納品フォロー
             # ------------------------
-            if (i["shippedDate"] != None) and (i["orderType"] in ["新規","追加","追加新柄"]) and (Hangire.objects.filter(approach_id="N",mitsu_id=i["id"]).count()==0):
+            kigen=str(date.today() - datetime.timedelta(days=14))
+            if (i["shippedDate"] != None) and (i["shippedDate"] >= kigen) and (i["orderType"] in ["新規","追加","追加新柄"]) and \
+                    (Hangire.objects.filter(approach_id="N",mitsu_id=i["id"]).count()==0):
+                
                 url3="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"]) + "/receivedOrders/" + str(i["number"]) + "/" + str(i["version"])
                 res3=requests.get(url3)
                 res3=res3.json()
