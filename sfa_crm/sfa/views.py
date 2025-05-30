@@ -119,7 +119,7 @@ def index_api(request):
             if i["shippedDate"] != None:
                 s_hassou_day=i["shippedDate"][5:].replace("-","/")
 
-            if i["comingRoute"] in ["WEB → 来店","Tel → 来店","来店"]:
+            if i["comingRoute"] in ["WEB → 来店","Tel → 来店","来店","即日 → オリジナル"]:
                 s_keiro_tempo=1
 
             s_cus_name=(i["ordererNameLast"] or "") + " " + (i["ordererNameFirst"] or "")
