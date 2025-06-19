@@ -781,7 +781,7 @@ def shukei_index(request):
     ins=Hangire.objects.filter(**fil).exclude(tantou_id__in=del_list)
 
     # アプローチの場合は部署名を変更（版切れはデータ量が多いのでそのまま）
-    if ses["shukei_id"]=="0":
+    if ses["shukei_id"]=="0" or ses["shukei_id"]=="N":
         df=read_frame(ins)
     else:
         list_ch=[]
@@ -867,6 +867,8 @@ def shukei_click(request):
     sh_type=request.POST["shurui"]
     if sh_type=="han":
         request.session["han_apr_shukei"]["shukei_id"]="0"
+    elif sh_type=="nou":
+        request.session["han_apr_shukei"]["shukei_id"]="N"
     elif sh_type=="apr":
         request.session["han_apr_shukei"]["shukei_id"]=request.POST["choice_approach_id"]
 
