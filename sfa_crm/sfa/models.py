@@ -40,6 +40,7 @@ class Sfa_data(models.Model):
     last_status=models.CharField("ステータス最終日",max_length=255,blank=True,null=True)
     tel_last_day=models.CharField("TEL最終日",max_length=255,blank=True,null=True)
     mail_last_day=models.CharField("メール最終日",max_length=255,blank=True,null=True)
+    lost_reason=models.IntegerField("失注理由",default=0)
     s_status=models.CharField("s_ステータス",max_length=255,blank=True,null=True)
     s_use_youto=models.CharField("s_使用用途",max_length=255,blank=True,null=True)
     s_nouki=models.CharField("s_納期",max_length=255,blank=True,null=True)
@@ -63,6 +64,7 @@ class Sfa_data(models.Model):
     # s_keiro_tempo（s_対面あり）0:無し　1:あり
     # s_tel_result（s_TEL色）　0:なし　1:対応　2:不在
     # s_mail_result（s_メール色）　0:なし　2:あり
+    # lost_reason（失注理由）　0:空欄　1:金額　2:納期　3:音信不通　4:その他
 
 
 
