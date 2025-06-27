@@ -43,6 +43,10 @@ class Customer(models.Model):
     mw_busho_id=models.CharField("メールワイズ_部署ID",max_length=10,blank=True)
     mw_tantou_id=models.CharField("メールワイズ_担当ID",max_length=10,blank=True)
     mw_tantou=models.CharField("メールワイズ_担当名",max_length=10,blank=True)
+    ran_mw=models.IntegerField("ランキングMW",default=0)
+    ran_mw_busho_id=models.CharField("ランキングMW_部署ID",max_length=10,blank=True)
+    ran_mw_tantou_id=models.CharField("ランキングMW_担当ID",max_length=10,blank=True)
+    ran_mw_tantou=models.CharField("ランキングMW_担当名",max_length=10,blank=True)
     mitsu_all=models.IntegerField("見積総数",default=0)
     juchu_all=models.IntegerField("受注総数",default=0)
     juchu_money=models.BigIntegerField("受注総金額",default=0)
@@ -60,6 +64,7 @@ class Customer(models.Model):
         return self.cus_id
     
     # mw（メールワイズ） 0:無し　1：作成
+    # ran_mw（ランキングMW） 0:無し　1：作成
     # royal（ロイヤル） 0:いいえ　1：はい
 
 
