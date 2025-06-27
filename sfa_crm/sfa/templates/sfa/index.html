@@ -481,6 +481,18 @@
                                                     <option value="サンクス">サンクス</option>
                                                 </select>
                                             </div>
+                                            <div class="flex" style="margin-left: 20px;" id="modal_lost_show">
+                                                <div>※失注理由：</div>
+                                                <div>
+                                                    <select class="form-select form-select-sm" id="modal_lost_reason">
+                                                        <option value="0"></option>
+                                                        <option value="1">金額</option>
+                                                        <option value="2">納期</option>
+                                                        <option value="3">音信不通</option>
+                                                        <option value="4">その他</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div style="margin-top: 20px;">
                                             <div>■備考</div>
@@ -720,6 +732,13 @@
                         document.getElementById("modal_kakudo").value=res.kakudo;
                         document.getElementById("modal_kakudo_day").value=res.kakudo_day;
                         document.getElementById("modal_status").value=res.status;
+                        if (res.status=="失注"){
+                            document.getElementById("modal_lost_show").style.display="";
+                            document.getElementById("modal_lost_reason").value=res.lost_reason;
+                        } else {
+                            document.getElementById("modal_lost_show").style.display="none";
+                        };
+
                         if (parent_id==""){
                             document.getElementById("modal_bikou").value=res.bikou;
                         } else {
@@ -809,12 +828,32 @@
         });
 
 
+        // モーダル失注理由
+        var m_status=document.getElementById("modal_status");
+        var lost_show=document.getElementById("modal_lost_show");
+        var lost_reason=document.getElementById("modal_lost_reason");
+        m_status.addEventListener("change",function(){
+            if (m_status.value=="失注"){
+                lost_show.style.display="";
+            } else {
+                lost_show.style.display="none";
+                lost_reason.value="0";
+            };
+        });
+
+
         // モーダル_TOP
         document.getElementById("modal_btn_top").addEventListener("click",function(){
             var kakudo=document.getElementById("modal_kakudo").value;
             var kakudo_day=document.getElementById("modal_kakudo_day").value;
+            var m_status=document.getElementById("modal_status").value;
+            var lost_reason=document.getElementById("modal_lost_reason").value;
             if (kakudo != "" && kakudo_day==""){
                 window.alert("確度の予定日を設定してください！");
+                return
+            };
+            if (m_status=="失注" && lost_reason=="0"){
+                window.alert("失注の理由を選択してください！");
                 return
             };
             $.ajax({
@@ -826,7 +865,8 @@
                         "kakudo":kakudo,
                         "kakudo_day":kakudo_day,
                         "status":document.getElementById("modal_status").value,
-                        "bikou":document.getElementById("modal_bikou").value
+                        "bikou":document.getElementById("modal_bikou").value,
+                        "lost_reason":document.getElementById("modal_lost_reason").value,
                     },
                     'dataType': 'json'
                 })

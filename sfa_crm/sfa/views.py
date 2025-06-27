@@ -13,6 +13,7 @@ import urllib.parse
 import datetime
 from django.db.models import Q,Sum,Max
 from django_pandas.io import read_frame
+import pandas as pd
 import pyshorteners
 
 
@@ -678,6 +679,7 @@ def modal_top(request):
     kakudo=request.POST.get("kakudo")
     kakudo_day=request.POST.get("kakudo_day")
     status=request.POST.get("status")
+    lost_reason=request.POST.get("lost_reason")
     bikou=request.POST.get("bikou")
     d={}
     try:
@@ -685,6 +687,7 @@ def modal_top(request):
         ins.kakudo=kakudo
         ins.kakudo_day=kakudo_day
         ins.status=status
+        ins.lost_reason=lost_reason
         ins.bikou=bikou
         d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
         ins.s_status=d[status]
@@ -1409,14 +1412,118 @@ def kakudo_index(request):
         person[value]=person_li
 
     # アクティブ担当
-    act_id=request.session["search"]["tantou"]
-    if act_id=="":
+    try:
+        act_id=request.session["search"]["tantou"]
+        if act_id=="":
+            act_user="担当者が未設定です"
+        else:
+            act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    except:
         act_user="担当者が未設定です"
-    else:
-        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
     params={"all":all,"team":team,"person":person,"act_user":act_user,"kakudo_day":kakudo_day}
     return render(request,"sfa/kakudo.html",params)
+
+
+# 失注集計
+def lost_index(request):
+    if "lost_shukei" not in request.session:
+        request.session["lost_shukei"]="choice_tantou"
+
+    lost_shukei=request.session["lost_shukei"]
+    ins=Sfa_data.objects.filter(status="失注")
+    df=read_frame(ins)
+
+    # 担当者別
+    if lost_shukei=="choice_tantou":
+        df=df[["busho_id","tantou_id","lost_reason"]]
+        df=df[df["busho_id"].isin(["398","400","401","402"])]
+
+        # チーム
+        df_t_group=df.groupby("busho_id").count()[["lost_reason"]]
+        df_t_pivot=df.pivot_table(index=["busho_id"],columns="lost_reason",values="tantou_id",aggfunc="count",fill_value=0)
+        df_t_group=df_t_group.join(df_t_pivot)
+        df_t_group["sumi"]=df_t_group["lost_reason"]-df_t_group[0]
+        for i in range(5):
+            try:
+                df_t_group[str(i)+"_p"]=df_t_group[i] / df_t_group["sumi"] * 100
+            except:
+                df_t_group[str(i)+"_p"]=0
+
+        last_list=df_t_group.to_dict(orient='index')
+
+        # 個人
+        df_p_group=df.groupby("tantou_id").count()[["lost_reason"]]
+        df_p_pivot=df.pivot_table(index=["tantou_id"],columns="lost_reason",values="busho_id",aggfunc="count",fill_value=0)
+        df_p_group=df_p_group.join(df_p_pivot)
+        df_p_group["sumi"]=df_p_group["lost_reason"]-df_p_group[0]
+        for i in range(5):
+            try:
+                df_p_group[str(i)+"_p"]=df_p_group[i] / df_p_group["sumi"] * 100
+            except:
+                df_p_group[str(i)+"_p"]=0
+
+        last_list2=df_p_group.to_dict(orient='index')
+        for k,v in last_list2.items():
+            try:
+                ins=Member.objects.get(tantou_id=str(k))
+                v["busho_id"]=ins.busho_id
+                v["tantou"]=ins.tantou
+            except:
+                pass
+
+    # 都道府県別
+    else:
+        pref_list=['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', 
+            '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県' ,'岐阜県','静岡県','愛知県',
+            '三重県','滋賀県', '京都府', '大阪府','兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', 
+            '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県']      
+        df_pref=pd.DataFrame({"pref":pref_list})
+
+        df=df[["busho_id","pref","lost_reason"]]
+        df=df[df["busho_id"].isin(["398","400","401","402"])]
+
+        df_group=df.groupby("pref").count()[["lost_reason"]]
+        df_pivot=df.pivot_table(index=["pref"],columns="lost_reason",values="busho_id",aggfunc="count",fill_value=0)
+        df_group=df_group.join(df_pivot)
+        df_group["sumi"]=df_group["lost_reason"]-df_group[0]
+        for i in range(5):
+            try:
+                df_group[str(i)+"_p"]=df_group[i] / df_group["sumi"] * 100
+            except:
+                df_group[str(i)+"_p"]=0
+        df_group=df_group.reset_index()
+
+        df_pref2=pd.merge(df_pref,df_group,on="pref",how="left")
+        df_pref2=df_pref2.set_index("pref")
+        last_list=df_pref2.to_dict(orient='index')
+        last_list2=[]
+
+
+    # アクティブ担当
+    try:
+        act_id=request.session["search"]["tantou"]
+        if act_id=="":
+            act_user="担当者が未設定です"
+        else:
+            act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    except:
+        act_user="担当者が未設定です"
+
+    params={
+        "last_list":last_list,
+        "last_list2":last_list2,
+        "lost_shukei":lost_shukei,
+        "act_user":act_user,
+    }
+    return render(request,"sfa/lost_shukei.html",params)
+
+
+# 失注集計_クリック
+def lost_click(request):
+    request.session["lost_shukei"]=request.POST.get("lost_type")
+    d={}
+    return JsonResponse(d)
 
 
 # 担当者設定_一覧

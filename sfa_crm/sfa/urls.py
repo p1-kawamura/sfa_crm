@@ -2,7 +2,7 @@ from django.urls import path
 from .views import index_api,index,search,busho_tantou,mitsu_detail_api,modal_top,modal_bot,modal_bot_click,modal_bot_delete,modal_alert_check,kokyaku_detail_api, \
                     show_index,show,show_search,show_direct,show_settei,clear_session,mw_page,mw_add,mw_delete,mw_make,mw_download, \
                     mw_download_auto,show_list_direct,hidden_index,hidden_list_direct,kakudo_index,member_index,member_add,csv_imp,csv_imp_page,modal_group_click, \
-                    sfa_page_prev,sfa_page_first,sfa_page_next,sfa_page_last,credit_url,kanri_index
+                    sfa_page_prev,sfa_page_first,sfa_page_next,sfa_page_last,credit_url,kanri_index,lost_index,lost_click
 
 
 
@@ -46,4 +46,6 @@ urlpatterns = [
     path('clear_session/', clear_session, name="clear_session"),
     path('credit_url/', credit_url, name="credit_url"),
     path('kanri_index/', kanri_index, name="kanri_index"),
+    path('lost_index/', lost_index, name="lost_index"),
+    path('lost_click/', lost_click, name="lost_click"),
 ]
