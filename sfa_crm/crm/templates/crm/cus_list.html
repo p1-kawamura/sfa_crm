@@ -207,8 +207,10 @@
                 <div class="flex3">
                     <div>検索結果：{{result | intcomma}}件</div>
                     <div class="flex mail mb-2">
+                        {% if act_user != "担当者が未設定です" %}
                         <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
                         <div style="width: 28px; margin-left: 10px;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
+                        {% endif %}
                     </div>
                 </div>
 

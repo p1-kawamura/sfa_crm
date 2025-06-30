@@ -21,7 +21,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1215px;">
+        <div style="margin: 0 auto; width: 1230px;">
             <hr>
             <div class="block_title">顧客ランキング（案件管理データ）</div>
             <hr>
@@ -119,7 +119,15 @@
 
             <!-- 顧客一覧 -->
             <div style="margin-top: 15px;">
-                <div style="margin-bottom: 20px;">結果：{{list_count}}件</div>
+                <div class="flex3">
+                    <div style="margin-bottom: 20px;">結果：{{list_count}}件</div>
+                    <div class="flex mail mb-2">
+                        {% if act_user != "担当者が未設定です" %}
+                        <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> BCC一斉メールワイズ作成</button></div>
+                        <div style="width: 28px; margin-left: 10px;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
+                        {% endif %}
+                    </div>
+                </div> 
 
                 {% for i in rank_list %}
 
@@ -166,6 +174,13 @@
                         <button type="button" class="btn btn-outline-success btn-sm" style="border-radius: 50%;">
                             <i class="bi bi-person-square"></i>
                         </button>
+                        {% endif %}
+                    </div>
+                    <div>
+                        {% if i.mw == 0 %}
+                        <input class="form-check-input" type="checkbox" id="mw_{{i.cus_id}}" name="mw_list">
+                        {% else %}
+                        <input class="form-check-input" type="checkbox" id="mw_{{i.cus_id}}" name="mw_list" checked disabled>
                         {% endif %}
                     </div>
                 </div>
@@ -278,6 +293,49 @@
                 })
             },false)
         };
+
+
+        // BCC一斉メールワイズ
+        document.getElementById("btn_mw").addEventListener("click",function(){
+            var item=document.getElementsByName("mw_list");
+            var mw_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked && item[i].disabled==false){
+                    mw_list.push(item[i].id.replace("mw_",""));
+                };
+            };
+            if (mw_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            }
+            mw_list=JSON.stringify(mw_list);
+            $.ajax({
+                    'url': '{% url "crm:ran_mw_add" %}',
+                    'type': 'POST',
+                    'data': {"mw_list":mw_list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.alert("リストに追加しました！");
+                window.location.reload();
+            })
+        });
+
+
+        // BCC一斉メールワイズ_全チェック
+        var mw_check_all = document.getElementById("mw_check_all");
+        mw_check_all.addEventListener("click",function(){
+            var che=document.getElementsByName("mw_list");
+            for (var i=0; i<che.length; i++){
+                if (mw_check_all.checked){
+                    che[i].checked=true;
+                } else {
+                    if (che[i].disabled == false){
+                        che[i].checked=false;
+                    };
+                };
+            };
+        });
 
 
     </script>

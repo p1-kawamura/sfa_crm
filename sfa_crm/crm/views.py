@@ -639,6 +639,59 @@ def mw_download(request):
     return response
 
 
+# ランキングMW_表示ページ
+def ran_mw_page(request):
+    busho_id=request.session["search"]["busho"]
+    arr={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    busho=arr[busho_id]
+    ins=Customer.objects.filter(ran_mw_busho_id=busho_id,ran_mw=1).order_by("ran_mw_tantou_id")
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+    return render(request,"crm/ran_mw_csv.html",{"busho":busho,"list":ins,"act_user":act_user})
+
+
+# ランキングMW_追加
+def ran_mw_add(request):
+    mw_add_list=request.POST.get("mw_list")
+    mw_add_list=json.loads(mw_add_list)
+    busho_id=request.session["search"]["busho"]
+    tantou_id=request.session["search"]["tantou"]
+    for i in mw_add_list:
+        ins=Customer.objects.get(cus_id=i)
+        ins.ran_mw=1
+        ins.ran_mw_busho_id=busho_id
+        ins.ran_mw_tantou_id=tantou_id
+        ins.ran_mw_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+        ins.save()
+        # グループ化している場合は子を追加
+        if Cus_group.objects.filter(cus_id_parent=i).count()>0:
+            for h in Cus_group.objects.filter(cus_id_parent=i):
+                ins=Customer.objects.get(cus_id=h.cus_id_child)
+                ins.ran_mw=1
+                ins.ran_mw_busho_id=busho_id
+                ins.ran_mw_tantou_id=tantou_id
+                ins.ran_mw_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+                ins.save()            
+    d={}
+    return JsonResponse(d)
+
+
+# ランキングMW_削除ボタン
+def ran_mw_delete(request,pk):
+    ins=Customer.objects.get(pk=pk)
+    ins.ran_mw=0
+    ins.ran_mw_busho_id=""
+    ins.ran_mw_tantou_id=""
+    ins.ran_mw_tantou=""
+    ins.save()
+    return redirect("crm:ran_mw_page")
+
+
 # 顧客検索一覧
 def cus_list_index(request):
     if "cus_search" not in request.session:
@@ -1085,6 +1138,7 @@ def cus_ranking_index(request):
         dic["juchu_money"]=int(h["juchu_money"])
         dic["busho"]=ins.mitsu_last_busho
         dic["tantou"]=ins.mitsu_last_tantou
+        dic["mw"]=ins.ran_mw
         rank_list.append(dic)
 
 

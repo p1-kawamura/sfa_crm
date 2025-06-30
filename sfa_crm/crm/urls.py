@@ -2,7 +2,8 @@ from django.urls import path
 from .views import index,kokyaku_api,crm_sort,crm_group_act,alert_check,list_click_est,list_click_act,list_add,list_del,grip_add,crm_bikou, \
                     mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_busho,cus_list_search,cus_list_page_prev,cus_list_page_first,\
                     cus_list_page_next,cus_list_page_last,group_index,group_add_child,group_del_child,group_add_parent,group_del_all,group_cus_submit, \
-                    cus_ranking_index,cus_ranking_search,cus_ranking_page_prev,cus_ranking_page_first,cus_ranking_page_next,cus_ranking_page_last,cus_tougou
+                    cus_ranking_index,cus_ranking_search,cus_ranking_page_prev,cus_ranking_page_first,cus_ranking_page_next,cus_ranking_page_last,cus_tougou, \
+                    ran_mw_page,ran_mw_add,ran_mw_delete
                     
 
 app_name="crm"
@@ -23,6 +24,9 @@ urlpatterns = [
     path('mw_delete/<int:pk>', mw_delete, name="mw_delete"),
     path('mw_make/', mw_make, name="mw_make"),
     path('mw_download/', mw_download, name="mw_download"),
+    path('ran_mw_page/', ran_mw_page, name="ran_mw_page"),
+    path('ran_mw_add/', ran_mw_add, name="ran_mw_add"),
+    path('ran_mw_delete/<int:pk>', ran_mw_delete, name="ran_mw_delete"),
     path('cus_list_index/', cus_list_index, name="cus_list_index"),
     path('cus_list_busho/', cus_list_busho, name="cus_list_busho"),
     path('cus_list_search/', cus_list_search, name="cus_list_search"),

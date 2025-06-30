@@ -1272,6 +1272,7 @@ def mw_download_auto(request):
             csv_sfa.append(a)
             ins.mw=0
             ins.save()
+
     # 顧客
     csv_crm=[]
     ins2=Customer.objects.filter(mw=1)
@@ -1289,8 +1290,27 @@ def mw_download_auto(request):
         i.mw_tantou_id=""
         i.mw_tantou=""
         i.save()
+
+    # ランキング
+    csv_ran=[]
+    ins3=Customer.objects.filter(ran_mw=1)
+    for i in ins3:
+        c=[
+            i.com or "", #会社
+            (i.sei or "") + (i.mei or ""), #氏名
+            i.mail or "" , #メールアドレス
+            i.ran_mw_tantou,  #担当
+            "ランキング" #区分
+        ]
+        csv_ran.append(c)
+        i.ran_mw=0
+        i.ran_mw_busho_id=""
+        i.ran_mw_tantou_id=""
+        i.ran_mw_tantou=""
+        i.save()
+        
     # 出力
-    csv_all=csv_sfa + csv_crm
+    csv_all=csv_sfa + csv_crm + csv_ran
     filename=urllib.parse.quote("案件顧客アプリ_MW.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
     response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
@@ -1744,14 +1764,14 @@ def csv_imp(request):
 
 # 色々と個別で動かす用
 def clear_session(request):
-    # request.session.clear()
+    request.session.clear()
 
-    url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + "833" + "&updatedAtFrom=" + "2025-01-01 00:00:00"
-    res=requests.get(url)
-    res=res.json()
-    res=res["estimations"]
+    # url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + "833" + "&updatedAtFrom=" + "2025-01-01 00:00:00"
+    # res=requests.get(url)
+    # res=res.json()
+    # res=res["estimations"]
 
-    for i in res:
-        print(i["number"],i["version"])
+    # for i in res:
+    #     print(i["number"],i["version"])
   
     return redirect("sfa:index")
