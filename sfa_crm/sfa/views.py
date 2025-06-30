@@ -1526,7 +1526,6 @@ def lost_index(request):
     for i in range(1,6):
         ins=list(Sfa_data.objects.filter(lost_reason=i).values_list("lost_reason_text",flat=True))
         lost_reason[i]=ins
-    print(lost_reason)
     
 
     # アクティブ担当
