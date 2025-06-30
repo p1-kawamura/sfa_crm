@@ -680,6 +680,7 @@ def modal_top(request):
     kakudo_day=request.POST.get("kakudo_day")
     status=request.POST.get("status")
     lost_reason=request.POST.get("lost_reason")
+    lost_reason_text=request.POST.get("lost_reason_text")
     bikou=request.POST.get("bikou")
     d={}
     try:
@@ -688,6 +689,7 @@ def modal_top(request):
         ins.kakudo_day=kakudo_day
         ins.status=status
         ins.lost_reason=lost_reason
+        ins.lost_reason_text=lost_reason_text
         ins.bikou=bikou
         d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
         ins.s_status=d[status]
@@ -1464,7 +1466,7 @@ def lost_index(request):
         df_t_pivot=df.pivot_table(index=["busho_id"],columns="lost_reason",values="tantou_id",aggfunc="count",fill_value=0)
         df_t_group=df_t_group.join(df_t_pivot)
         df_t_group["sumi"]=df_t_group["lost_reason"]-df_t_group[0]
-        for i in range(5):
+        for i in range(6):
             try:
                 df_t_group[str(i)+"_p"]=df_t_group[i] / df_t_group["sumi"] * 100
             except:
@@ -1477,7 +1479,7 @@ def lost_index(request):
         df_p_pivot=df.pivot_table(index=["tantou_id"],columns="lost_reason",values="busho_id",aggfunc="count",fill_value=0)
         df_p_group=df_p_group.join(df_p_pivot)
         df_p_group["sumi"]=df_p_group["lost_reason"]-df_p_group[0]
-        for i in range(5):
+        for i in range(6):
             try:
                 df_p_group[str(i)+"_p"]=df_p_group[i] / df_p_group["sumi"] * 100
             except:
@@ -1519,6 +1521,13 @@ def lost_index(request):
         last_list=df_pref2.to_dict(orient='index')
         last_list2=[]
 
+    # 失注理由
+    lost_reason={}
+    for i in range(1,6):
+        ins=list(Sfa_data.objects.filter(lost_reason=i).values_list("lost_reason_text",flat=True))
+        lost_reason[i]=ins
+    print(lost_reason)
+    
 
     # アクティブ担当
     try:
@@ -1534,6 +1543,7 @@ def lost_index(request):
         "last_list":last_list,
         "last_list2":last_list2,
         "lost_shukei":lost_shukei,
+        "lost_reason":lost_reason,
         "act_user":act_user,
     }
     return render(request,"sfa/lost_shukei.html",params)

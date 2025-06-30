@@ -483,18 +483,25 @@
                                                     <option value="サンクス">サンクス</option>
                                                 </select>
                                             </div>
-                                            <div class="flex" style="margin-left: 20px;" id="modal_lost_show">
-                                                <div>※失注理由：</div>
+                                        </div>
+                                        <div style="margin-top: 20px;" id="modal_lost_show">
+                                            <div class="flex" style="align-items: start;">
+                                                <div>※理由：</div>
                                                 <div>
                                                     <select class="form-select form-select-sm" id="modal_lost_reason">
                                                         <option value="0"></option>
                                                         <option value="1">金額</option>
                                                         <option value="2">納期</option>
                                                         <option value="3">音信不通</option>
+                                                        <option value="5">在庫切れ</option>
                                                         <option value="4">その他</option>
                                                     </select>
                                                 </div>
+                                                <div style="margin-left: 10px; width: 350px;">
+                                                    <textarea class="form-control" id="modal_lost_reason_text"></textarea>
+                                                </div>
                                             </div>
+                                            
                                         </div>
                                         <div style="margin-top: 20px;">
                                             <div>■備考</div>
@@ -737,6 +744,7 @@
                         if (res.status=="失注"){
                             document.getElementById("modal_lost_show").style.display="";
                             document.getElementById("modal_lost_reason").value=res.lost_reason;
+                            document.getElementById("modal_lost_reason_text").value=res.lost_reason_text;
                         } else {
                             document.getElementById("modal_lost_show").style.display="none";
                         };
@@ -834,12 +842,14 @@
         var m_status=document.getElementById("modal_status");
         var lost_show=document.getElementById("modal_lost_show");
         var lost_reason=document.getElementById("modal_lost_reason");
+        var lost_reason_text=document.getElementById("modal_lost_reason_text");
         m_status.addEventListener("change",function(){
             if (m_status.value=="失注"){
                 lost_show.style.display="";
             } else {
                 lost_show.style.display="none";
                 lost_reason.value="0";
+                lost_reason_text.value="";
             };
         });
 
@@ -850,6 +860,7 @@
             var kakudo_day=document.getElementById("modal_kakudo_day").value;
             var m_status=document.getElementById("modal_status").value;
             var lost_reason=document.getElementById("modal_lost_reason").value;
+            var lost_reason_text=document.getElementById("modal_lost_reason_text").value;
             if (kakudo != "" && kakudo_day==""){
                 window.alert("確度の予定日を設定してください！");
                 return
@@ -869,6 +880,7 @@
                         "status":document.getElementById("modal_status").value,
                         "bikou":document.getElementById("modal_bikou").value,
                         "lost_reason":document.getElementById("modal_lost_reason").value,
+                        "lost_reason_text":document.getElementById("modal_lost_reason_text").value,
                     },
                     'dataType': 'json'
                 })

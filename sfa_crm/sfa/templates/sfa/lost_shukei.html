@@ -49,7 +49,7 @@
             <!-- 担当者別 -->
             {% if lost_shukei == "choice_tantou" %}
             <div style="margin-top: 15px;">
-                <table class="table table-bordered sticky_table" style="width: 750px;">
+                <table class="table table-bordered sticky_table" style="width: 850px;">
                     <thead>
                         <tr>
                             <th style="background-color: #fff; text-align: center; width: 150px;">担当者</th>
@@ -57,6 +57,7 @@
                             <th style="background-color: #fff; text-align: center; width: 100px">金額</th>
                             <th style="background-color: #fff; text-align: center; width: 100px">納期</th>
                             <th style="background-color: #fff; text-align: center; width: 100px">音信不通</th>
+                            <th style="background-color: #fff; text-align: center; width: 100px">在庫切れ</th>
                             <th style="background-color: #fff; text-align: center; width: 100px">その他</th>
                             <th style="background-color: #fff; text-align: center; width: 100px; color: #808080;">未設定</th>
                         </tr>
@@ -89,6 +90,9 @@
                                     {% if t.3 %}{{t.3}}<br><span style="font-size: 0.9em; color: #808080;">{{t.3_p | floatformat}}%{% endif %}</span>
                                 </td>
                                 <td style="text-align: right;">
+                                    {% if t.5 %}{{t.5}}<br><span style="font-size: 0.9em; color: #808080;">{{t.5_p | floatformat}}%{% endif %}</span>
+                                </td>
+                                <td style="text-align: right;">
                                     {% if t.4 %}{{t.4}}<br><span style="font-size: 0.9em; color: #808080;">{{t.4_p | floatformat}}%{% endif %}</span>
                                 </td>
                                 <td style="text-align: right; color: #808080;">{% if t.0 %}{{t.0}}{% endif %}</td>
@@ -109,6 +113,9 @@
                                         {% if h.3 %}{{h.3}}<br><span style="font-size: 0.9em; color: #808080;">{{h.3_p | floatformat}}%{% endif %}</span>
                                     </td>
                                     <td style="text-align: right;">
+                                        {% if h.5 %}{{h.5}}<br><span style="font-size: 0.9em; color: #808080;">{{h.5_p | floatformat}}%{% endif %}</span>
+                                    </td>
+                                    <td style="text-align: right;">
                                         {% if h.4 %}{{h.4}}<br><span style="font-size: 0.9em; color: #808080;">{{h.4_p | floatformat}}%{% endif %}</span>
                                     </td>
                                     <td style="text-align: right; color: #808080;">{% if h.0 %}{{h.0}}{% endif %}</td> 
@@ -124,7 +131,7 @@
             <!-- 都道府県別 -->
             {% else %}
             <div style="margin-top: 15px;">
-                <table class="table table-bordered sticky_table" style="width: 750px;">
+                <table class="table table-bordered sticky_table" style="width: 850px;">
                     <thead>
                         <tr>
                             <th style="background-color: #fff; text-align: center; width: 150px;">都道府県</th>
@@ -151,6 +158,9 @@
                                 {% if h.3 %}{{h.3}}<br><span style="font-size: 0.9em; color: #808080;">{{h.3_p | floatformat}}%{% endif %}</span>
                             </td>
                             <td style="text-align: right;">
+                                {% if h.5 %}{{h.5}}<br><span style="font-size: 0.9em; color: #808080;">{{h.5_p | floatformat}}%{% endif %}</span>
+                            </td>
+                            <td style="text-align: right;">
                                 {% if h.4 %}{{h.4}}<br><span style="font-size: 0.9em; color: #808080;">{{h.4_p | floatformat}}%{% endif %}</span>
                             </td>
                             <td style="text-align: right; color: #808080;">{% if h.0 %}{{h.0}}{% endif %}</td> 
@@ -161,7 +171,53 @@
             </div>
 
             {% endif %}
+
+            <!-- 失注理由 -->
+            <hr class="mt-5">
+            <div class="block_title">失注理由</div>
+            <hr>
+            <table class="table table-bordered sticky_table" style="width: 1150px; font-size: 0.9em;">
+                <thead>
+                    <tr style="text-align: center;">
+                        <th style="width: 230px;">金額</th>
+                        <th style="width: 230px;">納期</th>
+                        <th style="width: 230px;">音信不通</th>
+                        <th style="width: 230px;">在庫切れ</th>
+                        <th style="width: 230px;">その他</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            {% for i in lost_reason.1 %}
+                                {% if i %}{{i}}<br>{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for i in lost_reason.2 %}
+                                {% if i %}{{i}}<br>{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for i in lost_reason.3 %}
+                                {% if i %}{{i}}<br>{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for i in lost_reason.4 %}
+                                {% if i %}{{i}}<br>{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for i in lost_reason.5 %}
+                                {% if i %}{{i}}<br>{% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+  
 
     </div>
 
