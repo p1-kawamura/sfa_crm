@@ -172,7 +172,7 @@
 
             {% endif %}
 
-            <!-- 失注理由 -->
+            <!-- 失注詳細 -->
             <hr class="mt-5">
             <div class="block_title">失注詳細</div>
             <hr>
@@ -190,27 +190,27 @@
                     <tr>
                         <td>
                             {% for i in lost_reason.1 %}
-                                {% if i %}{{i}}<br>{% endif %}
+                                {% if i %}・{{i}}<br>{% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.2 %}
-                                {% if i %}{{i}}<br>{% endif %}
+                                {% if i %}・{{i}}<br>{% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.3 %}
-                                {% if i %}{{i}}<br>{% endif %}
+                                {% if i %}・{{i}}<br>{% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.5 %}
-                                {% if i %}{{i}}<br>{% endif %}
+                                {% if i %}・{{i}}<br>{% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.4 %}
-                                {% if i %}{{i}}<br>{% endif %}
+                                {% if i %}・{{i}}<br>{% endif %}
                             {% endfor %}
                         </td>
                     </tr>
