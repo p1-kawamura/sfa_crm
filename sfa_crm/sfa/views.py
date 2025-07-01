@@ -1524,9 +1524,13 @@ def lost_index(request):
     # 失注理由
     lost_reason={}
     for i in range(1,6):
-        ins=list(Sfa_data.objects.filter(lost_reason=i).values_list("lost_reason_text",flat=True))
+        ins=list(Sfa_data.objects.filter(lost_reason=i).values("lost_reason_text","tantou_id"))
         lost_reason[i]=ins
     
+    for k,v in lost_reason.items():
+        for h in v:
+            h["tantou"]=Member.objects.get(tantou_id=h["tantou_id"]).tantou.split(" ")[0]
+
 
     # アクティブ担当
     try:

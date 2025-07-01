@@ -190,27 +190,37 @@
                     <tr>
                         <td>
                             {% for i in lost_reason.1 %}
-                                {% if i %}・{{i}}<br>{% endif %}
+                                {% if i.lost_reason_text %}
+                                    <div style="margin-bottom: 10px;">・{{i.lost_reason_text}}（{{i.tantou}}）</div>
+                                {% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.2 %}
-                                {% if i %}・{{i}}<br>{% endif %}
+                                {% if i.lost_reason_text %}
+                                    <div style="margin-bottom: 10px;">・{{i.lost_reason_text}}（{{i.tantou}}）</div>
+                                {% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.3 %}
-                                {% if i %}・{{i}}<br>{% endif %}
+                                {% if i.lost_reason_text %}
+                                    <div style="margin-bottom: 10px;">・{{i.lost_reason_text}}（{{i.tantou}}）</div>
+                                {% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.5 %}
-                                {% if i %}・{{i}}<br>{% endif %}
+                                {% if i.lost_reason_text %}
+                                    <div style="margin-bottom: 10px;">・{{i.lost_reason_text}}（{{i.tantou}}）</div>
+                                {% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for i in lost_reason.4 %}
-                                {% if i %}・{{i}}<br>{% endif %}
+                                {% if i.lost_reason_text %}
+                                    <div style="margin-bottom: 10px;">・{{i.lost_reason_text}}（{{i.tantou}}）</div>
+                                {% endif %}
                             {% endfor %}
                         </td>
                     </tr>
