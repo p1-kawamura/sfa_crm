@@ -20,7 +20,8 @@
             {% include "sfa/menu.html" %}
         </div>
 
-        <div style="margin: 0 auto; width: 800px;">
+        <!-- 集計表 -->
+        <div style="margin: 0 auto; width: 800px; margin-top: 50px;">
             <hr>
             <div class="block_title">確度集計</div>
             <hr>
@@ -44,73 +45,80 @@
                     <!-- 全体 -->
                     <tr style="background-color: rgb(255, 209, 3); font-size: 1.2em;">
                         <td style="width: 15%; text-align: center;"><i class="bi bi-calculator"></i><b> 総計</b></td>
-                        {% for i in all %}
-                        <td style="width: 7%; text-align: right;"><b>{{i.0}}</b></td>
-                        <td style="width: 13%; text-align: right;"><b>{{i.1 | intcomma}}</b></td>
-                        {% endfor %}
+                        <td style="width: 7%; text-align: right;"><b>{{all.C_A}}</b></td>
+                        <td style="width: 13%; text-align: right;"><b>{{all.M_A | intcomma}}</b></td>
+                        <td style="width: 7%; text-align: right;"><b>{{all.C_B}}</b></td>
+                        <td style="width: 13%; text-align: right;"><b>{{all.M_B | intcomma}}</b></td>
+                        <td style="width: 7%; text-align: right;"><b>{{all.C_C}}</b></td>
+                        <td style="width: 13%; text-align: right;"><b>{{all.M_C | intcomma}}</b></td>
                     </tr>
                     <tr><td style="height: 10px;"></td></tr>
                     {% for key,value in team.items %}
-                        {% if key == "東京チーム" %}
+                        {% if key == "398" %}
                         <tr style="background-color: #d6f5ff;">
-                        {% elif key == "大阪チーム" %}
+                        {% elif key == "400" %}
                         <tr style="background-color: #ffcedd;">
-                        {% elif key == "高松チーム" %}
+                        {% elif key == "401" %}
                         <tr style="background-color: #d7ffc9;">
-                        {% elif key == "福岡チーム" %}
+                        {% elif key == "402" %}
                         <tr style="background-color: #ffe4c0;">
                         {% endif %}
                             <!-- チーム -->
                             <td>
                                 <div class="flex">
-                                    {% if key == "東京チーム" %}
+                                    {% if key == "398" %}
                                     <div id="btn_tokyo" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></i></div>
-                                    {% elif key == "大阪チーム" %}
+                                    <div style="margin-left: 10px;"><b>東京チーム</b></div>
+                                    {% elif key == "400" %}
                                     <div id="btn_osaka" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></div>
-                                    {% elif key == "高松チーム" %}
+                                    <div style="margin-left: 10px;"><b>大阪チーム</b></div>
+                                    {% elif key == "401" %}
                                     <div id="btn_takamatsu" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></div>
-                                    {% elif key == "福岡チーム" %}
+                                    <div style="margin-left: 10px;"><b>高松チーム</b></div>
+                                    {% elif key == "402" %}
                                     <div id="btn_fukuoka" style="cursor: pointer;"><i class="bi bi-caret-down-square"></i></div>
+                                    <div style="margin-left: 10px;"><b>福岡チーム</b></div>
                                     {% endif %}
-                                    <div style="margin-left: 10px;"><b>{{key}}</b></div>
+                                    
                                 </div>
                             </td>
-                            {% for i in value %}
-                            <td style="text-align: right;"><b>{{i.0}}</b></td>
-                            <td style="text-align: right;"><b>{{i.1 | intcomma}}</b></td>
-                            {% endfor %}
+                            
+                            <td style="text-align: right;"><b>{{value.C_A}}</b></td>
+                            <td style="text-align: right;"><b>{{value.M_A | intcomma}}</b></td>
+                            <td style="text-align: right;"><b>{{value.C_B}}</b></td>
+                            <td style="text-align: right;"><b>{{value.M_B | intcomma}}</b></td>
+                            <td style="text-align: right;"><b>{{value.C_C}}</b></td>
+                            <td style="text-align: right;"><b>{{value.M_C | intcomma}}</b></td>                            
                         </tr>
                         
 
                         <!-- 個人 -->
                         {% for key2,value2 in person.items %}
-                            {% if key2 == key %}
-                                {% for i in value2 %}
-                                    {% if key2 == "東京チーム" %}
-                                    <tr name="tokyo" style="display: none;">
-                                    {% elif key2 == "大阪チーム" %}
-                                    <tr name="osaka" style="display: none;">
-                                    {% elif key2 == "高松チーム" %}
-                                    <tr name="takamatsu" style="display: none;">
-                                    {% elif key2 == "福岡チーム" %}
-                                    <tr name="fukuoka" style="display: none;">
-                                    {% endif %}
-                                        <td>{{i.0}}</td>
-                                        <td style="text-align: right;">{{i.1.0}}</td>
-                                        <td style="text-align: right;">{{i.1.1 | intcomma}}</td>
-                                        <td style="text-align: right;">{{i.2.0}}</td>
-                                        <td style="text-align: right;">{{i.2.1 | intcomma}}</td>
-                                        <td style="text-align: right;">{{i.3.0}}</td>
-                                        <td style="text-align: right;">{{i.3.1 | intcomma}}</td>
-                                    </tr>
-                                {% endfor %}
+                            {% if value2.busho_id == key %}
+                                {% if value2.busho_id == "398" %}
+                                <tr name="tokyo" style="display: none;">
+                                {% elif value2.busho_id == "400" %}
+                                <tr name="osaka" style="display: none;">
+                                {% elif value2.busho_id == "401" %}
+                                <tr name="takamatsu" style="display: none;">
+                                {% elif value2.busho_id == "402" %}
+                                <tr name="fukuoka" style="display: none;">
+                                {% endif %}
+                                    <td>{{value2.tantou}}</td>
+                                    <td style="text-align: right;">{{value2.C_A}}</td>
+                                    <td style="text-align: right;">{{value2.M_A | intcomma}}</td>
+                                    <td style="text-align: right;">{{value2.C_B}}</td>
+                                    <td style="text-align: right;">{{value2.M_B | intcomma}}</td>
+                                    <td style="text-align: right;">{{value2.C_C}}</td>
+                                    <td style="text-align: right;">{{value2.M_C | intcomma}}</td>
+                                </tr>
                             {% endif %}
                         {% endfor %}
                     {% endfor %}
                 </table>
             </div>
-
         </div>
+
     </div>
 
 

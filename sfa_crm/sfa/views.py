@@ -1382,56 +1382,35 @@ def kakudo_index(request):
         kakudo_day=request.POST["kakudo_day"]
         request.session["kakudo_day"]=kakudo_day
 
-    #全体
-    all=[]
-    for i in ["A","B","C"]:
-        li=[]
-        all_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,kakudo_day=kakudo_day).count()
-        li.append(all_count)
-        all_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
-        if all_money["money__sum"] != None:
-            li.append(all_money["money__sum"])
-        else:
-            li.append(0)
-        all.append(li)
 
-    #チーム
-    busho_arr={"398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
-    team={}
-    for key,value in busho_arr.items():
-        team_li=[]
-        for i in ["A","B","C"]:
-            li=[]
-            team_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).count()
-            li.append(team_count)
-            team_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=i,busho_id=key,kakudo_day=kakudo_day).aggregate(Sum("money"))
-            if team_money["money__sum"] != None:
-                li.append(team_money["money__sum"])
-            else:
-                li.append(0)
-            team_li.append(li)
-        team[value]=team_li
+    ins=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo_day=kakudo_day)
+    df=read_frame(ins)
+    df=df[["busho_id","tantou_id","kakudo","money"]]
+
+    # 全体、チーム
+    df_team=df.pivot_table(index="busho_id",columns="kakudo",values="money",aggfunc=["count","sum"])
+    df_team=df_team.fillna(0).astype(int)
+    df_team.columns=["C_A","C_B","C_C","M_A","M_B","M_C"]
+    team=df_team.to_dict(orient="index")
+    all=df_team.sum().to_dict()
 
     # 個人
-    person={}
-    for key,value in busho_arr.items():
-        ins=Member.objects.filter(busho_id=key).values_list("tantou_id",flat=True)
-        person_li=[]
-        for i in ins:
-            kaku_li=[]
-            kaku_li.append(Member.objects.get(tantou_id=i).tantou)
-            for h in ["A","B","C"]:
-                li=[]
-                person_count=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).count()
-                li.append(person_count)
-                person_money=Sfa_data.objects.filter(show=0,status__in=["見積中","見積送信","イメージ","連絡待ち"],kakudo=h,tantou_id=i,kakudo_day=kakudo_day).aggregate(Sum("money"))
-                if person_money["money__sum"] != None:
-                    li.append(person_money["money__sum"])
-                else:
-                    li.append(0)
-                kaku_li.append(li)
-            person_li.append(kaku_li)
-        person[value]=person_li
+    df_person=df.pivot_table(index="tantou_id",columns="kakudo",values="money",aggfunc=["count","sum"])
+    df_person.columns=["C_A","C_B","C_C","M_A","M_B","M_C"]
+    
+    ins_all=Member.objects.all()
+    df_all=read_frame(ins_all)
+    df_all=df_all[["busho_id","tantou_id","tantou"]]
+    df_all["tantou_id"]=df_all["tantou_id"].astype("int")
+    df_all=df_all.sort_values("tantou_id")
+    df_all["tantou_id"]=df_all["tantou_id"].astype("str")
+    df_all=df_all.set_index("tantou_id")
+
+    df_last=df_all.join(df_person)
+    df_last=df_last.fillna(0)
+    df_last[["C_A","C_B","C_C","M_A","M_B","M_C"]]=df_last[["C_A","C_B","C_C","M_A","M_B","M_C"]].astype("int")
+    person=df_last.to_dict(orient="index")
+
 
     # アクティブ担当
     try:
