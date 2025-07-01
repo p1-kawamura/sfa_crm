@@ -1503,7 +1503,7 @@ def lost_index(request):
     # 失注理由
     lost_reason={}
     for i in range(1,6):
-        ins=list(Sfa_data.objects.filter(lost_reason=i).values("lost_reason_text","tantou_id"))
+        ins=list(Sfa_data.objects.filter(lost_reason=i).values("lost_reason_text","tantou_id").order_by("last_status"))
         lost_reason[i]=ins
     
     for k,v in lost_reason.items():
