@@ -1387,17 +1387,36 @@ def kakudo_index(request):
     df=read_frame(ins)
     df=df[["busho_id","tantou_id","kakudo","money"]]
 
+    kakudo_list=["A","B","C"]
+    df_kakudo=df["kakudo"].value_counts()
+    last_columns=["C_A","C_B","C_C","M_A","M_B","M_C"]
+
     # 全体、チーム
+    df_team_all=pd.DataFrame(data=0,index=["398","400","401","402"],columns=["all"])
     df_team=df.pivot_table(index="busho_id",columns="kakudo",values="money",aggfunc=["count","sum"])
     df_team=df_team.fillna(0).astype(int)
-    df_team.columns=["C_A","C_B","C_C","M_A","M_B","M_C"]
-    team=df_team.to_dict(orient="index")
-    all=df_team.sum().to_dict()
+    for i in kakudo_list:
+        if i not in df_kakudo.index:
+            df_team[("count",i)]=0
+            df_team[("sum",i)]=0
+
+    df_team=df_team.sort_index(axis=1)
+    df_team.columns=last_columns
+    df_team_all=df_team_all.join(df_team)
+    df_team_all=df_team_all.drop("all",axis=1).fillna(0).astype("int")
+    team=df_team_all.to_dict(orient="index")
+    all=df_team_all.sum().to_dict()
 
     # 個人
     df_person=df.pivot_table(index="tantou_id",columns="kakudo",values="money",aggfunc=["count","sum"])
-    df_person.columns=["C_A","C_B","C_C","M_A","M_B","M_C"]
-    
+    for i in kakudo_list:
+        if i not in df_kakudo.index:
+            df_person[("count",i)]=0
+            df_person[("sum",i)]=0
+
+    df_person=df_person.sort_index(axis=1)
+    df_person.columns=last_columns
+
     ins_all=Member.objects.all()
     df_all=read_frame(ins_all)
     df_all=df_all[["busho_id","tantou_id","tantou"]]
@@ -1408,7 +1427,7 @@ def kakudo_index(request):
 
     df_last=df_all.join(df_person)
     df_last=df_last.fillna(0)
-    df_last[["C_A","C_B","C_C","M_A","M_B","M_C"]]=df_last[["C_A","C_B","C_C","M_A","M_B","M_C"]].astype("int")
+    df_last[last_columns]=df_last[last_columns].astype("int")
     person=df_last.to_dict(orient="index")
 
 
