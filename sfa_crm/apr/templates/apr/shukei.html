@@ -57,7 +57,7 @@
                         {% endif %}
                             <select class="form-select" name="choice_approach_id" style="width: 500px;">
                                 <option value=""></option>
-                                {% for i in apr_list %}
+                                {% for i in apr_list reversed %}
                                     {% if i.approach_id == ses.shukei_id %}
                                     <option value="{{i.approach_id}}" selected>{{i.title}}</option>
                                     {% else %}
