@@ -6,11 +6,13 @@ class Approach_list(models.Model):
     title=models.CharField("タイトル",max_length=255)
     day=models.CharField("日付",max_length=255)
     action=models.IntegerField("行動",default=0)
+    day_type=models.IntegerField("日付形式",default=0)
 
     def __str__(self):
         return self.title
     
     # action（追っ掛け）　0:なし　1:あり
+    # day_type（日付形式）　0:受注日　1:見積日
 
 
 class Hangire(models.Model):

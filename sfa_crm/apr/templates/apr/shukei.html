@@ -68,7 +68,15 @@
                         </div>
                     </div>
                     <div class="flex mt-5">
-                        <div id="year_month">受注年月：</div>
+                        <div id="year_month">
+                            {% if ses.shukei_id == "0" %}
+                            受注年月：
+                            {% elif ses.shukei_id == "N" %}
+                            発送年月：
+                            {% else %}
+                            見積・受注年月：
+                            {% endif %}
+                        </div>
                         <div>
                             <input class="form-control" type="month" name="shukei_month" style="width: 140px;" value="{{ses.shukei_month}}">
                         </div>
@@ -144,7 +152,7 @@
                             {% for i,h in last_list.items %}
                                 {% if h.busho_apr_id == s %}
                                 <tr class="hover2">
-                                    <td>{{i}}</td>
+                                    <td>{{h.tantou_apr_name}}</td>
                                     <td style="text-align: right; width: 100px; border-right: double 3px #CCC;">{{h.sumi}} / {{h.juchu_day}}
                                         <br><span style="font-size: 0.9em; color: #ff0000;">{{h.sumi_p | floatformat}}%</span></td>
                                     <td style="text-align: right; width: 100px;">
@@ -237,7 +245,7 @@
         // アプローチリスト選択
         document.getElementById("choice_approach").addEventListener("click",function(){
             document.getElementById("choice_approach_select").style.display="";
-            document.getElementById("year_month").innerText="受注年月：";
+            document.getElementById("year_month").innerText="見積・受注年月：";
         });
 
 

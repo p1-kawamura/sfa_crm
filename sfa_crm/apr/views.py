@@ -25,6 +25,7 @@ def approach_list_add(request):
     title=request.POST["title"]
     day=request.POST["day"]
     action=request.POST["act"]
+    day_type=request.POST["day_type"]
 
     # CSV取込
     data = io.TextIOWrapper(request.FILES['csv1'].file, encoding="cp932")
@@ -32,7 +33,7 @@ def approach_list_add(request):
     csv_list=list(csv_content)
 
     # Approach_list
-    Approach_list.objects.create(approach_id=approach_id,title=title,day=day,action=action)
+    Approach_list.objects.create(approach_id=approach_id,title=title,day=day,action=action,day_type=day_type)
 
     h=0
     for i in csv_list:
@@ -412,6 +413,8 @@ def hangire_index(request):
 
     if ses["han_or_apr"] == "nou": 
         sort_list={"juchu_day":"発送完了日","money":"金額"}
+    elif ses["han_or_apr"] == "apr" and Approach_list.objects.get(approach_id=ses["approach_id"]).day_type == 1:
+        sort_list={"juchu_day":"見積日","money":"金額"}
     else:
         sort_list={"juchu_day":"受注日","money":"金額"}
     
@@ -797,13 +800,13 @@ def shukei_index(request):
     df_team=df_team.drop_duplicates()
 
     # 個人
-    df_team=df_team.set_index("tantou_apr_name")
-    
-    df_all=df[["tantou_apr_name","juchu_day"]].groupby("tantou_apr_name").count()
-    df_detail=df.pivot_table(index=["tantou_apr_name"],columns="result",values="juchu_day",aggfunc="count",fill_value=0)
+    df_team=df_team.set_index("tantou_apr_id") 
+    df_all=df[["tantou_apr_id","juchu_day"]].groupby("tantou_apr_id").count()
+    df_detail=df.pivot_table(index=["tantou_apr_id"],columns="result",values="juchu_day",aggfunc="count",fill_value=0)
 
-    df_last=pd.merge(df_team,df_all,on="tantou_apr_name")
-    df_last=pd.merge(df_last,df_detail,on="tantou_apr_name")
+    df_last=pd.merge(df_team,df_all,on="tantou_apr_id")
+    df_last=pd.merge(df_last,df_detail,on="tantou_apr_id")
+
     for i in range(8):
         try:
             df_last[str(i)+"_p"]=df_last[str(i)] / df_last["juchu_day"] * 100
@@ -816,9 +819,8 @@ def shukei_index(request):
         df_last["sumi"]=df_last["juchu_day"]
     df_last["sumi_p"]=df_last["sumi"] / df_last["juchu_day"] * 100
 
-    df_last["tantou_apr_id"]=df_last["tantou_apr_id"].astype(int)
-    df_last=df_last.sort_values(["busho_apr_id","tantou_apr_id"])
-
+    df_last.index=df_last.index.astype(int)
+    df_last=df_last.sort_index() 
     last_list=df_last.to_dict(orient='index')
 
     # チーム
