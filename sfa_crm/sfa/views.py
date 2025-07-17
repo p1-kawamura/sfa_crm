@@ -1777,12 +1777,8 @@ def csv_imp(request):
 def clear_session(request):
     request.session.clear()
 
-    # url="https://core-sys.p1-intl.co.jp/p1web/v1/estimations/?handledById=" + "833" + "&updatedAtFrom=" + "2025-01-01 00:00:00"
-    # res=requests.get(url)
-    # res=res.json()
-    # res=res["estimations"]
-
-    # for i in res:
-    #     print(i["number"],i["version"])
+    # ins=Hangire.objects.filter(busho_id="400",tantou_id="50")
+    # for i in ins:
+    #     print(i.busho_id,i.busho_apr_id,i.tantou_id,i.tantou_apr_id,i.mitsu_num,i.mitsu_ver)
   
     return redirect("sfa:index")
