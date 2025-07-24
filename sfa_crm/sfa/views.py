@@ -1661,6 +1661,10 @@ def kanri_index(request):
     return render(request,"sfa/kanri.html",{"list":ins,"act_user":act_user})
 
 
+# セッションクリア
+def clear_session(request):
+    request.session.clear()  
+    return redirect("sfa:index")
 
 
 # 元DB取込
@@ -1773,13 +1777,7 @@ def csv_imp(request):
 
 
 
-# 色々と個別で動かす用
-def clear_session(request):
-    request.session.clear()
-
-    # ins=Crm_action.objects.filter(approach_id__in=["9","7","6"])
-    # for i in ins:
-    #     i.approach_id="0"
-    #     i.save()
-  
+# 個別に色々使うため
+def free(request):
+    request.session.clear()  
     return redirect("sfa:index")
