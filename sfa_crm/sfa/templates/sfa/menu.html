@@ -64,7 +64,7 @@
                 <nav>
                     <div class="menu1"><a href="{% url 'crm:cus_list_index' %}">顧客検索</a></div>
                     <div class="menu1"><a href="{% url 'crm:cus_ranking_index' %}">顧客ランキング</a></div>
-                    <div class="menu1"><a href="{% url 'apr:hangire_index' %}">版切れ / アプローチ / 納品フォロー</a></div>
+                    <div class="menu1"><a href="{% url 'apr:hangire_index' %}">版切れ / アプローチ / 納品フォロー / 失注</a></div>
                 </nav>
             </li>
             <li>
@@ -86,8 +86,8 @@
                 <div class="nav-open">集計リスト <i class="bi bi-caret-down-fill"></i></div>
                 <nav>
                     <div class="menu1"><a href="{% url 'sfa:kakudo_index' %}">確度</a></div>
-                    <div class="menu1"><a href="{% url 'apr:shukei_index' %}">版切れ / アプローチ / 納品フォロー</a></div>
-                    <div class="menu1"><a href="{% url 'sfa:lost_index' %}">失注</a></div>
+                    <div class="menu1"><a href="{% url 'apr:shukei_index' %}">版切れ / アプローチ / 納品フォロー / 失注</a></div>
+                    <div class="menu1"><a href="{% url 'sfa:lost_index' %}">失注理由</a></div>
                 </nav>
             </li>
         </ul>

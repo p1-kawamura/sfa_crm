@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="icon" href="{% static 't-shirt_3.gif' %}">
-    <title>版切れ / 納品フォロー / アプローチ</title>
+    <title>定期配信リスト / アプローチリスト</title>
 </head>
 <body>
 
@@ -23,51 +23,74 @@
 
         <div style="margin: 0 auto; width: 1340px;">
             <hr>
-            <div class="block_title">版切れリスト / 納品フォローリスト / アプローチリスト</div>
+            <div class="block_title">定期配信リスト / アプローチリスト</div>
             <hr>
             <!-- フィルター -->
             <div class="flex3">
                 <div class="flex">
                     <div style="font-size: 1.2em;">
                         {% if ses.han_or_apr == "han" %}
-                        <input class="form-check-input" type="radio" id="choice_hangire" name="shurui" checked> 版切れリスト
+                        <input class="form-check-input" type="radio" id="choice_hangire" name="shurui" checked> 通常版切れ
                         {% else %}
-                        <input class="form-check-input" type="radio" id="choice_hangire" name="shurui"> 版切れリスト
+                        <input class="form-check-input" type="radio" id="choice_hangire" name="shurui"> 通常版切れ
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 1.2em; margin-left: 50px;">
+                        {% if ses.han_or_apr == "half" %}
+                        <input class="form-check-input" type="radio" id="choice_half" name="shurui" checked> 半年版切れ
+                        {% else %}
+                        <input class="form-check-input" type="radio" id="choice_half" name="shurui"> 半年版切れ
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 1.2em; margin-left: 50px;">
+                        {% if ses.han_or_apr == "not_han" %}
+                        <input class="form-check-input" type="radio" id="choice_igai" name="shurui" checked> 版切れ以外受注
+                        {% else %}
+                        <input class="form-check-input" type="radio" id="choice_igai" name="shurui"> 版切れ以外受注
                         {% endif %}
                     </div>
                     <div style="font-size: 1.2em; margin-left: 50px;">
                         {% if ses.han_or_apr == "nou" %}
-                        <input class="form-check-input" type="radio" id="choice_nouhin" name="shurui" checked> 納品フォローリスト
+                        <input class="form-check-input" type="radio" id="choice_nouhin" name="shurui" checked> 納品フォロー
                         {% else %}
-                        <input class="form-check-input" type="radio" id="choice_nouhin" name="shurui"> 納品フォローリスト
+                        <input class="form-check-input" type="radio" id="choice_nouhin" name="shurui"> 納品フォロー
                         {% endif %}
                     </div>
                     <div style="font-size: 1.2em; margin-left: 50px;">
-                        {% if ses.han_or_apr == "apr" %}
-                        <input class="form-check-input" type="radio" id="choice_approach" name="shurui" checked> アプローチリスト
+                        {% if ses.han_or_apr == "lost" %}
+                        <input class="form-check-input" type="radio" id="choice_lost" name="shurui" checked> 失注
                         {% else %}
-                        <input class="form-check-input" type="radio" id="choice_approach" name="shurui"> アプローチリスト
+                        <input class="form-check-input" type="radio" id="choice_lost" name="shurui"> 失注
                         {% endif %}
-                    </div>
-                    {% if ses.han_or_apr == "apr" %}
-                    <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px;">
-                    {% else %}
-                    <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px; display: none;">
-                    {% endif %}
-                        <select class="form-select" id="choice_approach_id" style="width: 500px;">
-                            <option value=""></option>
-                            {% for i in apr_list reversed %}
-                                {% if i.approach_id == ses.approach_id %}
-                                <option value="{{i.approach_id}}" selected>{{i.title}}</option>
-                                {% else %}
-                                <option value="{{i.approach_id}}">{{i.title}}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
                     </div>
                 </div>
                 <div>
                     <a href="{% url 'apr:shukei_index' %}" target="_blank"><button class="btn btn-primary"><img src="{% static 'ryouma.gif' %}"> 集計リスト</button></a>
+                </div>
+            </div>
+            <div class="flex" style="margin-top: 20px;">
+                <div style="font-size: 1.2em;">
+                    {% if ses.han_or_apr == "apr" %}
+                    <input class="form-check-input" type="radio" id="choice_approach" name="shurui" checked> アプローチリスト
+                    {% else %}
+                    <input class="form-check-input" type="radio" id="choice_approach" name="shurui"> アプローチリスト
+                    {% endif %}
+                </div>
+                {% if ses.han_or_apr == "apr" %}
+                <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px;">
+                {% else %}
+                <div id="choice_approach_select" style="font-size: 1.2em; margin-left: 20px; display: none;">
+                {% endif %}
+                    <select class="form-select" id="choice_approach_id" style="width: 500px;">
+                        <option value=""></option>
+                        {% for i in apr_list reversed %}
+                            {% if i.approach_id == ses.approach_id %}
+                            <option value="{{i.approach_id}}" selected>{{i.title}}</option>
+                            {% else %}
+                            <option value="{{i.approach_id}}">{{i.title}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
             <div style="margin-top: 50px;">
@@ -506,7 +529,7 @@
         });
   
 
-        // 版切れリスト選択
+        // 通常版切れ_選択
         document.getElementById("choice_hangire").addEventListener("click",function(){
             document.getElementById("choice_approach_select").style.display="none";
             $.ajax({
@@ -521,13 +544,58 @@
         });
 
 
-        // 納品後リスト選択
+        // 半年版切れ_選択
+        document.getElementById("choice_half").addEventListener("click",function(){
+            document.getElementById("choice_approach_select").style.display="none";
+            $.ajax({
+                'url': '{% url "apr:choice_id" %}',
+                'type': 'POST',
+                'data': {"han_or_apr":"half"},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // 版切れ以外受注_選択
+        document.getElementById("choice_igai").addEventListener("click",function(){
+            document.getElementById("choice_approach_select").style.display="none";
+            $.ajax({
+                'url': '{% url "apr:choice_id" %}',
+                'type': 'POST',
+                'data': {"han_or_apr":"not_han"},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // 納品フォロー_選択
         document.getElementById("choice_nouhin").addEventListener("click",function(){
             document.getElementById("choice_approach_select").style.display="none";
             $.ajax({
                 'url': '{% url "apr:choice_id" %}',
                 'type': 'POST',
                 'data': {"han_or_apr":"nou"},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        });
+
+
+        // 失注_選択
+        document.getElementById("choice_lost").addEventListener("click",function(){
+            document.getElementById("choice_approach_select").style.display="none";
+            $.ajax({
+                'url': '{% url "apr:choice_id" %}',
+                'type': 'POST',
+                'data': {"han_or_apr":"lost"},
                 'dataType': 'json'
             })
             .done(function(response){

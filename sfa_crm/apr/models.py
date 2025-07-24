@@ -16,7 +16,7 @@ class Approach_list(models.Model):
 
 
 class Hangire(models.Model):
-    approach_id=models.CharField("アプローチID",max_length=3,default=0)
+    approach_id=models.CharField("アプローチID",max_length=3)
     result=models.CharField("進捗",max_length=2, default=0)
     apr_day=models.CharField("アプローチ日",max_length=255,blank=True,null=True)
     apr_tantou=models.CharField("対応者",max_length=255,blank=True,null=True)
@@ -58,5 +58,5 @@ class Hangire(models.Model):
     def __str__(self):
         return self.cus_id
     
-    #approach_id（アプローチID）　0：版切れ　１～：アプローチ　N：納品後
+    #approach_id（アプローチID）　0：版切れ　１～：アプローチ　N：納品後　H：半年版切れ　G：版切れ以外受注　L：失注
     #apr_type（アプローチ方法）　1:メモ　2:メール　4:TEL

@@ -146,13 +146,31 @@ def approach_list_add(request):
 
 # 版切れリストCSV取込
 def hangire_csv_imp(request):
+    kubun=request.POST["kubun"]
     data = io.TextIOWrapper(request.FILES['csv2'].file, encoding="cp932")
     csv_content = csv.reader(data)
     csv_list=list(csv_content)
 
+    if kubun=="0":
+        text="通常版切れリスト"
+        approach_id="A"
+    elif kubun=="H":
+        text="半年版切れリスト"
+        approach_id="H"
+    elif kubun=="G":
+        text="版切れ以外受注リスト"
+        approach_id="G"
+    elif kubun=="L":
+        text="失注リスト"
+        approach_id="L"
+
     h=0
     for i in csv_list:
         if h!=0:
+
+            # Crm_action
+            Crm_action.objects.create(cus_id=i[13],day=date.today(),type=8,text=text,approach_id=approach_id)
+
             # 見積
             url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + i[13] + "/receivedOrders/" + i[1] + "/" + i[2]
             res=requests.get(url)
@@ -215,6 +233,7 @@ def hangire_csv_imp(request):
             )
 
             Hangire.objects.create(
+                approach_id=kubun,
                 mitsu_id=i[0],
                 mitsu_num=i[1],
                 mitsu_ver=i[2],
@@ -298,12 +317,21 @@ def hangire_index(request):
     if ses["han_or_apr"] == "han":
         fil["approach_id"]="0"
         approach_id="0"
-    elif ses["han_or_apr"] == "apr":    
-        fil["approach_id"]=ses["approach_id"]
-        approach_id=ses["approach_id"]
+    elif ses["han_or_apr"] == "half":
+        fil["approach_id"]="H"
+        approach_id="H"
+    elif ses["han_or_apr"] == "not_han":
+        fil["approach_id"]="G"
+        approach_id="G"
+    elif ses["han_or_apr"] == "lost":
+        fil["approach_id"]="L"
+        approach_id="L"
     elif ses["han_or_apr"] == "nou":    
         fil["approach_id"]="N"
         approach_id="N"
+    elif ses["han_or_apr"] == "apr":    
+        fil["approach_id"]=ses["approach_id"]
+        approach_id=ses["approach_id"]
 
     if ses["han_busho"] != "":
         fil["busho_apr_id"]=ses["han_busho"]
@@ -418,6 +446,8 @@ def hangire_index(request):
             sort_list={"juchu_day":"見積日","money":"金額"}
         else:
             sort_list={"juchu_day":"見積日","money":"金額"}
+    elif ses["han_or_apr"] == "lost": 
+        sort_list={"juchu_day":"見積日","money":"金額"}
     else:
         sort_list={"juchu_day":"受注日","money":"金額"}
     
@@ -787,7 +817,7 @@ def shukei_index(request):
     ins=Hangire.objects.filter(**fil).exclude(tantou_id__in=del_list)
 
     # アプローチの場合は部署名を変更（版切れはデータ量が多いのでそのまま）
-    if ses["shukei_id"]=="0" or ses["shukei_id"]=="N":
+    if ses["shukei_id"] in ["0","H","G","N","L"]:
         df=read_frame(ins)
     else:
         list_ch=[]
@@ -872,8 +902,14 @@ def shukei_click(request):
     sh_type=request.POST["shurui"]
     if sh_type=="han":
         request.session["han_apr_shukei"]["shukei_id"]="0"
+    elif sh_type=="half":
+        request.session["han_apr_shukei"]["shukei_id"]="H"
+    elif sh_type=="not_han":
+        request.session["han_apr_shukei"]["shukei_id"]="G"
     elif sh_type=="nou":
         request.session["han_apr_shukei"]["shukei_id"]="N"
+    elif sh_type=="lost":
+        request.session["han_apr_shukei"]["shukei_id"]="L"
     elif sh_type=="apr":
         request.session["han_apr_shukei"]["shukei_id"]=request.POST["choice_approach_id"]
 

@@ -24,13 +24,21 @@
 
             <!-- 版切れリスト -->
             <hr>
-            <div class="block_title">版切れリスト読み込み</div>
+            <div class="block_title">定期配信リスト読み込み</div>
             <hr>
             <div>
                 <form action="{% url 'apr:hangire_csv_imp' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
                     <div class="flex" style="margin-top: 15px;">
                         <div>データCSV：</div>
-                        <div><input class="form-control" type="file" name="csv2" id="csv2" style="width: 400px;" required></div>
+                        <div><input class="form-control" type="file" name="csv2" id="csv2" style="width: 400px;"></div>
+                        <div style="margin-left: 20px;">
+                            <select class="form-select" name="kubun">
+                                <option value="0" selected>通常版切れ</option>
+                                <option value="H">半年版切れ</option>
+                                <option value="G">版切れ以外受注</option>
+                                <option value="L">失注</option>
+                            </select>
+                        </div>
                         <div style="margin-left: 30px;"><button type="submit" class="btn btn-primary" id="btn_hangire">取込</button></div>
                         <div style="margin-left: 30px;">
                             {% if ans2 %}
