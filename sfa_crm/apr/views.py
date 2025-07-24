@@ -445,7 +445,7 @@ def hangire_index(request):
         if Approach_list.objects.get(approach_id=ses["approach_id"]).day_type == 1:
             sort_list={"juchu_day":"見積日","money":"金額"}
         else:
-            sort_list={"juchu_day":"見積日","money":"金額"}
+            sort_list={"juchu_day":"受注日","money":"金額"}
     elif ses["han_or_apr"] == "lost": 
         sort_list={"juchu_day":"見積日","money":"金額"}
     else:

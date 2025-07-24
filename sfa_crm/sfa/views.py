@@ -1777,8 +1777,9 @@ def csv_imp(request):
 def clear_session(request):
     request.session.clear()
 
-    # ins=Hangire.objects.filter(busho_id="400",tantou_id="50")
+    # ins=Crm_action.objects.filter(approach_id__in=["9","7","6"])
     # for i in ins:
-    #     print(i.busho_id,i.busho_apr_id,i.tantou_id,i.tantou_apr_id,i.mitsu_num,i.mitsu_ver)
+    #     i.approach_id="0"
+    #     i.save()
   
     return redirect("sfa:index")
