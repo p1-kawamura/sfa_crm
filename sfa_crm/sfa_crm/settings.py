@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'sfa',
     'crm',
     'apr',
+    'houjin',
 ]
 
 MIDDLEWARE = [

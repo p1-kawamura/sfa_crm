@@ -237,3 +237,24 @@ hr {
         border: 1px solid #ccc;
     }
   }
+
+/* huojin */
+.kanban-board header {
+  background-color: gray;
+  color: white;
+}
+.kanban-board header.red {
+  background-color: crimson;
+}
+.kanban-board header.blue {
+  background-color: royalblue;
+}
+.kanban-board header.green {
+  background-color: green;
+}
+.houjin_card {
+    border: 1px solid #4CD2FF; 
+    border-top-width: 7px;
+    padding: 5px;
+    background-color: #c8e1f7;
+}

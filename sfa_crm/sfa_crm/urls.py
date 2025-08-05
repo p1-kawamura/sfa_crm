@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include("sfa.urls")),
     path('crm/', include("crm.urls")),
     path('apr/', include("apr.urls")),
+    path('houjin/', include("houjin.urls")),
 ]
