@@ -43,6 +43,7 @@ class Sfa_data(models.Model):
     lost_reason=models.IntegerField("失注理由",default=0)
     lost_reason_text=models.TextField("その他の失注理由",max_length=255,blank=True,null=True)
     houjin_col=models.CharField("法人カラム",default=0,max_length=255)
+    houjin_index=models.IntegerField("法人順番",default=0)
     s_status=models.CharField("s_ステータス",max_length=255,blank=True,null=True)
     s_use_youto=models.CharField("s_使用用途",max_length=255,blank=True,null=True)
     s_nouki=models.CharField("s_納期",max_length=255,blank=True,null=True)
