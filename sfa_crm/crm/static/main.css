@@ -250,6 +250,7 @@ hr {
 .kanban-board header {
   background-color: gray;
   color: white;
+  display: none;
 }
 .kanban-board header.red {
   background-color: crimson;
