@@ -76,7 +76,7 @@ def houjin_load(request):
                 + "<div style='width: 30px;'>" + keiro + "</div>" \
                 + "<div style='width: 30px;'>" + use + "</div>" \
                 + "<div style='width: 30px;'>" + youto + "</div></div>" \
-                + "<div class='flex'><div style='width: 35px;' id='" + h.mitsu_id + "' name='sfa_list'>" \
+                + "<div class='flex'><div style='width: 37px;' id='" + h.mitsu_id + "' name='sfa_list'>" \
                 + "<button type='button' class='btn btn-outline-secondary btn-sm' style='border-radius: 50%;' data-bs-toggle='modal' data-bs-target='#modal_est'>" \
                 + "<i class='bi bi-pencil-square'></i></button></div>" \
                 + "<div style='width: 35px;' id='" + h.cus_id + "' name='crm_list'>" \
