@@ -4,7 +4,8 @@ from django.http import JsonResponse
 
 
 def houjin_index(request):
-    return render(request,"houjin/houjin_index.html")
+    col_name=["新規取込","商談誘発","見積・提案","納期・価格交渉","確定・入稿待ち","イメージ・校正","受注","納品","失注","保留","リサイクル"]
+    return render(request,"houjin/houjin_index.html",{"col_name":col_name})
 
 
 def houjin_load(request):
@@ -24,7 +25,7 @@ def houjin_load(request):
     
     dataContent=[]
     for key,val in col_name.items():
-        ins=Sfa_data.objects.filter(tantou_id="798",houjin_col=key)[:5]
+        ins=Sfa_data.objects.filter(tantou_id="798",houjin_col=key,show=0).order_by("houjin_index")[:5]
         item=[]
         for h in ins:
 
@@ -75,10 +76,10 @@ def houjin_load(request):
                 + "<div style='width: 30px;'>" + keiro + "</div>" \
                 + "<div style='width: 30px;'>" + use + "</div>" \
                 + "<div style='width: 30px;'>" + youto + "</div></div>" \
-                + "<div class='flex'><div style='width: 40px;' id='" + h.mitsu_id + "' name='sfa_list'>" \
+                + "<div class='flex'><div style='width: 35px;' id='" + h.mitsu_id + "' name='sfa_list'>" \
                 + "<button type='button' class='btn btn-outline-secondary btn-sm' style='border-radius: 50%;' data-bs-toggle='modal' data-bs-target='#modal_est'>" \
                 + "<i class='bi bi-pencil-square'></i></button></div>" \
-                + "<div style='width: 40px;' id='" + h.cus_id + "' name='crm_list'>" \
+                + "<div style='width: 35px;' id='" + h.cus_id + "' name='crm_list'>" \
                 + "<button type='button' class='btn btn-outline-success btn-sm' style='border-radius: 50%;'>" \
                 + "<i class='bi bi-person-square'></i></button></div></div></div>" \
                 + "<div style='font-size: 0.9em;'>" \
@@ -140,4 +141,20 @@ def houjin_load(request):
     #     ]
 
     d={"dataContent":dataContent}
+    return JsonResponse(d)
+
+
+def houjin_move(request):
+    column=request.POST.get("target_column")
+    index_list=request.POST.get("col_index")
+    column_num=column.replace("column_","")
+    index_list=eval(index_list)
+
+    for i,h in enumerate(index_list):
+        ins=Sfa_data.objects.get(mitsu_id=h)
+        ins.houjin_col=column_num
+        ins.houjin_index=i
+        ins.save()
+
+    d={}
     return JsonResponse(d)
