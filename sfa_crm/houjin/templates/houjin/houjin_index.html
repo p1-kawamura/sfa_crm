@@ -360,7 +360,6 @@
                     
                     // ボードクリック時
                     click: function(el) {
-
                         var cn=event.target.className;
                         // 見積番号
                         if (cn=="bi bi-box-arrow-up-right"){
@@ -401,19 +400,13 @@
                     items[i].style.padding="0px";
                 }
 
-                
-
-
             })
             
         }
 
         function onKanbanItemDropped(el, target, source, sibling) {
-            // var boad_id=el.getAttribute("data-eid");
             var target_column = target.parentNode.dataset.id; // 移動先カラムのID
-
             var items = Array.from(target.querySelectorAll(".kanban-item"));
-            // var boad_index = items.indexOf(el); //上から何番目
 
             col_index=[]
             for (var i=0; i<items.length; i++){

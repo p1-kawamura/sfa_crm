@@ -86,3 +86,14 @@ class Cus_tougou(models.Model):
         return self.last_api
     
     # 固定名：lastでlast_apiを上書きしていく
+
+
+
+class Cus_search_kubun(models.Model):
+    kubun=models.IntegerField("区分",default=0)
+    word=models.CharField("検索単語",max_length=255)
+
+    def __str__(self):
+        return self.word
+    
+    # kubun（区分）　1:法人　2:個人事業　3:学校系　4:部活・サークル系　5:公共系　6:イベント系

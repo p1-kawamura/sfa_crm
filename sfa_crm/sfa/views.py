@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member,Sfa_group,Credit_url
-from crm.models import Customer,Crm_action
+from crm.models import Customer,Crm_action,Cus_search_kubun
 from apr.models import Approach_list,Hangire
 import csv
 import io
@@ -1680,13 +1680,11 @@ def csv_imp(request):
     csv_list=list(csv_content)
 
 
-    # Crm_actionへの入力
+    # Crm_search_kubunへの入力
     h=0
     for i in csv_list:
         if h!=0:
-            ins=Hangire.objects.get(mitsu_id=i[0])
-            ins.order_kubun=i[1]
-            ins.save()
+            Cus_search_kubun.objects.create(kubun=i[0],word=i[1])    
         h+=1
 
 
