@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action,Customer,Cus_group,Cus_tougou
+from .models import Crm_action,Customer,Cus_group,Cus_tougou,Cus_search_kubun
 from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
 from apr.models import Approach_list
 import requests
@@ -13,6 +13,7 @@ from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum,Max
 from django_pandas.io import read_frame
+from django.db.models import Q
 
 
 
@@ -759,6 +760,8 @@ def cus_list_index(request):
         request.session["cus_search"]["all_page_num"]=""
     if "apr_list" not in request.session["cus_search"]:
         request.session["cus_search"]["apr_list"]=""
+    if "cus_kubun" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_kubun"]=[]
 
     ses=request.session["cus_search"]
 
@@ -835,7 +838,18 @@ def cus_list_index(request):
         li_group=li_parent + li_child
         fil["cus_id__in"]=li_group
 
-    items=Customer.objects.filter(**fil).order_by("cus_touroku").reverse()
+    items=Customer.objects.filter(**fil)
+
+    # 顧客タイプ
+    if len(ses["cus_kubun"]) > 0:
+        kubun_list=list(Cus_search_kubun.objects.filter(kubun__in=ses["cus_kubun"]).values_list("word",flat=True))
+        query = Q()
+        for i in kubun_list:
+            query |= Q(com__icontains=i)
+        ins_kubun=Customer.objects.filter(query)
+        items &= ins_kubun
+
+    items=items.order_by("cus_touroku").reverse()
     result=items.count()
 
     #全ページ数
@@ -907,6 +921,7 @@ def cus_list_index(request):
         "result":result,
         "li_parent":li_parent,
         "li_child":li_child,
+        "cus_kubun":{"1":"法人","2":"個人事業","3":"学校系","4":"部活・サークル系","5":"公共系","6":"イベント系"},
     }
 
     return render(request,"crm/cus_list.html",params)
@@ -955,6 +970,7 @@ def cus_list_search(request):
     request.session["cus_search"]["royal"]=request.POST.getlist("royal")
     request.session["cus_search"]["taimen"]=request.POST.getlist("taimen")
     request.session["cus_search"]["group"]=request.POST.getlist("group")
+    request.session["cus_search"]["cus_kubun"]=request.POST.getlist("cus_kubun")
     request.session["cus_search"]["apr_list"]=request.POST["apr_list"]
     request.session["cus_search"]["page_num"]=1
 

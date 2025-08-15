@@ -148,6 +148,21 @@
                     </div>
 
                     <div class="flex mt-4">
+                        <div class="flex">
+                            <div>顧客タイプ：</div>
+                            <div style="margin-left: -20px;">
+                                {% for key,val in cus_kubun.items %}
+                                    {% if key in ses.cus_kubun %}
+                                        <input class="form-check-input" type="checkbox" style="margin-left: 20px;" name="cus_kubun" value="{{key}}" checked> {{val}}
+                                    {% else %}
+                                        <input class="form-check-input" type="checkbox" style="margin-left: 20px;" name="cus_kubun" value="{{key}}"> {{val}}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex mt-4">
                         <div class="form-check">
                             {% if ses.grip %}
                             <input class="form-check-input" type="checkbox" id="grip" name="grip" checked>グリップ顧客
@@ -155,13 +170,13 @@
                             <input class="form-check-input" type="checkbox" id="grip" name="grip">グリップ顧客
                             {% endif %}
                         </div>
-                        <div class="form-check" style="margin-left: 30px;">
+                        <!-- <div class="form-check" style="margin-left: 30px;">
                             {% if ses.royal %}
                             <input class="form-check-input" type="checkbox" id="royal" name="royal" checked>ロイヤルカスタマー
                             {% else %}
                             <input class="form-check-input" type="checkbox" id="royal" name="royal">ロイヤルカスタマー
                             {% endif %}
-                        </div>
+                        </div> -->
                         <div class="form-check" style="margin-left: 30px;">
                             {% if ses.taimen %}
                             <input class="form-check-input" type="checkbox" id="taimen" name="taimen" checked>対面あり
