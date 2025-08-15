@@ -406,10 +406,15 @@
             document.getElementById("juchu_money_st").value="";
             document.getElementById("juchu_money_ed").value="";
             document.getElementById("grip").checked=false;
-            document.getElementById("royal").checked=false;
+            // document.getElementById("royal").checked=false;
             document.getElementById("taimen").checked=false;
             document.getElementById("group").checked=false;
             document.getElementById("apr_list").value="";
+
+            var kubun=document.getElementsByName("cus_kubun");
+            for (var i=0; i<kubun.length; i++){
+                kubun[i].checked=false;
+            }
         }
 
         // 詳細クリアボタン
