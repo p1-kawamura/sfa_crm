@@ -861,8 +861,12 @@
             var m_status=document.getElementById("modal_status").value;
             var lost_reason=document.getElementById("modal_lost_reason").value;
             var lost_reason_text=document.getElementById("modal_lost_reason_text").value;
-            if (kakudo != "" && kakudo_day==""){
+            if (kakudo != "" && kakudo_day == ""){
                 window.alert("確度の予定日を設定してください！");
+                return
+            };
+            if (kakudo == "" && kakudo_day !=""){
+                window.alert("予定日が入力されています。確度を設定してください！");
                 return
             };
             if (m_status=="失注" && lost_reason=="0"){
