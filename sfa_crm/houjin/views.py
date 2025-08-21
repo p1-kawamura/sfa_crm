@@ -194,11 +194,12 @@ def calendar_index(request):
         # 発送履歴
         ins=Sfa_data.objects.filter(hassou_day=day,tantou_id="798")
         for h in ins:
-            com=h.com or ""
-            sei=h.sei or ""
-            mei=h.mei or ""
-            str_mon += "<a href='" + h.mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
-                        + com + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円</div></a>"
+            if h.money > 0:
+                com=h.com or ""
+                sei=h.sei or ""
+                mei=h.mei or ""
+                str_mon += "<a href='" + h.mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
+                            + com + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円</div></a>"
                 
         str_mon += "</td>"
 
@@ -209,13 +210,13 @@ def calendar_index(request):
     # 第１週と最終週
     mon_day_1=datetime.date(y,m,1).weekday()
     if mon_day_1 != 6:
-        str_mon = "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "'></td>" + str_mon
+        str_mon = "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "' style='background-color: #f1f1f1;'></td>" + str_mon
 
     mon_day_last=datetime.date(y,m,last_day).weekday()
     if mon_day_last == 6:
-        str_mon += "<td colspan='6'></td></tr>"
+        str_mon += "<td colspan='6' style='background-color: #f1f1f1;'></td></tr>"
     elif mon_day_last != 5:
-        str_mon += "<td colspan='" + str(5 - mon_day_last) + "'></td></tr>"
+        str_mon += "<td colspan='" + str(5 - mon_day_last) + "' style='background-color: #f1f1f1;'></td></tr>"
 
 
 
