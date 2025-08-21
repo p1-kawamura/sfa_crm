@@ -1,13 +1,18 @@
 from django.shortcuts import render,redirect
 from sfa.models import Sfa_data,Member
 from django.http import JsonResponse
+import datetime
+import calendar
+import jpholiday
 
 
+# 法人案件ボード
 def houjin_index(request):
     col_name=["新規取込","商談誘発","見積・提案","納期・価格交渉","確定・入稿待ち","イメージ・校正","受注","納品","失注","保留","リサイクル"]
     return render(request,"houjin/houjin_index.html",{"col_name":col_name})
 
 
+# 法人案件ボード_初期値
 def houjin_load(request):
     col_name={
         "0":"新規取込",
@@ -144,6 +149,7 @@ def houjin_load(request):
     return JsonResponse(d)
 
 
+# 法人案件ボード_移動
 def houjin_move(request):
     column=request.POST.get("target_column")
     index_list=request.POST.get("col_index")
@@ -158,3 +164,60 @@ def houjin_move(request):
 
     d={}
     return JsonResponse(d)
+
+
+# 発送履歴カレンダー
+def calendar_index(request):
+    if request.method=="GET":
+        mon=datetime.date.today().strftime("%Y-%m")
+    else:
+        mon=request.POST["hassou_month"]
+    
+    y=int(mon[:4])
+    m=int(mon[-2:])
+    last_day=calendar.monthrange(y,m)[1]
+
+    str_mon=""
+    for i in range(1,last_day+1):
+        day=datetime.date(y,m,i)
+
+        # 土日祝
+        if jpholiday.is_holiday(day):
+            str_mon += "<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+        elif day.weekday() == 6:
+            str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+        elif day.weekday() == 5:
+            str_mon += "<td style='background-color: #c6ffff;'><div style='color: #0000ff; font-weight: bold;'>" + str(i) + "</div>"
+        else:
+            str_mon += "<td><div style='font-weight: bold;'>" + str(i) + "</div>"
+
+        # 発送履歴
+        ins=Sfa_data.objects.filter(hassou_day=day,tantou_id="798")
+        for h in ins:
+            com=h.com or ""
+            sei=h.sei or ""
+            mei=h.mei or ""
+            str_mon += "<a href='" + h.mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
+                        + com + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円</div></a>"
+                
+        str_mon += "</td>"
+
+        # 行の最終
+        if day.weekday()==5:
+            str_mon += "</tr>"
+
+    # 第１週と最終週
+    mon_day_1=datetime.date(y,m,1).weekday()
+    if mon_day_1 != 6:
+        str_mon = "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "'></td>" + str_mon
+
+    mon_day_last=datetime.date(y,m,last_day).weekday()
+    if mon_day_last == 6:
+        str_mon += "<td colspan='6'></td></tr>"
+    elif mon_day_last != 5:
+        str_mon += "<td colspan='" + str(5 - mon_day_last) + "'></td></tr>"
+
+
+
+    params={"calendar_body":str_mon,"hassou_month":mon}
+    return render(request,"houjin/calendar.html",params)
