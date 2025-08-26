@@ -231,11 +231,11 @@
                                 <div style="width: 120px;">{% if i.sei %}{{i.sei}}{% endif %} {% if i.mei %}{{i.mei}}{% endif %}</div>
                                 <div style="width: 250px;" class="flex">
                                     <div class="order_use">見</div>
-                                    <div style="margin-left: 7px;">{{i.mitsu_all}}回（最終：{{i.mitsu_last}}）</div>
+                                    <div style="margin-left: 7px;">{{i.mitsu_all}}回{% if i.mitsu_last %}（最終：{{i.mitsu_last}}）{% endif %}</div>
                                 </div>
                                 <div style="width: 250px;" class="flex">
                                     <div class="order_use">受</div>
-                                    <div style="margin-left: 7px;">{{i.juchu_all}}回（最終：{{i.juchu_last}}）</div>
+                                    <div style="margin-left: 7px;">{{i.juchu_all}}回{% if i.juchu_last %}（最終：{{i.juchu_last}}）{% endif %}</div>
                                 </div>
                                 <div style="width: 130px;" class="flex">
                                     <div class="order_use">金</div>
