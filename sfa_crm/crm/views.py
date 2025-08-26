@@ -14,6 +14,8 @@ import urllib.parse
 from django.db.models import Sum,Max
 from django_pandas.io import read_frame
 from django.db.models import Q
+import calendar
+import jpholiday
 
 
 
@@ -22,6 +24,10 @@ def index(request):
         request.session["cus_id"]=[]
     if "crm_act_type" not in request.session:
         request.session["crm_act_type"]="0"
+    if "cus_calendar_id" not in request.session:
+        request.session["cus_calendar_id"]=""
+    if "cus_calendar_type" not in request.session:
+        request.session["cus_calendar_type"]=True
     return render(request,"crm/index.html")
 
 
@@ -46,20 +52,62 @@ def kokyaku_api(request):
     else:
         kubun="self"
 
-    # 親、子それぞれ
-    ins_parent=""
-    ins_child=""
-    c_list=[]
-    if kubun != "self":
-        ins_parent=Customer.objects.get(cus_id=p_id)
-        c_list=list(Cus_group.objects.filter(cus_id_parent=p_id).values_list("cus_id_child",flat=True))
-        ins_child=Customer.objects.filter(cus_id__in=c_list)
-
     # グループ全体のメンバー
     if kubun == "self":
+        c_list=[]
         a_list=[cus_id]
     else:
+        c_list=list(Cus_group.objects.filter(cus_id_parent=p_id).values_list("cus_id_child",flat=True))
         a_list=set([cus_id,p_id] + c_list)
+        
+
+    # グループ詳細
+    group_member=[]
+    if kubun != "self":
+        for i in a_list:
+
+            if i==p_id:
+                g_kubun="parent"
+            else:
+                g_kubun="child"
+
+            ins=Customer.objects.get(cus_id=i)
+            dic_group={
+                "cus_id":i,
+                "cus_url":ins.cus_url,
+                "com":ins.com or "",
+                "com_busho":ins.com_busho or "",
+                "sei":ins.sei or "",
+                "mei":ins.mei or "",
+                "mitsu_all":ins.mitsu_all,
+                "juchu_all":ins.juchu_all,
+                "juchu_money":ins.juchu_money,
+                "mitsu_last":ins.mitsu_last,
+                "juchu_last":ins.juchu_last,
+                "kubun":g_kubun,
+                }
+
+            sfa_list=[]
+            ins2=Sfa_data.objects.filter(cus_id=i,hassou_day__isnull=False,order_kubun__in=["新規","追加","追加新柄"],money__gt=0)
+            for h in ins2:
+                dic_sfa={
+                    "mitsu_num":h.mitsu_num,
+                    "mitsu_ver":h.mitsu_ver,
+                    "mitsu_url":h.mitsu_url,
+                    "order_kubun":h.order_kubun,
+                    "money":h.money,
+                    "make_day":h.make_day,
+                    "juchu_day":h.juchu_day,
+                    "hassou_day":h.hassou_day,
+                    "nouhin_shitei":h.nouhin_shitei,
+                    "busho":Member.objects.get(tantou_id=h.tantou_id).busho,
+                    "tantou":Member.objects.get(tantou_id=h.tantou_id).tantou,
+                }
+                sfa_list.append(dic_sfa)
+            dic_group["sfa_list"]=sfa_list
+
+            group_member.append(dic_group)
+
     
     # グループ_候補
     g_com=Customer.objects.get(cus_id=cus_id).com
@@ -244,8 +292,7 @@ def kokyaku_api(request):
         "crm_act_type":crm_act_type,
         "cus_id":cus_id,
         "kubun":kubun,
-        "ins_parent":ins_parent,
-        "ins_child":ins_child,
+        "group_member":group_member,
         "group_list":group_list,
         "cus_data":cus_data,
     }
@@ -379,6 +426,110 @@ def crm_bikou(request):
     data=json.dumps(data)
     url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/remark"
     requests.put(url,data=data)
+    d={}
+    return JsonResponse(d)
+
+
+# 発送履歴カレンダー
+def cus_calendar_index(request):
+    if request.method=="GET":
+        cus_id=request.session["cus_calendar_id"]
+        mon=datetime.date.today().strftime("%Y-%m")
+    else:
+        cus_id=request.POST["cus_id"]
+        mon=request.POST["hassou_month"]
+    
+    y=int(mon[:4])
+    m=int(mon[-2:])
+    last_day=calendar.monthrange(y,m)[1]
+
+    # 顧客グループ
+    if Cus_group.objects.filter(cus_id_parent=cus_id).count()>0:
+        p_id=cus_id
+    elif Cus_group.objects.filter(cus_id_child=cus_id).count()>0:
+        p_id=Cus_group.objects.get(cus_id_child=cus_id).cus_id_parent
+    else:
+        p_id=""
+
+    c_list=list(Cus_group.objects.filter(cus_id_parent=p_id).values_list("cus_id_child",flat=True))
+    a_list=set([cus_id,p_id] + c_list)
+
+    cus_list=[]
+    for i in a_list:
+        try:
+            ins=Customer.objects.get(cus_id=i)
+            com=ins.com or ""
+            com_busho=ins.com_busho or ""
+            sei=ins.sei or ""
+            mei=ins.mei or ""
+            cus_list.append(com + "　" + com_busho + "　" + sei + mei)
+        except:
+            pass
+
+    str_mon=""
+    for i in range(1,last_day+1):
+        day=datetime.date(y,m,i)
+
+        # 土日祝
+        if jpholiday.is_holiday(day):
+            if day.weekday() == 6:
+                str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+            else:
+                str_mon += "<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+        elif day.weekday() == 6:
+            str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+        elif day.weekday() == 5:
+            str_mon += "<td style='background-color: #c6ffff;'><div style='color: #0000ff; font-weight: bold;'>" + str(i) + "</div>"
+        else:
+            str_mon += "<td><div style='font-weight: bold;'>" + str(i) + "</div>"
+
+        # 発送履歴
+        ins=Sfa_data.objects.filter(hassou_day=day,cus_id__in=a_list)
+
+        for h in ins:
+            if h.money > 0:
+                com=h.com or ""
+                com_busho=h.com_busho or ""
+                sei=h.sei or ""
+                mei=h.mei or ""
+                busho=Member.objects.get(tantou_id=h.tantou_id).busho
+                tantou=Member.objects.get(tantou_id=h.tantou_id).tantou
+                str_mon += "<a href='" + h.mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
+                            + com + "　" + com_busho + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円<br>" \
+                            + busho + "：" + tantou + "</div></a>"
+                
+        str_mon += "</td>"
+
+        # 行の最終
+        if day.weekday()==5:
+            str_mon += "</tr>"
+
+    # 第１週と最終週
+    mon_day_1=datetime.date(y,m,1).weekday()
+    if mon_day_1 != 6:
+        str_mon = "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "' style='background-color: #f1f1f1;'></td>" + str_mon
+
+    mon_day_last=datetime.date(y,m,last_day).weekday()
+    if mon_day_last == 6:
+        str_mon += "<td colspan='6' style='background-color: #f1f1f1;'></td></tr>"
+    elif mon_day_last != 5:
+        str_mon += "<td colspan='" + str(5 - mon_day_last) + "' style='background-color: #f1f1f1;'></td></tr>"
+
+    str_mon=str_mon.replace("　　","　")
+    
+    params={
+            "calendar_body":str_mon,
+            "hassou_month":mon,
+            "cus_id":cus_id,
+            "cus_list":cus_list,
+            }
+    return render(request,"crm/cus_calendar.html",params)
+
+
+# 発送履歴カレンダー_ボタン
+def cus_calendar_btn(request):
+    request.session["cus_calendar_id"]=request.POST.get("cus_calendar_id")
+    request.session["cus_calendar_type"]=request.POST.get("cus_calendar_type")
     d={}
     return JsonResponse(d)
 

@@ -211,48 +211,82 @@
             <hr>
 
             <!-- 中段 （グループ状態 / 候補） -->
-            <div class="flex3" style="margin-top: 20px;">
+            <div style="margin-top: 20px;">
                 <div>
-                    <div>
-                        {% if kubun == "parent" %}
-                        ■グループ設定：親設定
-                        {% elif kubun == "child" %}
-                        ■グループ設定：子設定
-                        {% else %}
-                        ■グループ設定：なし
-                        {% endif %}
-                    </div>
-                    
-                    <!-- 親表示 -->
-                    {% if kubun == "parent" %}
-                    <div style="margin-top: 20px; font-weight: bold; background-color: yellow;">
-                    {% else %}
-                    <div class="group_over" id="{{ins_parent}}" name="crm_list" style="margin-top: 20px;">
-                    {% endif %}
-                        {% if ins_parent.com %}{{ins_parent.com}}{% endif %}
-                        {% if ins_parent.com_busho %}　{{ins_parent.com_busho}}{% endif %}
-                        {% if ins_parent.sei %}　{{ins_parent.sei}}{% endif %}
-                        {% if ins_parent.mei %}{{ins_parent.mei}}{% endif %}
-                    </div>
-                    
-                    <!-- 子表示 -->
-                    <div style="margin-top: 10px; margin-left: 40px; font-size: 0.9em;">
-                        {% for i in ins_child %}
-                            {% if i.cus_id == cus_id %}
-                            <div style="margin-top: 10px; font-weight: bold; background-color: yellow;">
-                            {% else %}
-                            <div class="group_over" id="{{i.cus_id}}" name="crm_list" style="margin-top: 10px;">
-                            {% endif %}
-                                <i class="bi bi-arrow-return-right"></i>
-                                {% if i.com %}{{i.com}}{% endif %}
-                                {% if i.com_busho %}　{{i.com_busho}}{% endif %}
-                                {% if i.sei %}　{{i.sei}}{% endif %}
-                                {% if i.mei %}{{i.mei}}{% endif %}
+                    <div>■グループ設定</div>
+
+                    {% if kubun != "self" %}
+                    <div style="margin-top: 20px;">
+                        {% for i in group_member %}
+                        <div class="sfa_main">
+                            <div class="flex">
+                                <div style="width: 40px;">
+                                    <div id="btn_{{i.cus_id}}" name="btn_sfa" style="cursor: pointer; font-size: 1.2em;"><i class="bi bi-caret-down-square"></i></div>
+                                </div>
+                                <div style="width: 90px;">
+                                    <a href="{{i.cus_url}}" target="_blank"><span style="color: #ee827c;"><i class="bi bi-box-arrow-up-right"></i></span></a> {{i.cus_id}}
+                                </div>
+                                <div style="width: 220px;" title="{{i.com}}">{% if i.com %}{{i.com | truncatechars:14}}{% endif %}</div>
+                                <div style="width: 150px;" title="{{i.com_busho}}">{% if i.com_busho %}{{i.com_busho | truncatechars:10}}{% endif %}</div>
+                                <div style="width: 120px;">{% if i.sei %}{{i.sei}}{% endif %} {% if i.mei %}{{i.mei}}{% endif %}</div>
+                                <div style="width: 250px;" class="flex">
+                                    <div class="order_use">見</div>
+                                    <div style="margin-left: 7px;">{{i.mitsu_all}}回（最終：{{i.mitsu_last}}）</div>
+                                </div>
+                                <div style="width: 250px;" class="flex">
+                                    <div class="order_use">受</div>
+                                    <div style="margin-left: 7px;">{{i.juchu_all}}回（最終：{{i.juchu_last}}）</div>
+                                </div>
+                                <div style="width: 130px;" class="flex">
+                                    <div class="order_use">金</div>
+                                    <div style="margin-left: 7px;">{{i.juchu_money | intcomma}}円</div>
+                                </div>
+                                {% if i.cus_id == cus_id %}
+                                <div style="width: 30px; text-align: center; background-color: #ffff00;">
+                                {% else %}
+                                <div style="width: 30px; text-align: center;">
+                                {% endif %}
+                                    {% if i.kubun == "parent" %}
+                                    <span style="color: red; font-size: 1.2em;" title="グループ：親設定"><i class="bi bi-google"></i></span>
+                                    {% else %}
+                                    <span style="color: blue; font-size: 1.2em;" title="グループ：子設定"><i class="bi bi-google"></i></span>
+                                    {% endif %}
+                                </div>
                             </div>
+                            <div id="show_{{i.cus_id}}" style="display: none;">
+                                <hr>
+                                {% for h in i.sfa_list %}
+                                <div class="flex mt-2" style="margin-left: 10px;">
+                                    <div style="width: 120px;">{{h.make_day}}</div>
+                                    <div style="width: 100px;">
+                                        <a href="{{h.mitsu_url}}" target="_blank"><span style="color: #008b8b;"><i class="bi bi-box-arrow-up-right"></i></span></a>
+                                        <span>{{h.mitsu_num}}-{{h.mitsu_ver}}</span>
+                                    </div>
+                                    <div style="width: 80px;">
+                                        {% if h.order_kubun == "新規" %}
+                                            <div class="order order_1">新規</div>
+                                        {% elif h.order_kubun == "追加" %}
+                                            <div class="order order_2">追加</div>
+                                        {% elif h.order_kubun == "追加新柄" %}
+                                            <div class="order order_3">新追</div>
+                                        {% endif %}
+                                    </div>
+                                    <div style="width: 150px;">{{h.money | intcomma}}円</div>
+                                    <div style="width: 200px;">受注日：{{h.juchu_day}}</div>
+                                    <div style="width: 200px;">発送日：{{h.hassou_day}}</div>
+                                    <div style="width: 200px;">指定日：{% if h.nouhin_shitei %}{{h.nouhin_shitei}}{% endif %}</div>
+                                    <div style="font-size: 0.9em;">{{h.busho}}：{{h.tantou}}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                         {% endfor %}
                     </div>
+                    {% endif %}
+
+                    <!-- グループ総計 -->
                     {% if kubun != "self" %}
-                    <div style="margin-top: 50px; font-size: 0.9em; width: 500px;">
+                    <div style="margin-top: 30px; font-size: 0.9em; width: 500px;">
                         <div>【グループ総計】</div>
                         <table class="table table-bordered group_sum" style="margin-top: 5px;">
                             <tr>
@@ -278,18 +312,18 @@
                         </table>
                     </div>
                     {% endif %}
+                    
+                </div>
+                <div class="mb-4">
                     <div style="margin-top: 30px;">
                         <form action="{% url 'crm:group_index' %}" method="post">{% csrf_token %}
                             <input type="text" value="A" name="post_kubun" style="display: none;">
                             <input type="text" value="{{res.id}}" name="cus_id" style="display: none;">
-                            <button class="btn btn-secondary" type="submit">グループを編集する</button>
+                            <button class="btn btn-outline-success" type="submit">グループを編集する</button>
                         </form>
                     </div>
-                </div>
-
-                <div>
-                    <div>グループ候補の顧客： {{group_list | length}}件</div>
-                    <div class="inlineframe2" style="height: 200px; width: 700px; border: 1px solid #ced4da; font-size: 0.9em;">
+                    <div style="margin-top: 20px;">候補： {{group_list | length}}件</div>
+                    <div class="inlineframe2" style="height: 200px; width: 1200px; border: 1px solid #ced4da; font-size: 0.9em;">
                         {% for i in group_list %}
                             {% if i.type %}
                             <div class="flex" style="color: blue; width: 1200px;">
@@ -310,32 +344,38 @@
             <div class="flex2" style="width: 1300px;">
                 <!-- 履歴一覧 -->
                 <div>
-                    <div class="flex">
-                        <div style="width: 75px;">
-                            <select class="form-select form-select-sm" id="left_sort">
-                                {% if crm_sort == "0" %}
-                                <option value="0" selected>昇順</option>
-                                <option value="1">降順</option>
+                    <div class="flex3">
+                        <div class="flex">
+                            <div style="width: 75px;">
+                                <select class="form-select form-select-sm" id="left_sort">
+                                    {% if crm_sort == "0" %}
+                                    <option value="0" selected>昇順</option>
+                                    <option value="1">降順</option>
+                                    {% else %}
+                                    <option value="0">昇順</option>
+                                    <option value="1" selected>降順</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div style="margin-left: 50px;">
+                                {% if crm_act_type == "0" %}
+                                <input type="radio" name="self_group" id="self_group_0" checked> 単体表示
+                                    {% if kubun != "self" %}
+                                    <input type="radio" name="self_group" id="self_group_1" style="margin-left: 20px;"> グループ表示
+                                    {% endif %}
                                 {% else %}
-                                <option value="0">昇順</option>
-                                <option value="1" selected>降順</option>
+                                <input type="radio" name="self_group" id="self_group_0"> 単体表示
+                                    {% if kubun != "self" %}
+                                    <input type="radio" name="self_group" id="self_group_1" style="margin-left: 20px;" checked> グループ表示
+                                    {% endif %}
                                 {% endif %}
-                            </select>
+                            </div>
                         </div>
-                        <div style="margin-left: 50px;">
-                            {% if crm_act_type == "0" %}
-                            <input type="radio" name="self_group" id="self_group_0" checked> 単体表示
-                                {% if kubun != "self" %}
-                                <input type="radio" name="self_group" id="self_group_1" style="margin-left: 20px;"> グループ表示
-                                {% endif %}
-                            {% else %}
-                            <input type="radio" name="self_group" id="self_group_0"> 単体表示
-                                {% if kubun != "self" %}
-                                <input type="radio" name="self_group" id="self_group_1" style="margin-left: 20px;" checked> グループ表示
-                                {% endif %}
-                            {% endif %}
+                        <div>
+                            <button class="btn btn-outline-success btn-sm" type="button" id="cus_calendar"><i class="bi bi-calendar3"></i> 発送履歴カレンダー</button>
                         </div>
                     </div>
+                    
                     <div class="inlineframe" style="height: 1500px; width: 600px; border: 1px solid #ced4da;">
                         {% for i in res_det %}
                             {% if i.kubun == "est" %}
@@ -849,21 +889,38 @@
         },false);
 
 
-        // グループ_顧客詳細ボタン
-        var item=document.getElementsByName("crm_list");
+        // グループ_受注詳細ボタン
+        var item=document.getElementsByName("btn_sfa");
         for (var i=0; i<item.length; i++){
             item[i].addEventListener("click",function(){
-                $.ajax({
-                    'url': '{% url "sfa:kokyaku_detail_api" %}',
-                    'type': 'POST',
-                    'data': {"cus_id":this.id},
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    window.open("{% url 'crm:kokyaku_api' %}", '_blank');
-                })
+                cus_id=this.id.replace("btn_","");
+                var btn_cus=document.getElementById("btn_" + cus_id);
+                var disp = document.getElementById("show_" + cus_id);
+                if (disp.style.display == "none"){
+                    disp.style.display = "";
+                    btn_cus.innerHTML="<i class='bi bi-caret-up-square-fill'></i>"
+                } else {
+                    disp.style.display = "none";
+                    btn_cus.innerHTML="<i class='bi bi-caret-down-square'></i>"
+                }
             },false)
         };
+
+
+        // 発送履歴カレンダー
+        document.getElementById("cus_calendar").addEventListener("click",function(){
+            $.ajax({
+                'url': '{% url "crm:cus_calendar_btn" %}',
+                'type': 'POST',
+                'data': {
+                    "cus_calendar_id":document.getElementById("grip_cus_id").innerText,
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.open("{% url 'crm:cus_calendar_index' %}", '_blank');
+            })
+        })
 
 
 

@@ -166,12 +166,18 @@ def houjin_move(request):
     return JsonResponse(d)
 
 
-# 発送履歴カレンダー
+# 担当別_発送履歴カレンダー
 def calendar_index(request):
+    if "houjin_tantou_id" not in request.session:
+        request.session["houjin_tantou_id"]=""
+
+    # 発送年月
     if request.method=="GET":
         mon=datetime.date.today().strftime("%Y-%m")
+        tantou_id=request.session["houjin_tantou_id"]
     else:
         mon=request.POST["hassou_month"]
+        tantou_id=request.POST["tantou_id"]
     
     y=int(mon[:4])
     m=int(mon[-2:])
@@ -183,7 +189,10 @@ def calendar_index(request):
 
         # 土日祝
         if jpholiday.is_holiday(day):
-            str_mon += "<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+            if day.weekday() == 6:
+                str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+            else:
+                str_mon += "<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
         elif day.weekday() == 6:
             str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
         elif day.weekday() == 5:
@@ -192,14 +201,15 @@ def calendar_index(request):
             str_mon += "<td><div style='font-weight: bold;'>" + str(i) + "</div>"
 
         # 発送履歴
-        ins=Sfa_data.objects.filter(hassou_day=day,tantou_id="798")
+        ins=Sfa_data.objects.filter(hassou_day=day,tantou_id=tantou_id)
         for h in ins:
             if h.money > 0:
                 com=h.com or ""
+                com_busho=h.com_busho or ""
                 sei=h.sei or ""
                 mei=h.mei or ""
                 str_mon += "<a href='" + h.mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
-                            + com + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円</div></a>"
+                            + com + "　" + com_busho + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円</div></a>"
                 
         str_mon += "</td>"
 
@@ -218,7 +228,15 @@ def calendar_index(request):
     elif mon_day_last != 5:
         str_mon += "<td colspan='" + str(5 - mon_day_last) + "' style='background-color: #f1f1f1;'></td></tr>"
 
+    str_mon=str_mon.replace("　　","　")
 
+    # 担当者
+    tantou_list=Member.objects.filter(houjin=1)
 
-    params={"calendar_body":str_mon,"hassou_month":mon}
-    return render(request,"houjin/calendar.html",params)
+    params={
+        "calendar_body":str_mon,
+        "hassou_month":mon,
+        "tantou_list":tantou_list,
+        "tantou_id":tantou_id,
+        }
+    return render(request,"houjin/tantou_calendar.html",params)

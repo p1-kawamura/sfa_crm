@@ -93,10 +93,13 @@ class Member(models.Model):
     busho_id=models.CharField("部署ID",max_length=5)
     tantou=models.CharField("担当",max_length=10)
     tantou_id=models.CharField("担当ID",max_length=5)
+    houjin=models.IntegerField("法人チーム",default=0)
     last_api=models.CharField("最終API接続",max_length=255,blank=True)
 
     def __str__(self):
         return self.tantou_id
+    
+    # houjin（法人チーム） 0:いいえ　1：はい
     
 
 class Sfa_group(models.Model):
