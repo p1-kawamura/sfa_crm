@@ -290,6 +290,10 @@ def houjin_gaishou_index(request):
         request.session["houjin_gaishou"]["recieve_day"]=""
     if "kubun" not in request.session["houjin_gaishou"]:
         request.session["houjin_gaishou"]["kubun"]=""
+    if "day_st" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["day_st"]=""
+    if "day_ed" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["day_ed"]=""
 
     ses=request.session["houjin_gaishou"]
     tantou_list=Member.objects.filter(houjin=1)
