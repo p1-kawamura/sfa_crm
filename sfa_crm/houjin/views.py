@@ -1,9 +1,12 @@
 from django.shortcuts import render,redirect
+from .models import Houjin_gaishou
 from sfa.models import Sfa_data,Member
 from django.http import JsonResponse
 import datetime
 import calendar
 import jpholiday
+import io
+import csv
 
 
 # 法人案件ボード
@@ -240,3 +243,166 @@ def calendar_index(request):
         "tantou_id":tantou_id,
         }
     return render(request,"houjin/tantou_calendar.html",params)
+
+
+# 法人外商リスト_取込
+def houjin_gaishou_imp(request):
+    data = io.TextIOWrapper(request.FILES['csv3'].file, encoding="cp932")
+    csv_content = csv.reader(data)
+    csv_list=list(csv_content)
+
+    h=0
+    for i in csv_list:
+        if h!=0:
+              Houjin_gaishou.objects.create(
+                recieve_day=i[0],
+                kubun=i[1],
+                houjin_com=i[2],
+                houjin_busho=i[3],
+                houjin_tantou=i[4],
+                houjin_tel=i[5],
+                houjin_mail=i[6],
+                houjin_address=i[7],
+                houjin_comment=i[8],
+              )
+        h+=1
+
+    return render(request,"apr/approach_list.html",{"ans3":"yes"})
+
+
+# 法人外商ボード_index
+def houjin_gaishou_index(request):
+    tantou_list=Member.objects.filter(houjin=1)
+    itaku_result=["","アポ","資料送付","お断り","その他"]
+    return render(request,"houjin/gaishou.html",{"tantou_list":tantou_list,"itaku_result":itaku_result})
+
+
+# 法人外商ボード_load
+def houjin_gaishou_load(request):
+    col_name={
+        "0":"新規",
+        "1":"資料送付",
+        "2":"アポ",
+        "3":"失注",
+        "4":"案件化",
+        }
+    
+    dataContent=[]
+    for key,val in col_name.items():
+        ins=Houjin_gaishou.objects.filter(boad_col=key).order_by("boad_row")
+        item=[]
+        for h in ins:
+            # 担当者
+            tantou_dic={
+                        "26":"mashimo.png",
+                        "798":"kanayama.png",
+                        "8":"mutou.png",
+                        "43":"tanaka.png"
+                        }
+            if h.tantou_id != None and h.tantou_id != "":
+                tantou_img="<img src='/static/" + tantou_dic[h.tantou_id] + "'>"
+                tantou_name=h.tantou
+            else:
+                tantou_img=""
+                tantou_name=""
+
+            if h.last_update != None and h.last_update != "":
+                last_update=h.last_update
+            else:
+                last_update=""
+
+            if h.bikou != None and h.bikou != "":
+                bikou=h.bikou
+            else:
+                bikou=""
+                
+
+            title_str="<div class='houjin_card'>" \
+                + "<div class='flex'>" \
+                    + "<div style='width: 70px;'>" + tantou_img + "</div>" \
+                    + "<div style='font-size: 0.9em;'>" \
+                        + "<div>受信：" + h.recieve_day + "</div>" \
+                        + "<div>委託：" + h.kubun + "</div>" \
+                    + "</div>" \
+                + "</div>" \
+                + "<div style='margin-top: 10px; font-weight: bold;'>" \
+                    + "<div>" + h.houjin_com + "</div>" \
+                    + "<div>" + h.houjin_busho + "</div>" \
+                    + "<div>" + h.houjin_tantou + "</div>" \
+                + "</div>" \
+                + "<div style='font-size: 0.9em;'>" \
+                    + "<div style='margin-top: 5px;'>" \
+                        + "<button type='button' class='btn btn-outline-success btn-sm'" \
+                            + "id='" + str(h.id) + "' name='gaishou_boad' data-bs-toggle='modal' data-bs-target='#modal_gaishou'>" \
+                            + "<i class='bi bi-pencil-square'></i> 詳細を確認 / 編集する" \
+                        + "</button>" \
+                    + "</div>" \
+                    + "<div style='margin-top: 5px;'>" \
+                        + "<div class='flex'>" \
+                            + "<div style='width: 60px;'>担当者：</div>" \
+                            + "<div>" + tantou_name + "</div>" \
+                        + "</div>" \
+                        + "<div class='flex'>" \
+                            + "<div style='width: 60px;'>更新日：</div>" \
+                            + "<div>" + last_update + "</div>" \
+                        + "</div>" \
+                        + "<div style='margin-top:5px'><textarea style='width: 100%; font-size: 0.8em;' rows='3' readonly>" + bikou + "</textarea>" \
+                    + "</div>" \
+                + "</div>" \
+                + "</div>"
+
+            item.append({"id":h.id,"title":title_str})
+
+        dataContent.append({"id":"column_" + key,"title":val,"item":item})
+
+    d={"dataContent":dataContent}
+    return JsonResponse(d)
+
+
+# 法人外商ボード_移動
+def houjin_gaishou_move(request):
+    column=request.POST.get("target_column")
+    index_list=request.POST.get("col_index")
+    column_num=column.replace("column_","")
+    index_list=eval(index_list)
+
+    for i,h in enumerate(index_list):
+        ins=Houjin_gaishou.objects.get(id=h)
+        ins.boad_col=column_num
+        ins.boad_row=i
+        ins.save()
+
+    d={}
+    return JsonResponse(d)
+
+
+# 法人外商ボード_モーダル表示用
+def houjin_gaishou_detail(request):
+    gaishou_id=request.POST.get("gaishou_id")
+    ins=list(Houjin_gaishou.objects.filter(id=gaishou_id).values())[0]
+    d={"detail":ins}
+    return JsonResponse(d)
+
+
+# 法人外商ボード_保存
+def houjin_gaishou_save(request):
+    gaishou_id=request.POST.get("gaishou_id")
+    tantou_id=request.POST.get("tantou_id")
+    bikou=request.POST.get("bikou")
+    itaku_result=request.POST.get("itaku_result")
+    itaku_bikou=request.POST.get("itaku_bikou")
+
+    ins=Houjin_gaishou.objects.get(id=gaishou_id)
+    ins.tantou_id=tantou_id
+    if tantou_id != "":
+        ins.tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    else:
+        ins.tantou=None
+    ins.bikou=bikou
+    ins.itaku_result=itaku_result
+    ins.itaku_bikou=itaku_bikou
+    ins.last_update=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ins.save()
+
+    d={}
+    return JsonResponse(d)

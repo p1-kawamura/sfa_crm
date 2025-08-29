@@ -76,6 +76,7 @@
                         <th>部署</th>
                         <th>担当者</th>
                         <th>ID</th>
+                        <th>法人担当</th>
                         <th>最終API</th>
                     </tr>
                     {% for i in list %}
@@ -83,6 +84,7 @@
                         <td>{{i.busho}}</td>
                         <td>{{i.tantou}}</td>
                         <td>{{i.tantou_id}}</td>
+                        <td>{% if i.houjin == 1 %}法人あり{% endif %}</td>
                         <td>{{i.last_api}}</td>
                     </tr>
                     {% endfor %}

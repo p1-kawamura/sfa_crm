@@ -1,0 +1,362 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.js"></script>
+    <link rel="icon" href="{% static 't-shirt_3.gif' %}">
+    <title>外商委託ボード</title>
+</head>
+<body>
+
+    <div class="mt-3 mb-5">
+
+        <!-- メニュー -->
+        <div style="margin: 0 auto; width: 1150px">
+            {% include "sfa/menu.html" with act_user=act_user %}
+        </div>
+
+        <div style="margin: 0 auto; width: 1300px;">
+            <hr>
+            <div class="block_title">外商委託ボード</div>
+            <hr>
+            
+            <!-- カンバン -->
+            <!-- <div class="inlineframe_houjin" style="width: 1300px; height: 800px;"> -->
+                <div id="kanban-canvas"></div>
+            <!-- </div> -->
+
+
+
+            <!-- カンバン2
+            <div class="inlineframe_houjin" style="width: 1300px; height: 750px;">
+                <table class="sticky_table" style="padding: 0px;">
+                    <thead>
+                        <tr style="background-color: #ffffff;">
+                            {% for i in col_name %}
+                            <th style="width: 9%; height: 50px; background-color: #ffffff; text-align: center;">{{i}}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5">
+                                <div id="kanban-canvas"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div> -->
+
+
+            
+
+
+            <!-- <div style="width: 250px; margin-top: 100px;">
+                <div class="houjin_card">
+
+                    <div class="flex">
+                        <div style="width: 70px;">
+                            <img src="{% static 'tanaka.png' %}">
+                        </div>
+                        <div style="font-size: 0.9em;">
+                            <div>受信：2025-05-12 13:54</div>
+                            <div>委託：active call</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <div style="font-weight: bold;">株式会社プラスワンインターナショナル</div>
+                        <div style="font-weight: bold;">DX</div>
+                        <div style="font-weight: bold;">川村一史</div>
+                    </div>
+                    
+                    <div style="font-size: 0.9em;">
+                        <div style="margin-top: 5px;">
+                            <button type="button" class="btn btn-success btn-sm" id="{{i.mitsu_id}}" name="sfa_list" data-bs-toggle="modal" data-bs-target="#modal_gaishou">
+                                <i class='bi bi-pencil-square'></i> 詳細を確認 / 編集する
+                            </button>
+                        </div>
+                        <div style="margin-top: 5px;">
+                            <div class="flex">
+                                <div style="width: 60px;">担当者：</div>
+                                <div>田中</div>
+                            </div>
+                            <div class="flex">
+                                <div style="width: 60px;">更新日：</div>
+                                <div>2025-08-30 12:54:35</div>
+                            </div>
+                            <div>【備考】</div>
+                            <div>
+                                <textarea style="width: 100%; font-size: 0.9em;" rows="3" readonly>
+                                    8/6（水）カタログ、資料送付対応8/19（火）再TEL検討はまだなし<br>
+                                    8/6（水）カタログ、資料送付対応8/19（火）再TEL検討はまだなし
+                                </textarea>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div> -->
+
+
+                
+            <!-- モーダル -->
+            <div class="modal fade" id="modal_gaishou" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <!-- HEADER -->
+                        <div class="modal-header">
+                            <div id="exampleModalLabel"></div>
+                            <div id="modal_gaishou_id" style="display: none;"></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close"></button>
+                        </div>
+                        <!-- BODY -->
+                        <div class="modal-body" style="font-size: 0.9em;">
+                            <div class="flex2">
+
+                                <!-- 左カラム -->
+                                <div style="width: 550px; margin-left: 20px;">
+                                    <table class="table table-bordered">
+                                        <tr><th style="width: 110px;">受信日時</th><td id="modal_recieve_day"></td></tr>
+                                        <tr><th>区分</th><td id="modal_kubun"></td></tr>
+                                        <tr><th>会社</th><td id="modal_houjin_com"></td></tr>
+                                        <tr><th>部署</th><td id="modal_houjin_busho"></td></tr>
+                                        <tr><th>担当者</th><td id="modal_houjin_tantou"></td></tr>
+                                        <tr><th>住所</th><td id="modal_houjin_address"></td></tr>
+                                        <tr><th>電話番号</th><td id="modal_houjin_tel"></td></tr>
+                                        <tr><th>メールアドレス</th><td id="modal_houjin_mail"></td></tr>
+                                        <tr><td id="modal_houjin_comment" colspan="2" style="line-height: 160%;"></td></tr>
+                                    </table>
+                                </div>
+
+                                <!-- 右カラム -->
+                                <div style="margin-left: 50px; width: 450px;">
+                                    <div>
+                                        <div class="flex">
+                                            <div>■担当者：</div>
+                                            <div>
+                                                <select class="form-select form-select-sm" id="modal_tantou_id" >
+                                                    <option value=""></option>
+                                                    {% for i in tantou_list %}
+                                                    <option value="{{i.tantou_id}}">{{i.tantou}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top: 10px;">■備考</div>
+                                        <div style="margin-top: 5px;"><textarea id="modal_p1_bikou" class="form-control" rows="5"></textarea></div>
+                                    </div>
+                                    <div class="flex" style="margin-top: 30px;">
+                                        <div>■内容（カイタク用）：</div>
+                                        <div>
+                                            <select class="form-select form-select-sm" id="modal_itaku_result" >
+                                                {% for i in itaku_result %}
+                                                <option value="{{i}}">{{i}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 10px;">■メモ（カイタク用）</div>
+                                    <div style="margin-top: 5px;"><textarea id="modal_itaku_bikou" class="form-control" rows="5"></textarea></div>
+
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <!-- footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" id="modal_save">保存する</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+  
+
+    </div>
+
+
+      
+
+    <!-- 各種Ajax -->
+    <script>
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i <cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+  
+        var csrftoken = getCookie('csrftoken');
+  
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+  
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+        
+
+
+        // ロード時に実行
+        window.onload=function(){
+            $.ajax({
+                'url': '{% url "houjin:houjin_gaishou_load" %}',
+                'type': 'POST',
+            })
+            .done(function(response){
+                dataContent=response.dataContent;
+
+                new jKanban({
+                    element: '#kanban-canvas',  // カンバンを表示する場所のID
+                    boards: dataContent,        // カンバンに表示されるカラムやカードのデータ
+                    gutter: '10px',             // カンバンの余白
+                    widthBoard: '270px',        // カラムの幅 (responsivePercentageの「true」設定により無視される)
+                    responsivePercentage: false, // trueを選択時はカラム幅は％で指定され、gutterとwidthBoardの設定は不要
+                    dragItems: true,            // trueを選択時はカードをドラッグ可能
+                    dragBoards: false,            // カラムをドラッグ可能にするかどうか
+
+                    
+                    // ボードの移動後に発生
+                    dropEl: function (el, target, source, sibling) {
+                        onKanbanItemDropped(el, target, source, sibling);
+                    },
+
+                });
+                
+                // カラム内のpadding
+                var items=document.querySelectorAll('.kanban-drag');
+                for (i=0; i<items.length; i++){
+                    items[i].style.padding="5px";
+                }
+
+                // カード内のpadding
+                var items=document.querySelectorAll('.kanban-item');
+                for (i=0; i<items.length; i++){
+                    items[i].style.padding="0px";
+                }
+
+            })
+            
+        }
+
+        function onKanbanItemDropped(el, target, source, sibling) {
+            var target_column = target.parentNode.dataset.id; // 移動先カラムのID
+            var items = Array.from(target.querySelectorAll(".kanban-item"));
+
+            col_index=[]
+            for (var i=0; i<items.length; i++){
+                col_index.push(items[i].getAttribute("data-eid"));
+            }
+            
+            $.ajax({
+                'url': '{% url "houjin:houjin_gaishou_move" %}',
+                'type': 'POST',
+                'data': {
+                    "target_column":target_column,
+                    "col_index":JSON.stringify(col_index),
+                },
+                'dataType': 'json'
+            })
+
+        }
+
+
+        // 詳細モーダル
+        $("#modal_gaishou").on("show.bs.modal", function (event) {
+            var item=document.getElementsByName("gaishou_boad");
+            for (var i=0; i<item.length; i++){
+                item[i].addEventListener("click",function(){
+                    $.ajax({
+                        'url': '{% url "houjin:houjin_gaishou_detail" %}',
+                        'type': 'POST',
+                        'data': {"gaishou_id":this.id},
+                        'dataType': 'json'
+                    })
+                    .done(function(response){
+                        res=response.detail;
+                        document.getElementById("modal_gaishou_id").innerText=res.id;
+                        document.getElementById("modal_recieve_day").innerText=res.recieve_day;
+                        document.getElementById("modal_kubun").innerText=res.kubun;
+                        document.getElementById("modal_houjin_com").innerText=res.houjin_com;
+                        document.getElementById("modal_houjin_busho").innerText=res.houjin_busho;
+                        document.getElementById("modal_houjin_tantou").innerText=res.houjin_tantou;
+                        document.getElementById("modal_houjin_address").innerText=res.houjin_address;
+                        document.getElementById("modal_houjin_tel").innerText=res.houjin_tel;
+                        document.getElementById("modal_houjin_mail").innerText=res.houjin_mail;
+                        document.getElementById("modal_houjin_comment").innerText=res.houjin_comment;
+                        document.getElementById("modal_tantou_id").value=res.tantou_id;
+                        document.getElementById("modal_p1_bikou").value=res.bikou;
+                        document.getElementById("modal_itaku_bikou").value=res.itaku_bikou;
+                        document.getElementById("modal_itaku_result").value=res.itaku_result;
+                    })
+                },false)
+            };
+        });
+
+
+        // モーダル保存
+        document.getElementById("modal_save").addEventListener("click",function(){
+            $.ajax({
+                'url': '{% url "houjin:houjin_gaishou_save" %}',
+                'type': 'POST',
+                'data': {
+                    "gaishou_id":document.getElementById("modal_gaishou_id").innerText,
+                    "tantou_id":document.getElementById("modal_tantou_id").value,
+                    "bikou":document.getElementById("modal_p1_bikou").value,
+                    "itaku_result":document.getElementById("modal_itaku_result").value,
+                    "itaku_bikou":document.getElementById("modal_itaku_bikou").value,
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.alert("内容を保存しました！");
+                window.location.reload();
+            })
+        })
+
+
+        // // モーダル終了
+        // btns=document.getElementsByName("modal_btn_close");
+        // for (var i=0;i<btns.length;i++){
+        //     btns[i].addEventListener("click",function(){
+        //         window.location.reload();
+        //     })
+        // };
+
+
+
+    </script>
+
+    <!-- モーダル用 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
+
+
+</body>
+</html>

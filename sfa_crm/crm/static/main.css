@@ -248,9 +248,17 @@ hr {
     border: 1px solid #ced4da;
 }
 .kanban-board header {
-  background-color: gray;
-  color: white;
-  display: none;
+    background-color: gray;
+    color: white;
+    /* display: none; */
+}
+.kanban-board {
+  min-height: 800px;
+  position: relative;
+}
+.kanban-drag {
+  max-height: 800px;
+  overflow-y: auto;
 }
 .kanban-board header.red {
   background-color: crimson;

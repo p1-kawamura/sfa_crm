@@ -22,8 +22,27 @@
 
         <div style="margin: 0 auto; width: 1150px;">
 
-            <!-- 版切れリスト -->
+            <!-- 法人外商リスト -->
             <hr>
+            <div class="block_title">法人外商リスト読み込み</div>
+            <hr>
+            <div>
+                <form action="{% url 'houjin:houjin_gaishou_imp' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+                    <div class="flex" style="margin-top: 15px;">
+                        <div>データCSV：</div>
+                        <div><input class="form-control" type="file" name="csv3" id="csv3" style="width: 400px;"></div>
+                        <div style="margin-left: 30px;"><button type="submit" class="btn btn-primary" id="btn_houjin">取込</button></div>
+                        <div style="margin-left: 30px;">
+                            {% if ans3 %}
+                                <div id="ans_end_3">読み込みが完了しました！</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 版切れリスト -->
+            <hr style="margin-top: 100px;">
             <div class="block_title">定期配信リスト読み込み</div>
             <hr>
             <div>
