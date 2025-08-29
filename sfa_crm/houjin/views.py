@@ -7,6 +7,8 @@ import calendar
 import jpholiday
 import io
 import csv
+from django.http import HttpResponse
+import urllib.parse
 
 
 # 法人案件ボード
@@ -272,9 +274,34 @@ def houjin_gaishou_imp(request):
 
 # 法人外商ボード_index
 def houjin_gaishou_index(request):
+    if "houjin_gaishou" not in request.session:
+        request.session["houjin_gaishou"]={}
+    if "tantou" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["tantou"]=""
+    if "com" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["com"]=""
+    if "name" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["name"]=""
+    if "tel" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["tel"]=""
+    if "mail" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["mail"]=""
+    if "recieve_day" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["recieve_day"]=""
+    if "kubun" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["kubun"]=""
+
+    ses=request.session["houjin_gaishou"]
     tantou_list=Member.objects.filter(houjin=1)
     itaku_result=["","アポ","資料送付","お断り","その他"]
-    return render(request,"houjin/gaishou.html",{"tantou_list":tantou_list,"itaku_result":itaku_result})
+    kubun_list=list(Houjin_gaishou.objects.all().values_list("kubun",flat=True).order_by("kubun").distinct())
+    params={
+        "tantou_list":tantou_list,
+        "itaku_result":itaku_result,
+        "kubun_list":kubun_list,
+        "ses":ses,
+    }
+    return render(request,"houjin/gaishou.html",params)
 
 
 # 法人外商ボード_load
@@ -287,9 +314,31 @@ def houjin_gaishou_load(request):
         "4":"案件化",
         }
     
+    # フィルター
+    ses=request.session["houjin_gaishou"]
+    fil={}
+    if ses["tantou"] != "":
+        fil["tantou_id"]=ses["tantou"]
+    if ses["kubun"] != "":
+        fil["kubun"]=ses["kubun"]
+    if ses["com"] != "":
+        fil["houjin_com__contains"]=ses["com"].strip()
+    if ses["name"] != "":
+        fil["houjin_tantou__contains"]=ses["name"].strip()
+    if ses["tel"] != "":
+        fil["houjin_tel"]=ses["tel"]
+    if ses["mail"] != "":
+        fil["houjin_mail"]=ses["mail"]
+    if ses["day_st"] != "":
+        fil["recieve_day__gte"]=ses["day_st"] + " 00:00"
+    if ses["day_ed"] != "":
+        fil["recieve_day__lte"]=ses["day_ed"] + " 23:59"
+    
     dataContent=[]
     for key,val in col_name.items():
-        ins=Houjin_gaishou.objects.filter(boad_col=key).order_by("boad_row")
+        fil["boad_col"]=key
+
+        ins=Houjin_gaishou.objects.filter(**fil).order_by("boad_row")
         item=[]
         for h in ins:
             # 担当者
@@ -406,3 +455,36 @@ def houjin_gaishou_save(request):
 
     d={}
     return JsonResponse(d)
+
+
+# 法人外商ボード_検索
+def houjin_gaishou_search(request):
+    request.session["houjin_gaishou"]["tantou"]=request.POST["tantou"]
+    request.session["houjin_gaishou"]["kubun"]=request.POST["kubun"]
+    request.session["houjin_gaishou"]["com"]=request.POST["com"]
+    request.session["houjin_gaishou"]["name"]=request.POST["name"]
+    request.session["houjin_gaishou"]["tel"]=request.POST["tel"]
+    request.session["houjin_gaishou"]["mail"]=request.POST["mail"]
+    request.session["houjin_gaishou"]["day_st"]=request.POST["day_st"]
+    request.session["houjin_gaishou"]["day_ed"]=request.POST["day_ed"]
+    return redirect("houjin:houjin_gaishou_index")
+
+
+# 法人外商ボード_CSV出力
+def houjin_gaishou_csv(request):
+    day_st=request.POST["csv_day_st"]
+    day_ed=request.POST["csv_day_ed"]
+
+    ins=Houjin_gaishou.objects.filter(recieve_day__gte= day_st + " 00:00", recieve_day__lte= day_ed + " 23:59")
+    recieve_list=[["日付","会社名","内容","メモ"]]
+    for i in ins:
+        recieve_list.append([datetime.date.today().strftime("%Y-%m-%d"),i.houjin_com,i.itaku_result,i.itaku_bikou])
+
+    filename=urllib.parse.quote("カイタク報告用.csv")
+    response = HttpResponse(content_type='text/csv; charset=CP932')
+    response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
+    writer = csv.writer(response)
+    for line in recieve_list:
+        writer.writerow(line)
+
+    return response
