@@ -30,7 +30,8 @@
                 <form action="{% url 'houjin:houjin_gaishou_imp' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
                     <div class="flex" style="margin-top: 15px;">
                         <div>データCSV：</div>
-                        <div><input class="form-control" type="file" name="csv3" id="csv3" style="width: 400px;"></div>
+                        <div><input type="text" name="imp_type" value="0" style="display: none;"></div>
+                        <div><input class="form-control" type="file" name="csv3" id="csv3" style="width: 400px;" required></div>
                         <div style="margin-left: 30px;"><button type="submit" class="btn btn-primary" id="btn_houjin">取込</button></div>
                         <div style="margin-left: 30px;">
                             {% if ans3 %}
@@ -49,7 +50,7 @@
                 <form action="{% url 'apr:hangire_csv_imp' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
                     <div class="flex" style="margin-top: 15px;">
                         <div>データCSV：</div>
-                        <div><input class="form-control" type="file" name="csv2" id="csv2" style="width: 400px;"></div>
+                        <div><input class="form-control" type="file" name="csv2" id="csv2" style="width: 400px;" required></div>
                         <div style="margin-left: 20px;">
                             <select class="form-select" name="kubun" id="kubun">
                                 <option value="0" selected>通常版切れ</option>

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jkanban@1.3.1/dist/jkanban.min.js"></script>
     <link rel="icon" href="{% static 't-shirt_3.gif' %}">
-    <title>外商委託ボード</title>
+    <title>法人チーム　新規開拓ボード</title>
 </head>
 <body>
 
@@ -26,11 +26,18 @@
         <div style="margin: 0 auto; width: 1300px;">
             <hr>
             <div class="flex3">
-                <div class="block_title">外商委託ボード</div>
-                <div>
-                    <button type="button" class="btn btn-outline-dark" id="csv_export" data-bs-toggle="modal" data-bs-target="#modal_gaishou_csv">
-                        <i class="bi bi-download"></i> カイタク用CSV
-                    </button>
+                <div class="block_title">法人チーム　新規開拓ボード</div>
+                <div class="flex">
+                    <div>
+                        <button type="button" class="btn btn-outline-dark" id="csv_import" data-bs-toggle="modal" data-bs-target="#modal_gaishou_imp">
+                            <i class="bi bi-plus-lg"></i> CSVインポート
+                        </button>
+                    </div>
+                    <div style="margin-left: 30px;">
+                        <button type="button" class="btn btn-outline-dark" id="csv_export" data-bs-toggle="modal" data-bs-target="#modal_gaishou_csv">
+                            <i class="bi bi-download"></i> カイタク報告用
+                        </button>
+                    </div>
                 </div>
             </div>
             <hr>
@@ -39,7 +46,19 @@
                 <form action="{% url 'houjin:houjin_gaishou_search' %}" method="post" name="form_filter">{% csrf_token %}
 
                     <div class="flex">
-                        <div>担当者：</div>
+                        <div>部署：</div>
+                        <div>
+                            <select class="form-select form-select-sm" name="busho" id="busho" style="width: 120px;">
+                                {% for k,v in busho_list.items %}
+                                    {% if k == ses.busho %}
+                                    <option value="{{k}}" selected>{{v}}</option>
+                                    {% else %}
+                                    <option value="{{k}}">{{v}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>   
+                        </div>
+                        <div style="margin-left: 30px;">担当者：</div>
                         <div>
                             <select class="form-select form-select-sm" name="tantou" id="tantou" style="width: 120px;">
                                 <option value=""></option>
@@ -72,14 +91,22 @@
                     </div>
 
                     <div class="flex mt-4">
-                        <div>電話番号：</div>
+                        <div>メールアドレス：</div>
+                        <div><input class="form-control form-control-sm" type="text" id="mail" name="mail" style="width: 250px;" value="{{ses.mail}}"></div>
+                        <div style="margin-left: 30px;">電話番号：</div>
                         <div><input class="form-control form-control-sm" type="text" id="tel" name="tel" style="width: 130px;" value="{{ses.tel}}"></div>
-                        <div style="margin-left: 30px;">メールアドレス：</div>
-                        <div><input class="form-control form-control-sm" type="text" id="mail" name="mail" style="width: 200px;" value="{{ses.mail}}"></div>
-                        <div style="margin-left: 30px;">受信日：</div>
+                    </div>
+
+                    <div class="flex mt-4">
+                        <div>受信日：</div>
                         <div><input class="form-control form-control-sm" type="date" id="day_st" name="day_st" style="width: 120px;" value="{{ses.day_st}}"></div>
                         <div style="margin: 0px 10px;">～</div>
                         <div><input class="form-control form-control-sm" type="date" id="day_ed" name="day_ed" style="width: 120px;" value="{{ses.day_ed}}"></div>
+                        <div style="margin-left: 30px;">最終アクション日：</div>
+                        <div><input class="form-control form-control-sm" type="date" id="act_st" name="act_st" style="width: 120px;" value="{{ses.act_st}}"></div>
+                        <div style="margin: 0px 10px;">～</div>
+                        <div><input class="form-control form-control-sm" type="date" id="act_ed" name="act_ed" style="width: 120px;" value="{{ses.act_ed}}"></div>
+
                         <div style="margin-left: 50px;">
                             <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i> 検索</button>
                         </div>
@@ -93,20 +120,20 @@
             <hr>
 
             <!-- カンバン -->
-            <!-- <div class="inlineframe_houjin" style="width: 1300px; height: 800px;"> -->
+            <div class="inlineframe_houjin" style="width: 1300px; height: 800px;">
                 <div id="kanban-canvas"></div>
-            <!-- </div> -->
+            </div>
 
 
             
 
 
             <!-- <div style="width: 250px; margin-top: 100px;">
-                <div class="houjin_card">
+                <div class="houjin_card_3">
 
                     <div class="flex">
                         <div style="width: 70px;">
-                            <img src="{% static 'tanaka.png' %}">
+                            <div class="houjin_tantou houjin_tantou_osaka" style="font-size: 0.9em;">夏八木</div>
                         </div>
                         <div style="font-size: 0.9em;">
                             <div>受信：2025-05-12 13:54</div>
@@ -182,9 +209,17 @@
                                 <div style="margin-left: 50px; width: 450px;">
                                     <div>
                                         <div class="flex">
-                                            <div>■担当者：</div>
+                                            <div>■部署：</div>
                                             <div>
-                                                <select class="form-select form-select-sm" id="modal_tantou_id" >
+                                                <select class="form-select form-select-sm" id="modal_busho_id" style="width: 120px;">
+                                                    {% for k,v in busho_list.items %}
+                                                    <option value="{{k}}">{{v}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div style="margin-left: 30px;">■担当：</div>
+                                            <div>
+                                                <select class="form-select form-select-sm" id="modal_tantou_id" style="width: 120px;">
                                                     <option value=""></option>
                                                     {% for i in tantou_list %}
                                                     <option value="{{i.tantou_id}}">{{i.tantou}}</option>
@@ -192,21 +227,31 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div style="margin-top: 10px;">■備考</div>
-                                        <div style="margin-top: 5px;"><textarea id="modal_p1_bikou" class="form-control" rows="5"></textarea></div>
-                                    </div>
-                                    <div class="flex" style="margin-top: 30px;">
-                                        <div>■内容（カイタク用）：</div>
-                                        <div>
-                                            <select class="form-select form-select-sm" id="modal_itaku_result" >
-                                                {% for i in itaku_result %}
-                                                <option value="{{i}}">{{i}}</option>
-                                                {% endfor %}
-                                            </select>
+                                        <div class="flex" style="margin-top: 15px;">
+                                            <div>■最終アクション日：</div>
+                                            <div>
+                                                <input class="form-control form-control-sm" type="date" id="modal_last_act" style="width: 120px;" value="{{i.last_act}}">
+                                            </div>
+                                        </div>
+                                        <div style="margin-top: 15px;">■備考</div>
+                                        <div style="margin-top: 5px;">
+                                            <textarea id="modal_p1_bikou" class="form-control" rows="5"></textarea>
                                         </div>
                                     </div>
-                                    <div style="margin-top: 10px;">■メモ（カイタク用）</div>
-                                    <div style="margin-top: 5px;"><textarea id="modal_itaku_bikou" class="form-control" rows="5"></textarea></div>
+                                    <div id="modal_kaitaku">
+                                        <div class="flex" style="margin-top: 30px;">
+                                            <div>■内容（カイタク用）：</div>
+                                            <div>
+                                                <select class="form-select form-select-sm" id="modal_itaku_result" >
+                                                    {% for i in itaku_result %}
+                                                    <option value="{{i}}">{{i}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top: 10px;">■メモ（カイタク用）</div>
+                                        <div style="margin-top: 5px;"><textarea id="modal_itaku_bikou" class="form-control" rows="5"></textarea></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -241,7 +286,28 @@
                         </div>
                     </div>
                 </div>
-            </div> 
+            </div>
+
+            <!-- モーダル3　CSV取込 -->
+            <div class="modal fade" id="modal_gaishou_imp" tabindex="-1" role="dialog" aria-labelledby="modal_3" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div><h5 class="modal-title">インポートするCSVファイルを指定してください。</h5></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{% url 'houjin:houjin_gaishou_imp' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+                                <div class="flex" style="margin-top: 15px;">
+                                    <div><input type="text" name="imp_type" value="1" style="display: none;"></div>
+                                    <div><input class="form-control" type="file" name="csv3" style="width: 350px;" required></div>
+                                    <div style="margin-left: 30px;"><button type="submit" class="btn btn-primary">取込</button></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
   
@@ -346,12 +412,60 @@
                 },
                 'dataType': 'json'
             })
-
+            .done(function(response){
+                col_count=response.col_count;
+                for (var i of col_count){
+                    document.getElementById("column_" + i.split("_")[0] + "_count").innerText = i.split("_")[1]; 
+                }
+            })
         }
+
+
+        // 部署選択
+        document.getElementById("busho").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "houjin:houjin_gaishou_busho" %}',
+                    'type': 'POST',
+                    'data': {
+                        "busho":document.getElementById("busho").value,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    tantou=response.tantou;
+                    var str="<option value=''></option>";
+                    for (var i of tantou){
+                        str=str+"<option value='" + i.tantou_id + "'>" + i.tantou + "</option>"
+                    };
+                    document.getElementById("tantou").innerHTML=str;
+                })
+        });
+
+
+        // 部署選択_モーダル
+        document.getElementById("modal_busho_id").addEventListener("change",function(){
+            $.ajax({
+                    'url': '{% url "houjin:houjin_gaishou_busho" %}',
+                    'type': 'POST',
+                    'data': {
+                        "busho":document.getElementById("modal_busho_id").value,
+                    },
+                    'dataType': 'json'
+                })
+                .done(function(response){
+                    tantou=response.tantou;
+                    var str="<option value=''></option>";
+                    for (var i of tantou){
+                        str=str+"<option value='" + i.tantou_id + "'>" + i.tantou + "</option>"
+                    };
+                    document.getElementById("modal_tantou_id").innerHTML=str;
+                })
+        });
 
 
         // フォームクリア
         document.getElementById("form_clear").addEventListener("click",function(){
+            document.getElementById("busho").value="";
             document.getElementById("tantou").value="";
             document.getElementById("kubun").value="";
             document.getElementById("com").value="";
@@ -360,6 +474,8 @@
             document.getElementById("mail").value="";
             document.getElementById("day_st").value="";
             document.getElementById("day_ed").value="";
+            document.getElementById("act_st").value="";
+            document.getElementById("act_ed").value="";
         })
 
 
@@ -386,10 +502,28 @@
                         document.getElementById("modal_houjin_tel").innerText=res.houjin_tel;
                         document.getElementById("modal_houjin_mail").innerText=res.houjin_mail;
                         document.getElementById("modal_houjin_comment").innerText=res.houjin_comment;
-                        document.getElementById("modal_tantou_id").value=res.tantou_id;
+                        document.getElementById("modal_busho_id").value=res.busho_id;
+                        // document.getElementById("modal_tantou_id").value=res.tantou_id;
+                        document.getElementById("modal_last_act").value=res.last_act;
                         document.getElementById("modal_p1_bikou").value=res.bikou;
                         document.getElementById("modal_itaku_bikou").value=res.itaku_bikou;
                         document.getElementById("modal_itaku_result").value=res.itaku_result;
+
+                        
+                        var tantou_list=document.getElementById("modal_tantou_id");
+                        var str="<option value=''></option>";
+                        for (var i of response.modal_tantou_list){
+                            str=str + "<option value='" + i.tantou_id + "'>" + i.tantou + "</option>"
+                        }
+                        tantou_list.innerHTML=str;
+                        tantou_list.value=res.tantou_id;
+
+                        var kaitaku=document.getElementById("modal_kaitaku");
+                        if (res.kubun == "カイタク"){
+                            kaitaku.style.display="block";
+                        } else {
+                            kaitaku.style.display="none";
+                        }
                     })
                 },false)
             };
@@ -398,12 +532,20 @@
 
         // モーダル保存
         document.getElementById("modal_save").addEventListener("click",function(){
+            var busho_id=document.getElementById("modal_busho_id").value;
+            var tantou_id=document.getElementById("modal_tantou_id").value;
+            if (busho_id != "" && tantou_id == ""){
+                window.alert("担当者を設定してください！");
+                return
+            }
             $.ajax({
                 'url': '{% url "houjin:houjin_gaishou_save" %}',
                 'type': 'POST',
                 'data': {
                     "gaishou_id":document.getElementById("modal_gaishou_id").innerText,
-                    "tantou_id":document.getElementById("modal_tantou_id").value,
+                    "busho_id":busho_id,
+                    "tantou_id":tantou_id,
+                    "last_act":document.getElementById("modal_last_act").value,
                     "bikou":document.getElementById("modal_p1_bikou").value,
                     "itaku_result":document.getElementById("modal_itaku_result").value,
                     "itaku_bikou":document.getElementById("modal_itaku_bikou").value,

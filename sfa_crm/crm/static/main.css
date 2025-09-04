@@ -263,11 +263,48 @@ hr {
 .kanban-board header.red {
   background-color: crimson;
 }
-.houjin_card {
+.houjin_card_1 {
     border: 1px solid #4CD2FF; 
     border-top-width: 7px;
     padding: 5px;
     background-color: #defafe;
+}
+.houjin_card_2 {
+    border: 1px solid #FFDF32; 
+    border-top-width: 7px;
+    padding: 5px;
+    background-color: #fffad9;
+}
+.houjin_card_3 {
+    border: 1px solid #008040; 
+    border-top-width: 7px;
+    padding: 5px;
+    background-color: #f2fff2;
+}
+.houjin_tantou {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    text-align:center;
+    line-height: 50px;
+    border-radius: 50%;
+    color: #ffffff;
+}
+.houjin_tantou_tokyo {
+    border: solid 1px #000080;
+    background-color: #0000ff;
+}
+.houjin_tantou_osaka {
+    border: solid 1px #ff0000;
+    background-color: #ff4f4f;
+}
+.houjin_tantou_takamatsu {
+    border: solid 1px #004000;
+    background-color: #008000;
+}
+.houjin_tantou_fukuoka {
+    border: solid 1px #400080;
+    background-color: #9f009f;
 }
 .houjin_calendar {
     padding: 0.5em 0.5em;
@@ -285,5 +322,4 @@ hr {
 }
 .calendar_table a {
     text-decoration: none;
-    /* color: #000; */
 }

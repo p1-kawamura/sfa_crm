@@ -9,6 +9,8 @@ import io
 import csv
 from django.http import HttpResponse
 import urllib.parse
+from django.db.models import IntegerField
+from django.db.models.functions import Cast
 
 
 # 法人案件ボード
@@ -249,6 +251,7 @@ def calendar_index(request):
 
 # 法人外商リスト_取込
 def houjin_gaishou_imp(request):
+    imp_type=request.POST["imp_type"]
     data = io.TextIOWrapper(request.FILES['csv3'].file, encoding="cp932")
     csv_content = csv.reader(data)
     csv_list=list(csv_content)
@@ -257,6 +260,7 @@ def houjin_gaishou_imp(request):
     for i in csv_list:
         if h!=0:
               Houjin_gaishou.objects.create(
+                imp_type=imp_type,
                 recieve_day=i[0],
                 kubun=i[1],
                 houjin_com=i[2],
@@ -269,13 +273,18 @@ def houjin_gaishou_imp(request):
               )
         h+=1
 
-    return render(request,"apr/approach_list.html",{"ans3":"yes"})
+    if imp_type=="0":
+        return render(request,"apr/approach_list.html",{"ans3":"yes"})
+    else:
+        return redirect("houjin:houjin_gaishou_index")
 
 
 # 法人外商ボード_index
 def houjin_gaishou_index(request):
     if "houjin_gaishou" not in request.session:
         request.session["houjin_gaishou"]={}
+    if "busho" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["busho"]=""
     if "tantou" not in request.session["houjin_gaishou"]:
         request.session["houjin_gaishou"]["tantou"]=""
     if "com" not in request.session["houjin_gaishou"]:
@@ -294,12 +303,17 @@ def houjin_gaishou_index(request):
         request.session["houjin_gaishou"]["day_st"]=""
     if "day_ed" not in request.session["houjin_gaishou"]:
         request.session["houjin_gaishou"]["day_ed"]=""
+    if "act_st" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["act_st"]=""
+    if "act_ed" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["act_ed"]=""
 
     ses=request.session["houjin_gaishou"]
-    tantou_list=Member.objects.filter(houjin=1)
+    tantou_list=Member.objects.filter(busho_id=ses["busho"],houjin=1).annotate(num=Cast("tantou_id",IntegerField())).order_by("num")
     itaku_result=["","アポ","資料送付","お断り","その他"]
     kubun_list=list(Houjin_gaishou.objects.all().values_list("kubun",flat=True).order_by("kubun").distinct())
     params={
+        "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
         "itaku_result":itaku_result,
         "kubun_list":kubun_list,
@@ -311,16 +325,19 @@ def houjin_gaishou_index(request):
 # 法人外商ボード_load
 def houjin_gaishou_load(request):
     col_name={
-        "0":"新規",
+        "0":"未対応",
         "1":"資料送付",
-        "2":"アポ",
-        "3":"失注",
-        "4":"案件化",
+        "2":"アポ打診",
+        "3":"外商（来店）調整 / アポ確定",
+        "4":"案件化（顧客管理に移管）",
+        "5":"中止（音信不通等）",
         }
     
     # フィルター
     ses=request.session["houjin_gaishou"]
     fil={}
+    if ses["busho"] != "":
+        fil["busho_id"]=ses["busho"]
     if ses["tantou"] != "":
         fil["tantou_id"]=ses["tantou"]
     if ses["kubun"] != "":
@@ -334,35 +351,70 @@ def houjin_gaishou_load(request):
     if ses["mail"] != "":
         fil["houjin_mail"]=ses["mail"]
     if ses["day_st"] != "":
-        fil["recieve_day__gte"]=ses["day_st"] + " 00:00"
+        fil["recieve_day__gte"]=ses["day_st"] + " 00:00:00"
     if ses["day_ed"] != "":
-        fil["recieve_day__lte"]=ses["day_ed"] + " 23:59"
+        fil["recieve_day__lte"]=ses["day_ed"] + " 23:59:59"
+    if ses["act_st"] != "":
+        fil["last_act__gte"]=ses["act_st"]
+    if ses["day_ed"] != "":
+        fil["last_act__lte"]=ses["act_ed"]
     
     dataContent=[]
     for key,val in col_name.items():
-        fil["boad_col"]=key
+        
+        # 未対応は常に表示
+        if key == "0":
+            ins=Houjin_gaishou.objects.filter(boad_col="0").order_by("boad_row")
+        else:
+            fil["boad_col"]=key
+            ins=Houjin_gaishou.objects.filter(**fil).order_by("boad_row")
 
-        ins=Houjin_gaishou.objects.filter(**fil).order_by("boad_row")
+        # カラムごとにボードを作成
         item=[]
         for h in ins:
-            # 担当者
-            tantou_dic={
-                        "26":"mashimo.png",
-                        "798":"kanayama.png",
-                        "8":"mutou.png",
-                        "43":"tanaka.png"
-                        }
+            
+            if h.kubun=="カイタク":
+                card_type="<div class='houjin_card_1'>"
+            elif h.kubun=="active call":
+                card_type="<div class='houjin_card_2'>"
+            else:
+                card_type="<div class='houjin_card_3'>"
+
+            # 担当者img
+            t_busho=""
+            if h.busho_id=="398":
+                t_busho="houjin_tantou_tokyo"
+            elif h.busho_id=="400":
+                t_busho="houjin_tantou_osaka"
+            elif h.busho_id=="401":
+                t_busho="houjin_tantou_takamatsu"
+            elif h.busho_id=="402":
+                t_busho="houjin_tantou_fukuoka"
+
+            t_font=""
             if h.tantou_id != None and h.tantou_id != "":
-                tantou_img="<img src='/static/" + tantou_dic[h.tantou_id] + "'>"
+                t_sei=h.tantou.split()[0]
+                if len(t_sei)==1:
+                    t_font="style='font-size: 1.8em;'"
+                elif len(t_sei)==2:
+                    t_font="style='font-size: 1.1em;'"
+                else:
+                    t_font="style='font-size: 0.9em;'"  
+            else:
+                t_sei=""
+
+            tantou_img="<div class='houjin_tantou " + t_busho + "' " + t_font + ">" + t_sei + "</div>"
+
+            # その他
+            if h.tantou_id != None and h.tantou_id != "":
                 tantou_name=h.tantou
             else:
-                tantou_img=""
                 tantou_name=""
 
-            if h.last_update != None and h.last_update != "":
-                last_update=h.last_update
+            if h.last_act != None and h.last_act != "":
+                last_act=h.last_act
             else:
-                last_update=""
+                last_act=""
 
             if h.bikou != None and h.bikou != "":
                 bikou=h.bikou
@@ -370,12 +422,12 @@ def houjin_gaishou_load(request):
                 bikou=""
                 
 
-            title_str="<div class='houjin_card'>" \
+            title_str = card_type \
                 + "<div class='flex'>" \
                     + "<div style='width: 70px;'>" + tantou_img + "</div>" \
                     + "<div style='font-size: 0.9em;'>" \
-                        + "<div>受信：" + h.recieve_day + "</div>" \
-                        + "<div>委託：" + h.kubun + "</div>" \
+                        + "<div><i class='bi bi-envelope-open'></i> " + h.recieve_day + "</div>" \
+                        + "<div><i class='bi bi-building'></i> " + h.kubun + "</div>" \
                     + "</div>" \
                 + "</div>" \
                 + "<div style='margin-top: 10px; font-weight: bold;'>" \
@@ -396,8 +448,8 @@ def houjin_gaishou_load(request):
                             + "<div>" + tantou_name + "</div>" \
                         + "</div>" \
                         + "<div class='flex'>" \
-                            + "<div style='width: 60px;'>更新日：</div>" \
-                            + "<div>" + last_update + "</div>" \
+                            + "<div style='width: 115px;'>最終アクション日：</div>" \
+                            + "<div>" + last_act + "</div>" \
                         + "</div>" \
                         + "<div style='margin-top:5px'><textarea style='width: 100%; font-size: 0.8em;' rows='3' readonly>" + bikou + "</textarea>" \
                     + "</div>" \
@@ -406,7 +458,10 @@ def houjin_gaishou_load(request):
 
             item.append({"id":h.id,"title":title_str})
 
-        dataContent.append({"id":"column_" + key,"title":val,"item":item})
+        title=val + "<br><span style='font-size:0.8em; font-weight:lighter;'>\
+                        ■ <span id='column_" + key + "_count'>" + str(ins.count()) + "</span>件</span>"
+        
+        dataContent.append({"id":"column_" + key,"title":title,"item":item})
 
     d={"dataContent":dataContent}
     return JsonResponse(d)
@@ -425,7 +480,11 @@ def houjin_gaishou_move(request):
         ins.boad_row=i
         ins.save()
 
-    d={}
+    col_count=[]
+    for i in range(6):
+        col_count.append(str(i) + "_" + str(Houjin_gaishou.objects.filter(boad_col=str(i)).count()))
+
+    d={"col_count":col_count}
     return JsonResponse(d)
 
 
@@ -433,19 +492,25 @@ def houjin_gaishou_move(request):
 def houjin_gaishou_detail(request):
     gaishou_id=request.POST.get("gaishou_id")
     ins=list(Houjin_gaishou.objects.filter(id=gaishou_id).values())[0]
-    d={"detail":ins}
+    modal_tantou_list=list(Member.objects.filter(busho_id=ins["busho_id"],houjin=1).annotate(num=Cast("tantou_id",IntegerField())).order_by("num").values())
+    d={"detail":ins,"modal_tantou_list":modal_tantou_list}
     return JsonResponse(d)
 
 
 # 法人外商ボード_保存
 def houjin_gaishou_save(request):
     gaishou_id=request.POST.get("gaishou_id")
+    busho_id=request.POST.get("busho_id")
     tantou_id=request.POST.get("tantou_id")
+    last_act=request.POST.get("last_act")
     bikou=request.POST.get("bikou")
     itaku_result=request.POST.get("itaku_result")
     itaku_bikou=request.POST.get("itaku_bikou")
 
     ins=Houjin_gaishou.objects.get(id=gaishou_id)
+    ins.busho_id=busho_id
+    busho_list={"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"}
+    ins.busho=busho_list[busho_id]
     ins.tantou_id=tantou_id
     if tantou_id != "":
         ins.tantou=Member.objects.get(tantou_id=tantou_id).tantou
@@ -454,15 +519,24 @@ def houjin_gaishou_save(request):
     ins.bikou=bikou
     ins.itaku_result=itaku_result
     ins.itaku_bikou=itaku_bikou
-    ins.last_update=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ins.last_act=last_act
     ins.save()
 
     d={}
     return JsonResponse(d)
 
 
+# 法人外商ボード_部署選択
+def houjin_gaishou_busho(request):
+    busho_id=request.POST.get("busho")
+    tantou=list(Member.objects.filter(busho_id=busho_id,houjin=1).annotate(num=Cast("tantou_id",IntegerField())).order_by("num").values())
+    d={"tantou":tantou}
+    return JsonResponse(d)
+
+
 # 法人外商ボード_検索
 def houjin_gaishou_search(request):
+    request.session["houjin_gaishou"]["busho"]=request.POST["busho"]
     request.session["houjin_gaishou"]["tantou"]=request.POST["tantou"]
     request.session["houjin_gaishou"]["kubun"]=request.POST["kubun"]
     request.session["houjin_gaishou"]["com"]=request.POST["com"]
@@ -471,6 +545,8 @@ def houjin_gaishou_search(request):
     request.session["houjin_gaishou"]["mail"]=request.POST["mail"]
     request.session["houjin_gaishou"]["day_st"]=request.POST["day_st"]
     request.session["houjin_gaishou"]["day_ed"]=request.POST["day_ed"]
+    request.session["houjin_gaishou"]["act_st"]=request.POST["act_st"]
+    request.session["houjin_gaishou"]["act_ed"]=request.POST["act_ed"]
     return redirect("houjin:houjin_gaishou_index")
 
 
@@ -482,7 +558,7 @@ def houjin_gaishou_csv(request):
     ins=Houjin_gaishou.objects.filter(recieve_day__gte= day_st + " 00:00", recieve_day__lte= day_ed + " 23:59")
     recieve_list=[["日付","会社名","内容","メモ"]]
     for i in ins:
-        recieve_list.append([datetime.date.today().strftime("%Y-%m-%d"),i.houjin_com,i.itaku_result,i.itaku_bikou])
+        recieve_list.append([i.recieve_day[:10],i.houjin_com,i.itaku_result,i.itaku_bikou])
 
     filename=urllib.parse.quote("カイタク報告用.csv")
     response = HttpResponse(content_type='text/csv; charset=CP932')
