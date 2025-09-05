@@ -3,7 +3,7 @@ from django.db import models
 
 class Houjin_gaishou(models.Model):
     imp_type=models.IntegerField("取込タイプ",default=0)
-    imp_day=models.DateTimeField("取込日時",auto_now_add=True)
+    imp_day=models.CharField("取込日時",max_length=255,blank=True,null=True)
     recieve_day=models.CharField("受信日時",max_length=255,blank=True,null=True)
     kubun=models.CharField("区分",max_length=255,blank=True,null=True)
     houjin_com=models.CharField("法人_会社",max_length=255,blank=True,null=True)

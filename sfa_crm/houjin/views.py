@@ -240,11 +240,19 @@ def calendar_index(request):
     # 担当者
     tantou_list=Member.objects.filter(houjin=1)
 
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
     params={
         "calendar_body":str_mon,
         "hassou_month":mon,
         "tantou_list":tantou_list,
         "tantou_id":tantou_id,
+        "act_user":act_user,
         }
     return render(request,"houjin/tantou_calendar.html",params)
 
@@ -261,6 +269,7 @@ def houjin_gaishou_imp(request):
         if h!=0:
               Houjin_gaishou.objects.create(
                 imp_type=imp_type,
+                imp_day=datetime.datetime.now().strftime("%Y-%m-%d"),
                 recieve_day=i[0],
                 kubun=i[1],
                 houjin_com=i[2],
@@ -312,12 +321,21 @@ def houjin_gaishou_index(request):
     tantou_list=Member.objects.filter(busho_id=ses["busho"],houjin=1).annotate(num=Cast("tantou_id",IntegerField())).order_by("num")
     itaku_result=["","アポ","資料送付","お断り","その他"]
     kubun_list=list(Houjin_gaishou.objects.all().values_list("kubun",flat=True).order_by("kubun").distinct())
+
+    # アクティブ担当
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
     params={
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
         "itaku_result":itaku_result,
         "kubun_list":kubun_list,
         "ses":ses,
+        "act_user":act_user,
     }
     return render(request,"houjin/gaishou.html",params)
 
