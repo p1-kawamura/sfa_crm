@@ -300,7 +300,7 @@
                             <form action="{% url 'houjin:houjin_gaishou_imp' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
                                 <div class="flex" style="margin-top: 15px;">
                                     <div><input type="text" name="imp_type" value="1" style="display: none;"></div>
-                                    <div><input class="form-control" type="file" name="csv3" style="width: 350px;" required></div>
+                                    <div><input class="form-control" type="file" name="csv3" style="width: 350px; height: 100px;" required></div>
                                     <div style="margin-left: 30px;"><button type="submit" class="btn btn-primary">取込</button></div>
                                 </div>
                             </form>
