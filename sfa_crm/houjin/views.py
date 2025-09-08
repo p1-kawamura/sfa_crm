@@ -329,6 +329,16 @@ def houjin_gaishou_index(request):
     else:
         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
 
+    # 操作者
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        sousa_busho=Member.objects.get(tantou_id=act_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=act_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
+    print(sousa_time,sousa_busho,sousa_tantou,"■ 新規開拓ボード")
+
     params={
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
         "tantou_list":tantou_list,
