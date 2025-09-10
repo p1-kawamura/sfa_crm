@@ -269,7 +269,7 @@ def houjin_gaishou_imp(request):
         if h!=0:
               Houjin_gaishou.objects.create(
                 imp_type=imp_type,
-                imp_day=datetime.datetime.now().strftime("%Y-%m-%d"),
+                imp_day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 recieve_day=i[0],
                 kubun=i[1],
                 houjin_com=i[2],
@@ -279,6 +279,13 @@ def houjin_gaishou_imp(request):
                 houjin_mail=i[6],
                 houjin_address=i[7],
                 houjin_comment=i[8],
+                # boad_col=i[9],
+                # busho_id=i[10],
+                # busho=i[11],
+                # tantou_id=i[12],
+                # tantou=i[13],
+                # bikou=i[14],
+                # last_act=i[15],
               )
         h+=1
 

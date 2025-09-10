@@ -201,7 +201,11 @@
                                         <tr><th>住所</th><td id="modal_houjin_address"></td></tr>
                                         <tr><th>電話番号</th><td id="modal_houjin_tel"></td></tr>
                                         <tr><th>メールアドレス</th><td id="modal_houjin_mail"></td></tr>
-                                        <tr><td id="modal_houjin_comment" colspan="2" style="line-height: 160%;"></td></tr>
+                                        <tr>
+                                            <td colspan="2">
+                                                <textarea class="form-control" id="modal_houjin_comment" rows="10" style="width: 100%; font-size: 0.9em; background-color: #ffffff;" readonly></textarea>
+                                            </td>
+                                        </tr>
                                     </table>
                                 </div>
 
@@ -501,9 +505,8 @@
                         document.getElementById("modal_houjin_address").innerText=res.houjin_address;
                         document.getElementById("modal_houjin_tel").innerText=res.houjin_tel;
                         document.getElementById("modal_houjin_mail").innerText=res.houjin_mail;
-                        document.getElementById("modal_houjin_comment").innerText=res.houjin_comment;
+                        document.getElementById("modal_houjin_comment").value=res.houjin_comment;
                         document.getElementById("modal_busho_id").value=res.busho_id;
-                        // document.getElementById("modal_tantou_id").value=res.tantou_id;
                         document.getElementById("modal_last_act").value=res.last_act;
                         document.getElementById("modal_p1_bikou").value=res.bikou;
                         document.getElementById("modal_itaku_bikou").value=res.itaku_bikou;
