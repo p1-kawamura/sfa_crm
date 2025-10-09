@@ -279,13 +279,6 @@ def houjin_gaishou_imp(request):
                 houjin_mail=i[6],
                 houjin_address=i[7],
                 houjin_comment=i[8],
-                # boad_col=i[9],
-                # busho_id=i[10],
-                # busho=i[11],
-                # tantou_id=i[12],
-                # tantou=i[13],
-                # bikou=i[14],
-                # last_act=i[15],
               )
         h+=1
 

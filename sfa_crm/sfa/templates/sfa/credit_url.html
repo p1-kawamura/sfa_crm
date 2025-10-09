@@ -26,14 +26,14 @@
             <div class="block_title">かんたんカード決済 URL発行</div>
             <hr>
             
-			<div>
+			<!-- <div>
 				<div style="color: red; font-weight: bold; font-size: 1.5em;"><i class="bi bi-cone-striped"></i> 閉鎖中</div>
 				<div style="font-size: 1.2em; margin-top: 10px;">※URL発行は「受注明細リスト」を使用するか、もしくは管理部までお願いします。</div>
-			</div>
+			</div> -->
 
 
 
-<!-- 			
+			
 			<div class="mt-4">
 				<span style="border: 1px solid red; font-size: 1.3em; padding: 10px; background-color: rgb(255, 233, 233);">
 					ステータスが <span style="color: red; font-weight: bold;">「受注」</span> 以降の案件のみ使用可能です。
@@ -98,12 +98,11 @@
 						<button type="button" class="btn btn-outline-dark" id="clear" style="margin-left: 30px;">クリア</button>
 					</div>
 					<div id="url" style="margin-top: 50px; color: blue; background-color: rgb(198, 255, 255); padding: 20px; font-size: 1.2em; display: none;"></div>
+					<div id="comment" style="margin-top: 50px; color: red; display: none;">
+						予期せぬエラーが発生しました！<br>DXチームの川村まで連絡してください。
+					</div>
 				</div>
-
-
-				
-
-			</div> -->
+			</div>
 
 		</div>
 
@@ -159,8 +158,24 @@
 			};
 			document.getElementById("url").innerHTML="";
 			document.getElementById("url").style.display="none";
+			document.getElementById("comment").style.display="none";
 			document.getElementById("btn").disabled=false;
 		})
+
+
+		// 見積番号入力チェック
+		var est = document.getElementsByName("est");
+		for (var i=0; i<est.length; i++){
+			est[i].addEventListener("change",function(){
+				this.value=this.value.trim();
+				var regex = /^[0-9]{7}$/;
+				if (this.value != "" && regex.test(this.value)==false){
+					this.style.backgroundColor="#ff8080";
+				} else {
+					this.style.backgroundColor="";
+				}
+			})
+		};
 
 
         // URL発行
@@ -179,8 +194,17 @@
 						window.alert("見積番号は７桁で入力してください！");
 						return
 					};
+					var regex = /^[0-9]{7}$/;
+					if (regex.test(document.getElementById("est_" + i).value) == false){
+						window.alert("見積番号に数字以外の文字が含まれています！（記号、スペースなど）");
+						return
+					};
 					if (document.getElementById("ver_" + i).value == ""){
 						window.alert("バージョンを入力してください！");
+						return
+					};
+					if (document.getElementById("ver_" + i).value == 0){
+						window.alert("バージョンは１以上の数字で入力してください！");
 						return
 					};
 				};
@@ -210,19 +234,25 @@
 			meta_list=JSON.stringify(meta_list);
 			
             $.ajax({
-                    'url': '{% url "sfa:credit_url" %}',
-                    'type': 'POST',
-                    'data': {
-						"money":money,
-                        "meta_list":meta_list,
-                    },
-                    'dataType': 'json'
-                })
-                .done(function(response){
-                    url=response.url;
-					document.getElementById("url").style.display="";
-                    document.getElementById("url").innerHTML="<a href='" + url + "' target='_blank'>" + url + "</a>"
-                })
+				'url': '{% url "sfa:credit_url" %}',
+				'type': 'POST',
+				'data': {
+					"money":money,
+					"meta_list":meta_list,
+				},
+				'dataType': 'json'
+			})
+			.done(function(response){
+				url=response.url;
+				comment=response.comment;
+				document.getElementById("url").style.display="";
+				document.getElementById("url").innerHTML="<a href='" + url + "' target='_blank'>" + url + "</a>"
+				if (comment == "yes"){
+					document.getElementById("comment").style.display="";
+				} else {
+					document.getElementById("comment").style.display="none";
+				}
+			})
         });
 
 	</script>

@@ -1631,15 +1631,35 @@ def credit_url(request):
             else:
                 url+="&%E8%A6%8B%E7%A9%8D%E7%95%AA%E5%8F%B7" + str(i) + "=" + h
 
-        s = pyshorteners.Shortener()
-        s_url=s.tinyurl.short(url)
+        end_point = "https://api.short.io/links"
+        payload = {
+            "allowDuplicates": False,
+            "originalURL": url,
+            "domain": "plus1.short.gy"
+        }
+        headers = {
+            "accept": "application/json",
+            "content-type": "application/json",
+            "Authorization": "sk_KbnQmdgRwK1kExSf"
+        }
 
-        # 履歴
-        meta_data=",".join(meta_list)
-        day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        Credit_url.objects.create(day=day,tantou=tantou,meta_data=meta_data,money=money,url=s_url)
+        res = requests.post(end_point, json=payload, headers=headers)
+        res=res.json()
+        
+        s_url=""
+        comment="yes"
+        try:
+            if res["success"]:
+                s_url=res["shortURL"]
+                comment="no"
+                # 履歴
+                meta_data=",".join(meta_list)
+                day=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                Credit_url.objects.create(day=day,tantou=tantou,meta_data=meta_data,money=money,url=s_url)
+        except:
+            pass            
 
-        d={"url":s_url}
+        d={"url":s_url,"comment":comment}
         return JsonResponse(d)
     
     return render(request,"sfa/credit_url.html",{"act_user":act_user})
@@ -1651,7 +1671,7 @@ def kanri_index(request):
         request.session["search"]={}
     if "tantou" not in request.session["search"]:
         request.session["search"]["tantou"]=""
-    ins=Credit_url.objects.all().order_by("day").reverse()[:100]
+    ins=Credit_url.objects.all().order_by("day").reverse()
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
