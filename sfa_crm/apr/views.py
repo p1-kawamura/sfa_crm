@@ -535,6 +535,7 @@ def hangire_busho_up(request):
 def choice_id(request):
     han_or_apr=request.POST.get("han_or_apr")
     request.session["han_search"]["han_or_apr"]=han_or_apr
+    request.session["han_search"]["page_num"]=1
     if han_or_apr == "apr":
         request.session["han_search"]["approach_id"]=request.POST.get("approach_id")
     d={}
