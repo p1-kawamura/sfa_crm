@@ -141,7 +141,7 @@ def approach_list_add(request):
                 print(h)
 
             except:
-                print("error："+ h)
+                print("error："+ str(h))
 
         h+=1
     ins=Approach_list.objects.all()
