@@ -151,5 +151,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-# ※朝日町サーバー起動a
+# ※朝日町サーバー起動
 # waitress-serve --listen=192.168.91.74:8000 --threads 20 sfa_crm.wsgi:application
