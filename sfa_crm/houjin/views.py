@@ -584,7 +584,7 @@ def houjin_gaishou_csv(request):
     day_st=request.POST["csv_day_st"]
     day_ed=request.POST["csv_day_ed"]
 
-    ins=Houjin_gaishou.objects.filter(recieve_day__gte= day_st + " 00:00", recieve_day__lte= day_ed + " 23:59")
+    ins=Houjin_gaishou.objects.filter(recieve_day__gte= day_st + " 00:00", recieve_day__lte= day_ed + " 23:59",kubun="カイタク")
     recieve_list=[["日付","会社名","内容","メモ"]]
     for i in ins:
         recieve_list.append([i.recieve_day[:10],i.houjin_com,i.itaku_result,i.itaku_bikou])
