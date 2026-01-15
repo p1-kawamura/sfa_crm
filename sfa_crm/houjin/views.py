@@ -385,9 +385,9 @@ def houjin_gaishou_load(request):
         fil["recieve_day__lte"]=ses["day_ed"] + " 23:59:59"
     if ses["act_st"] != "":
         fil["last_act__gte"]=ses["act_st"]
-    if ses["day_ed"] != "":
+    if ses["act_ed"] != "":
         fil["last_act__lte"]=ses["act_ed"]
-    
+
     dataContent=[]
     for key,val in col_name.items():
         
