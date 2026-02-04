@@ -21,7 +21,6 @@ class Houjin_gaishou(models.Model):
     tantou=models.CharField("担当者",max_length=255,blank=True,null=True)
     bikou=models.TextField("P1備考",blank=True,null=True)
     itaku_result=models.CharField("委託会社_内容",max_length=255,blank=True,null=True)
-    itaku_bikou=models.TextField("委託会社_備考",blank=True,null=True)
     last_act=models.CharField("最終アクション日",max_length=255,blank=True,null=True)
 
     def __str__(self):
