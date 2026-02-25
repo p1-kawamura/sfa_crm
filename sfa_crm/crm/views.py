@@ -8,10 +8,11 @@ from datetime import date
 import datetime
 import json
 import csv
-import io
+from io import BytesIO
 from django.http import HttpResponse
 import urllib.parse
 from django.db.models import Sum,Max
+import pandas as pd
 from django_pandas.io import read_frame
 from django.db.models import Q
 import calendar
@@ -1178,6 +1179,8 @@ def cus_ranking_index(request):
         request.session["cus_ranking"]["money_ed"]=""
     if "type" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["type"]="juchu_money"
+    if "rank_list" not in request.session["cus_ranking"]:
+        request.session["cus_ranking"]["rank_list"]=[]
     if "page_num" not in request.session["cus_ranking"]:
         request.session["cus_ranking"]["page_num"]=1
     if "all_page_num" not in request.session["cus_ranking"]:
@@ -1286,6 +1289,12 @@ def cus_ranking_index(request):
 
     df_all=df_all.iloc[(num-1)*100 : num*100]
 
+    # ランキングDL用
+    rank_st=(num-1)*100+1
+    rank_en=num*100
+    if rank_en > result:
+        rank_en=result
+
 
     # データフレームから直接リスト作成
     rank_list=[]
@@ -1307,7 +1316,7 @@ def cus_ranking_index(request):
         dic["tantou"]=ins.mitsu_last_tantou
         dic["mw"]=ins.ran_mw
         rank_list.append(dic)
-
+    request.session["cus_ranking"]["rank_list"]=rank_list
 
     #部署、担当
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
@@ -1338,8 +1347,10 @@ def cus_ranking_index(request):
         "act_user":act_user,
         "num":num,
         "all_num":all_num,
+        "rank_st":rank_st,
+        "rank_en":rank_en,
     }
-
+    
     return render(request,"crm/ranking.html",params)
 
 
@@ -1383,6 +1394,48 @@ def cus_ranking_page_last(request):
     all_num=request.session["cus_ranking"]["all_page_num"]
     request.session["cus_ranking"]["page_num"]=all_num
     return redirect("crm:cus_ranking_index")
+
+
+# 顧客ランキング_DL
+def cus_ranking_download(request):
+    rank_list=request.session["cus_ranking"]["rank_list"]
+    df_rank=pd.DataFrame(rank_list)
+    ins=Customer.objects.all()
+    df_cus=read_frame(ins)
+    df_rank=df_rank.merge(df_cus,on="cus_id")
+    df_rank["cus_id"]=df_rank["cus_id"].astype("int")
+
+    # グループ
+    group_list=Cus_group.objects.all().values_list("cus_id_parent",flat=True)
+    df_rank["group"]=df_rank["cus_id"].isin(group_list).map({True:"設定中",False:""})
+    
+    # 最終フォーマット
+    df_dl=df_rank[["rank","cus_id","cus_url_x","pref_x","com_x","com_busho","sei_x","mei_x","tel","tel_mob","mail",
+                   "mitsu_count","juchu_count","juchu_money_x","busho","tantou","mitsu_last","juchu_last","contact_last","group"]]
+    
+    df_dl_col=["ランキング","顧客ID","顧客マスタ","都道府県","会社名","部署","姓","名","電話番号","携帯番号","メールアドレス",
+                   "見積回数","受注回数","受注金額","最終部署","最終担当者","最終見積日","最終受注日","最終コンタクト日","グループ設定"]
+    df_dl.columns=df_dl_col
+
+    # Excelファイルをメモリ上に作成
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df_dl.to_excel(writer, index=False, sheet_name='ランキング')
+        wb = writer.book
+        ws = wb['ランキング']
+        for cell in ws['N']:
+            cell.number_format = '#,##0'
+
+    buffer.seek(0)
+
+    # HTTPレスポンスとしてExcelファイルを返す
+    response = HttpResponse(
+        buffer,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="ranking.xlsx"'
+    return response
+
 
 
 # 顧客統合
