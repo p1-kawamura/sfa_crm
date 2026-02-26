@@ -1331,6 +1331,16 @@ def cus_ranking_index(request):
     except:
         act_user="担当者が未設定です"
 
+    # 操作者
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        sousa_busho=Member.objects.get(tantou_id=act_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=act_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
+    print(sousa_time,sousa_busho,sousa_tantou,"■ ランキング")
+
     params={
         "ses":ses,
         "pref_list":[
