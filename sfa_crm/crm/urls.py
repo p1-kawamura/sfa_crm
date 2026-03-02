@@ -1,8 +1,9 @@
 from django.urls import path
 from .views import index,kokyaku_api,crm_sort,crm_group_act,alert_check,list_click_est,list_click_act,list_add,list_del,grip_add,crm_bikou, \
-                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_busho,cus_list_search,cus_list_page_prev,cus_list_page_first,\
-                    cus_list_page_next,cus_list_page_last,group_index,group_add_child,group_del_child,group_add_parent,group_del_all,group_cus_submit, \
-                    cus_ranking_index,cus_ranking_search,cus_ranking_page_prev,cus_ranking_page_first,cus_ranking_page_next,cus_ranking_page_last, \
+                    mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_busho,cus_list_search,cus_list_download,cus_list_page_prev,\
+                    cus_list_page_first,cus_list_page_next,cus_list_page_last,group_index,group_add_child,group_del_child,group_add_parent, \
+                    group_del_all,group_cus_submit,cus_ranking_index,cus_ranking_search, \
+                    cus_ranking_page_prev,cus_ranking_page_first,cus_ranking_page_next,cus_ranking_page_last, \
                     cus_ranking_download,cus_tougou,ran_mw_page,ran_mw_add,ran_mw_delete,cus_calendar_index,cus_calendar_btn
                     
                     
@@ -35,6 +36,7 @@ urlpatterns = [
     path('cus_list_page_first/', cus_list_page_first, name="cus_list_page_first"),
     path('cus_list_page_next/', cus_list_page_next, name="cus_list_page_next"),
     path('cus_list_page_last/', cus_list_page_last, name="cus_list_page_last"),
+    path('cus_list_download/', cus_list_download, name="cus_list_download"),
     path('group_index/', group_index, name="group_index"),
     path('group_del_all/', group_del_all, name="group_del_all"),
     path('group_add_child/', group_add_child, name="group_add_child"),

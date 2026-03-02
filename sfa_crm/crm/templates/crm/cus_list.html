@@ -21,7 +21,7 @@
             {% include "sfa/menu.html" with act_user=act_user %}
         </div>
 
-        <div style="margin: 0 auto; width: 1370px;">
+        <div style="margin: 0 auto; width: 1340px;">
             <hr>
             <div class="block_title">顧客検索</div>
             <hr>
@@ -170,13 +170,6 @@
                             <input class="form-check-input" type="checkbox" id="grip" name="grip">グリップ顧客
                             {% endif %}
                         </div>
-                        <!-- <div class="form-check" style="margin-left: 30px;">
-                            {% if ses.royal %}
-                            <input class="form-check-input" type="checkbox" id="royal" name="royal" checked>ロイヤルカスタマー
-                            {% else %}
-                            <input class="form-check-input" type="checkbox" id="royal" name="royal">ロイヤルカスタマー
-                            {% endif %}
-                        </div> -->
                         <div class="form-check" style="margin-left: 30px;">
                             {% if ses.taimen %}
                             <input class="form-check-input" type="checkbox" id="taimen" name="taimen" checked>対面あり
@@ -219,9 +212,17 @@
             <!-- 顧客一覧 -->
             <div style="margin-top: 15px;">
 
-                <div class="flex3">
-                    <div>検索結果：{{result | intcomma}}件</div>
-                    <div class="flex mail mb-2">
+                <div class="flex3 mb-3">
+                    <div class="flex">
+                        <div>検索結果：{{result | intcomma}}件</div>
+                        <div style="margin-left: 30px;">
+                            <form action="{% url 'crm:cus_list_download' %}" method="post">
+                                <button class="btn btn-outline-success btn-sm" type="submit">
+                                    <i class="bi bi-download"></i> 検索結果を全てダウンロード</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="flex">
                         {% if act_user != "担当者が未設定です" %}
                         <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
                         <div style="width: 28px; margin-left: 10px;"><input class="form-check-input" type="checkbox" id="mw_check_all"></div>
@@ -230,7 +231,6 @@
                 </div>
 
                 {% for i in cus_list %}
-
                 <div class="flex sfa_main" style="background-color: #FFF;">
 
                     <div style="width: 90px;">
@@ -243,11 +243,6 @@
                                 <span style="color: green; font-size: 1.2em; cursor: pointer;" title="{{h.busho}}：{{h.tantou}}"><i class="bi bi-flag-fill"></i></span>
                                 {% endif %}
                             {% endfor %}
-                        {% endif %}
-                    </div>
-                    <div style="width: 30px;">
-                        {% if i.royal == 1 %}
-                        <span style="color: #ff9900; font-size: 1.2em;" title="ロイヤルカスタマー"><i class="bi bi-trophy-fill"></i></span>
                         {% endif %}
                     </div>
                     <div style="width: 30px;">

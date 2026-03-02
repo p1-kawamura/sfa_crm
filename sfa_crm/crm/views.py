@@ -869,7 +869,6 @@ def cus_list_index(request):
         request.session["cus_search"]["tantou"]=""
     if "grip_tantou" not in request.session["cus_search"]:
         request.session["cus_search"]["grip_tantou"]=""
-
     if "cus_touroku_st" not in request.session["cus_search"]:
         request.session["cus_search"]["cus_touroku_st"]=""
     if "cus_touroku_ed" not in request.session["cus_search"]:
@@ -914,6 +913,8 @@ def cus_list_index(request):
         request.session["cus_search"]["apr_list"]=""
     if "cus_kubun" not in request.session["cus_search"]:
         request.session["cus_search"]["cus_kubun"]=[]
+    if "cus_list_dl" not in request.session["cus_search"]:
+        request.session["cus_search"]["cus_list_dl"]=[]
 
     ses=request.session["cus_search"]
 
@@ -1003,6 +1004,9 @@ def cus_list_index(request):
 
     items=items.order_by("cus_touroku").reverse()
     result=items.count()
+
+    # DL用
+    request.session["cus_search"]["cus_list_dl"]=list(items.values())
 
     #全ページ数
     if result == 0:
@@ -1153,6 +1157,75 @@ def cus_list_page_last(request):
     all_num=request.session["cus_search"]["all_page_num"]
     request.session["cus_search"]["page_num"]=all_num
     return redirect("crm:cus_list_index")
+
+
+# 顧客リスト（検索結果）_DL
+def cus_list_download(request):
+    cus_list=request.session["cus_search"]["cus_list_dl"]
+    df_search=pd.DataFrame(cus_list)
+    ins=Customer.objects.all()
+    df_cus=read_frame(ins)
+    df_search=df_search.merge(df_cus,on="cus_id")
+
+    # グループ
+    ins_group=Cus_group.objects.all()
+    df_group=read_frame(ins_group)
+    df_search["group"]="なし"
+    df_search.loc[df_search["cus_id"].isin(df_group["cus_id_parent"]),"group"]="親"
+    df_search.loc[df_search["cus_id"].isin(df_group["cus_id_child"]),"group"]="子"
+
+    # グリップ
+    ins_member=Member.objects.all()
+    df_member=read_frame(ins_member)
+    busho_map = dict(zip(df_member["busho_id"], df_member["busho"]))
+    tantou_map = dict(zip(df_member["tantou_id"], df_member["tantou"]))
+    df_search["grip_busho"]=df_search["grip_busho_id_x"].map(busho_map)
+    df_search["grip_tantou"]=df_search["grip_tantou_id_x"].map(tantou_map)
+    
+    # 整形
+    df_search["cus_id"]=df_search["cus_id"].astype("int")
+    df_search["taimen_x"]=df_search["taimen_x"].replace({True:"あり",False:""})
+
+    # 最終フォーマット
+    df_dl=df_search[["cus_id","cus_url_x","pref_x","com_x","com_busho_x","sei_x","mei_x","tel_x","tel_mob_x","mail_x",
+                   "mitsu_all_x","juchu_all_x","juchu_money_x","mitsu_last_busho_x","mitsu_last_tantou_x",
+                   "mitsu_last_x","juchu_last_x","contact_last_x","grip_busho","grip_tantou","taimen_x","group"]]
+    
+    df_dl_col=["顧客ID","顧客マスタ","都道府県","会社名","部署","姓","名","電話番号","携帯番号","メールアドレス",
+                   "見積回数","受注回数","受注金額","最終部署","最終担当者",
+                   "最終見積日","最終受注日","最終コンタクト日","グリップ部署","グリップ担当者","対面","グループ設定"]
+    df_dl.columns=df_dl_col
+
+    # Excelファイルをメモリ上に作成
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df_dl.to_excel(writer, index=False, sheet_name='顧客検索')
+        wb = writer.book
+        ws = wb['顧客検索']
+        for cell in ws['M']:
+            cell.number_format = '#,##0'
+
+    buffer.seek(0)
+
+    # HTTPレスポンスとしてExcelファイルを返す
+    response = HttpResponse(
+        buffer,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="customer_list.xlsx"'
+
+    # 操作者
+    act_id=request.session["search"]["tantou"]
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        sousa_busho=Member.objects.get(tantou_id=act_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=act_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
+    print(sousa_time,sousa_busho,sousa_tantou,"■ 顧客検索のDL")
+
+    return response
 
 
 # 顧客ランキング
