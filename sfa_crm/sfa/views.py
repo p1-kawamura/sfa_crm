@@ -15,6 +15,7 @@ from django.db.models import Q,Sum,Max
 from django_pandas.io import read_frame
 import pandas as pd
 import pyshorteners
+from io import BytesIO
 
 
 def index_api(request):
@@ -1797,5 +1798,20 @@ def csv_imp(request):
 
 # 個別に色々使うため
 def free(request):
-    request.session.clear()  
-    return redirect("sfa:index")
+    ins=Sfa_data.objects.filter(lost_reason__gt=0)
+    df=read_frame(ins)
+    # Excelファイルをメモリ上に作成
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='失注理由')
+        wb = writer.book
+        ws = wb['失注理由']
+    buffer.seek(0)
+
+    # HTTPレスポンスとしてExcelファイルを返す
+    response = HttpResponse(
+        buffer,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="lost_reason.xlsx"'
+    return response
