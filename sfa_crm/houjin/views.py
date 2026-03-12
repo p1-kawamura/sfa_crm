@@ -11,6 +11,7 @@ from django.http import HttpResponse
 import urllib.parse
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
+from openpyxl import Workbook
 
 
 
@@ -419,26 +420,37 @@ def houjin_gaishou_search(request):
     return redirect("houjin:houjin_gaishou_index")
 
 
-# 法人外商ボード_CSV出力
-def houjin_gaishou_csv(request):
-    kubun=request.POST["csv_kubun"]
-    day_st=request.POST["csv_day_st"]
-    day_ed=request.POST["csv_day_ed"]
+# 法人外商ボード_XLSX出力
+def houjin_gaishou_xlsx(request):
+    kubun = request.POST["csv_kubun"]
+    day_st = request.POST["csv_day_st"]
+    day_ed = request.POST["csv_day_ed"]
 
-    ins=Houjin_gaishou.objects.filter(kubun=kubun,recieve_day__gte= day_st + " 00:00", recieve_day__lte= day_ed + " 23:59")
-    recieve_list=[["日付","会社名","内容","メモ"]]
+    ins = Houjin_gaishou.objects.filter(
+        kubun=kubun,
+        recieve_day__gte=day_st + " 00:00",
+        recieve_day__lte=day_ed + " 23:59"
+    )
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "法人外商"
+
+    ws.append(["日付", "会社名", "内容", "メモ"])
     for i in ins:
-        try:
-            i.bikou.encode("CP932")
-            recieve_list.append([i.recieve_day[:10],i.houjin_com,i.itaku_result,i.bikou])
-        except:
-            recieve_list.append([i.recieve_day[:10],i.houjin_com,i.itaku_result,"備考に特殊文字が含まれているため出力できません。"])
+        ws.append([
+            i.recieve_day[:10],
+            i.houjin_com,
+            i.itaku_result,
+            i.bikou
+        ])
 
-    filename=urllib.parse.quote(kubun + "_報告用.csv")
-    response = HttpResponse(content_type='text/csv; charset=CP932')
-    response['Content-Disposition'] =  "attachment;  filename='{}'; filename*=UTF-8''{}".format(filename, filename)
-    writer = csv.writer(response)
-    for line in recieve_list:
-        writer.writerow(line)
+    filename = urllib.parse.quote(kubun + "_報告用.xlsx")
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response['Content-Disposition'] = (
+        "attachment; filename='{}'; filename*=UTF-8''{}".format(filename, filename)
+    )
 
+    wb.save(response)
     return response

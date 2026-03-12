@@ -263,7 +263,7 @@
                 </div>
             </div>
 
-            <!-- モーダル2　CSV出力 -->
+            <!-- モーダル2　XLSX出力 -->
             <div class="modal fade" id="modal_gaishou_csv" tabindex="-1" role="dialog" aria-labelledby="modal_2" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -272,7 +272,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form action="{% url 'houjin:houjin_gaishou_csv' %}" method="post">{% csrf_token %}
+                            <form action="{% url 'houjin:houjin_gaishou_xlsx' %}" method="post">{% csrf_token %}
                                 <div class="flex">
                                     <div>区分：</div>
                                     <div>
