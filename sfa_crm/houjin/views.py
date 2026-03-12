@@ -433,7 +433,7 @@ def houjin_gaishou_xlsx(request):
     )
     wb = Workbook()
     ws = wb.active
-    ws.title = "法人外商"
+    ws.title = kubun
 
     ws.append(["日付", "会社名", "内容", "メモ"])
     for i in ins:
