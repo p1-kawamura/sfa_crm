@@ -2,7 +2,7 @@ from django.urls import path
 from .views import approach_list_index,approach_list_add,\
                     hangire_index,hangire_search,hangire_modal_send,hangire_csv_imp,hangire_busho_up,hangire_busho_now,hangire_modal_show_top,\
                     hangire_modal_show_bot,hangire_modal_sort,hangire_modal_list_click,hangire_modal_btn,hangire_modal_del,hangire_modal_result_del,\
-                    hangire_modal_result_juchu,hangire_color_clear,choice_id,\
+                    hangire_modal_result_juchu,hangire_modal_ask_llama,hangire_color_clear,choice_id,\
                     han_list_page_prev,han_list_page_first,han_list_page_next,han_list_page_last,\
                     shukei_index,shukei_click
 
@@ -22,6 +22,7 @@ urlpatterns = [
     path('hangire_modal_result_del/', hangire_modal_result_del, name="hangire_modal_result_del"),
     path('hangire_modal_result_juchu/', hangire_modal_result_juchu, name="hangire_modal_result_juchu"),
     path('hangire_modal_send/', hangire_modal_send, name="hangire_modal_send"),
+    path('hangire_modal_ask_llama/', hangire_modal_ask_llama, name="hangire_modal_ask_llama"),
     path('hangire_color_clear/', hangire_color_clear, name="hangire_color_clear"),
     path('hangire_csv_imp/', hangire_csv_imp, name="hangire_csv_imp"),
     path('hangire_busho_up/', hangire_busho_up, name="hangire_busho_up"),

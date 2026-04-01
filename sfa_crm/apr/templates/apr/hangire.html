@@ -468,7 +468,9 @@
                         <!-- footer -->
                         <div class="modal-footer">
                             <div style="text-align: right;">
-                                <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
+                                <!-- AIテスト用 -->
+                                <button type="button" class="btn btn-outline-success" id="modal_ai">テスト</button>
+                                <button  style="margin-left: 100px;" type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
                             </div>
                         </div>
                     </div>
@@ -1091,6 +1093,20 @@
             })
             .done(function(response){
                 window.location.reload();
+            })
+        });
+
+
+        // モーダル_AI
+        document.getElementById("modal_ai").addEventListener("click",function(){
+            $.ajax({
+                'url': '{% url "apr:hangire_modal_ask_llama" %}',
+                'type': 'POST',
+                'data': {"pk":document.getElementById("modal_pk").innerText},                
+                'dataType': 'json'
+            })
+            .done(function(response){
+                // window.location.reload();
             })
         });
 

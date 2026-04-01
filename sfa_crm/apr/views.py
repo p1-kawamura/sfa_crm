@@ -1,15 +1,17 @@
 from django.shortcuts import render,redirect
 from .models import Approach_list,Hangire
 from crm.models import Crm_action,Customer
-from sfa.models import Member
+from sfa.models import Member,Sfa_data
 import requests
 from django.http import JsonResponse
 from datetime import date
+import datetime
 import csv
 import io
-from datetime import date
 from django_pandas.io import read_frame
 import pandas as pd
+import json
+from google import genai
 
 
 
@@ -747,6 +749,144 @@ def hangire_busho_now(request):
         tantou_now=list(Member.objects.filter(busho_id=busho_id).values_list("tantou_id","tantou"))
     d={"tantou_now":tantou_now}
     return JsonResponse(d)
+
+
+# 版切れモーダル_AI返答
+def hangire_modal_ask_llama(request):
+    pk=request.POST.get("pk")
+    cus_id=Hangire.objects.get(pk=pk).cus_id
+
+    # data
+    cus_url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
+    cus_res=requests.get(cus_url)
+    cus_res=cus_res.json()
+    i=Customer.objects.get(cus_id=cus_id)
+    cus_data={"顧客氏名":i.sei or "" + i.mei or "","都道府県":i.pref,"受注総数":i.juchu_all,"受注総金額":i.juchu_money,"見積総数":i.mitsu_all,"最終見積日":i.mitsu_last,
+              "最終受注日":i.juchu_last,"最終コンタクト日":i.contact_last,"対面接客":i.taimen,"備考":cus_res["remark"]}
+
+    sfa_data=[]
+    ins=Sfa_data.objects.filter(cus_id=cus_id)
+    lost={0:"",1:"金額",2:"納期",3:"音信不通",4:"その他",5:"在庫切れ"}
+    for i in ins:
+        sfa_dic={"ステータス":i.status,"備考":i.bikou,"時系列":i.s_memo2,"失注理由":lost[i.lost_reason],"失注内容":i.lost_reason_text}
+        sfa_data.append(sfa_dic)
+
+    crm_data=[]
+    ins2=Crm_action.objects.filter(cus_id=cus_id)    
+    crm_type={1:"メモ",2:"メール",3:"メルマガ",4:"TEL",5:"外商",6:"アラート",7:"来店",8:"アプローチリスト"}
+    for i in ins2:
+        crm_dic={"日付":i.day,"種類":crm_type[i.type],"内容":i.text,"電話対応":i.tel_result}
+        crm_data.append(crm_dic)
+
+    apr_data=[]
+    ins3=Hangire.objects.filter(cus_id=cus_id)
+    apr_result={"0":"未対応","1":"アプローチしない","tran":"他の担当へ転送","2":"不在","3":"検討します","4":"失注/予定なし",
+                "5":"架電により案件化","6":"受注","7":"その他"}
+    apr_type={0:"",1:"メモ",2:"メール",4:"TEL"}
+    for i in ins3:
+        apr_dic={"日付":i.apr_day,"方法":apr_type[i.apr_type],"結果":apr_result[i.result],"TEL":i.apr_tel_result,"内容":i.apr_text}
+        apr_data.append(apr_dic)
+
+    sys_data=[]
+    sys_url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
+    sys_res=requests.get(sys_url)
+    sys_res=sys_res.json()
+    sys_res=sys_res["receivedOrders"]
+    for i in sys_res:
+        sys_dic={"初回見積日":i["firstEstimationDate"],"ステータス":i["estimationStatus"],"金額":i["totalPrice"]}
+        sys_data.append(sys_dic)
+
+    data={"顧客情報":cus_data,"案件履歴":sfa_data,"顧客履歴":cus_data,"アプローチ履歴":apr_data,"システム履歴":sys_data}
+    cleaned = clean_json(data)
+    json_text = json.dumps(cleaned, ensure_ascii=False)
+
+    # prompt
+    today = date.today()
+    prompt = f"""
+        あなたは営業コンサルタントです。
+        本日の日付は {today} です。
+        これから渡すJSONデータを読み取り、顧客の行動傾向と現在の温度感を推測し、
+        「今から営業担当が電話をかける直前のアドバイス」を1つの文章で作成してください。
+
+        【前提】
+        ・「今週」「今月」「最近」などの表現は、本日（{today}）を基準に判断すること。
+        ・{today} より前の日付はすべて過去の出来事として扱うこと。
+        ・過去の日付を現在と混同しないこと。
+
+        【分析してほしい内容】
+        ・電話がつながりやすいか、不在が多いか
+        ・顧客の性格や行動傾向（慎重・即決・価格重視など）
+        ・購買意欲の高さ（高い・低い・保留など）
+
+        【出力条件】
+        ・300字程度
+        ・箇条書きにしない
+        ・営業担当に向けた“直前アドバイス”として自然な文章にする
+        ・営業担当が読みやすいように、適度に改行を入れて文章を整える
+        ・JSONの項目名はそのまま使わず、自然な日本語に言い換える
+
+        【JSONデータ】
+    """ + json_text
+
+    # Google AI Studio の APIキー
+    client = genai.Client(api_key="AIzaSyDdT_ToKo_FU27KhZvNBXZHHZrj5KnMOZQ")
+    model_name = "gemini-3-flash-preview"
+    res = client.models.generate_content(
+        model=model_name,
+        contents=prompt
+    )
+    print(res.text)
+
+    # 操作者
+    tantou_id=request.session["search"]["tantou"]
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
+    print(sousa_time,sousa_busho,sousa_tantou,"■ AIの回答（アプローチ）")
+
+    # 画面に表示
+    d={"res":res.text}
+    return JsonResponse(d)
+
+
+# 関数_JSONクリーニング用
+def clean_value(v):
+    if v is None:
+        return ""
+
+    if isinstance(v, str):
+        # 全角スペース → 半角
+        v = v.replace("\u3000", " ")
+
+        # 改行 → 半角スペース
+        v = v.replace("\r\n", " ")
+        v = v.replace("\n", " ")
+        v = v.replace("\r", " ")
+
+        # 行末スペース削除
+        v = v.rstrip()
+
+        # 連続スペースを1つに
+        while "  " in v:
+            v = v.replace("  ", " ")
+
+        return v
+
+    return v
+
+
+# 関数_JSONクリーニング用
+def clean_json(obj):
+    if isinstance(obj, dict):
+        return {k: clean_json(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean_json(v) for v in obj]
+    return clean_value(obj)
+
 
 
 # 版切れリスト_別担当へ転送
