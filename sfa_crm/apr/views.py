@@ -12,6 +12,7 @@ from django_pandas.io import read_frame
 import pandas as pd
 import json
 from google import genai
+from django.conf import settings
 
 
 
@@ -829,7 +830,7 @@ def hangire_modal_ask_llama(request):
     """ + json_text
 
     # Google AI Studio の APIキー
-    client = genai.Client(api_key="")
+    client = genai.Client(api_key=settings.GEMINI_API_KEY)
     model_name = "gemini-3-flash-preview"
     res = client.models.generate_content(
         model=model_name,
