@@ -829,7 +829,7 @@ def hangire_modal_ask_llama(request):
     """ + json_text
 
     # Google AI Studio の APIキー
-    client = genai.Client(api_key="AIzaSyDdT_ToKo_FU27KhZvNBXZHHZrj5KnMOZQ")
+    client = genai.Client(api_key="")
     model_name = "gemini-3-flash-preview"
     res = client.models.generate_content(
         model=model_name,
