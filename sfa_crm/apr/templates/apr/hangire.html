@@ -329,7 +329,7 @@
 
             <!-- モーダル -->
             <div class="modal fade" id="modal_apr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
                         <!-- HEADER -->
                         <div class="modal-header">
@@ -343,133 +343,151 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close"></button>
                         </div>
                         <!-- BODY -->
-                        <div class="modal-body">
-                            <div class="flex2">
-                                <div id="modal_left"></div>
-                                <div style="margin-left: 25px;">
-                                    <!-- TOP -->
-                                    <div>
-                                        <div class="flex3" style="align-items: center;">
-                                            <div><button class="btn btn-danger btn-sm" id="modal_result_juchu">受注にする</button></div>
-                                            <div style="font-size: 0.9em;">
-                                                <button class="btn btn-outline-danger btn-sm" id="modal_result_del">結果をクリア</button>
-                                            </div>
-                                        </div>
-                                        <div style="margin-top: 5px; font-size: 0.9em;">
-                                            <table class="table table-bordered">
-                                                <tr>
-                                                    <th style="width: 100px;" nowrap>最終結果</th>
-                                                    <th style="width: 95px;" nowrap>日付</th>
-                                                    <th style="width: 70px;" nowrap>記入者</th>
-                                                    <th style="width: 50px;" nowrap>種類</th>
-                                                    <th nowrap>備考</th>
-                                                </tr>
-                                                <tr>
-                                                    <td id="modal_top_result" style="text-align: center;" nowrap></td>
-                                                    <td id="modal_top_day" nowrap></td>
-                                                    <td id="modal_top_tantou" nowrap></td>
-                                                    <td id="modal_top_type" style="text-align: center;"></td>
-                                                    <td id="modal_top_bikou"></td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <!-- BOT -->
-                                    <div style="margin-top: 20px;">
-                                        <div class="flex" id="modal_show_A">
-                                            <div>■ 結果：</div>
-                                            <div>
-                                                <select class="form-select form-select-sm" id="modal_apr_result">
-                                                    {% for i in result_list %}
-                                                    <option value={{i.0}}>{{i.1}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            <div class="flex" id="modal_tantou_block" style="margin-left: 30px;">
-                                                <div>記入者：</div>
-                                                <div><input class="form-control form-control-sm" type="text" id="modal_apr_tantou" style="width: 80px;"></div>
-                                            </div>
-                                        </div>
-
-                                        <!-- 通常入力 -->
-                                        <div id="modal_show_B">
-                                            <div class="flex mt-3">
-                                                <div>種類：</div>
-                                                <div>
-                                                    <select class="form-select form-select-sm" id="modal_apr_type">
-                                                        {% for i,h in apr_type_list.items %}
-                                                        <option value="{{i}}">{{h}}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                                <div id="modal_tel_hyouji" style="display: none;">
-                                                    <select class="form-select form-select-sm" id="modal_apr_tel">
-                                                        <option value="対応">対応</option>
-                                                        <option value="不在">不在</option>
-                                                    </select>
-                                                </div>
-                                                <div style="margin-left: 20px;">日付：</div>
-                                                <div><input class="form-control form-control-sm" type="date" id="modal_apr_day" style="width: 120px;"></div>
-                                                <div style="margin-left: 20px;"><button class="btn btn-outline-dark btn-sm" id="modal_btn_apr_new">新規</button></div>
-                                                <div style="margin-left: 20px;"><button class="btn btn-outline-danger btn-sm" id="modal_btn_apr_del">削除</button></div>
-                                                <div id="modal_act_id" style="display: none;"></div>
-                                            </div>
-                                            <div class="flex">
-                                                <div style="margin-top: 10px; width: 620px;">
-                                                    <textarea class="form-control" rows="2" id="modal_apr_text" maxlength="255" placeholder="最大255文字"></textarea>
-                                                </div>
-                                                <div style="margin-left: 20px;"><button class="btn btn-primary btn-sm" id="modal_btn_apr_ok">決定</button></div>
-                                            </div>
-                                        </div>
-
-                                        <!-- 他拠点へ転送 -->
-                                        <div class="flex mt-3 mb-5" id="modal_show_C" style="display: none;">
-                                            <div>部署：</div>
-                                            <div>
-                                                <select class="form-select form-select-sm" id="modal_send_busho" style="width: 120px;">
-                                                    <option value="0"></option>
-                                                    {% for i in busho_now %}
-                                                        <option value="{{i.0}}">{{i.1}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            <div style="margin-left: 30px;">担当者：</div>
-                                            <div>
-                                                <select class="form-select form-select-sm" id="modal_send_tantou" style="width: 120px;">
-                                                    <option value="0"></option>
-                                                    {% for i in tantou_now %}
-                                                        <option value="{{i.0}}">{{i.1}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            <div style="margin-left: 30px;">
-                                                <button type="button" class="btn btn-secondary btn-sm" id="modal_send_click">転送</button>                                    
-                                            </div>
-                                        </div>
-
-                                        <!-- 履歴一覧 -->
-                                        <div style="width: 75px; margin-top: 10px;">
-                                            <select class="form-select form-select-sm" id="modal_sort">
-                                                {% if modal_sort == "0" %}
-                                                <option value="0" selected>昇順</option>
-                                                <option value="1">降順</option>
-                                                {% else %}
-                                                <option value="0">昇順</option>
-                                                <option value="1" selected>降順</option>
-                                                {% endif %}
-                                            </select>
-                                        </div>
-                                        <div class="inlineframe3" id="modal_crm_action" style="height: 300px; width: 700px;"></div>
+                        <div class="modal-body" style="margin-left: 20px;">
+                            <!-- TOP -->
+                            <div style="width: 1070px;">
+                                <div class="flex3" style="align-items: center;">
+                                    <div><button class="btn btn-danger btn-sm" id="modal_result_juchu">受注にする</button></div>
+                                    <div style="font-size: 0.9em;">
+                                        <button class="btn btn-outline-danger btn-sm" id="modal_result_del">結果をクリア</button>
                                     </div>
                                 </div>
+                                <div style="margin-top: 5px; font-size: 0.9em;">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th style="width: 100px;" nowrap>最終結果</th>
+                                            <th style="width: 95px;" nowrap>日付</th>
+                                            <th style="width: 70px;" nowrap>記入者</th>
+                                            <th style="width: 50px;" nowrap>種類</th>
+                                            <th nowrap>備考</th>
+                                        </tr>
+                                        <tr>
+                                            <td id="modal_top_result" style="text-align: center;" nowrap></td>
+                                            <td id="modal_top_day" nowrap></td>
+                                            <td id="modal_top_tantou" nowrap></td>
+                                            <td id="modal_top_type" style="text-align: center;"></td>
+                                            <td id="modal_top_bikou"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <hr>
                             </div>
+                            
+                            <!-- BOT -->
+                            <div class="flex2">
+                                <!-- 左カラム -->
+                                <div> 
+                                    <div class="flex" id="modal_show_A">
+                                        <div>■ 結果：</div>
+                                        <div>
+                                            <select class="form-select form-select-sm" id="modal_apr_result">
+                                                {% for i in result_list %}
+                                                <option value={{i.0}}>{{i.1}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="flex" id="modal_tantou_block" style="margin-left: 30px;">
+                                            <div>記入者：</div>
+                                            <div><input class="form-control form-control-sm" type="text" id="modal_apr_tantou" style="width: 80px;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 通常入力 -->
+                                    <div id="modal_show_B">
+                                        <div class="flex mt-3">
+                                            <div>種類：</div>
+                                            <div>
+                                                <select class="form-select form-select-sm" id="modal_apr_type">
+                                                    {% for i,h in apr_type_list.items %}
+                                                    <option value="{{i}}">{{h}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div id="modal_tel_hyouji" style="display: none;">
+                                                <select class="form-select form-select-sm" id="modal_apr_tel">
+                                                    <option value="対応">対応</option>
+                                                    <option value="不在">不在</option>
+                                                </select>
+                                            </div>
+                                            <div style="margin-left: 20px;">日付：</div>
+                                            <div><input class="form-control form-control-sm" type="date" id="modal_apr_day" style="width: 120px;"></div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-outline-dark btn-sm" id="modal_btn_apr_new">新規</button></div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-outline-danger btn-sm" id="modal_btn_apr_del">削除</button></div>
+                                            <div id="modal_act_id" style="display: none;"></div>
+                                        </div>
+                                        <div class="flex">
+                                            <div style="margin-top: 10px; width: 520px;">
+                                                <textarea class="form-control" rows="3" id="modal_apr_text" maxlength="255" placeholder="最大255文字"></textarea>
+                                            </div>
+                                            <div style="margin-left: 20px;"><button class="btn btn-primary btn-sm" id="modal_btn_apr_ok">決定</button></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 他拠点へ転送 -->
+                                    <div class="flex mt-3 mb-5" id="modal_show_C" style="display: none;">
+                                        <div>部署：</div>
+                                        <div>
+                                            <select class="form-select form-select-sm" id="modal_send_busho" style="width: 120px;">
+                                                <option value="0"></option>
+                                                {% for i in busho_now %}
+                                                    <option value="{{i.0}}">{{i.1}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div style="margin-left: 30px;">担当者：</div>
+                                        <div>
+                                            <select class="form-select form-select-sm" id="modal_send_tantou" style="width: 120px;">
+                                                <option value="0"></option>
+                                                {% for i in tantou_now %}
+                                                    <option value="{{i.0}}">{{i.1}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div style="margin-left: 30px;">
+                                            <button type="button" class="btn btn-secondary btn-sm" id="modal_send_click">転送</button>                                    
+                                        </div>
+                                    </div>
+
+                                    <!-- 履歴一覧 -->
+                                    <div style="width: 75px; margin-top: 10px;">
+                                        <select class="form-select form-select-sm" id="modal_sort">
+                                            {% if modal_sort == "0" %}
+                                            <option value="0" selected>昇順</option>
+                                            <option value="1">降順</option>
+                                            {% else %}
+                                            <option value="0">昇順</option>
+                                            <option value="1" selected>降順</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                    <div class="inlineframe3" id="modal_crm_action" style="height: 310px; width: 600px;"></div>
+                                </div>
+
+                                <!-- 右カラム -->
+                                <div style="margin-left: 40px; width: 430px;">
+                                    <div class="flex3" style="align-items: end;">
+                                        <div>■ 備考（基幹システムと連動）</div>
+                                        <div><button class="btn btn-secondary btn-sm" id="btn_remark">更新</button></div>
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        <textarea class="form-control" style="font-size: 0.9em;" rows="10" id="apr_bikou_new"></textarea>
+                                    </div>
+                                    <div style="margin-top: 20px;">
+                                        <button type="button" class="btn btn-outline-success btn-sm" id="modal_ask_gemini">
+                                            <img src="{% static 'gemini20.png' %}"> Geminiのアドバイスを見てみる
+                                        </button>
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        <textarea class="form-control" style="font-size: 0.8em;" rows="10" id="modal_answer_gemini"></textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
                         </div>
                         <!-- footer -->
                         <div class="modal-footer">
                             <div style="text-align: right;">
-                                <!-- AIテスト用 -->
-                                <button type="button" class="btn btn-outline-success" id="modal_ai" style="display: none;">テスト</button>
                                 <button  style="margin-left: 100px;" type="button" class="btn btn-outline-dark" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close">閉じる</button>
                             </div>
                         </div>
@@ -843,6 +861,7 @@
                     last_str = last_str + str;
                 };
                 document.getElementById("modal_crm_action").innerHTML=last_str;
+                document.getElementById("apr_bikou_new").innerHTML=response.remark;
                 modal_list_click()
             })
         }
@@ -1096,17 +1115,35 @@
             })
         });
 
+        
+        // モーダル_備考
+        document.getElementById("btn_remark").addEventListener("click",function(){
+            $.ajax({
+                    'url': '{% url "apr:hangire_modal_bikou" %}',
+                    'type': 'POST',
+                    'data': {
+                        "pk":document.getElementById("modal_pk").innerText,
+                        "bikou":document.getElementById("apr_bikou_new").value,
+                    },
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.alert("更新しました！");
+            })
+        });
+
 
         // モーダル_AI
-        document.getElementById("modal_ai").addEventListener("click",function(){
+        document.getElementById("modal_ask_gemini").addEventListener("click",function(){
+            document.getElementById("modal_answer_gemini").innerHTML="考え中です・・・";
             $.ajax({
-                'url': '{% url "apr:hangire_modal_ask_llama" %}',
+                'url': '{% url "apr:hangire_modal_ask_gemini" %}',
                 'type': 'POST',
                 'data': {"pk":document.getElementById("modal_pk").innerText},                
                 'dataType': 'json'
             })
             .done(function(response){
-                // window.location.reload();
+                document.getElementById("modal_answer_gemini").innerHTML=response.answer;
             })
         });
 

@@ -611,7 +611,12 @@ def hangire_modal_show_bot(request):
     else:
         res_det=sorted(res_det,key=lambda x: x["day"], reverse=True)
 
-    d={"cus_act":res_det}
+    # 顧客マスタ備考
+    url3="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
+    res3=requests.get(url3)
+    res3=res3.json()
+
+    d={"cus_act":res_det,"remark":res3["remark"]}
     return JsonResponse(d)
 
 
@@ -752,8 +757,21 @@ def hangire_busho_now(request):
     return JsonResponse(d)
 
 
+# 版切れモーダル_備考更新
+def hangire_modal_bikou(request):
+    pk=request.POST.get("pk")
+    cus_id=Hangire.objects.get(pk=pk).cus_id
+    bikou=request.POST.get("bikou")
+    data={"remark":bikou}
+    data=json.dumps(data)
+    url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/remark"
+    requests.put(url,data=data)
+    d={}
+    return JsonResponse(d)
+
+
 # 版切れモーダル_AI返答
-def hangire_modal_ask_llama(request):
+def hangire_modal_ask_gemini(request):
     pk=request.POST.get("pk")
     cus_id=Hangire.objects.get(pk=pk).cus_id
 
@@ -807,7 +825,7 @@ def hangire_modal_ask_llama(request):
         あなたは営業コンサルタントです。
         本日の日付は {today} です。
         これから渡すJSONデータを読み取り、顧客の行動傾向と現在の温度感を推測し、
-        「今から営業担当が電話をかける直前のアドバイス」を1つの文章で作成してください。
+        「今から営業担当が電話をかけるので、直前の戦略的アドバイス」を1つの文章で作成してください。
 
         【前提】
         ・「今週」「今月」「最近」などの表現は、本日（{today}）を基準に判断すること。
@@ -816,13 +834,14 @@ def hangire_modal_ask_llama(request):
 
         【分析してほしい内容】
         ・電話がつながりやすいか、不在が多いか
-        ・顧客の性格や行動傾向（慎重・即決・価格重視など）
+        ・顧客の性格や行動傾向（慎重・即決・価格重視・納期重視など）
         ・購買意欲の高さ（高い・低い・保留など）
+        ・どうすれば受注につながりやすいか
 
         【出力条件】
         ・300字程度
         ・箇条書きにしない
-        ・営業担当に向けた“直前アドバイス”として自然な文章にする
+        ・営業担当に向けた「戦略的な直前アドバイス」として自然な文章にする
         ・営業担当が読みやすいように、適度に改行を入れて文章を整える
         ・JSONの項目名はそのまま使わず、自然な日本語に言い換える
 
@@ -836,7 +855,6 @@ def hangire_modal_ask_llama(request):
         model=model_name,
         contents=prompt
     )
-    print(res.text)
 
     # 操作者
     tantou_id=request.session["search"]["tantou"]
@@ -850,7 +868,7 @@ def hangire_modal_ask_llama(request):
     print(sousa_time,sousa_busho,sousa_tantou,"■ AIの回答（アプローチ）")
 
     # 画面に表示
-    d={"res":res.text}
+    d={"answer":res.text}
     return JsonResponse(d)
 
 
