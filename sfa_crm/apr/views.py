@@ -865,7 +865,7 @@ def hangire_modal_ask_gemini(request):
     except:
         sousa_busho=""
         sousa_tantou="不明"
-    print(sousa_time,sousa_busho,sousa_tantou,"■ AIの回答（アプローチ）")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ Geminiの回答")
 
     # 画面に表示
     d={"answer":res.text}
