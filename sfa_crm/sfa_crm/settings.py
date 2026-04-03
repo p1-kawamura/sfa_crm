@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'crm',
     'apr',
     'houjin',
+    'mkt',
 ]
 
 MIDDLEWARE = [

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from .models import Sfa_data,Sfa_action,Member,Sfa_group,Credit_url
 from crm.models import Customer,Crm_action,Cus_search_kubun
 from apr.models import Approach_list,Hangire
+from mkt.models import Web_est
 import csv
 import io
 import json
@@ -1700,15 +1701,42 @@ def csv_imp(request):
     csv_content = csv.reader(data)
     csv_list=list(csv_content)
 
-
-    # Crm_search_kubunへの入力
+    # Web_estへの入力
     h=0
     for i in csv_list:
         if h!=0:
-            Cus_search_kubun.objects.create(kubun=i[0],word=i[1])    
+            Web_est.objects.create(
+                web_id=i[0],
+                web_num=i[1],
+                web_day=i[2],
+                cus_id=i[3],
+                cus_sei=i[4],
+                cus_mei=i[5],
+                pref=i[6],
+                web_kazu=i[7],
+                mitsu_id=i[8],
+                mitsu_num=i[9],
+                mitsu_ver=i[10],
+                kubun=i[11],
+                status=i[12],
+                juchu_day=i[13],
+                mitsu_kazu=i[14],
+                money=i[15],
+                busho_id=i[16],
+                busho=i[17],
+                tantou_id=i[18],
+                tantou_sei=i[19],
+                tantou_mei=i[20],
+                )
         h+=1
 
 
+    # # Crm_search_kubunへの入力
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:
+    #         Cus_search_kubun.objects.create(kubun=i[0],word=i[1])    
+    #     h+=1
 
 
     # # Customerへの入力
