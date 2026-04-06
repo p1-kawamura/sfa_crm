@@ -994,7 +994,7 @@ def shukei_index(request):
 
     df_team=df[["busho_apr_id","tantou_apr_id","tantou_apr_name"]]
     df_team=df_team[df_team["busho_apr_id"].isin(["398","400","401","402"])]
-    df_team=df_team.drop_duplicates()
+    df_team=df_team.drop_duplicates(subset=["tantou_apr_id"])
 
     # 個人
     df_team=df_team.set_index("tantou_apr_id") 
