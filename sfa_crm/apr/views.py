@@ -648,11 +648,19 @@ def hangire_modal_btn(request):
     tel_result=request.POST.get("tel_result")
     text=request.POST.get("text")
     cus_id=Hangire.objects.get(pk=pk).cus_id
+    ses=request.session["han_search"]
+    if ses["han_or_apr"]=="apr":
+        title=Approach_list.objects.get(approach_id=ses["approach_id"]).title
+    else:
+        apr_dic={"han":"通常版切れ","half":"半年版切れ","nou":"納品後フォロー","not_han":"版切れ以外受注","lost":"失注リスト"}
+        title=apr_dic[ses["han_or_apr"]]
 
     d={}
     try:
         # Crm_actionへ
-        text2=text + "（" + tantou + "）"
+        result_dic={"":"","1":"アプローチしない","tran":"他の担当へ転送","2":"不在","3":"検討します","4":"失注/予定なし",
+                    "5":"架電により案件化","6":"受注","7":"その他"}
+        text2="【" + title + "】　結果：" + result_dic[result] + "　備考：" + text + "（" + tantou + "）"
             
         if act_id=="" or act_id==None:
             if type=="4":
