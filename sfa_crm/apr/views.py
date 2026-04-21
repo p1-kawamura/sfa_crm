@@ -569,17 +569,6 @@ def hangire_modal_show_top(request):
     pk=request.POST.get("pk").replace("open_","")
     request.session["han_search"]["han_pk"]=pk
     result=list(Hangire.objects.filter(pk=pk).values())
-    # 操作者
-    tantou_id=request.session["search"]["tantou"]
-    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    try:
-        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
-        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
-    except:
-        sousa_busho=""
-        sousa_tantou="不明"
-    print(sousa_time,sousa_busho,sousa_tantou,"■ アプローチmodal")
-
     d={"result":result}        
     return JsonResponse(d)
 
@@ -715,6 +704,17 @@ def hangire_modal_btn(request):
 
     except:
         d["result"]="no"
+
+    # 操作者
+    tantou_id=request.session["search"]["tantou"]
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
+    print(sousa_time,sousa_busho,sousa_tantou,"■ アプローチmodal")
     
     return JsonResponse(d)
 
