@@ -97,3 +97,20 @@ class Cus_search_kubun(models.Model):
         return self.word
     
     # kubun（区分）　1:法人　2:個人事業　3:学校系　4:部活・サークル系　5:公共系　6:イベント系
+
+
+class Cus_ctb(models.Model):
+    cus_id=models.CharField("顧客ID",max_length=255)
+    cate_1=models.CharField("カテゴリ_1",max_length=255,null=True,blank=True)
+    cate_2=models.CharField("カテゴリ_2",max_length=255,null=True,blank=True)
+    cate_1_ratio=models.FloatField("カテゴリ_1_割合",null=True,blank=True)
+    cate_2_ratio=models.FloatField("カテゴリ_2_割合",null=True,blank=True)
+    cate_1_hensa=models.IntegerField("カテゴリ_1_偏差値",null=True,blank=True)
+    cate_2_hensa=models.IntegerField("カテゴリ_2_偏差値",null=True,blank=True)
+    taste_1=models.CharField("加工方法_1",max_length=255,null=True,blank=True)
+    taste_2=models.CharField("加工方法_2",max_length=255,null=True,blank=True)
+    taste_3=models.CharField("加工方法_3",max_length=255,null=True,blank=True)
+    taste_1_ratio=models.FloatField("加工方法_1_割合",null=True,blank=True)
+    taste_2_ratio=models.FloatField("加工方法_2_割合",null=True,blank=True)
+    taste_3_ratio=models.FloatField("加工方法_3_割合",null=True,blank=True)
+    brand=models.CharField("価格帯",max_length=255,null=True,blank=True)
