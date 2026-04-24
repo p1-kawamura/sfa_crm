@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
-from .models import Crm_action,Customer,Cus_group,Cus_tougou,Cus_search_kubun
+from .models import Crm_action,Customer,Cus_group,Cus_tougou,Cus_search_kubun,Cus_ctb
 from sfa.models import Member,Sfa_data,Sfa_action,Sfa_group
-from apr.models import Approach_list
+from apr.models import Approach_list,Hangire
 import requests
 from django.http import JsonResponse
 from datetime import date
@@ -17,6 +17,14 @@ from django_pandas.io import read_frame
 from django.db.models import Q
 import calendar
 import jpholiday
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io
+import base64
+from matplotlib import font_manager
+from google import genai
+from django.conf import settings
 
 
 
@@ -261,6 +269,40 @@ def kokyaku_api(request):
         grip_busho_id=""
         grip_tantou_id=""
 
+
+    # CTB分析
+    try:
+        ctb = Cus_ctb.objects.get(cus_id=cus_id)
+        # 1～3位
+        dic_ctb={}
+        dic_ctb["cate_1"] = ctb.cate_1 if ctb.cate_1 else "-"
+        dic_ctb["cate_2"] = ctb.cate_2 if ctb.cate_2 else "-"
+        dic_ctb["taste_1"] = ctb.taste_1 if ctb.taste_1 else "-"
+        dic_ctb["taste_2"] = ctb.taste_2 if ctb.taste_2 else "-"
+        dic_ctb["taste_3"] = ctb.taste_3 if ctb.taste_3 else "-"
+        dic_ctb["cate_1_ratio"] = f"{ctb.cate_1_ratio * 100:.1f}%" if ctb.cate_1_ratio else "-"
+        dic_ctb["cate_2_ratio"] = f"{ctb.cate_2_ratio * 100:.1f}%" if ctb.cate_2_ratio else "-"
+        dic_ctb["taste_1_ratio"] = f"{ctb.taste_1_ratio * 100:.1f}%" if ctb.taste_1_ratio else "-"
+        dic_ctb["taste_2_ratio"] = f"{ctb.taste_2_ratio * 100:.1f}%" if ctb.taste_2_ratio else "-"
+        dic_ctb["taste_3_ratio"] = f"{ctb.taste_3_ratio * 100:.1f}%" if ctb.taste_3_ratio else "-"
+        dic_ctb["brand"] = ctb.brand if ctb.brand else "-"
+        brand_type={None:0,"低価格帯（～1100円）":1,"中価格帯（1100～1800円）":2,"中高価格帯（1800～3800円）":3,"高価格帯（3800円～）":4}
+        dic_ctb["brand_type"]=brand_type[ctb.brand]
+        # グラフ_カテゴリ（上位2）
+        c_values = [ctb.cate_1_ratio, ctb.cate_2_ratio]
+        c_values = [v for v in c_values if v]
+        graph_c = make_pie_image(c_values, top_n=2)
+        # グラフ_加工方法（上位3）
+        t_values = [ctb.taste_1_ratio, ctb.taste_2_ratio, ctb.taste_3_ratio]
+        t_values = [v for v in t_values if v]
+        graph_t = make_pie_image(t_values, top_n=3)
+    except:
+        dic_ctb = {"cate_1":"-","cate_2":"-","taste_1":"-","taste_2":"-","taste_3":"-","brand":"-","brand_type":0,
+                   "cate_1_ratio":"-","cate_2_ratio":"-","taste_1_ratio":"-","taste_2_ratio":"-","taste_3_ratio":"-"}
+        graph_c = None
+        graph_t = None
+
+
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
     if act_id=="":
@@ -296,8 +338,42 @@ def kokyaku_api(request):
         "group_member":group_member,
         "group_list":group_list,
         "cus_data":cus_data,
+        "dic_ctb":dic_ctb,
+        "graph_c": graph_c,
+        "graph_t": graph_t,
     }
     return render(request,"crm/index.html",params)
+
+
+# （関数）CTB分析用の円グラフ作成
+def make_pie_image(values, top_n):
+    # 上位N件だけ残す
+    values = values[:top_n]
+
+    # その他を追加
+    total = sum(values)
+    if total < 1:
+        values.append(1 - total)
+
+    # 色（その他は必ずグレー）
+    base_colors = ['#e15759','#4e79a7', '#008000' ]
+    colors = base_colors[:top_n] + ['#bbbbbb']
+
+    # % のみ表示
+    def pct_only(pct):
+        return f"{pct:.1f}%"
+
+    fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
+    ax.pie(values, labels=None, autopct=pct_only, colors=colors[:len(values)])
+    ax.axis('equal')
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    img = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+
+    return img
 
 
 # 時系列表示順
@@ -429,6 +505,148 @@ def crm_bikou(request):
     requests.put(url,data=data)
     d={}
     return JsonResponse(d)
+
+
+# 顧客分析_AI返答
+def ctb_ask_gemini(request):
+    cus_id=request.POST.get("cus_id")
+
+    # data
+    cus_url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id
+    cus_res=requests.get(cus_url)
+    cus_res=cus_res.json()
+    i=Customer.objects.get(cus_id=cus_id)
+    cus_data={"顧客氏名":i.sei or "" + i.mei or "","都道府県":i.pref,"受注総数":i.juchu_all,"受注総金額":i.juchu_money,"見積総数":i.mitsu_all,"最終見積日":i.mitsu_last,
+              "最終受注日":i.juchu_last,"最終コンタクト日":i.contact_last,"対面接客":i.taimen,"備考":cus_res["remark"]}
+
+    sfa_data=[]
+    ins=Sfa_data.objects.filter(cus_id=cus_id)
+    lost={0:"",1:"金額",2:"納期",3:"音信不通",4:"その他",5:"在庫切れ"}
+    for i in ins:
+        sfa_dic={"ステータス":i.status,"備考":i.bikou,"時系列":i.s_memo2,"失注理由":lost[i.lost_reason],"失注内容":i.lost_reason_text}
+        sfa_data.append(sfa_dic)
+
+    crm_data=[]
+    ins2=Crm_action.objects.filter(cus_id=cus_id)    
+    crm_type={1:"メモ",2:"メール",3:"メルマガ",4:"TEL",5:"外商",6:"アラート",7:"来店",8:"アプローチリスト"}
+    for i in ins2:
+        crm_dic={"日付":i.day,"種類":crm_type[i.type],"内容":i.text,"電話対応":i.tel_result}
+        crm_data.append(crm_dic)
+
+    apr_data=[]
+    ins3=Hangire.objects.filter(cus_id=cus_id)
+    apr_result={"0":"未対応","1":"アプローチしない","tran":"他の担当へ転送","2":"不在","3":"検討します","4":"失注/予定なし",
+                "5":"架電により案件化","6":"受注","7":"その他"}
+    apr_type={0:"",1:"メモ",2:"メール",4:"TEL"}
+    for i in ins3:
+        apr_dic={"日付":i.apr_day,"方法":apr_type[i.apr_type],"結果":apr_result[i.result],"TEL":i.apr_tel_result,"内容":i.apr_text}
+        apr_data.append(apr_dic)
+
+    sys_data=[]
+    sys_url="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + cus_id + "/receivedOrders"
+    sys_res=requests.get(sys_url)
+    sys_res=sys_res.json()
+    sys_res=sys_res["receivedOrders"]
+    for i in sys_res:
+        sys_dic={"初回見積日":i["firstEstimationDate"],"ステータス":i["estimationStatus"],"金額":i["totalPrice"]}
+        sys_data.append(sys_dic)
+
+    ctb_data={}
+    if Cus_ctb.objects.filter(cus_id=cus_id).count()>0:
+        i=Cus_ctb.objects.get(cus_id=cus_id)
+        ctb_data={
+            "商品カテゴリ":{i.cate_1:i.cate_1_ratio,i.cate_2:i.cate_2_ratio},
+            "加工方法":{i.taste_1:i.taste_1_ratio,i.taste_2:i.taste_2_ratio,i.taste_3:i.taste_3_ratio},
+            "購入価格帯":i.brand
+            }
+
+    data={"顧客情報":cus_data,"案件履歴":sfa_data,"顧客履歴":cus_data,"アプローチ履歴":apr_data,"システム履歴":sys_data,"CTB分析":ctb_data}
+    cleaned = clean_json(data)
+    json_text = json.dumps(cleaned, ensure_ascii=False)
+
+    # prompt
+    today = date.today()
+    prompt = f"""
+        あなたは営業コンサルタントです。
+        本日の日付は {today} です。
+        これから渡すJSONデータを読み取り、顧客分析を行ってください。
+
+        【前提】
+        ・「今週」「今月」「最近」などの表現は、本日（{today}）を基準に判断すること。
+        ・{today} より前の日付はすべて過去の出来事として扱うこと。
+        ・過去の日付を現在と混同しないこと。
+
+        【分析してほしい内容】
+        ・たまたま単発で購入しただけで、リピートには繋がりにくいか
+        ・リピート客として囲い込むためには、どのような手段が有効か
+        ・アプローチに対しての反応は良いか悪いか
+
+        【出力条件】
+        ・300字程度
+        ・箇条書きにしない
+        ・読みやすいように、適度に改行を入れて文章を整える
+        ・JSONの項目名はそのまま使わず、自然な日本語に言い換える
+
+        【JSONデータ】
+    """ + json_text
+
+    # Google AI Studio の APIキー
+    client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    model_name = "gemini-3-flash-preview"
+    res = client.models.generate_content(
+        model=model_name,
+        contents=prompt
+    )
+
+    # 操作者
+    tantou_id=request.session["search"]["tantou"]
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        sousa_busho=Member.objects.get(tantou_id=tantou_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=tantou_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
+    print(sousa_time,sousa_busho,sousa_tantou,"■ Geminiの回答（顧客詳細）")
+
+    # 画面に表示
+    d={"answer":res.text}
+    return JsonResponse(d)
+
+
+# 関数_JSONクリーニング用
+def clean_value(v):
+    if v is None:
+        return ""
+
+    if isinstance(v, str):
+        # 全角スペース → 半角
+        v = v.replace("\u3000", " ")
+
+        # 改行 → 半角スペース
+        v = v.replace("\r\n", " ")
+        v = v.replace("\n", " ")
+        v = v.replace("\r", " ")
+
+        # 行末スペース削除
+        v = v.rstrip()
+
+        # 連続スペースを1つに
+        while "  " in v:
+            v = v.replace("  ", " ")
+
+        return v
+
+    return v
+
+
+# 関数_JSONクリーニング用
+def clean_json(obj):
+    if isinstance(obj, dict):
+        return {k: clean_json(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean_json(v) for v in obj]
+    return clean_value(obj)
 
 
 # 発送履歴カレンダー

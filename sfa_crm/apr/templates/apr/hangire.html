@@ -460,25 +460,45 @@
                                             {% endif %}
                                         </select>
                                     </div>
-                                    <div class="inlineframe3" id="modal_crm_action" style="height: 310px; width: 600px;"></div>
+                                    <div class="inlineframe3" id="modal_crm_action" style="height: 470px; width: 600px;"></div>
                                 </div>
 
                                 <!-- 右カラム -->
                                 <div style="margin-left: 40px; width: 430px;">
+                                    <!-- 備考 -->
                                     <div class="flex3" style="align-items: end;">
                                         <div>■ 備考（基幹システムと連動）</div>
                                         <div><button class="btn btn-secondary btn-sm" id="btn_remark">更新</button></div>
                                     </div>
                                     <div style="margin-top: 5px;">
-                                        <textarea class="form-control" style="font-size: 0.9em;" rows="10" id="apr_bikou_new"></textarea>
+                                        <textarea class="form-control" style="font-size: 0.9em;" rows="8" id="apr_bikou_new"></textarea>
                                     </div>
+                                    <!-- CTB分析 -->
+                                    <div style="margin-top: 20px;">
+                                        <div>■ 顧客の購買傾向 <span style="font-size: 0.8em;">【新基幹システムのみ：2022年3月～】</span></div>
+                                        <div style="font-size: 0.9em;">
+                                            <div style="margin-top: 5px;">
+                                                <div><span style="color: #ff0000;"><i class="bi bi-bar-chart-fill"></i></span> <b>商品カテゴリ</b></div>
+                                                <div id="modal_ctb_cate"></div>                                                
+                                            </div>
+                                            <div style="margin-top: 10px;">
+                                                <div><span style="color: #0000ff;"><i class="bi bi-bar-chart-fill"></i></span> <b>加工方法</b></div>
+                                                <div id="modal_ctb_taste"></div>                                                
+                                            </div>
+                                            <div style="margin-top: 10px;">
+                                                <div><span style="color: #008000;"><i class="bi bi-bar-chart-fill"></i></span> <b>ボディ本体 1商品の価格帯</b></div>
+                                                <div id="modal_ctb_brand"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Geminiアドバイス -->
                                     <div style="margin-top: 20px;">
                                         <button type="button" class="btn btn-outline-success btn-sm" id="modal_ask_gemini">
-                                            <img src="{% static 'gemini20.png' %}"> Geminiのアドバイスを見てみる
+                                            <img src="{% static 'gemini20.png' %}"> アプローチに向けて Geminiのアドバイスを見る
                                         </button>
                                     </div>
                                     <div style="margin-top: 5px;">
-                                        <textarea class="form-control" style="font-size: 0.8em;" rows="10" id="modal_answer_gemini"></textarea>
+                                        <textarea class="form-control" style="font-size: 0.8em;" rows="7" id="modal_answer_gemini"></textarea>
                                     </div>
                                 </div>
 
@@ -862,6 +882,12 @@
                 };
                 document.getElementById("modal_crm_action").innerHTML=last_str;
                 document.getElementById("apr_bikou_new").innerHTML=response.remark;
+                document.getElementById("modal_ctb_cate").innerHTML=
+                    "1位：" + response.ctb.cate[0] + "<br>2位：" + response.ctb.cate[1];
+                document.getElementById("modal_ctb_taste").innerHTML=
+                    "1位：" + response.ctb.taste[0] + "<br>2位：" + response.ctb.taste[1] + "<br>3位：" + response.ctb.taste[2];
+                document.getElementById("modal_ctb_brand").innerHTML=response.ctb.brand;
+
                 modal_list_click()
             })
         }

@@ -209,7 +209,99 @@
                 
             </div>
             <hr>
-
+            <!-- 中段 （CTB分析） -->
+            <div style="margin-top: 20px;">
+                <div>■ 購買傾向 <span style="font-size: 0.9em;">（新基幹システムのみ：2022年3月～）</span></div>
+                <div class="flex" style="margin-top: 20px; align-items: start;">
+                    <div>
+                        <div><span style="color: #ff0000;"><i class="bi bi-bar-chart-fill"></i></span> <b>商品カテゴリ</b></div>
+                        <div style="margin-top: 10px;">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td style="width: 50px; background-color: #e15759; color: #ffffff; text-align: center;">1位</td>
+                                    <td style="width: 250px;">{{dic_ctb.cate_1}}</td>
+                                    <td style="width: 80px;">{{dic_ctb.cate_1_ratio}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #4e79a7; color: #ffffff; text-align: center;">2位</td>
+                                    <td>{{dic_ctb.cate_2}}</td>
+                                    <td>{{dic_ctb.cate_2_ratio}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="text-align: center;">
+                            {% if graph_c %}<img src="data:image/png;base64,{{ graph_c }}">{% endif %}  
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <div><span style="color: #008000;"><i class="bi bi-bar-chart-fill"></i></span> <b>ボディ本体 1商品の価格帯</b></div>
+                            <div style="margin-top: 5px;">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <td>
+                                            {% if dic_ctb.brand_type == 0 %}
+                                                {{dic_ctb.brand}}
+                                            {% elif dic_ctb.brand_type == 1 %}
+                                                {{dic_ctb.brand}}　<span style="color: #ff8000; font-size: 1.2em;">
+                                                    <i class="bi bi-coin"></i></span>
+                                                    <i class="bi bi-coin"></i><i class="bi bi-coin"></i><i class="bi bi-coin"></i>
+                                            {% elif dic_ctb.brand_type == 2 %}
+                                                {{dic_ctb.brand}}　<span style="color: #ff8000; font-size: 1.2em;">
+                                                    <i class="bi bi-coin"></i><i class="bi bi-coin"></i></span>
+                                                    <i class="bi bi-coin"></i><i class="bi bi-coin"></i>
+                                            {% elif dic_ctb.brand_type == 3 %}
+                                                {{dic_ctb.brand}}　<span style="color: #ff8000; font-size: 1.2em;">
+                                                    <i class="bi bi-coin"></i><i class="bi bi-coin"></i><i class="bi bi-coin"></i></span>
+                                                    <i class="bi bi-coin"></i>
+                                            {% elif dic_ctb.brand_type == 4 %}
+                                                {{dic_ctb.brand}}　<span style="color: #ff8000; font-size: 1.2em;">
+                                                    <i class="bi bi-coin"></i><i class="bi bi-coin"></i><i class="bi bi-coin"></i><i class="bi bi-coin"></i></span>                                                    
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>                        
+                    </div>
+                    <div style="margin-left: 50px;">
+                        <div><span style="color: #0000ff;"><i class="bi bi-bar-chart-fill"></i></span> <b>加工方法</b></div>
+                        <div style="margin-top: 10px;">
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td style="width: 50px; background-color: #e15759; color: #ffffff; text-align: center;">1位</td>
+                                    <td style="width: 250px;">{{dic_ctb.taste_1}}</td>
+                                    <td style="width: 80px;">{{dic_ctb.taste_1_ratio}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #4e79a7; color: #ffffff; text-align: center;">2位</td>
+                                    <td>{{dic_ctb.taste_2}}</td>
+                                    <td>{{dic_ctb.taste_2_ratio}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="background-color: #008000; color: #ffffff; text-align: center;">3位</td>
+                                    <td>{{dic_ctb.taste_3}}</td>
+                                    <td>{{dic_ctb.taste_3_ratio}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="text-align: center;">
+                            {% if graph_t %}<img src="data:image/png;base64,{{ graph_t }}">{% endif %}  
+                        </div>
+                    </div>
+                    <!-- Geminiアドバイス -->
+                    <div style="margin-left: 50px; width: 400px;">                        
+                        <div>
+                            <button type="button" class="btn btn-outline-success btn-sm" id="ctb_ask_gemini">
+                                <img src="{% static 'gemini20.png' %}"> Geminiで「顧客分析」をしてみる
+                            </button>
+                        </div>
+                        <div style="margin-top: 5px;">
+                            <textarea class="form-control" style="font-size: 0.9em;" rows="15" id="ctb_answer_gemini"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <hr>
             <!-- 中段 （グループ状態 / 候補） -->
             <div style="margin-top: 20px;">
                 <div>
@@ -922,6 +1014,20 @@
             })
         })
 
+
+        // 顧客分析_AI質問
+        document.getElementById("ctb_ask_gemini").addEventListener("click",function(){
+            document.getElementById("ctb_answer_gemini").innerHTML="考え中です・・・";
+            $.ajax({
+                'url': '{% url "crm:ctb_ask_gemini" %}',
+                'type': 'POST',
+                'data': {"cus_id":document.getElementById("grip_cus_id").innerText},                
+                'dataType': 'json'
+            })
+            .done(function(response){
+                document.getElementById("ctb_answer_gemini").innerHTML=response.answer;
+            })
+        });
 
 
     </script>

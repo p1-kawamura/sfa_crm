@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,kokyaku_api,crm_sort,crm_group_act,alert_check,list_click_est,list_click_act,list_add,list_del,grip_add,crm_bikou, \
+from .views import index,kokyaku_api,crm_sort,crm_group_act,alert_check,list_click_est,list_click_act,list_add,list_del,grip_add,crm_bikou,ctb_ask_gemini, \
                     mw_page,mw_add,mw_delete,mw_make,mw_download,cus_list_index,cus_list_busho,cus_list_search,cus_list_download,cus_list_page_prev,\
                     cus_list_page_first,cus_list_page_next,cus_list_page_last,group_index,group_add_child,group_del_child,group_add_parent, \
                     group_del_all,group_cus_submit,cus_ranking_index,cus_ranking_search, \
@@ -21,6 +21,7 @@ urlpatterns = [
     path('list_del/', list_del, name="list_del"),
     path('grip_add/', grip_add, name="grip_add"),
     path('crm_bikou/', crm_bikou, name="crm_bikou"),
+    path('ctb_ask_gemini/', ctb_ask_gemini, name="ctb_ask_gemini"),
     path('mw_page/', mw_page, name="mw_page"),
     path('mw_add/', mw_add, name="mw_add"),
     path('mw_delete/<int:pk>', mw_delete, name="mw_delete"),

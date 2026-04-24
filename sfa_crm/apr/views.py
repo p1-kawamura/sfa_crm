@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from .models import Approach_list,Hangire
-from crm.models import Crm_action,Customer
+from crm.models import Crm_action,Customer,Cus_ctb
 from sfa.models import Member,Sfa_data
 import requests
 from django.http import JsonResponse
@@ -616,7 +616,33 @@ def hangire_modal_show_bot(request):
     res3=requests.get(url3)
     res3=res3.json()
 
-    d={"cus_act":res_det,"remark":res3["remark"]}
+    # CTB分析
+    if Cus_ctb.objects.filter(cus_id=cus_id).count()>0:
+        ins=Cus_ctb.objects.filter(cus_id=cus_id).values().first()
+        for k,v in ins.items():
+            if v==None or v=="":
+                ins[k]="-"
+            try:
+                ins[k]=f"{v:.1%}"
+            except:
+                pass
+
+        dic_ctb={
+            "cate":[
+                    ins["cate_1"] + "（" + ins["cate_1_ratio"] + "）",
+                    ins["cate_2"] + "（" + ins["cate_2_ratio"] + "）"
+                    ],
+            "taste":[
+                    ins["taste_1"] + "（" + ins["taste_1_ratio"] + "）",
+                    ins["taste_2"] + "（" + ins["taste_2_ratio"] + "）",
+                    ins["taste_3"] + "（" + ins["taste_3_ratio"] + "）"
+                    ],
+            "brand":ins["brand"]
+                }
+    else:
+        dic_ctb={}
+
+    d={"cus_act":res_det,"remark":res3["remark"],"ctb":dic_ctb}
     return JsonResponse(d)
 
 
@@ -834,7 +860,16 @@ def hangire_modal_ask_gemini(request):
         sys_dic={"初回見積日":i["firstEstimationDate"],"ステータス":i["estimationStatus"],"金額":i["totalPrice"]}
         sys_data.append(sys_dic)
 
-    data={"顧客情報":cus_data,"案件履歴":sfa_data,"顧客履歴":cus_data,"アプローチ履歴":apr_data,"システム履歴":sys_data}
+    ctb_data={}
+    if Cus_ctb.objects.filter(cus_id=cus_id).count()>0:
+        i=Cus_ctb.objects.get(cus_id=cus_id)
+        ctb_data={
+            "商品カテゴリ":{i.cate_1:i.cate_1_ratio,i.cate_2:i.cate_2_ratio},
+            "加工方法":{i.taste_1:i.taste_1_ratio,i.taste_2:i.taste_2_ratio,i.taste_3:i.taste_3_ratio},
+            "購入価格帯":i.brand
+            }
+
+    data={"顧客情報":cus_data,"案件履歴":sfa_data,"顧客履歴":cus_data,"アプローチ履歴":apr_data,"システム履歴":sys_data,"CTB分析":ctb_data}
     cleaned = clean_json(data)
     json_text = json.dumps(cleaned, ensure_ascii=False)
 
@@ -853,6 +888,7 @@ def hangire_modal_ask_gemini(request):
 
         【分析してほしい内容】
         ・電話がつながりやすいか、不在が多いか
+        ・どういう商品や加工方法がアピールに向いているか
         ・顧客の性格や行動傾向（慎重・即決・価格重視・納期重視など）
         ・購買意欲の高さ（高い・低い・保留など）
         ・どうすれば受注につながりやすいか
@@ -884,7 +920,7 @@ def hangire_modal_ask_gemini(request):
     except:
         sousa_busho=""
         sousa_tantou="不明"
-    print(sousa_time,sousa_busho,sousa_tantou,"■ Geminiの回答")
+    print(sousa_time,sousa_busho,sousa_tantou,"■ Geminiの回答（アプローチ）")
 
     # 画面に表示
     d={"answer":res.text}
