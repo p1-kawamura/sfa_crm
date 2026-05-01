@@ -118,6 +118,7 @@ hr {
 .table_approach .bikou{
     white-space: normal;
     width: 300px;
+    max-width: 300px;
 }
 .hover2:hover {
     background-color: rgb(255, 255, 194);

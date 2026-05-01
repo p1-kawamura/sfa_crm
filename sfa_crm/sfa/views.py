@@ -128,6 +128,8 @@ def index_api(request):
             s_cus_name=(i["ordererNameLast"] or "") + " " + (i["ordererNameFirst"] or "")
             s_make_day=i["createdAt"][5:].replace("-","/")
 
+            # print(i["number"])
+
             Sfa_data.objects.update_or_create(
             mitsu_id=i["id"],
             defaults={
