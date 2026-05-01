@@ -1703,46 +1703,47 @@ def csv_imp(request):
     csv_content = csv.reader(data)
     csv_list = list(csv_content)
 
-    def to_float_or_none(v):
-        if v is None or v == "":
-            return None
-        try:
-            return float(v)
-        except:
-            return None
+    # # CTB分析
+    # def to_float_or_none(v):
+    #     if v is None or v == "":
+    #         return None
+    #     try:
+    #         return float(v)
+    #     except:
+    #         return None
 
-    def to_int_or_none(v):
-        if v is None or v == "":
-            return None
-        try:
-            return int(float(v))   # "58.0" も "58" も安全に処理
-        except:
-            return None
+    # def to_int_or_none(v):
+    #     if v is None or v == "":
+    #         return None
+    #     try:
+    #         return int(float(v))   # "58.0" も "58" も安全に処理
+    #     except:
+    #         return None
 
-    h = 0
-    for i in csv_list:
-        print(h, i[0])
-        if h != 0:
-            Cus_ctb.objects.update_or_create(
-                cus_id=i[0],
-                defaults={
-                    "cus_id": i[0],
-                    "cate_1": i[1],
-                    "cate_2": i[2],
-                    "cate_1_ratio": to_float_or_none(i[3]),
-                    "cate_2_ratio": to_float_or_none(i[4]),
-                    "cate_1_hensa": to_int_or_none(i[5]),   # ← ここを修正
-                    "cate_2_hensa": to_int_or_none(i[6]),   # ← ここを修正
-                    "taste_1": i[7],
-                    "taste_2": i[8],
-                    "taste_3": i[9],
-                    "taste_1_ratio": to_float_or_none(i[10]),
-                    "taste_2_ratio": to_float_or_none(i[11]),
-                    "taste_3_ratio": to_float_or_none(i[12]),
-                    "brand": i[13],
-                }
-            )
-        h += 1
+    # h = 0
+    # for i in csv_list:
+    #     print(h, i[0])
+    #     if h != 0:
+    #         Cus_ctb.objects.update_or_create(
+    #             cus_id=i[0],
+    #             defaults={
+    #                 "cus_id": i[0],
+    #                 "cate_1": i[1],
+    #                 "cate_2": i[2],
+    #                 "cate_1_ratio": to_float_or_none(i[3]),
+    #                 "cate_2_ratio": to_float_or_none(i[4]),
+    #                 "cate_1_hensa": to_int_or_none(i[5]),   # ← ここを修正
+    #                 "cate_2_hensa": to_int_or_none(i[6]),   # ← ここを修正
+    #                 "taste_1": i[7],
+    #                 "taste_2": i[8],
+    #                 "taste_3": i[9],
+    #                 "taste_1_ratio": to_float_or_none(i[10]),
+    #                 "taste_2_ratio": to_float_or_none(i[11]),
+    #                 "taste_3_ratio": to_float_or_none(i[12]),
+    #                 "brand": i[13],
+    #             }
+    #         )
+    #     h += 1
 
 
 
@@ -1821,18 +1822,18 @@ def csv_imp(request):
 
  
 
-    # # Crm_actionへの入力
-    # h=0
-    # for i in csv_list:
-    #     if h!=0:
-    #         Crm_action.objects.create(
-    #             cus_id=i[0],
-    #             day="2024-09-19",
-    #             type=8,
-    #             text="2024年 学割キャンペーン",
-    #             approach_id="19"
-    #             )
-    #     h+=1
+    # Crm_actionへの入力
+    h=0
+    for i in csv_list:
+        if h!=0:
+            Crm_action.objects.create(
+                cus_id=i[0],
+                day=i[1],
+                type=1,
+                text=i[2],
+                )
+            print(h)
+        h+=1
         
     
 
