@@ -196,12 +196,13 @@ def houjin_gaishou_index(request):
 def houjin_gaishou_load(request):
     col_name={
         "0":"未対応",
-        "1":"TEL入れ",
         "2":"資料送付",
+        "1":"TEL入れ",        
         "3":"アポ打診",
         "4":"外商（来店）調整 / アポ確定",
         "5":"案件化（顧客管理に移管）",
         "7":"マツリカへ移行",
+        "8":"リサイクル",
         "6":"中止（音信不通等）",
         }
     
@@ -353,7 +354,7 @@ def houjin_gaishou_move(request):
         ins.save()
 
     col_count=[]
-    for i in range(8):
+    for i in range(9):
         col_count.append(str(i) + "_" + str(Houjin_gaishou.objects.filter(boad_col=str(i)).count()))
 
     d={"col_count":col_count}
