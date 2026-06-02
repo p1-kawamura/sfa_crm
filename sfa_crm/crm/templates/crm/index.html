@@ -485,10 +485,11 @@
                             {% if i.kubun == "est" %}
                             <div class="flex" name="est_list" id="{{i.cus_id}}-{{i.est_num}}">
                                 <div>{{i.day}}</div>
-                                <div style="margin-left: 10px;">{{i.est_num}}</div>
-                                <div style="margin-left: 10px;">{{i.status}}</div>
+                                <div style="margin-left: 10px;">{{i.day_kubun}}</div>
+                                <div style="margin-left: 10px;">{{i.est_num}}</div>                                
                                 <div style="margin-left: 10px;">{{i.money | intcomma}}円</div>
-                                <div style="font-size: 0.9em;">（{{i.busho}}：{{i.tantou}}）</div>
+                                <div style="margin-left: 5px;font-size: 0.9em;">（{{i.busho}}：{{i.tantou}}）</div>
+                                <div style="margin-left: 5px;">【{{i.status}}】</div>
                             </div>
                             {% else %}
                             <div class="flex" name="act_list" id="{{i.act_id}}">

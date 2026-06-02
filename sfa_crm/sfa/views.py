@@ -1822,17 +1822,17 @@ def csv_imp(request):
 
  
 
-    # Crm_actionへの入力
+    # Hangireへの入力
     h=0
     for i in csv_list:
         if h!=0:
-            Crm_action.objects.create(
-                cus_id=i[0],
-                day=i[1],
-                type=1,
-                text=i[2],
-                )
-            print(h)
+            ins=Hangire.objects.get(approach_id="47",cus_id=i[0])
+            if ins.result=="0":
+                ins.result="7"
+                ins.apr_day="2026-05-27"
+                ins.apr_type=1
+                ins.apr_text="版切れカブリ（2025/7/31まで）"
+                ins.save()
         h+=1
         
     

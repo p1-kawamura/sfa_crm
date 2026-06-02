@@ -199,7 +199,12 @@ def kokyaku_api(request):
         for h in res2:
             dic={}
             dic["kubun"]="est"
-            dic["day"]=h["firstEstimationDate"]
+            if h["orderReceivedDate"] != None:
+                dic["day"]=h["orderReceivedDate"]
+                dic["day_kubun"]="受注"
+            else:
+                dic["day"]=h["firstEstimationDate"]
+                dic["day_kubun"]="見積"
             dic["est_num"]=h["estimationNumber"] + "-" + str(h["estimationVersion"])
             dic["status"]=h["estimationStatus"]
             dic["money"]=h["totalPrice"]

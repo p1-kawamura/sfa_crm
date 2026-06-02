@@ -822,10 +822,11 @@
                     if (i.kubun == "est"){
                         str="<div class='flex'>" +
                             "<div>" + i.day + "</div>" + 
-                            "<div style='margin-left: 10px;'>" + i.est_num + "</div>" +
-                            "<div style='margin-left: 10px;'>" + i.status + "</div>" +
-                            "<div style='margin-left: 10px;'>" + i.money.toLocaleString() + "円</div>" +
-                            "<div style='font-size: 0.9em;''>（" + i.busho + "：" + i.tantou + "）</div>" +
+                            "<div style='margin-left: 10px;'>" + i.day_kubun + "</div>" + 
+                            "<div style='margin-left: 10px;'>" + i.est_num + "</div>" +                            
+                            "<div style='margin-left: 10px;'>" + i.money.toLocaleString() + "円</div>" +                            
+                            "<div style='margin-left: 5px; font-size: 0.9em;''>（" + i.busho + "：" + i.tantou + "）</div>" +
+                            "<div style='margin-left: 5px;'>【" + i.status + "】</div>" +
                             "</div>";
                     } else {
                         var icon = "";
