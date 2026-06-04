@@ -1703,47 +1703,47 @@ def csv_imp(request):
     csv_content = csv.reader(data)
     csv_list = list(csv_content)
 
-    # # CTB分析
-    # def to_float_or_none(v):
-    #     if v is None or v == "":
-    #         return None
-    #     try:
-    #         return float(v)
-    #     except:
-    #         return None
+    # CTB分析
+    def to_float_or_none(v):
+        if v is None or v == "":
+            return None
+        try:
+            return float(v)
+        except:
+            return None
 
-    # def to_int_or_none(v):
-    #     if v is None or v == "":
-    #         return None
-    #     try:
-    #         return int(float(v))   # "58.0" も "58" も安全に処理
-    #     except:
-    #         return None
+    def to_int_or_none(v):
+        if v is None or v == "":
+            return None
+        try:
+            return int(float(v))   # "58.0" も "58" も安全に処理
+        except:
+            return None
 
-    # h = 0
-    # for i in csv_list:
-    #     print(h, i[0])
-    #     if h != 0:
-    #         Cus_ctb.objects.update_or_create(
-    #             cus_id=i[0],
-    #             defaults={
-    #                 "cus_id": i[0],
-    #                 "cate_1": i[1],
-    #                 "cate_2": i[2],
-    #                 "cate_1_ratio": to_float_or_none(i[3]),
-    #                 "cate_2_ratio": to_float_or_none(i[4]),
-    #                 "cate_1_hensa": to_int_or_none(i[5]),   # ← ここを修正
-    #                 "cate_2_hensa": to_int_or_none(i[6]),   # ← ここを修正
-    #                 "taste_1": i[7],
-    #                 "taste_2": i[8],
-    #                 "taste_3": i[9],
-    #                 "taste_1_ratio": to_float_or_none(i[10]),
-    #                 "taste_2_ratio": to_float_or_none(i[11]),
-    #                 "taste_3_ratio": to_float_or_none(i[12]),
-    #                 "brand": i[13],
-    #             }
-    #         )
-    #     h += 1
+    h = 0
+    for i in csv_list:
+        print(h, i[0])
+        if h != 0:
+            Cus_ctb.objects.update_or_create(
+                cus_id=i[0],
+                defaults={
+                    "cus_id": i[0],
+                    "cate_1": i[1],
+                    "cate_2": i[2],
+                    "cate_1_ratio": to_float_or_none(i[3]),
+                    "cate_2_ratio": to_float_or_none(i[4]),
+                    "cate_1_hensa": to_int_or_none(i[5]),   # ← ここを修正
+                    "cate_2_hensa": to_int_or_none(i[6]),   # ← ここを修正
+                    "taste_1": i[7],
+                    "taste_2": i[8],
+                    "taste_3": i[9],
+                    "taste_1_ratio": to_float_or_none(i[10]),
+                    "taste_2_ratio": to_float_or_none(i[11]),
+                    "taste_3_ratio": to_float_or_none(i[12]),
+                    "brand": i[13],
+                }
+            )
+        h += 1
 
 
 
@@ -1822,18 +1822,18 @@ def csv_imp(request):
 
  
 
-    # Hangireへの入力
-    h=0
-    for i in csv_list:
-        if h!=0:
-            ins=Hangire.objects.get(approach_id="47",cus_id=i[0])
-            if ins.result=="0":
-                ins.result="7"
-                ins.apr_day="2026-05-27"
-                ins.apr_type=1
-                ins.apr_text="版切れカブリ（2025/7/31まで）"
-                ins.save()
-        h+=1
+    # # Hangireへの入力
+    # h=0
+    # for i in csv_list:
+    #     if h!=0:
+    #         ins=Hangire.objects.get(approach_id="47",cus_id=i[0])
+    #         if ins.result=="0":
+    #             ins.result="7"
+    #             ins.apr_day="2026-05-27"
+    #             ins.apr_type=1
+    #             ins.apr_text="版切れカブリ（2025/7/31まで）"
+    #             ins.save()
+    #     h+=1
         
     
 

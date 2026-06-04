@@ -4,7 +4,7 @@ from .views import approach_list_index,approach_list_add,\
                     hangire_modal_show_bot,hangire_modal_sort,hangire_modal_list_click,hangire_modal_btn,hangire_modal_del,hangire_modal_result_del,\
                     hangire_modal_result_juchu,hangire_modal_bikou,hangire_modal_ask_gemini,hangire_color_clear,choice_id,\
                     han_list_page_prev,han_list_page_first,han_list_page_next,han_list_page_last,\
-                    shukei_index,shukei_click
+                    shukei_index,shukei_click,ctb_imp
 
 
 app_name="apr"
@@ -35,4 +35,5 @@ urlpatterns = [
     path('han_list_page_last/', han_list_page_last, name="han_list_page_last"),
     path('shukei_index/', shukei_index, name="shukei_index"),
     path('shukei_click/', shukei_click, name="shukei_click"),
+    path('ctb_imp/', ctb_imp, name="ctb_imp"),
 ]

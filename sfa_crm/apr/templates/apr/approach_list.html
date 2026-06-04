@@ -22,8 +22,27 @@
 
         <div style="margin: 0 auto; width: 1150px;">
 
-            <!-- 法人外商リスト -->
+            <!-- CTB分析 -->
             <hr>
+            <div class="block_title">CTB分析ファイル読み込み</div>
+            <hr>
+            <div>
+                <form action="{% url 'apr:ctb_imp' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+                    <div class="flex" style="margin-top: 15px;">
+                        <div>データCSV：</div>
+                        <div><input class="form-control" type="file" name="csv4" id="csv4" style="width: 400px;" required></div>
+                        <div style="margin-left: 30px;"><button type="submit" class="btn btn-primary" id="btn_ctb">取込</button></div>
+                        <div style="margin-left: 30px;">
+                            {% if ans4 %}
+                                <div style="color: red;">読み込みが完了しました！</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 法人外商リスト -->
+            <hr style="margin-top: 50px;">
             <div class="block_title">法人外商リスト読み込み</div>
             <hr>
             <div>
@@ -42,8 +61,8 @@
                 </form>
             </div>
 
-            <!-- 版切れリスト -->
-            <hr style="margin-top: 100px;">
+            <!-- 定期配信リスト -->
+            <hr style="margin-top: 50px;">
             <div class="block_title">定期配信リスト読み込み</div>
             <hr>
             <div>
@@ -70,7 +89,7 @@
             </div>
 
             <!-- アプローチリスト -->
-            <hr style="margin-top: 100px;">
+            <hr style="margin-top: 50px;">
             <div class="block_title">アプローチリスト設定</div>
             <hr>
             <div>
