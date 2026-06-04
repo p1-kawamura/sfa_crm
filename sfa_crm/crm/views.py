@@ -22,7 +22,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import io
 import base64
-from matplotlib import font_manager
 from google import genai
 from django.conf import settings
 

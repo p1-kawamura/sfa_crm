@@ -12,6 +12,9 @@ import urllib.parse
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
 from openpyxl import Workbook
+import pandas as pd
+from django_pandas.io import read_frame
+from io import BytesIO
 
 
 
@@ -158,6 +161,12 @@ def houjin_gaishou_index(request):
         request.session["houjin_gaishou"]["act_st"]=""
     if "act_ed" not in request.session["houjin_gaishou"]:
         request.session["houjin_gaishou"]["act_ed"]=""
+    if "next_act_st" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["next_act_st"]=""
+    if "next_act_ed" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["next_act_ed"]=""
+    if "cus_list_dl" not in request.session["houjin_gaishou"]:
+        request.session["houjin_gaishou"]["cus_list_dl"]=[]
 
     ses=request.session["houjin_gaishou"]
     tantou_list=Member.objects.filter(busho_id=ses["busho"],houjin=1).annotate(num=Cast("tantou_id",IntegerField())).order_by("num")
@@ -188,6 +197,17 @@ def houjin_gaishou_index(request):
         "kubun_list":kubun_list,
         "ses":ses,
         "act_user":act_user,
+        "col_name":{
+            "0":"未対応",
+            "2":"資料送付",
+            "1":"TEL入れ",        
+            "3":"アポ打診",
+            "4":"外商（来店）調整 / アポ確定",
+            "5":"案件化（顧客管理に移管）",
+            "7":"マツリカへ移行",
+            "8":"リサイクル",
+            "6":"中止（音信不通等）",
+            }
     }
     return render(request,"houjin/gaishou.html",params)
 
@@ -231,7 +251,17 @@ def houjin_gaishou_load(request):
         fil["last_act__gte"]=ses["act_st"]
     if ses["act_ed"] != "":
         fil["last_act__lte"]=ses["act_ed"]
+    if ses["next_act_st"] != "":
+        fil["next_act__gte"]=ses["next_act_st"]
+    if ses["next_act_ed"] != "":
+        fil["next_act__lte"]=ses["next_act_ed"]
+    
+  
+    # DL用
+    items=Houjin_gaishou.objects.filter(**fil).order_by("boad_row")
+    request.session["houjin_gaishou"]["cus_list_dl"]=list(items.values())
 
+    # ボード作成
     dataContent=[]
     for key,val in col_name.items():
         
@@ -289,6 +319,11 @@ def houjin_gaishou_load(request):
             else:
                 last_act=""
 
+            if h.next_act != None and h.next_act != "":
+                next_act=h.next_act
+            else:
+                next_act=""
+
             if h.bikou != None and h.bikou != "":
                 bikou=h.bikou
             else:
@@ -324,6 +359,10 @@ def houjin_gaishou_load(request):
                             + "<div style='width: 115px;'>最終アクション日：</div>" \
                             + "<div>" + last_act + "</div>" \
                         + "</div>" \
+                        + "<div class='flex'>" \
+                            + "<div style='width: 115px;'>次回アクション日：</div>" \
+                            + "<div>" + next_act + "</div>" \
+                        + "</div>" \
                         + "<div style='margin-top:5px'><textarea style='width: 100%; font-size: 0.8em;' rows='3' readonly>" + bikou + "</textarea>" \
                     + "</div>" \
                 + "</div>" \
@@ -336,7 +375,7 @@ def houjin_gaishou_load(request):
         
         dataContent.append({"id":"column_" + key,"title":title,"item":item})
 
-    d={"dataContent":dataContent}
+    d={"dataContent":dataContent,"items_count":items.count()}
     return JsonResponse(d)
 
 
@@ -376,6 +415,7 @@ def houjin_gaishou_save(request):
     busho_id=request.POST.get("busho_id")
     tantou_id=request.POST.get("tantou_id")
     last_act=request.POST.get("last_act")
+    next_act=request.POST.get("next_act")
     bikou=request.POST.get("bikou")
     itaku_result=request.POST.get("itaku_result")
 
@@ -391,6 +431,7 @@ def houjin_gaishou_save(request):
     ins.bikou=bikou
     ins.itaku_result=itaku_result
     ins.last_act=last_act
+    ins.next_act=next_act
     ins.save()
 
     d={}
@@ -418,6 +459,8 @@ def houjin_gaishou_search(request):
     request.session["houjin_gaishou"]["day_ed"]=request.POST["day_ed"]
     request.session["houjin_gaishou"]["act_st"]=request.POST["act_st"]
     request.session["houjin_gaishou"]["act_ed"]=request.POST["act_ed"]
+    request.session["houjin_gaishou"]["next_act_st"]=request.POST["next_act_st"]
+    request.session["houjin_gaishou"]["next_act_ed"]=request.POST["next_act_ed"]
     return redirect("houjin:houjin_gaishou_index")
 
 
@@ -454,4 +497,48 @@ def houjin_gaishou_xlsx(request):
     )
 
     wb.save(response)
+    return response
+
+
+# 法人外商ボード_検索結果DL
+def houjin_gaishou_search_dl(request):
+    col_dl = request.POST.getlist("col_dl")
+    cus_list=request.session["houjin_gaishou"]["cus_list_dl"]
+    df_cus_list=pd.DataFrame(cus_list)
+    df_cus_list=df_cus_list[df_cus_list["boad_col"].isin(col_dl)]
+
+    col_name={
+        "0":"未対応",
+        "2":"資料送付",
+        "1":"TEL入れ",        
+        "3":"アポ打診",
+        "4":"外商（来店）調整 / アポ確定",
+        "5":"案件化（顧客管理に移管）",
+        "7":"マツリカへ移行",
+        "8":"リサイクル",
+        "6":"中止（音信不通等）",
+        }
+    df_cus_list["col_name"]=df_cus_list["boad_col"].map(col_name)
+
+    # 最終フォーマット
+    df_dl=df_cus_list[["col_name","kubun","houjin_com","houjin_busho","houjin_tantou","houjin_tel","houjin_mail","busho","tantou"]]
+    df_dl_col=["フィード","区分","会社名","部署","担当者","電話番号","メールアドレス","P1部署","P1担当"]
+    df_dl.columns=df_dl_col
+
+    # Excelファイルをメモリ上に作成
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+        df_dl.to_excel(writer, index=False, sheet_name='検索結果')
+    buffer.seek(0)
+
+    # HTTPレスポンスとしてExcelファイルを返す
+    filename = urllib.parse.quote("新規開拓ボード_検索結果.xlsx")
+    response = HttpResponse(
+        buffer,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = (
+        "attachment; filename='{}'; filename*=UTF-8''{}".format(filename, filename)
+    )
+
     return response

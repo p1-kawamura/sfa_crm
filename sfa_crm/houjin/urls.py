@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import calendar_index,houjin_gaishou_imp,houjin_gaishou_index,houjin_gaishou_load,\
                     houjin_gaishou_move,houjin_gaishou_detail,houjin_gaishou_save,houjin_gaishou_search,houjin_gaishou_xlsx,\
-                    houjin_gaishou_busho
+                    houjin_gaishou_search_dl,houjin_gaishou_busho
 
 
 app_name="houjin"
@@ -15,5 +15,6 @@ urlpatterns = [
     path('houjin_gaishou_save/', houjin_gaishou_save, name="houjin_gaishou_save"),
     path('houjin_gaishou_search/', houjin_gaishou_search, name="houjin_gaishou_search"),
     path('houjin_gaishou_xlsx/', houjin_gaishou_xlsx, name="houjin_gaishou_xlsx"),
+    path('houjin_gaishou_search_dl/', houjin_gaishou_search_dl, name="houjin_gaishou_search_dl"),
     path('houjin_gaishou_busho/', houjin_gaishou_busho, name="houjin_gaishou_busho"),
 ]
