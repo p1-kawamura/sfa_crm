@@ -1843,14 +1843,14 @@ def csv_imp(request):
 
 # 個別に色々使うため
 def free(request):
-    ins=Sfa_data.objects.filter(lost_reason__gt=0)
+    ins=Hangire.objects.filter(approach_id=47)
     df=read_frame(ins)
     # Excelファイルをメモリ上に作成
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='失注理由')
-        wb = writer.book
-        ws = wb['失注理由']
+        df.to_excel(writer, index=False, sheet_name='アプローチ結果')
+        # wb = writer.book
+        # ws = wb['アプローチ結果']
     buffer.seek(0)
 
     # HTTPレスポンスとしてExcelファイルを返す
@@ -1858,5 +1858,5 @@ def free(request):
         buffer,
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename="lost_reason.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="mkt_app.xlsx"'
     return response

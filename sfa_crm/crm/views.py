@@ -377,6 +377,8 @@ def make_pie_image(values, top_n):
     img = base64.b64encode(buf.getvalue()).decode('utf-8')
     buf.close()
 
+    plt.close(fig)
+
     return img
 
 
