@@ -504,8 +504,15 @@
                                             
                                         </div>
                                         <div style="margin-top: 20px;">
-                                            <div>■備考</div>
-                                            <div style="margin-top: 5px;"><textarea class="form-control" rows="5" id="modal_bikou"></textarea></div>
+                                            <div class="flex3">
+                                                <div>■備考</div>
+                                                <div style="margin-left: 30px;">
+                                                    <button class="btn btn-outline-dark btn-sm" id="modal_btn_tmp">テンプレート挿入</button>
+                                                </div>
+                                            </div>
+                                            <div style="margin-top: 5px;">
+                                                <textarea class="form-control"  style="font-size: 0.9em;" rows="5" id="modal_bikou"></textarea>
+                                            </div>
                                         </div>
                                     </div>
                                     <hr>
@@ -895,6 +902,15 @@
                         window.alert("環境依存文字が含まれているため、保存できません！");
                     };
                 })
+        });
+
+
+        // モーダル_テンプレート挿入
+        document.getElementById("modal_btn_tmp").addEventListener("click",function(){
+            var bikou = document.getElementById("modal_bikou");
+            var bikou_text="①用途・イベント内容\n\n②アイテム(仕様)・数量\n\n③納期(実使用日)\n\n④デザイン準備状況\n\n⑤予算感(単価or総額)\n\n⑥その他メモ\n\n" 
+                + bikou.value + "\n\n";
+            bikou.value=bikou_text;
         });
 
 
