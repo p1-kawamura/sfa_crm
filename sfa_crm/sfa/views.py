@@ -17,9 +17,12 @@ from django_pandas.io import read_frame
 import pandas as pd
 import pyshorteners
 from io import BytesIO
+from django.db import transaction
 
 
 def index_api(request):
+    if "sfa_imp_error" not in request.session:
+        request.session["sfa_imp_error"]=[]
     if "mitsu_num" not in request.session:
         request.session["mitsu_num"]=[]
     if "search" not in request.session:
@@ -77,6 +80,7 @@ def index_api(request):
     if "crm_sort" not in request.session:
         request.session["crm_sort"]="0"
 
+    sfa_error_list=[]
     tantou_id=request.session["search"]["tantou"]
     if tantou_id != "":
         # 操作者
@@ -90,202 +94,217 @@ def index_api(request):
         res=requests.get(url)
         res=res.json()
         res=res["estimations"]
+
+        sfa_flag=False
         for i in res:
             ins=Sfa_data.objects.filter(mitsu_id=i["id"])
             if (ins.count()==0 and i["status"]=="終了") or i["customerId"]==None:
                 continue
             
-            # ------------------------
-            # 案件
-            # ------------------------
-            s_use_youto=None
-            nouki=None
-            s_nouki=None
-            s_juchu_day=None
-            s_hassou_day=None
-            s_keiro_tempo=0
-
-            if i["purpose"] != None:
-                d={"チームウェア・アイテム":"チ","制服・スタッフウェア":"制","販促・ノベルティ":"ノ","記念品・贈答品":"記","販売":"販","自分用":"自","その他":"他","":""}
-                s_use_youto=d[i["purpose"]]
-
-            if i["deliveryAppointedDate"] != None:
-                nouki=i["deliveryAppointedDate"]
-                s_nouki="指定：" + i["deliveryAppointedDate"][5:].replace("-","/")
-            elif i["deliveryLimitDate"] != None:
-                nouki=i["deliveryLimitDate"]
-                s_nouki="期限：" + i["deliveryLimitDate"][5:].replace("-","/")                
-
-            if i["orderReceivedDate"] != None:
-                s_juchu_day=i["orderReceivedDate"][5:].replace("-","/")
-
-            if i["shippedDate"] != None:
-                s_hassou_day=i["shippedDate"][5:].replace("-","/")
-
-            if i["comingRoute"] in ["WEB → 来店","Tel → 来店","来店","即日 → オリジナル"]:
-                s_keiro_tempo=1
-
-            s_cus_name=(i["ordererNameLast"] or "") + " " + (i["ordererNameFirst"] or "")
-            s_make_day=i["createdAt"][5:].replace("-","/")
-
-            # print(i["number"])
-
-            Sfa_data.objects.update_or_create(
-            mitsu_id=i["id"],
-            defaults={
-                "mitsu_id":i["id"],
-                "mitsu_num":i["number"],
-                "mitsu_ver":i["version"],
-                "mitsu_url":i["estimationPageUrl"],
-                "order_kubun":i["orderType"],
-                "use_kubun":i["persona"],
-                "use_youto":i["purpose"],
-                "nouhin_kigen":i["deliveryLimitDate"],
-                "nouhin_shitei":i["deliveryAppointedDate"],
-                "nouki":nouki,
-                "make_day":i["createdAt"],
-                "mitsu_day":i["firstEstimationDate"],
-                "update_day":i["updatedAt"],
-                "juchu_day":i["orderReceivedDate"],
-                "hassou_day":i["shippedDate"],
-                "cus_id":i["customerId"],
-                "sei":i["ordererNameLast"],
-                "mei":i["ordererNameFirst"],
-                "tel":i["ordererTel"],
-                "tel_mob":i["ordererMobilePhone"],
-                "mail":i["ordererEmailMain"],
-                "pref":i["ordererPrefecture"],
-                "com":i["ordererCorporateName"],
-                "com_busho":i["ordererDepartmentName"],
-                "keiro":i["comingRoute"],
-                "money":i["totalPrice"],
-                "pay":i["paymentMethod"],
-                "busho_id":i["handledDepartmentId"],
-                "tantou_id":i["handledById"],
-                "s_use_youto":s_use_youto,
-                "s_nouki":s_nouki,
-                "s_make_day":s_make_day,
-                "s_juchu_day":s_juchu_day,
-                "s_hassou_day":s_hassou_day,
-                "s_cus_name":s_cus_name,
-                "s_keiro_tempo":s_keiro_tempo,
-                }
-            )
-            # ステータス
-            d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
-            ins=Sfa_data.objects.get(mitsu_id=i["id"])
-            if ins.status not in ["失注","連絡待ち","サンクス"]:
-                ins.status=i["status"]
-                ins.s_status=d[i["status"]]
-                ins.save()
-
-            if ins.last_status == None and i["status"] in ["終了","キャンセル"]:
-                ins.last_status=datetime.datetime.now().strftime("%Y-%m-%d")
-                ins.save()
-
-            # ------------------------
-            # 顧客
-            # ------------------------
-            url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"])
-            res2=requests.get(url2)
-            res2=res2.json()
-
-            tel_search=None
-            if res2["tel"] != None:
-                tel_search=res2["tel"].replace("-","")
-            tel_mob_search=None
-            if res2["mobilePhone"] != None:
-                tel_mob_search=res2["mobilePhone"].replace("-","")
-
+            # 書き込みエラーは無視
             try:
-                con_last=Customer.objects.get(cus_id=i["customerId"]).contact_last
-                if con_last==None or res2["lastEstimatedAt"]>con_last:
-                    contact_last=res2["lastEstimatedAt"]
-                else:
-                    contact_last=con_last
-            except:
-                contact_last=res2["lastEstimatedAt"]
-                
-            Customer.objects.update_or_create(
-            cus_id=res2["id"],
-            defaults={
-                "cus_id":res2["id"],
-                "cus_url":res2["customerMstPageUrl"],
-                "cus_touroku":res2["createdAt"],
-                "com":res2["corporateName"],
-                "com_busho":res2["departmentName"],
-                "sei":res2["nameLast"],
-                "mei":res2["nameFirst"],
-                "pref":res2["prefecture"],
-                "city":res2["city"],
-                "address_1":res2["address1"],
-                "address_2":res2["address2"],
-                "tel":res2["tel"],
-                "tel_search":tel_search,
-                "tel_mob":res2["mobilePhone"],
-                "tel_mob_search":tel_mob_search,
-                "mail":res2["contactEmail"],
-                "mitsu_all":res2["totalEstimations"],
-                "juchu_all":res2["totalReceivedOrders"],
-                "juchu_money":res2["totalReceivedOrdersPrice"],
-                "mitsu_last":res2["lastEstimatedAt"],
-                "mitsu_last_busho_id":res2["lastHandledDepartmentId"],
-                "mitsu_last_busho":res2["lastHandledDepartmentName"],
-                "mitsu_last_tantou_id":res2["lastHandledId"],
-                "mitsu_last_tantou":res2["lastHandledName"],
-                "juchu_last":res2["lastOrderReceivedDate"],
-                "contact_last":contact_last,
-                "taimen":res2["isVisited"],
-                }
-            )
+                with transaction.atomic():
+                    # ------------------------
+                    # 案件
+                    # ------------------------
+                    s_use_youto=None
+                    nouki=None
+                    s_nouki=None
+                    s_juchu_day=None
+                    s_hassou_day=None
+                    s_keiro_tempo=0
 
-            # ------------------------
-            # 納品フォロー
-            # ------------------------
-            kigen=str(date.today() - datetime.timedelta(days=14))
-            if (i["shippedDate"] != None) and (i["shippedDate"] >= kigen) and (i["orderType"] in ["新規","追加","追加新柄"]) and \
-                    (Hangire.objects.filter(approach_id="N",mitsu_id=i["id"]).count()==0):
-                
-                url3="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"]) + "/receivedOrders/" + str(i["number"]) + "/" + str(i["version"])
-                res3=requests.get(url3)
-                res3=res3.json()
-                res3=res3["receivedOrder"]
+                    if i["purpose"] != None:
+                        d={"チームウェア・アイテム":"チ","制服・スタッフウェア":"制","販促・ノベルティ":"ノ","記念品・贈答品":"記","販売":"販","自分用":"自","その他":"他","":""}
+                        s_use_youto=d[i["purpose"]]
 
-                Hangire.objects.create(
-                    approach_id="N",
+                    if i["deliveryAppointedDate"] != None:
+                        nouki=i["deliveryAppointedDate"]
+                        s_nouki="指定：" + i["deliveryAppointedDate"][5:].replace("-","/")
+                    elif i["deliveryLimitDate"] != None:
+                        nouki=i["deliveryLimitDate"]
+                        s_nouki="期限：" + i["deliveryLimitDate"][5:].replace("-","/")                
+
+                    if i["orderReceivedDate"] != None:
+                        s_juchu_day=i["orderReceivedDate"][5:].replace("-","/")
+
+                    if i["shippedDate"] != None:
+                        s_hassou_day=i["shippedDate"][5:].replace("-","/")
+
+                    if i["comingRoute"] in ["WEB → 来店","Tel → 来店","来店","即日 → オリジナル"]:
+                        s_keiro_tempo=1
+
+                    s_cus_name=(i["ordererNameLast"] or "") + " " + (i["ordererNameFirst"] or "")
+                    s_make_day=i["createdAt"][5:].replace("-","/")
+
+                    # print(i["number"])
+
+                    Sfa_data.objects.update_or_create(
                     mitsu_id=i["id"],
-                    mitsu_url=i["estimationPageUrl"],
-                    mitsu_num=i["number"],
-                    mitsu_ver=i["version"],
-                    juchu_day=i["shippedDate"], #出荷日を取得
-                    order_kubun=i["orderType"],
-                    busho_id=i["handledDepartmentId"],
-                    busho_name=res3["handledDepartmentName"],
-                    busho_apr_id=i["handledDepartmentId"],
-                    busho_apr_name=res3["handledDepartmentName"],
-                    tantou_id=i["handledById"],
-                    tantou_sei=res3["handledByName"],
-                    tantou_mei="",
-                    tantou_apr_id=i["handledById"],
-                    tantou_apr_name=res3["handledByName"],
-                    cus_id=i["customerId"],
-                    cus_url=res2["customerMstPageUrl"],
-                    cus_com=i["ordererCorporateName"],
-                    cus_sei=i["ordererNameLast"],
-                    cus_mei=i["ordererNameFirst"],
-                    cus_tel=res2["tel"],
-                    cus_tel_search=tel_search,
-                    cus_mob=res2["mobilePhone"],
-                    cus_mob_search=tel_mob_search,
-                    cus_mail=i["ordererEmailMain"],
-                    pref=i["ordererPrefecture"],
-                    money=i["totalPrice"],
-                )
+                    defaults={
+                        "mitsu_id":i["id"],
+                        "mitsu_num":i["number"],
+                        "mitsu_ver":i["version"],
+                        "mitsu_url":i["estimationPageUrl"],
+                        "order_kubun":i["orderType"],
+                        "use_kubun":i["persona"],
+                        "use_youto":i["purpose"],
+                        "nouhin_kigen":i["deliveryLimitDate"],
+                        "nouhin_shitei":i["deliveryAppointedDate"],
+                        "nouki":nouki,
+                        "make_day":i["createdAt"],
+                        "mitsu_day":i["firstEstimationDate"],
+                        "update_day":i["updatedAt"],
+                        "juchu_day":i["orderReceivedDate"],
+                        "hassou_day":i["shippedDate"],
+                        "cus_id":i["customerId"],
+                        "sei":i["ordererNameLast"],
+                        "mei":i["ordererNameFirst"],
+                        "tel":i["ordererTel"],
+                        "tel_mob":i["ordererMobilePhone"],
+                        "mail":i["ordererEmailMain"],
+                        "pref":i["ordererPrefecture"],
+                        "com":i["ordererCorporateName"],
+                        "com_busho":i["ordererDepartmentName"],
+                        "keiro":i["comingRoute"],
+                        "money":i["totalPrice"],
+                        "pay":i["paymentMethod"],
+                        "busho_id":i["handledDepartmentId"],
+                        "tantou_id":i["handledById"],
+                        "s_use_youto":s_use_youto,
+                        "s_nouki":s_nouki,
+                        "s_make_day":s_make_day,
+                        "s_juchu_day":s_juchu_day,
+                        "s_hassou_day":s_hassou_day,
+                        "s_cus_name":s_cus_name,
+                        "s_keiro_tempo":s_keiro_tempo,
+                        }
+                    )
+                    # ステータス
+                    d={"見積中":"未","見積送信":"見","イメージ":"イ","受注":"受","発送完了":"発","キャンセル":"キ","終了":"終","保留":"保","失注":"失","連絡待ち":"待","サンクス":"サ","":""}
+                    ins=Sfa_data.objects.get(mitsu_id=i["id"])
+                    if ins.status not in ["失注","連絡待ち","サンクス"]:
+                        ins.status=i["status"]
+                        ins.s_status=d[i["status"]]
+                        ins.save()
+
+                    if ins.last_status == None and i["status"] in ["終了","キャンセル"]:
+                        ins.last_status=datetime.datetime.now().strftime("%Y-%m-%d")
+                        ins.save()
+
+                    # ------------------------
+                    # 顧客
+                    # ------------------------
+                    url2="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"])
+                    res2=requests.get(url2)
+                    res2=res2.json()
+
+                    tel_search=None
+                    if res2["tel"] != None:
+                        tel_search=res2["tel"].replace("-","")
+                    tel_mob_search=None
+                    if res2["mobilePhone"] != None:
+                        tel_mob_search=res2["mobilePhone"].replace("-","")
+
+                    try:
+                        con_last=Customer.objects.get(cus_id=i["customerId"]).contact_last
+                        if con_last==None or res2["lastEstimatedAt"]>con_last:
+                            contact_last=res2["lastEstimatedAt"]
+                        else:
+                            contact_last=con_last
+                    except:
+                        contact_last=res2["lastEstimatedAt"]
+                        
+                    Customer.objects.update_or_create(
+                    cus_id=res2["id"],
+                    defaults={
+                        "cus_id":res2["id"],
+                        "cus_url":res2["customerMstPageUrl"],
+                        "cus_touroku":res2["createdAt"],
+                        "com":res2["corporateName"],
+                        "com_busho":res2["departmentName"],
+                        "sei":res2["nameLast"],
+                        "mei":res2["nameFirst"],
+                        "pref":res2["prefecture"],
+                        "city":res2["city"],
+                        "address_1":res2["address1"],
+                        "address_2":res2["address2"],
+                        "tel":res2["tel"],
+                        "tel_search":tel_search,
+                        "tel_mob":res2["mobilePhone"],
+                        "tel_mob_search":tel_mob_search,
+                        "mail":res2["contactEmail"],
+                        "mitsu_all":res2["totalEstimations"],
+                        "juchu_all":res2["totalReceivedOrders"],
+                        "juchu_money":res2["totalReceivedOrdersPrice"],
+                        "mitsu_last":res2["lastEstimatedAt"],
+                        "mitsu_last_busho_id":res2["lastHandledDepartmentId"],
+                        "mitsu_last_busho":res2["lastHandledDepartmentName"],
+                        "mitsu_last_tantou_id":res2["lastHandledId"],
+                        "mitsu_last_tantou":res2["lastHandledName"],
+                        "juchu_last":res2["lastOrderReceivedDate"],
+                        "contact_last":contact_last,
+                        "taimen":res2["isVisited"],
+                        }
+                    )
+
+                    # ------------------------
+                    # 納品フォロー
+                    # ------------------------
+                    kigen=str(date.today() - datetime.timedelta(days=14))
+                    if (i["shippedDate"] != None) and (i["shippedDate"] >= kigen) and (i["orderType"] in ["新規","追加","追加新柄"]) and \
+                            (Hangire.objects.filter(approach_id="N",mitsu_id=i["id"]).count()==0):
+                        
+                        url3="https://core-sys.p1-intl.co.jp/p1web/v1/customers/" + str(i["customerId"]) + "/receivedOrders/" + str(i["number"]) + "/" + str(i["version"])
+                        res3=requests.get(url3)
+                        res3=res3.json()
+                        res3=res3["receivedOrder"]
+
+                        Hangire.objects.create(
+                            approach_id="N",
+                            mitsu_id=i["id"],
+                            mitsu_url=i["estimationPageUrl"],
+                            mitsu_num=i["number"],
+                            mitsu_ver=i["version"],
+                            juchu_day=i["shippedDate"], #出荷日を取得
+                            order_kubun=i["orderType"],
+                            busho_id=i["handledDepartmentId"],
+                            busho_name=res3["handledDepartmentName"],
+                            busho_apr_id=i["handledDepartmentId"],
+                            busho_apr_name=res3["handledDepartmentName"],
+                            tantou_id=i["handledById"],
+                            tantou_sei=res3["handledByName"],
+                            tantou_mei="",
+                            tantou_apr_id=i["handledById"],
+                            tantou_apr_name=res3["handledByName"],
+                            cus_id=i["customerId"],
+                            cus_url=res2["customerMstPageUrl"],
+                            cus_com=i["ordererCorporateName"],
+                            cus_sei=i["ordererNameLast"],
+                            cus_mei=i["ordererNameFirst"],
+                            cus_tel=res2["tel"],
+                            cus_tel_search=tel_search,
+                            cus_mob=res2["mobilePhone"],
+                            cus_mob_search=tel_mob_search,
+                            cus_mail=i["ordererEmailMain"],
+                            pref=i["ordererPrefecture"],
+                            money=i["totalPrice"],
+                        )
+            except:
+                str_error=str(i["number"]) + "-" + str(i["version"]) + "　" + i["ordererCorporateName"] + "　" + i["ordererNameLast"] + " " + i["ordererNameFirst"] 
+                sfa_error_list.append(str_error)
+                sfa_flag=True
+                print(sfa_error_list)
+                continue
+        
+        # 読み込みエラー
+        request.session["sfa_imp_error"]=sfa_error_list
 
         # API取得日時
-        ins=Member.objects.get(tantou_id=tantou_id)
-        ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        ins.save()
+        if sfa_flag==False:
+            ins=Member.objects.get(tantou_id=tantou_id)
+            ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            ins.save()
 
         # 自動非表示
         kigen=str(date.today() - datetime.timedelta(days=7))
@@ -299,6 +318,8 @@ def index_api(request):
 
 
 def index(request):
+    if "sfa_imp_error" not in request.session:
+        request.session["sfa_imp_error"]=[]
     if "mitsu_num" not in request.session:
         request.session["mitsu_num"]=[]
     if "search" not in request.session:
@@ -482,6 +503,9 @@ def index(request):
     tantou_list=Member.objects.filter(busho_id=ses["busho"])
     grip_list=list(Customer.objects.filter(grip_tantou_id__gt=0).values_list("cus_id",flat=True))
 
+    # sfaデータ取得エラー
+    sfa_error_list=request.session["sfa_imp_error"]
+    request.session["sfa_imp_error"]=""
 
     # アクティブ担当
     act_id=request.session["search"]["tantou"]
@@ -492,6 +516,7 @@ def index(request):
     
     params={
         "list":list3,
+        "sfa_error_list":sfa_error_list,
         "alert_list":alert_list,
         "st_count_list":st_count_list,
         "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
@@ -1843,12 +1868,15 @@ def csv_imp(request):
 
 # 個別に色々使うため
 def free(request):
-    ins=Hangire.objects.filter(approach_id=47)
+    ins=Sfa_data.objects.filter(~Q(lost_reason_text=""),lost_reason_text__isnull=False)
+    print(ins.count())
+
     df=read_frame(ins)
+    df=df["lost_reason_text"]
     # Excelファイルをメモリ上に作成
     buffer = BytesIO()
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='アプローチ結果')
+        df.to_excel(writer, index=False, sheet_name='失注理由')
         # wb = writer.book
         # ws = wb['アプローチ結果']
     buffer.seek(0)
@@ -1858,5 +1886,5 @@ def free(request):
         buffer,
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = 'attachment; filename="mkt_app.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="lost_reason.xlsx"'
     return response

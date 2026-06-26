@@ -235,6 +235,17 @@
                     <div style="width: 28px;text-align: center;" class="red-check"><input class="form-check-input" type="checkbox" id="show_check_all"></div>
                     <div style="margin-left: 10px;"><button class="btn btn-outline-danger btn-sm" type="button" id="btn_show"><i class="bi bi-eye-slash"></i> 非表示</button></div> 
                 </div>
+
+                {% if sfa_error_list %}
+                <div>                    
+                    <div style="color: #ff0000; font-weight: bold;">※取り込めないデータが存在しました！</div>
+                    <div style="color: #ff0000; margin-bottom: 5px;">「会社名」「姓」「名」に環境依存文字が含まれていないか確認し、新基幹システムを修正してください。</div>
+                    {% for i in sfa_error_list %}
+                        <div style="font-size: 0.9em;">・{{i}}</div>
+                    {% endfor %}                    
+                </div>
+                {% endif %}
+
                 <div class="flex">
                     {% if act_user != "担当者が未設定です" %}
                     <div><button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button></div>
