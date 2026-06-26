@@ -210,9 +210,16 @@
 
             <!-- 顧客一覧 -->
             <div class="table_wrap" style="margin-top: 15px; width: 1340px;">
-
+                {% if ses.han_or_apr == "nou" %}
+                <div style="margin-bottom: 15px;">
+                    <button class="btn btn-outline-primary btn-sm" type="button" id="btn_mw"><i class="bi bi-envelope-fill"></i> メールワイズ作成</button>
+                </div>
+                {% endif %}
                 <table class="table table-bordered table_approach" style="font-size: 0.9em;">
                     <tr>
+                        {% if ses.han_or_apr == "nou" %}
+                        <th></th>
+                        {% endif %}
                         <th></th>
                         <th>結果</th>
                         <th>日付</th>
@@ -243,6 +250,15 @@
 
                     {% if i.pk == pk %}
                     <tr class="hover2" style="background-color: #e0ffc2;">
+                        {% if ses.han_or_apr == "nou" %}
+                        <td>
+                            {% if i.mitsu_id in nou_list %}
+                            <input class="form-check-input" type="checkbox"  id="mw_{{i.mitsu_id}}" name="mw_list" checked disabled>
+                            {% else %}
+                            <input class="form-check-input" type="checkbox"  id="mw_{{i.mitsu_id}}" name="mw_list">
+                            {% endif %}
+                        </td>
+                        {% endif %}
                         <td>
                             <span style="font-size: 1.2em; cursor: pointer;" id="clear_color" onclick="clear_color()">
                                 <i class='bi bi-caret-up-square-fill'></i>
@@ -250,14 +266,22 @@
                         </td>
                     {% else %}
                     <tr class="hover2">
+                        {% if ses.han_or_apr == "nou" %}
+                        <td>
+                            {% if i.mitsu_id in nou_list %}
+                            <input class="form-check-input" type="checkbox"  id="mw_{{i.mitsu_id}}" name="mw_list" checked disabled>
+                            {% else %}
+                            <input class="form-check-input" type="checkbox"  id="mw_{{i.mitsu_id}}" name="mw_list">
+                            {% endif %}
+                        </td>
+                        {% endif %}
                         <td>
                             <span style="font-size: 1.2em; cursor: pointer;" name="open_modal" id="open_{{i.pk}}" data-bs-toggle="modal" data-bs-target="#modal_apr">
                                 <i class="bi bi-pencil-square"></i>
                             </span>
                         </td>
                     {% endif %}
-                        
-                    
+
                         {% if i.result == "0" %}
                         <td></td>
                         {% elif i.result == "1" %}
@@ -1196,6 +1220,33 @@
                 window.location.reload();
             })
         };
+
+
+        // サンクスメール（納品フォロー）
+        document.getElementById("btn_mw").addEventListener("click",function(){
+            var item=document.getElementsByName("mw_list");
+            var mw_list=[];
+            for (var i=0; i<item.length; i++){
+                if (item[i].checked && item[i].disabled==false){
+                    mw_list.push(item[i].id.replace("mw_",""));
+                };
+            };
+            if (mw_list.length==0){
+                window.alert("対象がチェックされていません！");
+                return
+            }
+            mw_list=JSON.stringify(mw_list);
+            $.ajax({
+                    'url': '{% url "sfa:mw_add" %}',
+                    'type': 'POST',
+                    'data': {"mw_list":mw_list},
+                    'dataType': 'json'
+            })
+            .done(function(response){
+                window.alert("リストに追加しました！");
+                window.location.reload();
+            })
+        });
 
 
     </script>

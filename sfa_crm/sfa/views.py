@@ -294,7 +294,6 @@ def index_api(request):
                 str_error=str(i["number"]) + "-" + str(i["version"]) + "　" + i["ordererCorporateName"] + "　" + i["ordererNameLast"] + " " + i["ordererNameFirst"] 
                 sfa_error_list.append(str_error)
                 sfa_flag=True
-                print(sfa_error_list)
                 continue
         
         # 読み込みエラー
