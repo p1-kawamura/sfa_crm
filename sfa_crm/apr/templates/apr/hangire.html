@@ -784,6 +784,7 @@
 
         // モーダル上部_ajax
         function modal_show_top(pk){
+            console.log(pk);
             $.ajax({
                 'url': '{% url "apr:hangire_modal_show_top" %}',
                 'type': 'POST',
@@ -792,7 +793,7 @@
             })
             .done(function(response){
                 result=response.result[0];
-                document.getElementById("modal_pk").innerText=result.id;
+                document.getElementById("modal_pk").innerText=response.pk;
                 dic={
                     0:["未対応","#000","#fff"],
                     1:["アプローチしない","#000","#959595"],

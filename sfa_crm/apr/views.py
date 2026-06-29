@@ -571,7 +571,7 @@ def hangire_modal_show_top(request):
     pk=request.POST.get("pk").replace("open_","")
     request.session["han_search"]["han_pk"]=pk
     result=list(Hangire.objects.filter(pk=pk).values())
-    d={"result":result}        
+    d={"result":result,"pk":pk}        
     return JsonResponse(d)
 
 
