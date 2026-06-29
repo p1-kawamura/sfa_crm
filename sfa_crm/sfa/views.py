@@ -95,7 +95,6 @@ def index_api(request):
         res=res.json()
         res=res["estimations"]
 
-        sfa_flag=False
         for i in res:
             ins=Sfa_data.objects.filter(mitsu_id=i["id"])
             if (ins.count()==0 and i["status"]=="終了") or i["customerId"]==None:
@@ -293,17 +292,15 @@ def index_api(request):
             except:
                 str_error=str(i["number"]) + "-" + str(i["version"]) + "　" + i["ordererCorporateName"] + "　" + i["ordererNameLast"] + " " + i["ordererNameFirst"] 
                 sfa_error_list.append(str_error)
-                sfa_flag=True
                 continue
         
         # 読み込みエラー
         request.session["sfa_imp_error"]=sfa_error_list
 
         # API取得日時
-        if sfa_flag==False:
-            ins=Member.objects.get(tantou_id=tantou_id)
-            ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            ins.save()
+        ins=Member.objects.get(tantou_id=tantou_id)
+        ins.last_api=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        ins.save()
 
         # 自動非表示
         kigen=str(date.today() - datetime.timedelta(days=7))
