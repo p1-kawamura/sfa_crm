@@ -15,10 +15,96 @@ from openpyxl import Workbook
 import pandas as pd
 from django_pandas.io import read_frame
 from io import BytesIO
+from collections import defaultdict
 
 
 
-# 担当別_発送履歴カレンダー
+# # 担当別_発送履歴カレンダー
+# def calendar_index(request):
+#     if "houjin_tantou_id" not in request.session:
+#         request.session["houjin_tantou_id"]=""
+
+#     # 発送年月
+#     if request.method=="GET":
+#         mon=datetime.date.today().strftime("%Y-%m")
+#         tantou_id=request.session["houjin_tantou_id"]
+#     else:
+#         mon=request.POST["hassou_month"]
+#         tantou_id=request.POST["tantou_id"]
+#         request.session["houjin_tantou_id"]=tantou_id
+    
+#     y=int(mon[:4])
+#     m=int(mon[-2:])
+#     last_day=calendar.monthrange(y,m)[1]
+
+#     str_mon=""
+#     for i in range(1,last_day+1):
+#         day=datetime.date(y,m,i)
+
+#         # 土日祝
+#         if jpholiday.is_holiday(day):
+#             if day.weekday() == 6:
+#                 str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+#             else:
+#                 str_mon += "<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+#         elif day.weekday() == 6:
+#             str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+#         elif day.weekday() == 5:
+#             str_mon += "<td style='background-color: #c6ffff;'><div style='color: #0000ff; font-weight: bold;'>" + str(i) + "</div>"
+#         else:
+#             str_mon += "<td><div style='font-weight: bold;'>" + str(i) + "</div>"
+
+#         # 発送履歴
+#         ins=Sfa_data.objects.filter(hassou_day=day,tantou_id=tantou_id)
+#         for h in ins:
+#             if h.money > 0:
+#                 com=h.com or ""
+#                 com_busho=h.com_busho or ""
+#                 sei=h.sei or ""
+#                 mei=h.mei or ""
+#                 str_mon += "<a href='" + h.mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
+#                             + com + "　" + com_busho + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円</div></a>"
+                
+#         str_mon += "</td>"
+
+#         # 行の最終
+#         if day.weekday()==5:
+#             str_mon += "</tr>"
+
+#     # 第１週と最終週
+#     mon_day_1=datetime.date(y,m,1).weekday()
+#     if mon_day_1 != 6:
+#         str_mon = "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "' style='background-color: #f1f1f1;'></td>" + str_mon
+
+#     mon_day_last=datetime.date(y,m,last_day).weekday()
+#     if mon_day_last == 6:
+#         str_mon += "<td colspan='6' style='background-color: #f1f1f1;'></td></tr>"
+#     elif mon_day_last != 5:
+#         str_mon += "<td colspan='" + str(5 - mon_day_last) + "' style='background-color: #f1f1f1;'></td></tr>"
+
+#     str_mon=str_mon.replace("　　","　")
+
+#     # 担当者
+#     tantou_list=Member.objects.filter(houjin=1)
+
+#     # アクティブ担当
+#     act_id=request.session["search"]["tantou"]
+#     if act_id=="":
+#         act_user="担当者が未設定です"
+#     else:
+#         act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+
+#     params={
+#         "calendar_body":str_mon,
+#         "hassou_month":mon,
+#         "tantou_list":tantou_list,
+#         "tantou_id":tantou_id,
+#         "act_user":act_user,
+#         }
+#     return render(request,"houjin/tantou_calendar.html",params)
+
+
+# 担当別_発送履歴カレンダー（think deeper 版）
 def calendar_index(request):
     if "houjin_tantou_id" not in request.session:
         request.session["houjin_tantou_id"]=""
@@ -30,67 +116,98 @@ def calendar_index(request):
     else:
         mon=request.POST["hassou_month"]
         tantou_id=request.POST["tantou_id"]
-    
+        request.session["houjin_tantou_id"]=tantou_id
+
     y=int(mon[:4])
     m=int(mon[-2:])
     last_day=calendar.monthrange(y,m)[1]
 
-    str_mon=""
+    # start_date / end_date を必ず定義（ここで確実に値を持たせる）
+    start_date = datetime.date(y, m, 1)
+    end_date = datetime.date(y, m, last_day)
+    # DB に日付が文字列で入っている前提なので文字列で範囲検索する
+    start_str = start_date.strftime("%Y-%m-%d")
+    end_str = end_date.strftime("%Y-%m-%d")
+
+    # 一括取得（tantou_id は文字列のまま）
+    ins_qs = Sfa_data.objects.filter(hassou_day__gte=start_str, hassou_day__lte=end_str, tantou_id=tantou_id).values(
+        "hassou_day", "money", "com", "com_busho", "sei", "mei", "mitsu_url"
+    )
+
+    by_day = defaultdict(list)
+    for item in ins_qs:
+        hd = item.get("hassou_day")
+        # hd が文字列 'YYYY-MM-DD' の場合は date に変換
+        if isinstance(hd, str):
+            try:
+                hd_date = datetime.datetime.strptime(hd[:10], "%Y-%m-%d").date()
+            except Exception:
+                # 予期しない形式ならスキップ
+                continue
+        elif hasattr(hd, "date"):
+            hd_date = hd.date()
+        else:
+            continue
+        by_day[hd_date].append(item)
+
+    parts = []
     for i in range(1,last_day+1):
         day=datetime.date(y,m,i)
 
         # 土日祝
         if jpholiday.is_holiday(day):
             if day.weekday() == 6:
-                str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+                parts.append("<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>")
             else:
-                str_mon += "<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+                parts.append("<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>")
         elif day.weekday() == 6:
-            str_mon += "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>"
+            parts.append("<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>" + str(i) + "</div>")
         elif day.weekday() == 5:
-            str_mon += "<td style='background-color: #c6ffff;'><div style='color: #0000ff; font-weight: bold;'>" + str(i) + "</div>"
+            parts.append("<td style='background-color: #c6ffff;'><div style='color: #0000ff; font-weight: bold;'>" + str(i) + "</div>")
         else:
-            str_mon += "<td><div style='font-weight: bold;'>" + str(i) + "</div>"
+            parts.append("<td><div style='font-weight: bold;'>" + str(i) + "</div>")
 
-        # 発送履歴
-        ins=Sfa_data.objects.filter(hassou_day=day,tantou_id=tantou_id)
-        for h in ins:
-            if h.money > 0:
-                com=h.com or ""
-                com_busho=h.com_busho or ""
-                sei=h.sei or ""
-                mei=h.mei or ""
-                str_mon += "<a href='" + h.mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
-                            + com + "　" + com_busho + "　" + sei + mei + "<br>" + f"{h.money:,}" + "円</div></a>"
-                
-        str_mon += "</td>"
+        # 発送履歴（事前に振り分けた by_day を使用）
+        for h in by_day.get(day, ()):
+            money = h.get("money")
+            if money and money > 0:
+                com = h.get("com") or ""
+                com_busho = h.get("com_busho") or ""
+                sei = h.get("sei") or ""
+                mei = h.get("mei") or ""
+                mitsu_url = h.get("mitsu_url") or ""
+                parts.append("<a href='" + mitsu_url + "' target='_blank'><div class='houjin_calendar'>" \
+                            + com + "　" + com_busho + "　" + sei + mei + "<br>" + f"{money:,}" + "円</div></a>")
+
+        parts.append("</td>")
 
         # 行の最終
         if day.weekday()==5:
-            str_mon += "</tr>"
+            parts.append("</tr>")
 
     # 第１週と最終週
     mon_day_1=datetime.date(y,m,1).weekday()
     if mon_day_1 != 6:
-        str_mon = "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "' style='background-color: #f1f1f1;'></td>" + str_mon
+        parts.insert(0, "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "' style='background-color: #f1f1f1;'></td>")
 
     mon_day_last=datetime.date(y,m,last_day).weekday()
     if mon_day_last == 6:
-        str_mon += "<td colspan='6' style='background-color: #f1f1f1;'></td></tr>"
+        parts.append("<td colspan='6' style='background-color: #f1f1f1;'></td></tr>")
     elif mon_day_last != 5:
-        str_mon += "<td colspan='" + str(5 - mon_day_last) + "' style='background-color: #f1f1f1;'></td></tr>"
+        parts.append("<td colspan='" + str(5 - mon_day_last) + "' style='background-color: #f1f1f1;'></td></tr>")
 
-    str_mon=str_mon.replace("　　","　")
+    str_mon="".join(parts).replace("　　","　")
 
     # 担当者
-    tantou_list=Member.objects.filter(houjin=1)
+    tantou_list=Member.objects.filter(houjin=1).order_by("busho_id","tantou_id")
 
-    # アクティブ担当
+    # アクティブ担当（元の挙動を維持）
     act_id=request.session["search"]["tantou"]
     if act_id=="":
         act_user="担当者が未設定です"
     else:
-        act_user=Member.objects.get(tantou_id=act_id).busho + "：" + Member.objects.get(tantou_id=act_id).tantou
+        mobj = Member.objects.get(tantou_id=act_id)
+        act_user = mobj.busho + "：" + mobj.tantou
 
     params={
         "calendar_body":str_mon,
@@ -98,8 +215,9 @@ def calendar_index(request):
         "tantou_list":tantou_list,
         "tantou_id":tantou_id,
         "act_user":act_user,
-        }
+    }
     return render(request,"houjin/tantou_calendar.html",params)
+
 
 
 # 法人外商リスト_取込
@@ -542,3 +660,138 @@ def houjin_gaishou_search_dl(request):
     )
 
     return response
+
+
+# 担当別_次回アクション日カレンダー
+def next_action_index(request):
+    if "next_action_tantou" not in request.session:
+        request.session["next_action_tantou"]=""
+
+    # 発送年月
+    if request.method=="GET":
+        mon=datetime.date.today().strftime("%Y-%m")
+        tantou_id=request.session["next_action_tantou"]
+    else:
+        mon=request.POST["hassou_month"]
+        tantou_id=request.POST["tantou_id"]
+        request.session["next_action_tantou"]=tantou_id
+
+    y=int(mon[:4])
+    m=int(mon[-2:])
+    last_day=calendar.monthrange(y,m)[1]
+
+    # 今日の日付（セルを薄緑にするため）
+    today = datetime.date.today()
+
+    # start_date / end_date を必ず定義（ここで確実に値を持たせる）
+    start_date = datetime.date(y, m, 1)
+    end_date = datetime.date(y, m, last_day)
+    # DB に日付が文字列で入っている前提なので文字列で範囲検索する
+    start_str = start_date.strftime("%Y-%m-%d")
+    end_str = end_date.strftime("%Y-%m-%d")
+
+    # 一括取得（tantou_id は文字列のまま）
+    ins_qs = Houjin_gaishou.objects.filter(next_act__gte=start_str, next_act__lte=end_str, tantou_id=tantou_id).values(
+        "id","next_act", "houjin_com", "houjin_busho", "houjin_tantou"
+    )
+
+    by_day = defaultdict(list)
+    for item in ins_qs:
+        hd = item.get("next_act")
+        # hd が文字列 'YYYY-MM-DD' の場合は date に変換
+        if isinstance(hd, str):
+            try:
+                hd_date = datetime.datetime.strptime(hd[:10], "%Y-%m-%d").date()
+            except Exception:
+                # 予期しない形式ならスキップ
+                continue
+        elif hasattr(hd, "date"):
+            hd_date = hd.date()
+        else:
+            continue
+        by_day[hd_date].append(item)
+
+    parts = []
+    for i in range(1,last_day+1):
+        day=datetime.date(y,m,i)
+        weekday = day.weekday()
+
+        # 基本のセル開始タグを作る（祝日・土日の色付けを維持）
+        if jpholiday.is_holiday(day):
+            if weekday == 6:
+                base = "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>"
+            else:
+                base = "<td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>"
+        elif weekday == 6:
+            base = "<tr style='height: 100px;'><td style='background-color: #ffe3f1;'><div style='color: #ff0000; font-weight: bold;'>"
+        elif weekday == 5:
+            base = "<td style='background-color: #c6ffff;'><div style='color: #0000ff; font-weight: bold;'>"
+        else:
+            base = "<td><div style='font-weight: bold;'>"
+
+        # 今日なら背景を薄い緑に上書き（既存の色付けを今日色で優先）
+        if day == today:
+            if base.startswith("<tr"):
+                base = "<tr style='height: 100px;'><td style='background-color: #9dfa8d;'><div style='font-weight: bold;'>"
+            else:
+                base = "<td style='background-color: #9dfa8d;'><div style='font-weight: bold;'>"
+
+        parts.append(base + str(i) + "</div>")
+
+        # 発送履歴（事前に振り分けた by_day を使用）
+        for h in by_day.get(day, ()):
+            com = h.get("houjin_com") or ""
+            com_busho = h.get("houjin_busho") or ""
+            tantou = h.get("houjin_tantou") or ""
+            id = h.get("id")
+            parts.append("<div class='houjin_calendar' id='" + str(id) + "' name='calendar_card' data-bs-toggle='modal' data-bs-target='#modal_gaishou'>" \
+                        + com + "　" + com_busho + "　" + tantou + "</div>")
+
+        parts.append("</td>")
+
+        # 行の最終
+        if weekday==5:
+            parts.append("</tr>")
+
+    # 第１週と最終週
+    mon_day_1=datetime.date(y,m,1).weekday()
+    if mon_day_1 != 6:
+        parts.insert(0, "<tr style='height: 100px;'><td colspan='" +  str(mon_day_1 + 1) + "' style='background-color: #f1f1f1;'></td>")
+
+    mon_day_last=datetime.date(y,m,last_day).weekday()
+    if mon_day_last == 6:
+        parts.append("<td colspan='6' style='background-color: #f1f1f1;'></td></tr>")
+    elif mon_day_last != 5:
+        parts.append("<td colspan='" + str(5 - mon_day_last) + "' style='background-color: #f1f1f1;'></td></tr>")
+
+    str_mon="".join(parts).replace("　　","　")
+
+
+    # アクティブ担当（元の挙動を維持）
+    act_id=request.session["search"]["tantou"]
+    if act_id=="":
+        act_user="担当者が未設定です"
+    else:
+        mobj = Member.objects.get(tantou_id=act_id)
+        act_user = mobj.busho + "：" + mobj.tantou
+
+    # 操作者
+    sousa_time=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        sousa_busho=Member.objects.get(tantou_id=act_id).busho
+        sousa_tantou=Member.objects.get(tantou_id=act_id).tantou
+    except:
+        sousa_busho=""
+        sousa_tantou="不明"
+    print(sousa_time,sousa_busho,sousa_tantou,"■ 次回アクション日")
+
+    params={
+        "calendar_body":str_mon,
+        "hassou_month":mon,
+        "busho_list":{"":"","398":"東京チーム","400":"大阪チーム","401":"高松チーム","402":"福岡チーム"},
+        "tantou_list":Member.objects.filter(houjin=1).order_by("busho_id","tantou_id"),
+        "itaku_result":["","アポ","資料送付","お断り","その他"],
+        "tantou_id":tantou_id,
+        "act_user":act_user,
+    }
+    return render(request,"houjin/next_action.html",params)

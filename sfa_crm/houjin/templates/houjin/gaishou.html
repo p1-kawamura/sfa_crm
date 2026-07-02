@@ -122,14 +122,22 @@
                 </form>
             </div>
             <hr>
-            <div class="flex">
-                <div>検索結果：<span id="items_count"></span>件</div>
-                <div style="margin-left: 30px;">
-                    <button type="button" class="btn btn-outline-success btn-sm" id="search_dl" data-bs-toggle="modal" data-bs-target="#modal_gaishou_search_dl">
-                        <i class="bi bi-download"></i> 検索結果をダウンロード
-                    </button>                    
+            <div class="flex3">
+                <div class="flex">
+                    <div>検索結果：<span id="items_count"></span>件</div>
+                    <div style="margin-left: 30px;">
+                        <button type="button" class="btn btn-outline-success btn-sm" id="search_dl" data-bs-toggle="modal" data-bs-target="#modal_gaishou_search_dl">
+                            <i class="bi bi-download"></i> 検索結果をダウンロード
+                        </button>                    
+                    </div>
+                </div>
+                <div>
+                    <a href="{% url 'houjin:next_action_index' %}">
+                        <button type="button" class="btn btn-warning btn-sm"><i class="bi bi-calendar3"></i> 次回アクション日 カレンダー</button> 
+                    </a>
                 </div>
             </div>
+            
 
             <!-- カンバン -->
             <div class="inlineframe_houjin" style="margin-top: 20px; width: 1300px; height: 800px;">
@@ -267,7 +275,7 @@
                                         </div>
                                         <div style="margin-top: 20px;">■備考</div>
                                         <div style="margin-top: 5px;">
-                                            <textarea id="modal_p1_bikou" class="form-control" rows="12"></textarea>
+                                            <textarea id="modal_p1_bikou" class="form-control" style="font-size: 0.9em;" rows="15"></textarea>
                                         </div>
                                     </div>
                                 </div>
