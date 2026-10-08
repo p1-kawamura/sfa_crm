@@ -24,4 +24,5 @@ urlpatterns = [
     path('apr/', include("apr.urls")),
     path('houjin/', include("houjin.urls")),
     path('mkt/', include("mkt.urls")),
+    path('outsourcing/', include("outsourcing.urls")),
 ]

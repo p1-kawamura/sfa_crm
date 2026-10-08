@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-%5-y79s$e6o14v%y=jx=uddfcz-hlijb2emc17hw^sr1c&m3y1
 DEBUG = False
 
 # ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = ["192.168.91.74","localhost","127.0.0.1","PLUS1-362"]
+ALLOWED_HOSTS = ["192.168.91.74","localhost","127.0.0.1","PLUS1-362","192.168.91.55"]
 
 
 # Application definition
@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'apr',
     'houjin',
     'mkt',
+    'outsourcing',
 ]
 
 MIDDLEWARE = [
@@ -160,3 +161,6 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # ※朝日町サーバー起動
 # waitress-serve --listen=192.168.91.74:8000 --threads 20 sfa_crm.wsgi:application
+
+# ※外注用ターミナルで起動
+# waitress-serve --listen=192.168.91.74:9000 --threads 10 sfa_crm.wsgi_outsourcing:application
