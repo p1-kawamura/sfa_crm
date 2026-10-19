@@ -217,6 +217,7 @@
                         <div>検索結果：{{result | intcomma}}件</div>
                         <div style="margin-left: 30px;">
                             <form action="{% url 'crm:cus_list_download' %}" method="post">
+                                {% csrf_token %}
                                 <button class="btn btn-outline-success btn-sm" type="submit">
                                     <i class="bi bi-download"></i> 検索結果を全てダウンロード</button>
                             </form>
