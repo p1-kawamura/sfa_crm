@@ -122,9 +122,9 @@
                 <div class="flex3 mb-3">
                     <div class="flex">
                         <div>結果：{{list_count | intcomma}}件</div>
-                        <div style="margin-left: 30px;">
-                            {% csrf_token %}
+                        <div style="margin-left: 30px;">                            
                             <form action="{% url 'crm:cus_ranking_download' %}" method="post">
+                                {% csrf_token %}
                                 <button class="btn btn-outline-success btn-sm" type="submit">
                                     <i class="bi bi-download"></i> 第{{rank_st}}位 ～ {{rank_en}}位 をダウンロード</button>
                             </form>
