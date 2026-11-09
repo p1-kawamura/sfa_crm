@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from .models import Approach_list,Hangire
 from crm.models import Crm_action,Customer,Cus_ctb
 from sfa.models import Member,Sfa_data
+from outsourcing.models import Outsourcing_list
 import requests
 from django.http import JsonResponse
 from datetime import date
@@ -19,7 +20,8 @@ from django.conf import settings
 # アプローチリスト設定_一覧表示
 def approach_list_index(request):
     ins=Approach_list.objects.all()
-    return render(request,"apr/approach_list.html",{"list":ins})
+    ins2=Outsourcing_list.objects.all()
+    return render(request,"apr/approach_list.html",{"list":ins,"list2":ins2})
 
 
 # アプローチリスト設定_追加
@@ -148,7 +150,8 @@ def approach_list_add(request):
 
         h+=1
     ins=Approach_list.objects.all()
-    return render(request,"apr/approach_list.html",{"ans":"yes","list":ins})
+    ins2=Outsourcing_list.objects.all()
+    return render(request,"apr/approach_list.html",{"ans":"yes","list":ins,"list2":ins2})
 
 
 # 版切れリストCSV取込
