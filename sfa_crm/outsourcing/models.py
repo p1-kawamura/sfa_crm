@@ -1,7 +1,21 @@
 from django.db import models
 
+
+class Outsourcing_list(models.Model):
+    approach_id=models.CharField("アプローチID",max_length=10,unique=True)
+    title=models.CharField("タイトル",max_length=255)
+    day=models.CharField("日付",max_length=255)
+    day_type=models.IntegerField("日付形式",default=0)
+
+    def __str__(self):
+        return self.title
+
+    # approach_id（アプローチID 外注用）out_数値
+    # day_type（日付形式）　0:受注日　1:見積日
+
+
 class Outsourcing(models.Model):
-    approach_id=models.CharField("アプローチID",max_length=3)
+    approach_id=models.CharField("アプローチID",max_length=10)
     result=models.CharField("進捗",max_length=2, default=0)
     apr_day=models.CharField("アプローチ日",max_length=255,blank=True,null=True)
     apr_tantou=models.CharField("対応者",max_length=255,blank=True,null=True)
@@ -42,4 +56,5 @@ class Outsourcing(models.Model):
 
     def __str__(self):
         return self.cus_id
-    
+
+    # approach_id（アプローチID 外注用）out_数値

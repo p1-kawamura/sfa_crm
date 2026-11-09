@@ -159,6 +159,79 @@
                     {% endfor %}
                 </table>
             </div>
+
+            <!-- 外注用アプローチリスト -->
+            <hr style="margin-top: 50px;">
+            <div class="block_title">外注用アプローチリスト設定</div>
+            <hr>
+            <div>
+                <form action="{% url 'apr:approach_list_add' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">ID：</div>
+                        <div><input class="form-control" type="text" name="approach_id" style="width: 50px;"></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div>データCSV：</div>
+                        <div><input class="form-control" type="file" name="csv1" style="width: 400px;" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">タイトル：</div>
+                        <div><input class="form-control" type="text" name="title" style="width: 600px;" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">日付：</div>
+                        <div><input class="form-control" type="date" name="day" required></div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">アプローチ：</div>
+                        <div>
+                            <select class="form-select" id="act" name="act" style="width: 100px;">
+                                <option value=1>あり</option>
+                                <option value=0>なし</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="width: 80px; text-align: right;">日付形式：</div>
+                        <div>
+                            <select class="form-select" id="day_type" name="day_type" style="width: 100px;">
+                                <option value=0>受注日</option>
+                                <option value=1>見積日</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex" style="margin-top: 15px;">
+                        <div style="margin-left: 80px;"><button type="submit" class="btn btn-primary">取込</button></div>
+                        <div style="margin-left: 30px;">
+                            {% if ans %}
+                                <div style="color: red;">リストを追加しました！</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="mt-5">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="text-align: center;">ID</th>
+                        <th>タイトル</th>
+                        <th>日付</th>
+                        <th>アプローチ</th>
+                        <th>日付形式</th>
+                    </tr>
+                    {% for i in list reversed %}
+                    <tr>
+                        <td style="text-align: center;">{{i.approach_id}}</td>
+                        <td>{{i.title}}</td>
+                        <td>{{i.day}}</td>
+                        <td>{% if i.action == 0 %}なし{% else %}あり{% endif %}</td>
+                        <td>{% if i.day_type == 0 %}受注日{% else %}見積日{% endif %}</td>   
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
         </div>
     </div>
 </body>
