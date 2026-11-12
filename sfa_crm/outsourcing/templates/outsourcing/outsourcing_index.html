@@ -20,10 +20,354 @@
             <hr>
             <div class="block_title">アプローチ依頼</div>
             <hr>
+            <!-- リスト選択と結果 -->
+            <div class="flex" style="margin-top: 20px;">
+                <div>
+                    <form action="{% url 'outsourcing:out_id_choice' %}" method="post" id="form_1">{% csrf_token %}
+                        <div class="flex">
+                            <div style="font-size: 1.2em;">依頼リスト：</div>                                            
+                                <div style="font-size: 1.2em; margin-left: 10px;">
+                                    <select class="form-select" id="choice_outsourcing_id" name="choice_outsourcing_id" style="width: 600px;">
+                                        <option value=""></option>
+                                        {% for i in apr_list reversed %}
+                                            {% if i.approach_id == ses.approach_id %}
+                                            <option value="{{i.approach_id}}" selected>{{i.title}}</option>
+                                            {% else %}
+                                            <option value="{{i.approach_id}}">{{i.title}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div style="margin-left: 20px;">
+                                    <button type="submit" class="btn btn-primary">表示</button>
+                                </div>
+                            </div>
+                        </form>
+                    </form>
+                </div>
+
+                <div style="margin-left: 30px;">
+                    <form action="{% url 'outsourcing:out_download' %}" method="post" id="form_2">{% csrf_token %}
+                        <button class="btn btn-outline-success" id="out_download"><i class="bi bi-download"></i> 結果をダウンロード</button>
+                    </form>
+                </div>
+            </div>
             
-            aaa
+            <div style="margin-top: 30px;">
+                <table class="table table-bordered" style="font-size: 0.9em;">
+                    <thead>
+                        <tr>
+                            <th style="background-color: #fff; color: #ff0000; text-align: center; border-right: double 3px #CCC;">進捗</th>
+                            <th style="background-color: #fff; text-align: center;">未対応</th>
+                            <th style="background-color: #959595; text-align: center;">アプローチしない</th>
+                            <th style="background-color: #eedfff; color: #800080; text-align: center;">不在</th>
+                            <th style="background-color: #dcffbf; color: #005b00; text-align: center;">検討します</th>
+                            <th style="background-color: #e2e2e2; text-align: center; ">失注/予定なし</th>
+                            <th style="background-color: #b7ffff; color: #0000a0; text-align: center;">架電により案件化</th>
+                            <th style="background-color: #ffff80; color: #ff0000; text-align: center;">受注</th>
+                            <th style="background-color: #ffdddd; text-align: center;">その他</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="text-align: right; width: 100px; border-right: double 3px #CCC;">
+                                {% if shu_dic.8.0 %}{{shu_dic.8.0}} / {{shu_dic.8.1}}
+                                <span style="font-size: 0.9em; color: #ff0000;">（{{shu_dic.8.2 | floatformat}}%）</span>{% endif %}</td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.0.0 %}{{shu_dic.0.0}}<span style="font-size: 0.9em; color: #808080;">（{{shu_dic.0.1 | floatformat}}%）</span>{% endif %}
+                            </td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.1.0 %}{{shu_dic.1.0}}<span style="font-size: 0.9em; color: #808080;">（除外）</span>{% endif %}
+                            </td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.2.0 %}{{shu_dic.2.0}}<span style="font-size: 0.9em; color: #808080;">（{{shu_dic.2.1 | floatformat}}%）</span>{% endif %}
+                            </td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.3.0 %}{{shu_dic.3.0}}<span style="font-size: 0.9em; color: #808080;">（{{shu_dic.3.1 | floatformat}}%）</span>{% endif %}
+                            </td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.4.0 %}{{shu_dic.4.0}}<span style="font-size: 0.9em; color: #808080;">（{{shu_dic.4.1 | floatformat}}%）</span>{% endif %}
+                            </td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.5.0 %}{{shu_dic.5.0}}<span style="font-size: 0.9em; color: #808080;">（{{shu_dic.5.1 | floatformat}}%）</span>{% endif %}
+                            </td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.6.0 %}{{shu_dic.6.0}}<span style="font-size: 0.9em; color: #808080;">（{{shu_dic.6.1 | floatformat}}%）</span>{% endif %}
+                            </td>
+                            <td style="text-align: right; width: 100px;">
+                                {% if shu_dic.7.0 %}{{shu_dic.7.0}}<span style="font-size: 0.9em; color: #808080;">（{{shu_dic.7.1 | floatformat}}%）</span>{% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <hr>
 
+            <!-- フィルター -->
+            <div style="margin-top: 20px;">
+                <form action="{% url 'outsourcing:out_search' %}" method="post" id="form_3">{% csrf_token %}
+                    <div class="flex mt-4">
+                        <div>記入者：</div>
+                        <div>
+                            <input class="form-control form-select-sm" type="text" id="out_kinyu" name="out_kinyu" style="width: 100px;" value="{{ses.out_kinyu}}">
+                        </div>
+                        <div style="margin-left: 30px;">P1部署：</div>
+                        <div>
+                            <select class="form-select form-select-sm" name="out_busho" id="out_busho" style="width: 150px;">
+                                <option value=""></option>
+                                {% for i in busho_list %}
+                                    {% if i.0 == ses.out_busho %}
+                                    <option value="{{i.0}}" selected>{{i.1}}</option>
+                                    {% else %}
+                                    <option value="{{i.0}}">{{i.1}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 30px;">P1担当者：</div>
+                        <div>
+                            <select class="form-select form-select-sm" name="out_tantou" id="out_tantou" style="width: 150px;">
+                                <option value=""></option>
+                                {% for i in tantou_list %}
+                                    {% if i.0 == ses.out_tantou %}
+                                    <option value="{{i.0}}" selected>{{i.1}} {{i.2}}</option>
+                                    {% else %}
+                                    <option value="{{i.0}}">{{i.1}} {{i.2}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 30px;">都道府県：</div>
+                        <div>
+                            <select class="form-select form-select-sm" id="out_pref" name="out_pref" style="width: 110px;">
+                                {% for i in pref_list %}
+                                    {% if i == ses.out_pref %}
+                                    <option value="{{i}}" selected>{{i}}</option>
+                                    {% else %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 30px;">{{sort_name}}：</div>
+                        <div><input class="form-control form-select-sm" type="date" id="out_day_st" name="out_day_st" style="width: 140px;" value="{{ses.out_day_st}}"></div>
+                        <div style="margin: 0px 10px;">～</div>
+                        <div><input class="form-control form-select-sm" type="date" id="out_day_ed" name="out_day_ed" style="width: 140px;" value="{{ses.out_day_ed}}"></div>
+                    </div>
+                    <div class="flex mt-4">
+                        <div>会社名：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="out_com" name="out_com" style="width: 200px;" value="{{ses.out_com}}"></div>
+                        <div style="margin-left: 30px;">姓：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="out_sei" name="out_sei" style="width: 80px;" value="{{ses.out_sei}}"></div>
+                        <div style="margin-left: 30px;">名：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="out_mei" name="out_mei" style="width: 80px;" value="{{ses.out_mei}}"></div>
+                        <div style="margin-left: 30px;">電話番号 / 携帯番号：</div>
+                        <div><input class="form-control form-select-sm" type="text" id="out_tel" name="out_tel" style="width: 150px;" value="{{ses.out_tel}}"></div>
+                    </div>
+                    <div class="flex mt-4">
+                        <div>結果：</div>
+                        <div style="margin-left: -20px;" class="flex">
+                            {% for i in result_list %}                                
+                                {% if i.0 in ses.out_result %}
+                                <div class="flex" style="margin-left: 20px;">                                    
+                                    <div><input class="form-check-input" type="checkbox" name="out_result" value="{{i.0}}" checked> {{i.1}}</div>
+                                    <div id="result_{{i.0}}">（{{i.2}}）</div>
+                                </div>
+                                {% else %}
+                                <div class="flex" style="margin-left: 20px;">
+                                    <div><input class="form-check-input" type="checkbox" name="out_result" value="{{i.0}}"> {{i.1}}</div>
+                                    <div id="result_{{i.0}}">（{{i.2}}）</div>
+                                </div>
+                                {% endif %}                                
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="flex mt-4">
+                        <div><i class="bi bi-arrow-down-up"></i> <b>並び替え：</b></div>
+                        <div>{{sort_name}}</div>
+                        <div style="margin-left: 10px;">
+                            <select class="form-select form-select-sm" name="sort_jun" style="width: 80px;">
+                                {% if ses.sort_jun == "0" %}
+                                <option value="0" selected>昇順</option>
+                                <option value="l">降順</option>
+                                {% else %}
+                                <option value="0">昇順</option>
+                                <option value="l" selected>降順</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div style="margin-left: 40px;">
+                            <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> 検索</button>
+                        </div>
+                        <div style="margin-left: 20px;">
+                            <button class="btn btn-outline-dark btn-sm" id="form_clear"><i class="bi bi-eraser"></i> 条件クリア</button>
+                        </div>
+                    </div>
+ 
+                </form>
+            </div>
+            <hr>
 
+            <!-- 顧客一覧 -->
+            <div class="table_wrap" style="margin-top: 15px; width: 1340px;">
+                <table class="table table-bordered table_approach" style="font-size: 0.9em;">
+                    <tr>
+                        <th></th>
+                        <th>結果</th>
+                        <th>日付</th>
+                        <th>記入者</th>
+                        <th class="th1">備考</th>
+                        <th>{{sort_name}}</th>
+                        <th>都道府県</th>
+                        <th>会社</th>
+                        <th>氏名</th>
+                        <th>加工方法</th>
+                        <th>他①</th>
+                        <th>他②</th>
+                        <th>他③</th>
+                        <th>電話番号</th>
+                        <th>携帯番号</th>
+                        <th>P1部署</th>
+                        <th>P1担当者</th> 
+                    </tr>
+                    {% for i in cus_list %}
+
+                    {% if i.pk == pk %}
+                    <tr class="hover2" style="background-color: #e0ffc2;">
+                        <td>
+                            <span style="font-size: 1.2em; cursor: pointer;" id="clear_color" onclick="clear_color()">
+                                <i class='bi bi-caret-up-square-fill'></i>
+                            </span>
+                        </td>
+                    {% else %}
+                    <tr class="hover2">
+                        <td>
+                            <span style="font-size: 1.2em; cursor: pointer;" name="open_modal" id="open_{{i.pk}}" data-bs-toggle="modal" data-bs-target="#modal_apr">
+                                <i class="bi bi-pencil-square"></i>
+                            </span>
+                        </td>
+                    {% endif %}
+
+                        {% if i.result == "0" %}
+                        <td></td>
+                        {% elif i.result == "1" %}
+                        <td style="background-color: #959595; text-align: center; font-size: 0.9em;"><span style="color: #000;">アプローチしない</span></td>
+                        {% elif i.result == "2" %}
+                        <td style="background-color: #eedfff; text-align: center; font-size: 0.9em;"><span style="color: #800080;">不在</span></td>
+                        {% elif i.result == "3" %}
+                        <td style="background-color: #dcffbf; text-align: center; font-size: 0.9em;"><span style="color: #005b00;">検討します</span></td>
+                        {% elif i.result == "4" %}
+                        <td style="background-color: #e2e2e2; text-align: center; font-size: 0.9em;"><span style="color: #000;">失注/予定なし</span></td>
+                        {% elif i.result == "5" %}
+                        <td style="background-color: #b7ffff; text-align: center; font-size: 0.9em;"><span style="color: #0000a0;">案件化</span></td>
+                        {% elif i.result == "6" %}
+                        <td style="background-color: #ffff80; text-align: center; font-size: 0.9em;"><span style="color: #ff0000;">受注</span></td>
+                        {% elif i.result == "7" %}
+                        <td style="background-color: #ffdddd; text-align: center; font-size: 0.9em;"><span style="color: #000;">その他</span></td>
+                        {% endif %}
+
+                        <td>{% if i.apr_day %}{{i.apr_day}}{% endif %}</td>
+                        <td>{% if i.apr_tantou %}{{i.apr_tantou}}{% endif %}</td>
+                        <td class="bikou">{% if i.apr_text %}{{i.apr_text}}{% endif %}</td>
+                        <td>{{i.juchu_day}}</td>
+                        <td>{% if i.pref %}{{i.pref}}{% endif %}</td>
+                        <td>{% if i.cus_com %}{{i.cus_com | truncatechars:14}}{% endif %}</td>
+                        <td>{% if i.cus_sei %}{{i.cus_sei}}{% endif %}{% if i.cus_mei %}{{i.cus_mei}}{% endif %}</td>
+                        <td>{% if i.kakou %}{{i.kakou}}{% endif %}</td>
+                        <td>{% if i.yobi_1 %}{{i.yobi_1}}{% endif %}</td>
+                        <td>{% if i.yobi_2 %}{{i.yobi_2}}{% endif %}</td>
+                        <td>{% if i.yobi_3 %}{{i.yobi_3}}{% endif %}</td>
+                        <td>{% if i.cus_tel %}{{i.cus_tel}}{% endif %}</td>
+                        <td>{% if i.cus_mob %}{{i.cus_mob}}{% endif %}</td>
+                        <td>{{i.busho_name}}</td>
+                        <td>{{i.tantou_sei}} {{i.tantou_mei}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+            <!-- モーダル -->
+            <div class="modal fade" id="modal_apr" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <!-- HEADER -->
+                        <div class="modal-header">
+                            <div id="exampleModalLabel"></div>
+                            <div class="flex">
+                                <div id="modal_pk" style="display: none;"></div>
+                                <div id="modal_cus_com" style="margin-left: 30px; font-size: 1.2em; font-weight: bold;"></div>
+                                <div id="modal_cus_name" style="margin-left: 30px; font-size: 1.2em; font-weight: bold;"></div>
+                                <div style="margin-left: 100px;">電話番号：</div><div id="modal_cus_tel"></div>                                
+                                <div style="margin-left: 30px;">携帯番号：</div><div id="modal_cus_mob"></div>
+                                
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" name="modal_btn_close"></button>
+                        </div>
+                        <!-- BODY -->
+                        <div class="modal-body" style="margin-left: 20px;">
+                            <div class="flex2">
+                                <!-- 左カラム -->
+                                <div> 
+                                    <div class="flex">
+                                        <div>■ 結果：</div>
+                                        <div>
+                                            <select class="form-select form-select-sm" id="modal_apr_result">
+                                                {% for i in result_list %}
+                                                <option value={{i.0}}>{{i.1}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="flex" id="modal_tantou_block" style="margin-left: 30px;">
+                                            <div>記入者：</div>
+                                            <div><input class="form-control form-control-sm" type="text" id="modal_apr_tantou" style="width: 80px;"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex" style="margin-top: 10px;">                                            
+                                            <div style="margin-left: 20px;">日付：</div>
+                                            <div><input class="form-control form-control-sm" type="date" id="modal_apr_day" style="width: 120px;"></div>
+                                            <div style="margin-left: 60px;">最終コンタクト日：</div>
+                                            <div id="modal_last_apr"></div>
+                                        </div>
+                                        <div style="margin-top: 10px; width: 520px;">
+                                            <textarea class="form-control" rows="5" id="modal_apr_text" maxlength="255" placeholder="最大255文字"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 右カラム -->
+                                <div style="margin-left: 40px; width: 500px;">
+                                    <div>■ 備考（基幹システムと連動）</div>                                        
+                                    <div style="margin-top: 5px;">
+                                        <textarea class="form-control" style="font-size: 0.9em;" rows="8" id="apr_bikou_new"></textarea>
+                                    </div>                                    
+                                </div>
+
+                            </div>
+                            
+                        </div>
+                        <!-- footer -->
+                        <div class="modal-footer">
+                            <div style="text-align: right;">
+                                <button  type="button" class="btn btn-primary" id="modal_btn_ok">更新する</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ページネーション -->
+            <div style="margin: 0 auto;">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination mt-4">
+                    <li class="page-item"><a class="page-link" href="{% url 'outsourcing:out_list_page_first' %}">最初へ</a></li>
+                    <li class="page-item"><a class="page-link" href="{% url 'outsourcing:out_list_page_prev' %}">前へ</a></li>
+                    <li class="page-item"><a class="page-link" pointer-events: none;>{{num}}/{{all_num}}</a></li>               
+                    <li class="page-item"><a class="page-link" href="{% url 'outsourcing:out_list_page_next' %}">次へ</a></li>
+                    <li class="page-item"><a class="page-link" href="{% url 'outsourcing:out_list_page_last' %}">最後へ</a></li> 
+                    </ul>
+                </nav>
+            </div>
         </div>
 
     </div>
@@ -66,9 +410,175 @@
         });
   
 
+
+        // 検索クリアボタン
+        document.getElementById("form_clear").addEventListener("click",function(e){
+            e.preventDefault();
+            document.getElementById("out_kinyu").value="";
+            document.getElementById("out_busho").value="";
+            document.getElementById("out_tantou").value="";
+            document.getElementById("out_pref").value="";
+            document.getElementById("out_day_st").value="";
+            document.getElementById("out_day_ed").value="";
+            document.getElementById("out_com").value="";
+            document.getElementById("out_sei").value="";
+            document.getElementById("out_mei").value="";
+            document.getElementById("out_tel").value="";
+
+            var rs=document.getElementsByName("out_result");
+            for (var i=0; i<rs.length; i++){
+                rs[i].checked=false;
+            };
+        });
+
+
+        // 部署選択_上部
+        document.getElementById("out_busho").addEventListener("change",function(){
+            $.ajax({
+                'url': '{% url "outsourcing:out_busho" %}',
+                'type': 'POST',
+                'data': {"busho_id":this.value},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                var tantou_list=response.tantou_list
+                var str="<option value=''></option>"
+                for (var i=0; i<tantou_list.length; i++){
+                    str=str + "<option value='" + tantou_list[i][0] + "'>" + tantou_list[i][1] + " " + tantou_list[i][2]+ "</option>"
+                };
+                document.getElementById("out_tantou").innerHTML=str;
+            })
+        });
+
+
+        // 詳細モーダル表示
+        $("#modal_apr").on("show.bs.modal", function (event) {
+            var item=document.getElementsByName("open_modal");
+            for (var i=0; i<item.length; i++){
+                item[i].addEventListener("click",function(){
+                    var clear_color=document.getElementById("clear_color");
+                    try{
+                        clear_color.parentElement.parentElement.style.backgroundColor="#fff";
+                        clear_color.innerHTML="<i class='bi bi-pencil-square'></i>";
+                    } catch(e){
+                        ;
+                    };
+                    this.parentElement.parentElement.style.backgroundColor="#e0ffc2";
+                    this.innerHTML="<i class='bi bi-caret-up-square-fill'></i>"
+                    modal_show_detail(this.id);
+                },false)
+            };
+        });
+
+
+        // モーダル内容_取得
+        function modal_show_detail(pk){
+            $.ajax({
+                'url': '{% url "outsourcing:out_modal_detail" %}',
+                'type': 'POST',
+                'data': {"pk":pk},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                result=response.result[0];
+                document.getElementById("modal_pk").innerText=response.pk;
+                document.getElementById("modal_cus_com").innerText=result.cus_com;
+                document.getElementById("modal_cus_name").innerText=result.cus_sei + result.cus_mei;
+                document.getElementById("modal_cus_tel").innerText=result.cus_tel;
+                document.getElementById("modal_cus_mob").innerText=result.cus_mob;
+                document.getElementById("modal_apr_result").value=result.result;
+                document.getElementById("modal_apr_tantou").value=result.apr_tantou;
+                document.getElementById("modal_apr_day").value=result.apr_day;
+                document.getElementById("modal_apr_text").value=result.apr_text;
+                document.getElementById("modal_last_apr").innerText=response.last_apr;
+                document.getElementById("apr_bikou_new").value=response.bikou;
+            })
+        }
+
+
+        // モーダル_決定
+        document.getElementById("modal_btn_ok").addEventListener("click",function(e){
+            pk = document.getElementById("modal_pk").innerText;
+            var day = document.getElementById("modal_apr_day").value;
+            var tantou = document.getElementById("modal_apr_tantou").value;
+            var result = document.getElementById("modal_apr_result").value;
+
+            if (day==""){
+                window.alert("日付を入力してください！");
+                return
+            } else if (tantou == ""){
+                window.alert("記入者を入力してください！");
+                return
+            } else if (result == "0"){
+                window.alert("結果は「未対応」以外を選択してください！");
+                return
+            };
+            $.ajax({
+                'url': '{% url "outsourcing:out_modal_btn" %}',
+                'type': 'POST',
+                'data': {
+                    "pk":pk,
+                    "result":result,
+                    "tantou":tantou,
+                    "day":day,
+                    "text":document.getElementById("modal_apr_text").value,
+                    "bikou":document.getElementById("apr_bikou_new").value
+                },
+                'dataType': 'json'
+            })
+            .done(function(response){
+                if (response.result == "ok"){
+                    modal_show_detail(pk);
+                    window.alert("結果を更新しました。");
+                } else {
+                    window.alert("環境依存文字が含まれているため、保存できません！");
+                };
+            })
+        });
+
+
+        // モーダル終了
+        btns=document.getElementsByName("modal_btn_close");
+        for (var i=0;i<btns.length;i++){
+            btns[i].addEventListener("click",function(){
+                window.location.reload();
+            })
+        };
         
 
+        // 前回モーダルの色をクリア
+        function clear_color(){
+            $.ajax({
+                'url': '{% url "outsourcing:out_color_clear" %}',
+                'type': 'POST',
+                'data': {},
+                'dataType': 'json'
+            })
+            .done(function(response){
+                window.location.reload();
+            })
+        };
+
+
+        // 結果ダウンロード
+        document.getElementById("out_download").addEventListener("click",function(){
+            $.ajax({
+                'url': '{% url "outsourcing:out_download" %}',
+                'type': 'POST',
+                'data': {},
+                'dataType': 'json'
+            })
+            .done(function(response){
+
+            })
+        });
+
+
     </script>
+
+    <!-- モーダル用 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+
 
 </body>
 </html>
